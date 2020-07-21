@@ -1,7 +1,7 @@
 using LightXML
 
 #=
-    This files handles the conversion from svg produced by `tex2svg` to Luxor commands.
+    This file handles the conversion from svg produced by `tex2svg` to Luxor commands.
     It currently misses a lot of possible commands that svg supports. 
     Warnings are thrown if this happens such that one can easily grasp whether it should have worked or 
     whether there is something missing
