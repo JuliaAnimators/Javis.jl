@@ -2,6 +2,18 @@ module Javis
 
 using Luxor, LaTeXStrings
 
+abstract type Transition end
+
+struct Translation <: Transition
+    from :: Point
+    to   :: Point
+end
+
+struct Rotation{T <: Number} <: Transition
+    from :: T
+    to   :: T
+end
+
 # cache such that creating svgs from LaTeX don't need to be created every time
 # this is also used for test cases such that `tex2svg` doesn't need to be installed on Github Actions
 const LaTeXSVG = Dict{LaTeXString, String}(
@@ -45,6 +57,53 @@ function latex(text::LaTeXString, font_size::Real, action::Symbol)
     end
 end
 
-export latex
+"""
+    transition(f::Function, transitions::Transition...) 
+
+A closure function which calls transition(scene, frame, f, transitions)
+"""
+function transition(f::Function, transitions::Transition...) 
+    (scene, frame)->transition(scene, frame, f, transitions...) 
+end
+
+"""
+    transition(scene::Scene, frame, f::Function, transitions::Transition...) 
+
+Performs all transitions based on the current frame number and then calls the function
+"""
+function transition(scene::Scene, frame, f::Function, transitions::Transition...) 
+    frames = scene.framerange
+    @layer begin
+        t = (frame-first(frames))/length(frames)
+        for trans in transitions
+            perform_transition(trans, t)
+        end
+        f()
+    end
+end
+
+"""
+    perform_transition(trans::Translation, t::Number)
+
+Translate based on the given `Translation` and the interpolation parameter `t`. 
+`t` is normally considered to be between 0 and 1.
+"""
+function perform_transition(trans::Translation, t::Number)
+    p = trans.from+t*(trans.to-trans.from)
+    translate(p)
+end
+
+"""
+    perform_transition(trans::Rotation, t::Number)
+
+Rotate based on the given `Rotation` and the interpolation parameter `t`. 
+`t` is normally considered to be between 0 and 1.
+"""
+function perform_transition(trans::Rotation, t::Number)
+    p = trans.from+t*(trans.to-trans.from)
+    rotate(p)
+end
+
+export latex, transition, Translation, Rotation
 
 end
