@@ -32,10 +32,19 @@ function latex(t::LaTeXString, font_size::Real=10, action::Symbol=:stroke)
 end
 
 function test_draw()
-    d = Drawing(400, 150, "test.png")
+    d = Drawing(400, 200, "test.png")
     background("white")
     sethue("black")
-    latex(L"\mathcal{O}\left(\frac{\log{x}}{2}\right)", 20, :stroke)
+
+    latex(L"\begin{equation}
+            \left[
+            \begin{array}{cc}
+            2 & 3 \\
+            4 & \sqrt{5} \\
+            \end{array}
+            \right]
+            \end{equation}
+            ", 50)
     finish()
     preview()
 end

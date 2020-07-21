@@ -26,55 +26,53 @@ end
 
 function draw_obj(::Val{:use}, o, defs)
     set_attrs(o)
-    for attribute in attributes(o)
-        if name(attribute) == "href"
-            id = value(attribute)[2:end]
+    id = attribute(o, "href")[2:end]
 
-            if haskey(defs, id)
-                def = defs[id]
-                sym = Symbol(name(def))
-                draw_obj(Val{sym}(), def, defs)
-            end
-        end
+    if haskey(defs, id)
+        def = defs[id]
+        sym = Symbol(name(def))
+        draw_obj(Val{sym}(), def, defs)
+    else 
+        @warn "There is no definition for $id"
     end
 end
 
 function draw_obj(::Val{:path}, o, defs)
     set_attrs(o)
-    for attribute in attributes(o)
-        if name(attribute) == "d"
-            data = value(attribute)
-            data_parts = split(data, r"(?=[A-Za-z])")
-            l_pt = O
-            c_pt = O
-            for pi in 1:length(data_parts)
-                p = data_parts[pi]
-                command, args = p[1], p[2:end]
-                if command == 'M'
-                    c_pt = path_move(parse.(Float64, split(args))...)
-                elseif command == 'Q'
-                    l_pt, c_pt = path_quadratic(c_pt, parse.(Float64, split(args))...)
-                elseif command == 'T'
-                    control_pt = l_pt+2*(c_pt-l_pt)
-                    l_pt, c_pt = path_quadratic(c_pt, control_pt..., parse.(Float64, split(args))...)
-                elseif command == 'L'
-                    new_pt = Point(parse.(Float64, split(args))...)
-                    line(new_pt)
-                    l_pt, c_pt = c_pt, new_pt
-                elseif command == 'H'
-                    new_pt = Point(parse(Float64, args), c_pt.y)
-                    line(new_pt)
-                    l_pt, c_pt = c_pt, new_pt
-                elseif command == 'V'
-                    new_pt = Point(c_pt.x, parse(Float64, args))
-                    line(new_pt)
-                    l_pt, c_pt = c_pt, new_pt
-                elseif command == 'Z'
-                    closepath()
-                else
-                    @warn "Couldn't parse the svg command: $command"
-                end
-            end
+    data = attribute(o, "d")
+   
+    # split without loosing the command
+    data_parts = split(data, r"(?=[A-Za-z])")
+    # needs to keep track of the current point `c_pt` and the last point `l_pt`
+    l_pt = O
+    c_pt = O
+    for pi in 1:length(data_parts)
+        p = data_parts[pi]
+        command, args = p[1], p[2:end]
+        if command == 'M'
+            c_pt = path_move(parse.(Float64, split(args))...)
+        elseif command == 'Q'
+            l_pt, c_pt = path_quadratic(c_pt, parse.(Float64, split(args))...)
+        elseif command == 'T'
+            # the control point is a reflection based on the current and last point
+            control_pt = l_pt+2*(c_pt-l_pt)
+            l_pt, c_pt = path_quadratic(c_pt, control_pt..., parse.(Float64, split(args))...)
+        elseif command == 'L'
+            new_pt = Point(parse.(Float64, split(args))...)
+            line(new_pt)
+            l_pt, c_pt = c_pt, new_pt
+        elseif command == 'H'
+            new_pt = Point(parse(Float64, args), c_pt.y)
+            line(new_pt)
+            l_pt, c_pt = c_pt, new_pt
+        elseif command == 'V'
+            new_pt = Point(c_pt.x, parse(Float64, args))
+            line(new_pt)
+            l_pt, c_pt = c_pt, new_pt
+        elseif command == 'Z'
+            closepath()
+        else
+            @warn "Couldn't parse the svg command: $command"
         end
     end
 end
@@ -88,6 +86,7 @@ end
 function path_quadratic(c_pt::Point, x,y, xe, ye) 
     e_pt = Point(xe,ye)
     qc = Point(x,y)
+    # compute the control points of a cubic bezier curve
     c1 = c_pt+2/3*(qc-c_pt)
     c2 = e_pt+2/3*(qc-e_pt)
     curve(c1, c2, e_pt)
@@ -115,15 +114,26 @@ set_attr(::Val{Symbol("stroke-width")}, sw) = setline(parse(Float64, sw))
 
 set_transform(::Val{:translate}, x,y) = translate(x,y)
 set_transform(::Val{:scale}, x,y=x) = scale(x,y)
+
+"""
+    set_transform(::Val{:matrix}, args...) 
+
+Multiply the new matrix with the current matrix and set it.
+"""
 function set_transform(::Val{:matrix}, args...) 
     old = cairotojuliamatrix(getmatrix())
     update = cairotojuliamatrix(collect(args))
     new = old*update
-    setmatrix([new[1,1], new[2,1], new[1,2], new[2,2], new[1,3], new[2,3]])
-    # scale(0.1)
+    # only the first two rows are considered
+    setmatrix(vec(new[1:2,:]))
 end
 
+#=
+    General fallbacks
+=#
 draw_obj(::Union{Val{:title}, Val{:defs}}, o, defs) = nothing
+# no support for colors at this point
+set_attr(t::Union{Val{:stroke}, Val{:fill}, Val{Symbol("aria-hidden")}}, args...) = nothing
 
 draw_obj(t, o, defs) = @warn "Can't draw $t"
 set_transform(t, args...) = @warn "Can't transform $t"
@@ -132,10 +142,16 @@ set_attr(::Val{:d}, args...) = nothing
 set_attr(::Val{:id}, args...) = nothing
 set_attr(t, args...) = @warn "No attr match for $t"
 
+"""
+    pathsvg(svg, fontsize=10)
+
+Convert an svg to a path using Luxor. Normally called via `latex`
+"""
 function pathsvg(svg, fontsize=10)
     xdoc = parse_string(svg)
     xroot = root(xdoc)
     def_element =  get_elements_by_tagname(xroot, "defs")[1]
+    # create a dict for all the definitions
     defs = Dict{String, Any}()
     for def in collect(child_elements(def_element))
         defs[attribute(def, "id")] = def
@@ -144,6 +160,7 @@ function pathsvg(svg, fontsize=10)
     # remove ex in the end 
     ex_width = parse(Float64, attribute(xroot, "width")[1:end-2])
     ex_height = parse(Float64, attribute(xroot, "height")[1:end-2])
+    # everything capsulated in a layer
     @layer begin
         # unit ex: half of font size
         # such that we can scale half of a font size (size of a lower letter)
