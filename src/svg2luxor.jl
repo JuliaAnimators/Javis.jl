@@ -1,9 +1,29 @@
 using LightXML
 
-function float_attribute(o, name)
-    return parse(Int, attribute(o, name))
-end
+#=
+    This files handles the conversion from svg produced by `tex2svg` to Luxor commands.
+    It currently misses a lot of possible commands that svg supports. 
+    Warnings are thrown if this happens such that one can easily grasp whether it should have worked or 
+    whether there is something missing
+=#
 
+"""
+    float_attribute(o, name)
+
+Get the attribute `name` of the XMLElement and parse it as a Float64
+"""
+float_attribute(o::LightXML.XMLElement, name) = parse(Float64, attribute(o, name))
+
+#=
+    draw_obj functions have a type which is the type of the svg element.
+    i.e <rect calls the `draw_obj(::Val{:rect}, o, defs)` command or `::Val{:path}` for `<path`
+=#
+
+"""
+    draw_obj(::Val{:rect}, o, defs)
+
+Draw the rectangle defined by the object `o`.
+"""
 function draw_obj(::Val{:rect}, o, defs)
     width = float_attribute(o, "width")
     height = float_attribute(o, "height")
@@ -12,6 +32,12 @@ function draw_obj(::Val{:rect}, o, defs)
     rect(Point(x, y), width, height, :path)
 end
 
+"""
+    draw_obj(::Val{:g}, o, defs)
+
+Draws a group by setting the attributes (like transformations) 
+and then calls `draw_obj` for all child elements.
+"""
 function draw_obj(::Val{:g}, o, defs)
     set_attrs(o)
 
@@ -24,6 +50,11 @@ function draw_obj(::Val{:g}, o, defs)
     end
 end
 
+"""
+    draw_obj(::Val{:use}, o, defs)
+
+Calls the command specified in `defs`.
+"""
 function draw_obj(::Val{:use}, o, defs)
     set_attrs(o)
     id = attribute(o, "href")[2:end]
@@ -37,6 +68,12 @@ function draw_obj(::Val{:use}, o, defs)
     end
 end
 
+"""
+    draw_obj(::Val{:path}, o, defs)
+
+Calls the commands specified in the path data. 
+Currently supports only a subset of possible SVG commands.
+"""
 function draw_obj(::Val{:path}, o, defs)
     set_attrs(o)
     data = attribute(o, "d")
@@ -49,6 +86,7 @@ function draw_obj(::Val{:path}, o, defs)
     for pi in 1:length(data_parts)
         p = data_parts[pi]
         command, args = p[1], p[2:end]
+        # using if else statements instead of dispatching here. Maybe it's faster :D
         if command == 'M'
             c_pt = path_move(parse.(Float64, split(args))...)
         elseif command == 'Q'
@@ -77,12 +115,28 @@ function draw_obj(::Val{:path}, o, defs)
     end
 end
 
+
+#=
+    All kinds of commands for creating a path. The commands need to return the current point
+    some of them also a previous point
+=#
+
+"""
+    path_move(x,y)
+
+Moving to the specified point
+"""
 function path_move(x,y) 
     p = Point(x,y)
     move(p)
     p
 end
 
+"""
+    path_quadratic(c_pt::Point, x,y, xe, ye)
+
+Drawing a quadratic bezier curve by computing a cubic one as that is supported by Luxor
+"""
 function path_quadratic(c_pt::Point, x,y, xe, ye) 
     e_pt = Point(xe,ye)
     qc = Point(x,y)
@@ -93,6 +147,15 @@ function path_quadratic(c_pt::Point, x,y, xe, ye)
     return qc, e_pt
 end
 
+#=
+    All kinds of setting attribute functions
+=#
+
+"""
+    set_attrs(o)
+
+Setting the attributes of the object `o` by calling `set_attr` methods.
+"""
 function set_attrs(o)
     for attribute in attributes(o)
         sym = Symbol(name(attribute))
@@ -100,6 +163,11 @@ function set_attrs(o)
     end
 end
 
+"""
+    set_attr(::Val{:transform}, transform_str)
+
+Call the corresponding `set_transform` method i.e `matrix`, `scale` and `translate`
+"""
 function set_attr(::Val{:transform}, transform_str)
     if transform_str !== nothing
         m = match(r"(.+)\((.+)\)", transform_str)
@@ -145,7 +213,8 @@ set_attr(t, args...) = @warn "No attr match for $t"
 """
     pathsvg(svg, fontsize=10)
 
-Convert an svg to a path using Luxor. Normally called via `latex`
+Convert an svg to a path using Luxor. Normally called via the `latex` command.
+It handles only a subset of the full power of svg.
 """
 function pathsvg(svg, fontsize=10)
     xdoc = parse_string(svg)
