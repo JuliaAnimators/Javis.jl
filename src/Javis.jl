@@ -11,9 +11,11 @@ const LaTeXSVG = Dict{LaTeXString, String}(
 
 include("svg2luxor.jl")
 
-latex(t::LaTeXString, action::Symbol=:stroke) = latex(t, 10, action)
+latex(t::LaTeXString) = latex(t, 10, :stroke)
+latex(t::LaTeXString, font_size::Real) = latex(t, font_size, :stroke)
+latex(t::LaTeXString, action::Symbol) = latex(t, 10, action)
 
-function latex(t::LaTeXString, font_size::Real=10, action::Symbol=:stroke)
+function latex(t::LaTeXString, font_size::Real, action::Symbol)
     # check if it's cached 
     if haskey(LaTeXSVG, t)
         svg = LaTeXSVG[t]
