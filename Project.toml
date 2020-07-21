@@ -1,13 +1,22 @@
 name = "Javis"
 uuid = "78b212ba-a7f9-42d4-b726-60726080707e"
-authors = ["Ole Kröger <o.kroeger@opensourc.es> and contributors"]
+authors = ["Ole Kröger <o.kroeger@opensourc.es> and Jakob Zelko"]
 version = "0.1.0"
+
+[deps]
+LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
+LightXML = "9c8b4983-aa76-5018-a973-4c85ecc9e179"
+Luxor = "ae8d54c2-7ccd-5906-9d76-62fc9837b5bc"
 
 [compat]
 julia = "1"
 
 [extras]
+ImageIO = "82e4d734-157c-48bb-816b-45c225c6df19"
+ImageMagick = "6218d12a-5da1-5696-b52f-db25d2ecc6d1"
+Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
+ReferenceTests = "324d217c-45ce-50fc-942e-d289b448e8cf"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
+test = ["Images", "ImageIO", "ImageMagick", "ReferenceTests", "Test"]
