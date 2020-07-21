@@ -10,7 +10,9 @@ const LaTeXSVG = Dict{LaTeXString, String}(
 
 include("svg2luxor.jl")
 
-function latex(t::LaTeXString)
+latex(t::LaTeXString, action::Symbol=:none) = latex(t, 10, action)
+
+function latex(t::LaTeXString, font_size::Real=10, action::Symbol=:none)
     # check if it's cached 
     if haskey(LaTeXSVG, t)
         svg = LaTeXSVG[t]
@@ -21,15 +23,17 @@ function latex(t::LaTeXString)
         svg = read(command, String)
         LaTeXSVG[t] = svg
     end
-    Javis.pathsvg(svg)
+    Javis.pathsvg(svg, font_size)
+    if action != :path && action != :none
+        do_action(:fill)
+    end
 end
 
 function test_draw()
     d = Drawing(400, 150, "test.png")
     background("white")
-    latex(L"\mathcal{O}(\log{x})")
     sethue("black")
-    fillpath()
+    latex(L"\mathcal{O}(\log{x})", 20, :stroke)
     finish()
     preview()
 end

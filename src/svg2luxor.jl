@@ -14,8 +14,7 @@ end
 
 function draw_obj(::Val{:g}, o, defs)
     set_attrs(o)
-    println(getmatrix())
-   
+
     childs = collect(child_elements(o))
     for child in childs
         sym_name = Symbol(name(child))
@@ -46,8 +45,6 @@ function draw_obj(::Val{:path}, o, defs)
         if name(attribute) == "d"
             data = value(attribute)
             data_parts = split(data, r"(?=[A-Za-z])")
-            # println(data_parts)
-            # newpath()
             l_pt = O
             c_pt = O
             for pi in 1:length(data_parts)
@@ -73,10 +70,9 @@ function draw_obj(::Val{:path}, o, defs)
                     line(new_pt)
                     l_pt, c_pt = c_pt, new_pt
                 elseif command == 'Z'
-                    println("fill")
                     closepath()
                 else
-                    println("Not parsed command: $command")
+                    @warn "Couldn't parse the svg command: $command"
                 end
             end
         end
@@ -127,14 +123,16 @@ function set_transform(::Val{:matrix}, args...)
     # scale(0.1)
 end
 
-draw_obj(t, o, defs) = println("Can't draw $t")
-set_transform(t, args...) = println("Can't transform $t")
+draw_obj(::Union{Val{:title}, Val{:defs}}, o, defs) = nothing
+
+draw_obj(t, o, defs) = @warn "Can't draw $t"
+set_transform(t, args...) = @warn "Can't transform $t"
 set_attr(::Val{:href}, args...) = nothing
 set_attr(::Val{:d}, args...) = nothing
 set_attr(::Val{:id}, args...) = nothing
-set_attr(t, args...) = println("No attr match for $t")
+set_attr(t, args...) = @warn "No attr match for $t"
 
-function pathsvg(svg)
+function pathsvg(svg, fontsize=10)
     xdoc = parse_string(svg)
     xroot = root(xdoc)
     def_element =  get_elements_by_tagname(xroot, "defs")[1]
@@ -143,15 +141,21 @@ function pathsvg(svg)
         defs[attribute(def, "id")] = def
     end
     x, y, width, height = parse.(Float64, split(attribute(xroot, "viewBox")))
-    println("x: $x")
-    println("y: $y")
-    scale(0.1)
-    translate(x, -y)
+    # remove ex in the end 
+    ex_width = parse(Float64, attribute(xroot, "width")[1:end-2])
+    ex_height = parse(Float64, attribute(xroot, "height")[1:end-2])
+    @layer begin
+        # unit ex: half of font size
+        # such that we can scale half of a font size (size of a lower letter)
+        # with the corresponding height of the svg canvas and the ex_height given in it's description
+        scale((fontsize/2)/(height/ex_height))
+        translate(-x, -y)
 
-    for child in collect(child_elements(xroot))
-        sym_name = Symbol(name(child))
-        @layer begin
-            draw_obj(Val{sym_name}(), child, defs)                
+        for child in collect(child_elements(xroot))
+            sym_name = Symbol(name(child))
+            @layer begin
+                draw_obj(Val{sym_name}(), child, defs)                
+            end
         end
     end
 end
