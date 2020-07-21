@@ -8,7 +8,7 @@
 
 ## Dependencies
 
-`mathjax-node-cli` for $\LaTeX$ support.
+`mathjax-node-cli` for LaTeX support.
 
 ```
 npm install -g mathjax-node-cli
