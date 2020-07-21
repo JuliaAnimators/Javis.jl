@@ -1,6 +1,8 @@
 using Javis
-using Test
+using Luxor
+using Images
+using LaTeXStrings
+using Test, ReferenceTests
 
-@testset "Javis.jl" begin
-    # Write your tests here.
-end
+include("svg.jl")
+
