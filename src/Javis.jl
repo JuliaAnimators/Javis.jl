@@ -15,16 +15,28 @@ latex(t::LaTeXString) = latex(t, 10, :stroke)
 latex(t::LaTeXString, font_size::Real) = latex(t, font_size, :stroke)
 latex(t::LaTeXString, action::Symbol) = latex(t, 10, action)
 
-function latex(t::LaTeXString, font_size::Real, action::Symbol)
+"""
+    latex(t::LaTeXString, font_size::Real, action::Symbol)
+
+Add the latex string `text` at the current position. 
+The current position is the top left corner of the latex path. This only works if `tex2svg` is installed.
+It can be installed via:
+```
+npm install -g mathjax-node-cli
+```
+
+The default font_size is 10 and the default action is `:stroke`. 
+"""
+function latex(text::LaTeXString, font_size::Real, action::Symbol)
     # check if it's cached 
-    if haskey(LaTeXSVG, t)
-        svg = LaTeXSVG[t]
+    if haskey(LaTeXSVG, text)
+        svg = LaTeXSVG[text]
     else
         # remove the $
-        ts = t.s[2:end-1]
+        ts = text.s[2:end-1]
         command = `tex2svg $ts`
         svg = read(command, String)
-        LaTeXSVG[t] = svg
+        LaTeXSVG[text] = svg
     end
     Javis.pathsvg(svg, font_size)
     if action != :path
