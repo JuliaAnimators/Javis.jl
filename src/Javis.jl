@@ -2,16 +2,73 @@ module Javis
 
 using Luxor, LaTeXStrings
 
-abstract type Transition end
-
-struct Translation <: Transition
-    from :: Point
-    to   :: Point
+mutable struct Transformation
+    p       :: Point
+    angle   :: Float64
 end
 
-struct Rotation{T <: Number} <: Transition
-    from :: T
-    to   :: T
+mutable struct Video
+    width   :: Float64
+    height  :: Float64
+    defs    :: Dict{Symbol, Any}
+end
+Video(width, height) = Video(width, height, Dict{Symbol, Any}())
+
+abstract type Transition end
+abstract type InternalTransition end
+
+mutable struct Action
+    frames                  :: UnitRange{Int64}
+    id                      :: Union{Nothing, Symbol}
+    func                    :: Function
+    transitions             :: Vector{Transition}
+    internal_transitions    :: Vector{InternalTransition}
+    opts                    :: Any
+end
+Action(frames, func::Function, args...) = Action(frames, nothing, func, args...)
+Action(frames, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...) = Action(frames, id, func, collect(transitions), [], nothing)
+
+mutable struct InternalTranslation <: InternalTransition
+    by :: Point
+end
+
+mutable struct InternalRotation <: InternalTransition
+    angle   :: Float64
+    center  :: Point
+end
+
+struct Translation <: Transition
+    from :: Union{Point, Symbol}
+    to   :: Union{Point, Symbol}
+end
+
+struct Rotation <: Transition
+    from    :: Union{Float64, Symbol}
+    to      :: Union{Float64, Symbol}
+    center  :: Union{Point, Symbol}
+end
+
+Rotation(from, to) = Rotation(from, to, O)
+
+"""
+    Base.:*(m::Array{Float64,2}, transformation::Transformation)
+
+Convert the transformation to a matrix and multiplies m*trans_matrix.
+Return a new Transformation
+"""
+function Base.:*(m::Array{Float64,2}, transformation::Transformation)
+    θ = transformation.angle
+    p = transformation.p
+    trans_matrix = [
+        cos(θ) -sin(θ) p.x;
+        sin(θ)  cos(θ) p.y;
+        0            0   1
+    ]
+    res = m*trans_matrix
+    return Transformation(
+        Point(gettranslation(res)...),
+        getrotation(res)
+    )
 end
 
 # cache such that creating svgs from LaTeX don't need to be created every time
@@ -58,52 +115,175 @@ function latex(text::LaTeXString, font_size::Real, action::Symbol)
 end
 
 """
-    transition(f::Function, transitions::Transition...) 
+    compute_transformation!(action::Action, video::Video, frame::Int) 
 
-A closure function which calls transition(scene, frame, f, transitions)
+Update action.internal_transitions for the current frame number
 """
-function transition(f::Function, transitions::Transition...) 
-    (scene, frame)->transition(scene, frame, f, transitions...) 
-end
-
-"""
-    transition(scene::Scene, frame, f::Function, transitions::Transition...) 
-
-Performs all transitions based on the current frame number and then calls the function
-"""
-function transition(scene::Scene, frame, f::Function, transitions::Transition...) 
-    frames = scene.framerange
-    @layer begin
-        t = (frame-first(frames))/length(frames)
-        for trans in transitions
-            perform_transition(trans, t)
-        end
-        f()
+function compute_transformation!(action::Action, video::Video, frame::Int)
+    for (trans,internal_trans) in zip(action.transitions, action.internal_transitions)
+        compute_transition!(internal_trans, trans, video, action, frame)
     end
 end
 
 """
-    perform_transition(trans::Translation, t::Number)
+    compute_transition!(internal_rotation::InternalRotation, rotation::Rotation, video, action::Action, frame)
 
-Translate based on the given `Translation` and the interpolation parameter `t`. 
-`t` is normally considered to be between 0 and 1.
+Computes the rotation transformation for the `action`.
+If the `Rotation` is given directly it uses the frame number for interpolation.
+If `rotation` includes symbols the current definition of that look up is used for computation.
 """
-function perform_transition(trans::Translation, t::Number)
-    p = trans.from+t*(trans.to-trans.from)
-    translate(p)
+function compute_transition!(internal_rotation::InternalRotation, rotation::Rotation, video, action::Action, frame)
+    t = (frame-first(action.frames))/length(action.frames)
+    from, to, center = rotation.from, rotation.to, rotation.center
+    
+    center isa Symbol && (center = video.defs[center].p)
+    from isa Symbol && (from = video.defs[center].angle)
+    to isa Symbol && (to = video.defs[center].angle)
+        
+    internal_rotation.angle = from+t*(to-from)
+    internal_rotation.center = center
 end
 
 """
-    perform_transition(trans::Rotation, t::Number)
+    perform_transformation(action::Action) 
 
-Rotate based on the given `Rotation` and the interpolation parameter `t`. 
-`t` is normally considered to be between 0 and 1.
+Perform the transformations as described in action.internal_transitions
 """
-function perform_transition(trans::Rotation, t::Number)
-    p = trans.from+t*(trans.to-trans.from)
-    rotate(p)
+function perform_transformation(action::Action) 
+    for trans in action.internal_transitions
+        perform_transformation(trans)
+    end
 end
 
-export latex, transition, Translation, Rotation
+"""
+    perform_transformation(trans::InternalTranslation)
+
+Translate as described in `trans`.
+"""
+function perform_transformation(trans::InternalTranslation)
+    translate(trans.by)
+end
+
+"""
+    perform_transformation(trans::InternalRotation)
+
+Translate and rotate as described in `trans`.
+"""
+function perform_transformation(trans::InternalRotation)
+    translate(trans.center)
+    rotate(trans.angle)
+end
+
+"""
+    javis(
+        video::Video,
+        actions::Vector{Action};
+        creategif=false,
+        framerate=30,
+        pathname="",
+        tempdirectory="",
+        usenewffmpeg=true
+    )
+
+Similar to `animate` in Luxor with a slightly different structure.
+Instead of using actions and a video instead of scenes in a movie.
+
+An example:
+```
+function ground(args...) 
+    background("white")
+    sethue("black")
+end
+
+function circ(p=O, color="black")
+    sethue(color)
+    circle(p, 25, :fill)
+    return Transformation(p, 0.0)
+end
+
+from = Point(-200, -200)
+to = Point(-20, -130)
+p1 = Point(0,-100)
+p2 = Point(0,-50)
+from_rot = 0.0
+to_rot = 2π
+
+demo = Video(500, 500)
+javis(demo, [
+    Action(1:100, ground),
+    Action(1:100, :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
+    Action(1:100, (args...)->circ(p2, "blue"), Rotation(to_rot, from_rot, :red_ball))
+], tempdirectory="images", creategif=true, pathname="rotating.gif")
+```
+
+This structure makes it possible to refer to positions of previous actions
+i.e :red_ball is an id for the position or the red ball which can be used in the Rotation of the next ball.
+
+"""
+function javis(
+    video::Video,
+    actions::Vector{Action};
+    creategif=false,
+    framerate=30,
+    pathname="",
+    tempdirectory="",
+    usenewffmpeg=true
+)
+    # get all frames
+    frames = Int[]
+    for action in actions
+        append!(frames, collect(action.frames))
+    end
+    frames = unique(frames)
+
+    # create internal transition objects
+    for action in actions
+        for trans in action.transitions
+            if trans isa Translation
+                push!(action.internal_transitions, InternalTranslation(O))
+            elseif trans isa Rotation
+                push!(action.internal_transitions, InternalRotation(0.0, O))
+            end
+        end
+    end
+
+    # create defs object
+    for action in actions
+        if action.id !== nothing
+            video.defs[action.id] = Transformation(O, 0.0)
+        end
+    end
+    
+    filecounter = 1
+    for frame in frames
+        Drawing(video.width, video.height, "$(tempdirectory)/$(lpad(filecounter, 10, "0")).png")
+        origin()
+        start_translation = Point(gettranslation()...)
+        # this frame needs doing, see if each of the scenes defines it
+        for action in actions
+            if frame in action.frames
+                @layer begin
+                    compute_transformation!(action, video, frame)
+                    perform_transformation(action)
+                    res = action.func(video, action, frame)
+                    if action.id !== nothing && res !== nothing
+                        trans = cairotojuliamatrix(getmatrix())*res
+                        trans.p -= start_translation
+                        video.defs[action.id] = trans
+                    end
+                end
+            end
+        end
+        finish()
+        filecounter += 1
+    end
+
+    !creategif && return 
+    run(`ffmpeg -loglevel panic -framerate $(framerate) -f image2 -i $(tempdirectory)/%10d.png -filter_complex "[0:v] split [a][b]; [a] palettegen=stats_mode=full:reserve_transparent=on:transparency_color=FFFFFF [p]; [b][p] paletteuse=new=1:alpha_threshold=128" -y $(pathname)`)
+    nothing
+end
+
+export javis, latex
+export Video, Action, Translation, Rotation, Transformation
 
 end
