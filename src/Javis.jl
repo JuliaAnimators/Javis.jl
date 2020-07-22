@@ -78,6 +78,10 @@ const LaTeXSVG = Dict{LaTeXString, String}(
     L"\mathcal{O}\left(\frac{\log{x}}{2}\right)" => "<svg xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"11.183ex\" height=\"6.176ex\" style=\"vertical-align: -2.505ex;\" viewBox=\"0 -1580.7 4814.8 2659.1\" role=\"img\" focusable=\"false\" xmlns=\"http://www.w3.org/2000/svg\" aria-labelledby=\"MathJax-SVG-1-Title\">\n<title id=\"MathJax-SVG-1-Title\">script upper O left-parenthesis StartFraction log x Over 2 EndFraction right-parenthesis</title>\n<defs aria-hidden=\"true\">\n<path stroke-width=\"1\" id=\"E1-MJCAL-4F\" d=\"M308 428Q289 428 289 438Q289 457 318 508T378 593Q417 638 475 671T599 705Q688 705 732 643T777 483Q777 380 733 285T620 123T464 18T293 -22Q188 -22 123 51T58 245Q58 327 87 403T159 533T249 626T333 685T388 705Q404 705 404 693Q404 674 363 649Q333 632 304 606T239 537T181 429T158 290Q158 179 214 114T364 48Q489 48 583 165T677 438Q677 473 670 505T648 568T601 617T528 636Q518 636 513 635Q486 629 460 600T419 544T392 490Q383 470 372 459Q341 430 308 428Z\"></path>\n<path stroke-width=\"1\" id=\"E1-MJMAIN-28\" d=\"M94 250Q94 319 104 381T127 488T164 576T202 643T244 695T277 729T302 750H315H319Q333 750 333 741Q333 738 316 720T275 667T226 581T184 443T167 250T184 58T225 -81T274 -167T316 -220T333 -241Q333 -250 318 -250H315H302L274 -226Q180 -141 137 -14T94 250Z\"></path>\n<path stroke-width=\"1\" id=\"E1-MJMAIN-6C\" d=\"M42 46H56Q95 46 103 60V68Q103 77 103 91T103 124T104 167T104 217T104 272T104 329Q104 366 104 407T104 482T104 542T103 586T103 603Q100 622 89 628T44 637H26V660Q26 683 28 683L38 684Q48 685 67 686T104 688Q121 689 141 690T171 693T182 694H185V379Q185 62 186 60Q190 52 198 49Q219 46 247 46H263V0H255L232 1Q209 2 183 2T145 3T107 3T57 1L34 0H26V46H42Z\"></path>\n<path stroke-width=\"1\" id=\"E1-MJMAIN-6F\" d=\"M28 214Q28 309 93 378T250 448Q340 448 405 380T471 215Q471 120 407 55T250 -10Q153 -10 91 57T28 214ZM250 30Q372 30 372 193V225V250Q372 272 371 288T364 326T348 362T317 390T268 410Q263 411 252 411Q222 411 195 399Q152 377 139 338T126 246V226Q126 130 145 91Q177 30 250 30Z\"></path>\n<path stroke-width=\"1\" id=\"E1-MJMAIN-67\" d=\"M329 409Q373 453 429 453Q459 453 472 434T485 396Q485 382 476 371T449 360Q416 360 412 390Q410 404 415 411Q415 412 416 414V415Q388 412 363 393Q355 388 355 386Q355 385 359 381T368 369T379 351T388 325T392 292Q392 230 343 187T222 143Q172 143 123 171Q112 153 112 133Q112 98 138 81Q147 75 155 75T227 73Q311 72 335 67Q396 58 431 26Q470 -13 470 -72Q470 -139 392 -175Q332 -206 250 -206Q167 -206 107 -175Q29 -140 29 -75Q29 -39 50 -15T92 18L103 24Q67 55 67 108Q67 155 96 193Q52 237 52 292Q52 355 102 398T223 442Q274 442 318 416L329 409ZM299 343Q294 371 273 387T221 404Q192 404 171 388T145 343Q142 326 142 292Q142 248 149 227T179 192Q196 182 222 182Q244 182 260 189T283 207T294 227T299 242Q302 258 302 292T299 343ZM403 -75Q403 -50 389 -34T348 -11T299 -2T245 0H218Q151 0 138 -6Q118 -15 107 -34T95 -74Q95 -84 101 -97T122 -127T170 -155T250 -167Q319 -167 361 -139T403 -75Z\"></path>\n<path stroke-width=\"1\" id=\"E1-MJMATHI-78\" d=\"M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z\"></path>\n<path stroke-width=\"1\" id=\"E1-MJMAIN-32\" d=\"M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z\"></path>\n<path stroke-width=\"1\" id=\"E1-MJMAIN-29\" d=\"M60 749L64 750Q69 750 74 750H86L114 726Q208 641 251 514T294 250Q294 182 284 119T261 12T224 -76T186 -143T145 -194T113 -227T90 -246Q87 -249 86 -250H74Q66 -250 63 -250T58 -247T55 -238Q56 -237 66 -225Q221 -64 221 250T66 725Q56 737 55 738Q55 746 60 749Z\"></path>\n<path stroke-width=\"1\" id=\"E1-MJSZ3-28\" d=\"M701 -940Q701 -943 695 -949H664Q662 -947 636 -922T591 -879T537 -818T475 -737T412 -636T350 -511T295 -362T250 -186T221 17T209 251Q209 962 573 1361Q596 1386 616 1405T649 1437T664 1450H695Q701 1444 701 1441Q701 1436 681 1415T629 1356T557 1261T476 1118T400 927T340 675T308 359Q306 321 306 250Q306 -139 400 -430T690 -924Q701 -936 701 -940Z\"></path>\n<path stroke-width=\"1\" id=\"E1-MJSZ3-29\" d=\"M34 1438Q34 1446 37 1448T50 1450H56H71Q73 1448 99 1423T144 1380T198 1319T260 1238T323 1137T385 1013T440 864T485 688T514 485T526 251Q526 134 519 53Q472 -519 162 -860Q139 -885 119 -904T86 -936T71 -949H56Q43 -949 39 -947T34 -937Q88 -883 140 -813Q428 -430 428 251Q428 453 402 628T338 922T245 1146T145 1309T46 1425Q44 1427 42 1429T39 1433T36 1436L34 1438Z\"></path>\n</defs>\n<g stroke=\"currentColor\" fill=\"currentColor\" stroke-width=\"0\" transform=\"matrix(1 0 0 -1 0 0)\" aria-hidden=\"true\">\n <use xlink:href=\"#E1-MJCAL-4F\" x=\"0\" y=\"0\"></use>\n<g transform=\"translate(963,0)\">\n <use xlink:href=\"#E1-MJSZ3-28\"></use>\n<g transform=\"translate(736,0)\">\n<g transform=\"translate(120,0)\">\n<rect stroke=\"none\" width=\"2138\" height=\"60\" x=\"0\" y=\"220\"></rect>\n<g transform=\"translate(60,726)\">\n <use xlink:href=\"#E1-MJMAIN-6C\"></use>\n <use xlink:href=\"#E1-MJMAIN-6F\" x=\"278\" y=\"0\"></use>\n <use xlink:href=\"#E1-MJMAIN-67\" x=\"779\" y=\"0\"></use>\n <use xlink:href=\"#E1-MJMATHI-78\" x=\"1446\" y=\"0\"></use>\n</g>\n <use xlink:href=\"#E1-MJMAIN-32\" x=\"819\" y=\"-687\"></use>\n</g>\n</g>\n <use xlink:href=\"#E1-MJSZ3-29\" x=\"3115\" y=\"-1\"></use>\n</g>\n</g>\n</svg>"
 )
 
+# holds the current video (Array to be declared as constant :D)
+# only holds one video at a time 
+const CURRENT_VIDEO = Array{Video, 1}()
+
 include("svg2luxor.jl")
 
 latex(t::LaTeXString) = latex(t, 10, :stroke)
@@ -137,11 +141,28 @@ function compute_transition!(internal_rotation::InternalRotation, rotation::Rota
     from, to, center = rotation.from, rotation.to, rotation.center
     
     center isa Symbol && (center = video.defs[center].p)
-    from isa Symbol && (from = video.defs[center].angle)
-    to isa Symbol && (to = video.defs[center].angle)
+    from isa Symbol && (from = video.defs[from].angle)
+    to isa Symbol && (to = video.defs[to].angle)
         
     internal_rotation.angle = from+t*(to-from)
     internal_rotation.center = center
+end
+
+"""
+    compute_transition!(internal_translation::InternalTranslation, translation::Translation, video, action::Action, frame)
+
+Computes the translation transformation for the `action`.
+If the `translation` is given directly it uses the frame number for interpolation.
+If `translation` includes symbols the current definition of that look up is used for computation.
+"""
+function compute_transition!(internal_translation::InternalTranslation, translation::Translation, video, action::Action, frame)
+    t = (frame-first(action.frames))/length(action.frames)
+    from, to = translation.from, translation.to
+    
+    from isa Symbol && (from = video.defs[from].angle)
+    to isa Symbol && (to = video.defs[to].angle)
+        
+    internal_translation.by = from+t*(to-from)
 end
 
 """
@@ -172,6 +193,24 @@ Translate and rotate as described in `trans`.
 function perform_transformation(trans::InternalRotation)
     translate(trans.center)
     rotate(trans.angle)
+end
+
+function pos(s::Symbol)
+    defs = CURRENT_VIDEO[1].defs
+    if haskey(defs, s)
+        defs[s].p
+    else
+        error("The symbol $s is not defined.")
+    end
+end
+
+function angle(s::Symbol)
+    defs = CURRENT_VIDEO[1].defs
+    if haskey(defs, s)
+        defs[s].angle
+    else
+        error("The symbol $s is not defined.")
+    end
 end
 
 """
@@ -253,6 +292,12 @@ function javis(
             video.defs[action.id] = Transformation(O, 0.0)
         end
     end
+
+    if isempty(CURRENT_VIDEO)
+        push!(CURRENT_VIDEO, video)
+    else
+        CURRENT_VIDEO[1] = video
+    end
     
     filecounter = 1
     for frame in frames
@@ -285,5 +330,6 @@ end
 
 export javis, latex
 export Video, Action, Translation, Rotation, Transformation
+export pos, angle
 
 end
