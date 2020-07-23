@@ -17,7 +17,9 @@ For releases, we follow the semantic versioning protocol and enforce the [BlueSt
 
 ## Testing
 
-1. Clone the repo to your computer
+1. Clone the repo to your computer and go into that directory:
+
+`cd Javis`
 
 2. Open your Julia REPL and type the following within the repo:
 
