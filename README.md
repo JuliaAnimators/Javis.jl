@@ -38,9 +38,7 @@ Javis is currently under heavy development. If you would like to contribute, ple
 
 ### Dependencies
 
-To develop Javis, one 
-
-`mathjax-node-cli` for LaTeX support.
+To develop Javis, one needs `mathjax-node-cli` for LaTeX support. 
 
 ```
 npm install -g mathjax-node-cli
