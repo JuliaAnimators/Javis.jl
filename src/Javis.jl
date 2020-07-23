@@ -143,7 +143,7 @@ If the `Rotation` is given directly it uses the frame number for interpolation.
 If `rotation` includes symbols the current definition of that look up is used for computation.
 """
 function compute_transition!(internal_rotation::InternalRotation, rotation::Rotation, video, action::Action, frame)
-    t = (frame-first(action.frames))/length(action.frames)
+    t = (frame-first(action.frames))/(length(action.frames)-1)
     from, to, center = rotation.from, rotation.to, rotation.center
     
     center isa Symbol && (center = video.defs[center].p)
@@ -162,9 +162,9 @@ If the `translation` is given directly it uses the frame number for interpolatio
 If `translation` includes symbols the current definition of that look up is used for computation.
 """
 function compute_transition!(internal_translation::InternalTranslation, translation::Translation, video, action::Action, frame)
-    t = (frame-first(action.frames))/length(action.frames)
+    t = (frame-first(action.frames))/(length(action.frames)-1)
     from, to = translation.from, translation.to
-    
+
     from isa Symbol && (from = video.defs[from].angle)
     to isa Symbol && (to = video.defs[to].angle)
         
