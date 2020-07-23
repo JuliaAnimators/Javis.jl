@@ -9,6 +9,7 @@ LightXML = "9c8b4983-aa76-5018-a973-4c85ecc9e179"
 Luxor = "ae8d54c2-7ccd-5906-9d76-62fc9837b5bc"
 
 [compat]
+LaTeXStrings = "1.1"
 Luxor = "2.2"
 julia = "1.4"
 
