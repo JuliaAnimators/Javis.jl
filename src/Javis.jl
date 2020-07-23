@@ -26,7 +26,8 @@ mutable struct Action
     opts                    :: Any
 end
 Action(frames, func::Function, args...) = Action(frames, nothing, func, args...)
-Action(frames, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...) = Action(frames, id, func, collect(transitions), [], nothing)
+Action(frames, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...) = 
+    Action(frames, id, func, collect(transitions), [], nothing)
 
 mutable struct InternalTranslation <: InternalTransition
     by :: Point
@@ -49,6 +50,11 @@ struct Rotation <: Transition
 end
 
 Rotation(from, to) = Rotation(from, to, O)
+
+struct Line 
+    p1 :: Point
+    p2 :: Point
+end
 
 """
     Base.:*(m::Array{Float64,2}, transformation::Transformation)
@@ -214,6 +220,23 @@ function angle(s::Symbol)
 end
 
 """
+    projection(p::Point, l::Line)
+
+Return the projection of a point to a line.
+"""
+function projection(p::Point, l::Line)
+    # move line to origin and describe it as a vector
+    o = l.p1
+    v = l.p2 - o
+    # point also moved to origin
+    x = p - o
+    
+    # scalar product <x,v>/<v,v>
+    c = (x.x * v.x + x.y * v.y) / (v.x^2 + v.y^2)
+    return c*v+o 
+end
+
+"""
     javis(
         video::Video,
         actions::Vector{Action};
@@ -329,7 +352,9 @@ function javis(
 end
 
 export javis, latex
-export Video, Action, Translation, Rotation, Transformation
+export Video, Action
+export Line, Translation, Rotation, Transformation
 export pos, angle
+export projection
 
 end
