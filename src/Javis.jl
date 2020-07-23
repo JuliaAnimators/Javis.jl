@@ -35,7 +35,13 @@ function latex(text::LaTeXString, font_size::Real, action::Symbol)
         # remove the $
         ts = text.s[2:end-1]
         command = `tex2svg $ts`
-        svg = read(command, String)
+        try 
+            svg = read(command, String)
+        catch e
+            @warn "Using LaTeX needs the program `tex2svg` which might not be installed"
+            @info "It can be installed using `npm install -g mathjax-node-cli`"
+            throw(e)
+        end
         LaTeXSVG[text] = svg
     end
     Javis.pathsvg(svg, font_size)
