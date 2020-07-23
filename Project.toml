@@ -1,6 +1,6 @@
 name = "Javis"
 uuid = "78b212ba-a7f9-42d4-b726-60726080707e"
-authors = ["Ole Kröger <o.kroeger@opensourc.es> and Jacob Zelko"]
+authors = ["Ole Kröger <o.kroeger@opensourc.es> and Jacob Zelko <jacobszelko@gmail.com>"]
 version = "0.1.0"
 
 [deps]
