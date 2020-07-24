@@ -27,7 +27,7 @@ mutable struct Action
 end
 Action(frames, func::Function, args...) = Action(frames, nothing, func, args...)
 Action(frames, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...) = 
-    Action(frames, id, func, collect(transitions), [], nothing)
+    Action(frames, id, func, collect(transitions), [], Dict{Any, Any}())
 
 mutable struct InternalTranslation <: InternalTransition
     by :: Point
@@ -236,6 +236,95 @@ function projection(p::Point, l::Line)
     return c*v+o 
 end
 
+
+function match_num_point!(poly_1, poly_2)
+    l1 = length(poly_1)
+    l2 = length(poly_2)
+    l1 == l2 && return 
+
+    flipped = false
+    if l1 > l2
+        poly_1, poly_2 = poly_2, poly_1
+        l1, l2 = l2, l1
+        flipped = true
+    end
+
+    diff = l2-l1
+    println("Need to add: $diff points")
+    
+    points_per_edge = div(diff, l1)
+    println("points_per_edge: $points_per_edge")
+    println(poly_1)
+
+    index = 2
+    poly_1_orig = copy(poly_1)
+    for i in 1:l1
+        p1 = poly_1_orig[i]
+        if i+1 > l1
+            p2 = poly_1_orig[1]
+        else
+            p2 = poly_1_orig[i+1]
+        end
+        println("p1: $p1, p2: $p2")
+        for j in 1:points_per_edge
+            t = 1/(points_per_edge+1)
+            mid_point = p1+t*(p2-p1)
+            insert!(poly_1, index, mid_point)
+            index += 1
+        end
+        index += 1
+    end
+
+    if flipped 
+        poly_1, poly_2 = poly_2, poly_1
+    end
+    @assert length(poly_1) == length(poly_2)
+end
+
+function morph(from_func::Function, to_func::Function)
+    return (video, action, frame) -> morph(video, action, frame, from_func, to_func)
+end
+
+function morph(video::Video, action::Action, frame, from_func::Function, to_func::Function)
+    # computation in first frame
+    if frame == first(action.frames)
+        newpath()
+        from_func()
+        closepath()
+        from_poly = pathtopoly()[1]
+
+        newpath()
+        to_func()
+        closepath()
+        to_poly = pathtopoly()[1]
+        
+        match_num_point!(from_poly, to_poly)
+        action.opts[:from_poly] = from_poly
+        action.opts[:to_poly] = to_poly
+    end
+
+    from_poly = action.opts[:from_poly]
+    to_poly = action.opts[:to_poly]
+
+    t = (frame-first(action.frames))/(length(action.frames)-1)
+    points = Point[]
+    for (p1, p2) in zip(from_poly, to_poly)
+        new_point = p1+t*(p2-p1)
+        push!(points, new_point)
+    end
+    randomhue()
+    poly(points, :fill; close=true)
+
+    #=
+    circle.(from_poly, 5, :fill)
+    circle.(to_poly, 5, :fill)
+
+    sethue("black")
+    poly(from_poly, :stroke; close=true)
+    poly(to_poly, :stroke; close=true)
+    =#    
+end
+
 """
     javis(
         video::Video,
@@ -355,6 +444,6 @@ export javis, latex
 export Video, Action
 export Line, Translation, Rotation, Transformation
 export pos, angle
-export projection
+export projection, morph
 
 end
