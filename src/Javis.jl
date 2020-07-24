@@ -249,12 +249,13 @@ function match_num_point!(poly_1, poly_2)
         flipped = true
     end
 
+    # the difference of the length of points
     diff = l2-l1
-    println("Need to add: $diff points")
     
     points_per_edge = div(diff, l1)
-    println("points_per_edge: $points_per_edge")
-    println(poly_1)
+    # how many extra points do we need 
+    points_per_edge_extra = rem(diff, l1)
+    # => will add them to the first `points_per_edge_extra` edges
 
     index = 2
     poly_1_orig = copy(poly_1)
@@ -265,9 +266,12 @@ function match_num_point!(poly_1, poly_2)
         else
             p2 = poly_1_orig[i+1]
         end
-        println("p1: $p1, p2: $p2")
-        for j in 1:points_per_edge
-            t = 1/(points_per_edge+1)
+        rem = 0
+        if i <= points_per_edge_extra
+            rem = 1
+        end
+        for j in 1:points_per_edge+rem
+            t = j/(points_per_edge+rem+1)
             mid_point = p1+t*(p2-p1)
             insert!(poly_1, index, mid_point)
             index += 1
@@ -299,7 +303,30 @@ function morph(video::Video, action::Action, frame, from_func::Function, to_func
         to_poly = pathtopoly()[1]
         
         match_num_point!(from_poly, to_poly)
-        action.opts[:from_poly] = from_poly
+
+        # find the smallest morphing distance to match the points in a more natural way
+        # smallest_i holds the best starting point of from_path
+        smallest_i = 1
+        smallest_distance = typemax(Float64)
+
+        for i in 1:length(from_poly)
+            overall_distance = 0.0
+            for j = 1:length(from_poly)
+                p1 = from_poly[(j+i-1) % length(from_poly) + 1]
+                p2 = to_poly[j]
+                overall_distance += distance(p1, p2)
+            end
+            if overall_distance < smallest_distance
+                smallest_distance = overall_distance
+                smallest_i = i
+            end
+        end
+        new_from_poly = copy(from_poly)
+        for i in 1:length(from_poly)
+            new_from_poly[i] = from_poly[(i+smallest_i-1) % length(from_poly) + 1]
+        end
+
+        action.opts[:from_poly] = new_from_poly
         action.opts[:to_poly] = to_poly
     end
 
@@ -307,22 +334,16 @@ function morph(video::Video, action::Action, frame, from_func::Function, to_func
     to_poly = action.opts[:to_poly]
 
     t = (frame-first(action.frames))/(length(action.frames)-1)
-    points = Point[]
+    points = Vector{Point}(undef, length(from_poly))
+    i = 1
     for (p1, p2) in zip(from_poly, to_poly)
         new_point = p1+t*(p2-p1)
-        push!(points, new_point)
+        points[i] = new_point
+        i += 1
     end
-    randomhue()
-    poly(points, :fill; close=true)
 
-    #=
-    circle.(from_poly, 5, :fill)
-    circle.(to_poly, 5, :fill)
-
-    sethue("black")
-    poly(from_poly, :stroke; close=true)
-    poly(to_poly, :stroke; close=true)
-    =#    
+    # sethue("black")
+    poly(points, :stroke; close=true)
 end
 
 """
@@ -378,7 +399,8 @@ function javis(
     framerate=30,
     pathname="",
     tempdirectory="",
-    usenewffmpeg=true
+    usenewffmpeg=true,
+    deletetemp=false
 )
     # get all frames
     frames = Int[]
@@ -437,6 +459,9 @@ function javis(
 
     !creategif && return 
     run(`ffmpeg -loglevel panic -framerate $(framerate) -f image2 -i $(tempdirectory)/%10d.png -filter_complex "[0:v] split [a][b]; [a] palettegen=stats_mode=full:reserve_transparent=on:transparency_color=FFFFFF [p]; [b][p] paletteuse=new=1:alpha_threshold=128" -y $(pathname)`)
+    !deletetemp && return 
+    run(`rm -rf $(tempdirectory)`)
+    mkpath(tempdirectory)
     nothing
 end
 
