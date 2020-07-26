@@ -1,23 +1,19 @@
 using Javis
 using Luxor
 
-function grid(bg_color="white", hue="black")
+function grid_animation()
 
-	vid = Video(500, 500)
-	pt = Point(0, 250)
-	end_pt = Point(500, 250)
-	
-	javis(vid, [Action(1:50, ground), 
-		     Action(1:50, :my_line, (args...)->line(pt, end_pt), grow_line(pt)), 
-		     ], tempdirectory="/home/src/Projects/javis/test", creategif=true, pathname="circles.gif")
-end
-
-function grow_line(point)
-	point = Point(point.x + 10, point.y)
-	return point
-end
-
-function ground(args...) 
+	Drawing(500, 500)
 	background("white")
 	sethue("black")
+
+	prior_num = -250
+	end_pt = Point(500, 0)
+
+	for num in 0:1:500
+		@png line(Point(prior_num + num, 0), end_pt, :stroke) 500 500 "grid_$num.png"
+	end
+
+	finish()
+
 end
