@@ -17,8 +17,14 @@ function grid_animation()
 end
 
 function line_move(video, action, frame)
-    t = (frame - first(action.frames)) / (length(action.frames) - 1)
-    line(Point(-200, 0), Point(-200, 0) + t * (Point(200, 0) - Point(-200, 0)), :stroke)
+  
+    
+    for y_point in (video.height / -2):25:(video.height / 2)
+    	step = (frame - first(action.frames)) / (length(action.frames) - 1)
+	start_point = Point(-250, y_point)
+	end_point = Point(-250, y_point) + step * (Point(250, y_point) - Point(-250, y_point))
+	line(start_point, end_point, :stroke)
+    end
 end
 
 function ground(args...)
