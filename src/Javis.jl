@@ -336,7 +336,11 @@ function javis(
                     res = action.func(video, action, frame)
                     if action.id !== nothing && res !== nothing
                         trans = cairotojuliamatrix(getmatrix())*res
-                        trans.p -= start_translation
+			try
+				trans.p -= start_translation
+			catch
+				continue
+			end
                         video.defs[action.id] = trans
                     end
                 end
