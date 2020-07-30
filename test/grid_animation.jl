@@ -7,7 +7,7 @@ function grid_animation()
 	javis(video, 
 	      [
 	      	Action(1:100, ground),
-		Action(1:100, :line, line_move)
+		Action(1:100, :line, draw_grid)
 	      ],
 	      tempdirectory="/home/src/Projects/javis/test/grid_test",
 	      creategif=true,
@@ -16,15 +16,28 @@ function grid_animation()
 
 end
 
-function line_move(video, action, frame)
-  
-    
-    for y_point in (video.height / -2):25:(video.height / 2)
+function draw_grid(video, action, frame)
+
+min_width = video.width / -2
+max_width = video.width / 2
+
+min_height = video.height / -2
+max_height = video.height / 2
+   
+for y_point in min_width:25:max_width
     	step = (frame - first(action.frames)) / (length(action.frames) - 1)
-	start_point = Point(-250, y_point)
-	end_point = Point(-250, y_point) + step * (Point(250, y_point) - Point(-250, y_point))
+	start_point = Point(min_width, y_point)
+	end_point = start_point + step * (Point(max_width, y_point) - start_point)
 	line(start_point, end_point, :stroke)
-    end
+end
+
+for x_point in min_height:25:max_height
+    	step = (frame - first(action.frames)) / (length(action.frames) - 1)
+	start_point = Point(x_point, min_height)
+	end_point = start_point + step * (Point(x_point, max_height) - start_point)
+	line(start_point, end_point, :stroke)
+end
+
 end
 
 function ground(args...)
