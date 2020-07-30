@@ -3,17 +3,21 @@ using Luxor
 
 function grid_animation()
 
-	Drawing(500, 500)
-	background("white")
-	sethue("black")
+	video = Video(500, 500)
 
-	prior_num = -250
-	end_pt = Point(500, 0)
+	javis(video,
+	      [Action(1:100, ground),
+	       Action(1:100, :line, line_move)]
+	)
 
-	for num in 0:1:500
-		@png line(Point(prior_num + num, 0), end_pt, :stroke) 500 500 "grid_$num.png"
-	end
+end
 
-	finish()
+function line_move(video, action, frame)
+    t = (frame-first(action.frames))/(length(action.frames)-1)
+    line(Point(-200,0), Point(-200,0)+t*(Point(200,0)-Point(-200,0)), :stroke)
+end
 
+function ground(args...)
+    background("white")
+    sethue("black")
 end
