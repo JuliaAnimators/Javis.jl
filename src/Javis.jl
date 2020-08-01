@@ -334,10 +334,15 @@ function javis(
                     compute_transformation!(action, video, frame)
                     perform_transformation(action)
                     res = action.func(video, action, frame)
-                    if action.id !== nothing && res !== nothing
-                        trans = cairotojuliamatrix(getmatrix())*res
-                        trans.p -= start_translation
-                        video.defs[action.id] = trans
+                    if action.id !== nothing
+                        # if a transformation let's save the global coordinates
+                        if res isa Transformation
+                            trans = cairotojuliamatrix(getmatrix())*res
+                            trans.p -= start_translation
+                            video.defs[action.id] = trans
+                        else # just save the result such that it can be used as one wishes
+                            video.defs[action.id] = res
+                        end
                     end
                 end
             end
