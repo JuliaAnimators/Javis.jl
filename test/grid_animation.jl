@@ -8,9 +8,8 @@ function grid_animation()
         video,
         [
             Action(1:100, ground),
-            # Action(1:100, :line, draw_grid(truth_value=true)),
-            Action(1:100, :line, draw_grid),
-            Action(1:100, :line, zero_lines),
+            Action(1:100, :line, (args...) -> draw_grid(args..., grid_direction = :TL)),
+            Action(1:100, :line, (args...) -> zero_lines(args..., line_direction = :TL)),
         ],
         tempdirectory = "/home/src/Projects/javis/test/grid_test",
         creategif = true,
@@ -19,11 +18,7 @@ function grid_animation()
 
 end
 
-# function draw_grid(video::Video=nothing, action::Action=nothing, frame::Int=1, truth_value::Bool=false)
-function draw_grid(video::Video, action::Action, frame::Int)
-
-    grid_directions = [:TL, :BL, :TR, :BR]
-    grid_direction = :TR
+function draw_grid(video::Video, action::Action, frame::Int; grid_direction::Symbol = :TR)
 
     min_width = video.width / -2
     max_width = video.width / 2
@@ -100,10 +95,7 @@ function draw_grid(video::Video, action::Action, frame::Int)
 
 end
 
-function zero_lines(video::Video, action::Action, frame::Int)
-
-    line_directions = [:TL, :BL, :TR, :BR]
-    line_direction = :TR
+function zero_lines(video::Video, action::Action, frame::Int; line_direction::Symbol = :TR)
 
     min_width = video.width / -2
     max_width = video.width / 2
