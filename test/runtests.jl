@@ -5,4 +5,5 @@ using LaTeXStrings
 using Test, ReferenceTests
 
 include("svg.jl")
-
+include("animations.jl")
+include("unit.jl")
