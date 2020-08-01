@@ -1,6 +1,6 @@
 name = "Javis"
 uuid = "78b212ba-a7f9-42d4-b726-60726080707e"
-authors = ["Ole Kröger <o.kroeger@opensourc.es> and Jacob Zelko"]
+authors = ["Ole Kröger <o.kroeger@opensourc.es> and Jacob Zelko <jacobszelko@gmail.com>"]
 version = "0.1.0"
 
 [deps]
@@ -9,6 +9,9 @@ LightXML = "9c8b4983-aa76-5018-a973-4c85ecc9e179"
 Luxor = "ae8d54c2-7ccd-5906-9d76-62fc9837b5bc"
 
 [compat]
+LaTeXStrings = "1.1"
+LightXML = "0.9"
+Luxor = "2"
 julia = "1.4"
 
 [extras]

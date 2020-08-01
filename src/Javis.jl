@@ -90,21 +90,51 @@ const CURRENT_VIDEO = Array{Video, 1}()
 
 include("svg2luxor.jl")
 
-latex(t::LaTeXString) = latex(t, 10, :stroke)
-latex(t::LaTeXString, font_size::Real) = latex(t, font_size, :stroke)
-latex(t::LaTeXString, action::Symbol) = latex(t, 10, action)
+latex(text::LaTeXString) = latex(text, 10, :stroke)
+latex(text::LaTeXString, font_size::Real) = latex(text, font_size, :stroke)
+latex(text::LaTeXString, action::Symbol) = latex(text, 10, action)
 
 """
-    latex(t::LaTeXString, font_size::Real, action::Symbol)
 
-Add the latex string `text` at the current position. 
-The current position is the top left corner of the latex path. This only works if `tex2svg` is installed.
-It can be installed via:
+`latex(text::LaTeXString, font_size::Real, action::Symbol)`
+
+Add the latex string `text` to the top left corner of the LaTeX path. Can be added to `Luxor.jl` graphics such as `Video` or `Drawing`.
+
+**NOTE: This only works if `tex2svg` is installed.**
+**It can be installed using the following command (you may have to prefix this command with `sudo` depending on your installation):**
+
+> `npm install -g mathjax-node-cli`
+
+# Arguments
+- `text::LaTeXString`: a LaTeX string to render.
+- `font_size::Real`: integer font size of LaTeX string. Default `10`.
+- `action::Symbol`: graphics actions defined by `Luxor.jl`. Default `:stroke`. Available actions:
+  - `:fill` - See `Luxor.fillpath`.
+  - `:stroke` - See `Luxor.strokepath`.
+  - `:clip` - See `Luxor.clip`.
+  - `:fillstroke` - See `Luxor.fillstroke`.
+  - `:fillpreserve` - See `Luxor.fillpreserve`.
+  - `:strokepreserve` - See `Luxor.strokepreserve`.
+  - `:none` - Does nothing.
+  - `:path` - See Luxor docs for `polygons.md`
+
+# Throws
+- `IOError`: mathjax-node-cli is not installed
+
+# Example
+
 ```
-npm install -g mathjax-node-cli
+using Luxor
+using Javis
+using LaTeXStrings
+
+my_drawing = Drawing(400, 200, "test.png")
+background("white")
+sethue("black")
+latex(L"\\sum \\phi", 100)
+finish()
 ```
 
-The default font_size is 10 and the default action is `:stroke`. 
 """
 function latex(text::LaTeXString, font_size::Real, action::Symbol)
     # check if it's cached 
@@ -114,7 +144,13 @@ function latex(text::LaTeXString, font_size::Real, action::Symbol)
         # remove the $
         ts = text.s[2:end-1]
         command = `tex2svg $ts`
-        svg = read(command, String)
+        try 
+            svg = read(command, String)
+        catch e
+            @warn "Using LaTeX needs the program `tex2svg` which might not be installed"
+            @info "It can be installed using `npm install -g mathjax-node-cli`"
+            throw(e)
+        end
         LaTeXSVG[text] = svg
     end
     Javis.pathsvg(svg, font_size)
@@ -334,10 +370,15 @@ function javis(
                     compute_transformation!(action, video, frame)
                     perform_transformation(action)
                     res = action.func(video, action, frame)
-                    if action.id !== nothing && res isa Transformation
-                        trans = cairotojuliamatrix(getmatrix())*res
-			trans.p -= start_translation
-                        video.defs[action.id] = trans
+                    if action.id !== nothing
+                        # if a transformation let's save the global coordinates
+                        if res isa Transformation
+                            trans = cairotojuliamatrix(getmatrix())*res
+                            trans.p -= start_translation
+                            video.defs[action.id] = trans
+                        else # just save the result such that it can be used as one wishes
+                            video.defs[action.id] = res
+                        end
                     end
                 end
             end
