@@ -30,13 +30,7 @@ Add the latex string `text` to the top left corner of the LaTeX path. Can be add
 - `text::LaTeXString`: a LaTeX string to render.
 - `font_size::Real`: integer font size of LaTeX string. Default `10`.
 - `action::Symbol`: graphics actions defined by `Luxor.jl`. Default `:stroke`. Available actions:
-  - `:fill` - See `Luxor.fillpath`.
   - `:stroke` - See `Luxor.strokepath`.
-  - `:clip` - See `Luxor.clip`.
-  - `:fillstroke` - See `Luxor.fillstroke`.
-  - `:fillpreserve` - See `Luxor.fillpreserve`.
-  - `:strokepreserve` - See `Luxor.strokepreserve`.
-  - `:none` - Does nothing.
   - `:path` - See Luxor docs for `polygons.md`
 
 # Throws
