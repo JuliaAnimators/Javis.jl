@@ -86,7 +86,7 @@ Action(frames, func::Function, args...) = Action(frames, nothing, func, args...)
 - `transitions::Transition...` a list of transitions that are performed before the function `func` itself is called
 """
 Action(frames, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...) = 
-    Action(frames, id, func, collect(transitions), [], nothing)
+ Action(frames, id, func, collect(transitions), [], Dict{Any, Any}())
 
 mutable struct InternalTranslation <: InternalTransition
     by :: Point
@@ -182,6 +182,7 @@ const LaTeXSVG = Dict{LaTeXString, String}(
 const CURRENT_VIDEO = Array{Video, 1}()
 
 include("svg2luxor.jl")
+include("morphs.jl")
 
 latex(text::LaTeXString) = latex(text, 10, :stroke)
 latex(text::LaTeXString, font_size::Real) = latex(text, font_size, :stroke)
@@ -429,7 +430,7 @@ function javis(
     framerate=30,
     pathname="",
     tempdirectory="",
-    usenewffmpeg=true
+    deletetemp=false
 )
     # get all frames
     frames = Int[]
@@ -493,6 +494,9 @@ function javis(
 
     !creategif && return 
     run(`ffmpeg -loglevel panic -framerate $(framerate) -f image2 -i $(tempdirectory)/%10d.png -filter_complex "[0:v] split [a][b]; [a] palettegen=stats_mode=full:reserve_transparent=on:transparency_color=FFFFFF [p]; [b][p] paletteuse=new=1:alpha_threshold=128" -y $(pathname)`)
+    !deletetemp && return 
+    run(`rm -rf $(tempdirectory)`)
+    mkpath(tempdirectory)
     nothing
 end
 
@@ -500,6 +504,6 @@ export javis, latex
 export Video, Action
 export Line, Translation, Rotation, Transformation
 export pos, angle
-export projection
+export projection, morph
 
 end
