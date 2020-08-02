@@ -43,3 +43,38 @@ end
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
+
+@testset "Drawing grid" begin
+    video = Video(500, 500)
+    javis(
+        video,
+        [
+            Action(1:10, ground),
+	    Action(1:10, (video, action, frame)-> draw_grid(video, action, frame, direction = :TL, line_gap = 25)),
+        ],
+        tempdirectory = "images"
+    )
+
+    @test_reference "refs/grid_drawing.png" load("images/0000000007.png")
+    for i=1:10
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
+@testset "Drawing zero lines" begin
+    video = Video(500, 500)
+    javis(
+        video,
+        [
+            Action(1:10, ground),
+	    Action(1:10, (video, action, frame)-> zero_lines(video, action, frame, direction = :TL, line_thickness = 10)),
+        ],
+        tempdirectory = "images"
+    )
+
+    @test_reference "refs/zero_lines.png" load("images/0000000008.png")
+    for i=1:10
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
