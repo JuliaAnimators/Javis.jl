@@ -2,7 +2,6 @@ module Javis
 
 using Luxor, LaTeXStrings
 
-include("backgrounds.jl")
 
 mutable struct Transformation
     p       :: Point
@@ -57,6 +56,8 @@ struct Line
     p1 :: Point
     p2 :: Point
 end
+
+include("backgrounds.jl")
 
 """
     Base.:*(m::Array{Float64,2}, transformation::Transformation)
@@ -394,7 +395,6 @@ function javis(
     nothing
 end
 
-export draw_grid, zero_lines
 export javis, latex
 export Video, Action
 export Line, Translation, Rotation, Transformation
