@@ -382,6 +382,7 @@ Instead of using actions and a video instead of scenes in a movie.
 # Arguments
 - `video::Video`: The video which defines the dimensions of the output
 - `actions::Vector{Action}`: All actions that are performed
+
 # Keywords
 - `creategif::Bool`: defines whether the images should be rendered to a gif
 - `framerate::Int`: The frame rate of the video
