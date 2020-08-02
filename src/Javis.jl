@@ -72,24 +72,32 @@ end
 """
     Action(frames, func::Function, args...)
 
-The most simple form of an action (if there are no `args`) just calls
+The most simple form of an action (if there are no `args`/`kwargs`) just calls
 `func(video, action, frame)` for each of the frames it is defined for. 
 `args` are defined it the next function definition and can be seen in action in this example [`javis`](@ref)
 """
-Action(frames, func::Function, args...) = Action(frames, nothing, func, args...)
+Action(frames, func::Function, args...; kwargs...) = Action(frames, nothing, func, args...; kwargs...)
 
 """
-    Action(frames, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...)
+    Action(frames, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...; kwargs...)
 
 # Arguments
 - `frames`: defines for which frames this action is called
 - `id::Symbol`: Is used if the `func` returns something which shell be accessible by other actions later
 - `func::Function` the function that is called after the `transitions` are performed
 - `transitions::Transition...` a list of transitions that are performed before the function `func` itself is called
-"""
-Action(frames, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...) = 
- Action(frames, id, func, collect(transitions), [], Dict{Any, Any}())
 
+The keywords arguments will be saved inside `.opts` as a `Dict{Symbol, Any}`
+"""
+Action(frames, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...; kwargs...) = 
+    Action(frames, id, func, collect(transitions), [], Dict(kwargs...))
+
+"""
+    BackgroundAction(frames, func::Function, args...; kwargs...) 
+
+Create an Action where `in_global_layer` is set to true such that
+i.e the specified color in the background is applied globally (basically a new default)
+"""
 function BackgroundAction(frames, func::Function, args...; kwargs...)
     Action(frames, nothing, func, args...; in_global_layer=true, kwargs...)
 end
