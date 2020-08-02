@@ -2,30 +2,89 @@ module Javis
 
 using Luxor, LaTeXStrings
 
+"""
+    Video
+
+Defines the video canvas for an animation.
+
+# Fields
+- `width::Int` the width in pixel
+- `height::Int` the height in pixel
+- `defs::Dict{Symbol, Any}` Some definitions which should be accessible throughout the video.
+"""
+mutable struct Video
+    width   :: Int
+    height  :: Int
+    defs    :: Dict{Symbol, Any}
+end
+"""
+    Video(width, height)
+
+Create a video with a certain `width` and `height` in pixel.
+"""
+Video(width, height) = Video(width, height, Dict{Symbol, Any}())
+
+"""
+    Transformation
+
+Defines a transformation which can be returned by an action to be accessible later. 
+See the `circ` function inside the [`javis`](@ref) as an example. 
+It can be accessed by another [`Action`])(@ref) using the symbol notation like `:red_ball` in the example.
+
+# Fields
+- `p::Point`: the translation part of the transformation
+- `angle::Float64`: the angle component of the transformation (in radians)
+"""
 mutable struct Transformation
     p       :: Point
     angle   :: Float64
 end
 
-mutable struct Video
-    width   :: Float64
-    height  :: Float64
-    defs    :: Dict{Symbol, Any}
-end
-Video(width, height) = Video(width, height, Dict{Symbol, Any}())
-
 abstract type Transition end
 abstract type InternalTransition end
 
+"""
+    Action
+
+Defines what is drawn in a defined frame range. 
+
+# Fields
+- `frames`: A range of frames for which the `Action` is called
+- `id::Union{Nothing, Symbol}`: An id which can be used to save the result of `func`
+- `func::Function`: The drawing function which draws something on the canvas. 
+    It gets called with the arguments `video, action, frame`
+- `transitions::Vector{Transition}` a list of transitions that can be performed before the function gets called.
+- `internal_transitions::Vector{InternalTransition}`: Similar to `transitions` but holds the concrete information 
+    whereas `Transition` can hold links to other actions which need to be computed first. See [`compute_transformation!`](@ref)
+- `opts::Any` can hold any options defined by the user
+"""
 mutable struct Action
-    frames                  :: UnitRange{Int64}
+    frames                  :: UnitRange{Int}
     id                      :: Union{Nothing, Symbol}
     func                    :: Function
     transitions             :: Vector{Transition}
     internal_transitions    :: Vector{InternalTransition}
     opts                    :: Any
 end
+
+"""
+    Action(frames, func::Function, args...)
+
+The most simple form of an action (if there are no `args`) just calls
+`func(video, action, frame)` for each of the frames it is defined for. 
+`args` are defined it the next function definition and can be seen in action in this example [`javis`](@ref)
+"""
 Action(frames, func::Function, args...) = Action(frames, nothing, func, args...)
+
+"""
+    Action(frames, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...)
+
+# Arguments
+- `frames`: defines for which frames this action is called
+- `id::Symbol`: Is used if the `func` returns something which shell be accessible by other actions later
+- `func::Function` the function that is called after the `transitions` are performed
+- `transitions::Transition...` a list of transitions that are performed before the function `func` itself is called
+"""
 Action(frames, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...) = 
     Action(frames, id, func, collect(transitions), [], nothing)
 
@@ -38,19 +97,53 @@ mutable struct InternalRotation <: InternalTransition
     center  :: Point
 end
 
+"""
+    Translation <: Transition
+
+Stores the `Point` or a link for the start and end position of the translation
+
+# Fields
+`from::Union{Point, Symbol}`: The start position or a link to the start position. See `:red_ball` in [`javis`](@ref) 
+`to::Union{Point, Symbol}`: The end position or a link to the end position
+"""
 struct Translation <: Transition
     from :: Union{Point, Symbol}
     to   :: Union{Point, Symbol}
 end
 
+"""
+    Rotation <: Transition
+
+Stores the rotation similar to [`Translation`](@ref) with `from` and `to` but also the rotation point.
+
+# Fields
+- `from::Union{Float64, Symbol}`: The start rotation or a link to it
+- `to::Union{Float64, Symbol}`: The end rotation or a link to it
+- `center::Union{Point, Symbol}`: The center of the rotation or a link to it.
+"""
 struct Rotation <: Transition
     from    :: Union{Float64, Symbol}
     to      :: Union{Float64, Symbol}
     center  :: Union{Point, Symbol}
 end
 
+"""
+    Rotation(from, to)
+
+Rotation as a transition from `from` to `to` (in radians) around the origin.
+"""
 Rotation(from, to) = Rotation(from, to, O)
 
+"""
+    Line
+
+A type to define a line by two points. Can be used i.e. in [`projection`](@ref)
+We mean the mathematic definition of a continuous line and not a segment of a line.
+
+# Fields
+- `p1::Point`: start point
+- `p2::Point`: second point to define the line)
+"""
 struct Line 
     p1 :: Point
     p2 :: Point
@@ -286,7 +379,18 @@ end
 Similar to `animate` in Luxor with a slightly different structure.
 Instead of using actions and a video instead of scenes in a movie.
 
-An example:
+# Arguments
+- `video::Video`: The video which defines the dimensions of the output
+- `actions::Vector{Action}`: All actions that are performed
+
+# Keywords
+- `creategif::Bool`: defines whether the images should be rendered to a gif
+- `framerate::Int`: The frame rate of the video
+- `pathname::String`: The path for the gif if `creategif = true`
+- `tempdirectory::String`: The folder where each frame is stored 
+- `deletetemp::Bool`: If true and `creategif` is true => tempdirectory is emptied after the gif is created
+
+# Example
 ```
 function ground(args...) 
     background("white")
