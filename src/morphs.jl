@@ -152,7 +152,7 @@ function save_morph_polygons!(action::Action, from_func::Function, to_func::Func
 
     action.opts[:from_poly] = new_from_poly
     action.opts[:to_poly] = to_poly
-    points = Vector{Point}(undef, length(from_poly))
+    action.opts[:points] = Vector{Point}(undef, length(new_from_poly))
 end
 
 """
