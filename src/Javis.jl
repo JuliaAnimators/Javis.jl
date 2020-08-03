@@ -527,6 +527,9 @@ function perform_action(action, video, frame, origin_matrix)
     perform_transformation(action)
     res = action.func(video, action, frame)
     if action.id !== nothing
+        if res isa Point
+            res = Transformation(res, 0.0)
+        end
         # if a transformation let's save the global coordinates
         if res isa Transformation
             current_matrix = cairotojuliamatrix(getmatrix())
