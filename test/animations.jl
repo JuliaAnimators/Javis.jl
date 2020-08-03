@@ -60,7 +60,7 @@ end
 
     video = Video(500, 500)
     javis(video, [
-        Action(1:25, ground, Translation(Point(25, 25), Point(25, 25)); in_global_layer=true),
+        Action(1:25, ground, Rotation(π/2, π/2), Translation(Point(25,25), Point(25,25)); in_global_layer=true),
         Action(1:25, latex_title),
         Action(1:25, :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
         Action(1:25, :blue_ball, (args...)->circ(p2, "blue"), Rotation(to_rot, from_rot, :red_ball)),
@@ -69,7 +69,7 @@ end
         Action(1:25, (args...)->rad(pos(:red_ball), pos(:blue_ball), "black"))
     ], tempdirectory="images")
 
-    @test_reference "refs/dancing_circles_16.png" load("images/0000000016.png")
+    @test_reference "refs/dancing_circles_16_rot_trans.png" load("images/0000000016.png")
     for i=1:25
         rm("images/$(lpad(i, 10, "0")).png")
     end

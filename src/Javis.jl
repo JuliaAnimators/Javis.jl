@@ -482,7 +482,7 @@ function javis(
     for frame in frames
         Drawing(video.width, video.height, "$(tempdirectory)/$(lpad(filecounter, 10, "0")).png")
         origin()
-        origin_translation = Point(gettranslation()...)
+        origin_matrix = cairotojuliamatrix(getmatrix())
         # this frame needs doing, see if each of the scenes defines it
         for action in actions
             if frame in action.frames
@@ -491,12 +491,12 @@ function javis(
                 in_global_layer = get(action.opts, :in_global_layer, false)
                 if !in_global_layer
                     @layer begin 
-                        perform_action(action, video, frame, origin_translation)                
+                        perform_action(action, video, frame, origin_matrix)                
                     end
                 else
-                    perform_action(action, video, frame, origin_translation)  
-                    # update origin_translation as it's inside the global layer
-                    origin_translation = Point(gettranslation()...) 
+                    perform_action(action, video, frame, origin_matrix)  
+                    # update origin_matrix as it's inside the global layer
+                    origin_matrix = cairotojuliamatrix(getmatrix())
                 end
             end
         end
@@ -513,7 +513,7 @@ function javis(
 end
 
 """
-    perform_action(action, video, frame, origin_translation)
+    perform_action(action, video, frame, origin_matrix)
 
 Is called inside the `javis` and does everything handled for an `ActionType`.
 It is a 4-step process:
@@ -522,15 +522,17 @@ It is a 4-step process:
 - call the action function
 - save the result of the action if wanted inside `video.defs`
 """
-function perform_action(action, video, frame, origin_translation)
+function perform_action(action, video, frame, origin_matrix)
     compute_transformation!(action, video, frame)
     perform_transformation(action)
     res = action.func(video, action, frame)
     if action.id !== nothing
         # if a transformation let's save the global coordinates
         if res isa Transformation
-            trans = cairotojuliamatrix(getmatrix())*res
-            trans.p -= origin_translation
+            current_matrix = cairotojuliamatrix(getmatrix())
+
+            # obtain current matrix without the inital matrix part
+            trans = inv(origin_matrix)*current_matrix*res
             video.defs[action.id] = trans
         else # just save the result such that it can be used as one wishes
             video.defs[action.id] = res
