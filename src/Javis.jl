@@ -482,7 +482,7 @@ function javis(
     for frame in frames
         Drawing(video.width, video.height, "$(tempdirectory)/$(lpad(filecounter, 10, "0")).png")
         origin()
-        start_translation = Point(gettranslation()...)
+        origin_translation = Point(gettranslation()...)
         # this frame needs doing, see if each of the scenes defines it
         for action in actions
             if frame in action.frames
@@ -491,10 +491,12 @@ function javis(
                 in_global_layer = get(action.opts, :in_global_layer, false)
                 if !in_global_layer
                     @layer begin 
-                        perform_action(action, video, frame, start_translation)                
+                        perform_action(action, video, frame, origin_translation)                
                     end
                 else
-                    perform_action(action, video, frame, start_translation)   
+                    perform_action(action, video, frame, origin_translation)  
+                    # update origin_translation as it's inside the global layer
+                    origin_translation = Point(gettranslation()...) 
                 end
             end
         end
@@ -511,7 +513,7 @@ function javis(
 end
 
 """
-    perform_action(action, video, frame, start_translation)
+    perform_action(action, video, frame, origin_translation)
 
 Is called inside the `javis` and does everything handled for an `ActionType`.
 It is a 4-step process:
@@ -520,7 +522,7 @@ It is a 4-step process:
 - call the action function
 - save the result of the action if wanted inside `video.defs`
 """
-function perform_action(action, video, frame, start_translation)
+function perform_action(action, video, frame, origin_translation)
     compute_transformation!(action, video, frame)
     perform_transformation(action)
     res = action.func(video, action, frame)
@@ -528,7 +530,7 @@ function perform_action(action, video, frame, start_translation)
         # if a transformation let's save the global coordinates
         if res isa Transformation
             trans = cairotojuliamatrix(getmatrix())*res
-            trans.p -= start_translation
+            trans.p -= origin_translation
             video.defs[action.id] = trans
         else # just save the result such that it can be used as one wishes
             video.defs[action.id] = res
