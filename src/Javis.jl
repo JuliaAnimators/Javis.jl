@@ -126,6 +126,14 @@ struct Translation <: Transition
 end
 
 """
+    Translation(p::Union{Point, Symbol})
+
+Create a `Translation(p, p)` such that 
+if there is no animation the start position and end position are the same.
+"""
+Translation(p::Union{Point, Symbol}) = Translation(p, p)
+
+"""
     Rotation <: Transition
 
 Stores the rotation similar to [`Translation`](@ref) with `from` and `to` but also the rotation point.
@@ -140,6 +148,22 @@ struct Rotation <: Transition
     to      :: Union{Float64, Symbol}
     center  :: Union{Point, Symbol}
 end
+
+"""
+    Rotation(r::Union{Float64, Symbol})
+
+Rotation as a transition from `r` to itself.
+Can be used as a general non-animating rotation.
+"""
+Rotation(r::Union{Float64, Symbol}) = Rotation(r, r)
+
+"""
+    Rotation(r::Union{Float64, Symbol}, center::Union{Point, Symbol})
+
+Rotation as a transition from `r` to itself around `center`.
+Can be used as a general non-animating rotation around a point.
+"""
+Rotation(r::Union{Float64, Symbol}, center::Union{Point, Symbol}) = Rotation(r, r, center)
 
 """
     Rotation(from, to)
