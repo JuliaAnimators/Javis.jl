@@ -22,10 +22,12 @@ Example call of this function within an `Action`.
 
 """
 function draw_grid(; direction::AbstractString = "TR", line_gap = 25)
-
     return (video, action, frame) ->
-        _draw_grid(video, action, frame; direction = direction, line_gap = line_gap)
-
+        _draw_grid(video, 
+		   action, 
+		   frame; 
+		   direction = direction, 
+		   line_gap = line_gap)
 end
 
 function _draw_grid(
@@ -108,12 +110,12 @@ This example will produce an animation with the vertical axis being drawn toward
 
 """
 function zero_lines(; direction::AbstractString = "TR", line_thickness = 10)
-    return (video, action, frame) -> _zero_lines(
-        video,
-        action,
-        frame;
-        direction = direction,
-        line_thickness = line_thickness,
+    return (video, action, frame) -> 
+       _zero_lines(video,
+        	   action,
+        	   frame;
+        	   direction = direction,
+        	   line_thickness = line_thickness,
     )
 end
 
