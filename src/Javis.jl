@@ -187,6 +187,8 @@ struct Line
     p2 :: Point
 end
 
+include("backgrounds.jl")
+
 """
     Base.:*(m::Array{Float64,2}, transformation::Transformation)
 

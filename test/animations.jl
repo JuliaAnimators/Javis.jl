@@ -50,6 +50,39 @@ end
     end
 end
 
+
+@testset "Drawing grid" begin
+    video = Video(500, 500)
+    javis(
+	video,
+	[
+	    Action(1:40, ground),
+	    
+	    Action(1:10, draw_grid(direction = "BL", line_gap = 25)),
+	    Action(1:10, zero_lines(direction = "BL", line_thickness = 10)),
+	    
+	    Action(11:20, draw_grid(direction = "BR", line_gap = 25)),
+	    Action(11:20, zero_lines(direction = "BR", line_thickness = 10)),
+	    
+	    Action(21:30, draw_grid(direction = "TL", line_gap = 25)),
+	    Action(21:30, zero_lines(direction = "TL", line_thickness = 10)),
+	    
+	    Action(31:40, draw_grid(direction = "TR", line_gap = 25)),
+	    Action(31:40, zero_lines(direction = "TR", line_thickness = 10)),
+
+	],
+	tempdirectory = "images"
+    )
+
+    @test_reference "refs/grid_drawing_bl.png" load("images/0000000008.png")
+    @test_reference "refs/grid_drawing_br.png" load("images/0000000018.png")
+    @test_reference "refs/grid_drawing_tl.png" load("images/0000000028.png")
+    @test_reference "refs/grid_drawing_tr.png" load("images/0000000038.png")
+    for i=1:40
+	rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
 @testset "Dancing circles layered" begin 
     p1 = Point(100,0)
     p2 = Point(100,80)
