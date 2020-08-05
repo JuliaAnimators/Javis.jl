@@ -44,37 +44,74 @@ end
     end
 end
 
-@testset "Drawing grid" begin
+@testset "Drawing Grid TL" begin
     video = Video(500, 500)
     javis(
         video,
         [
             Action(1:10, ground),
-	    Action(1:10, (video, action, frame)-> draw_grid(video, action, frame, direction = :TL, line_gap = 25)),
+	    Action(1:10, (video, action, frame)-> draw_grid(video, action, frame, direction = "TL", line_gap = 25)),
+	    Action(1:10, (video, action, frame)-> zero_lines(video, action, frame, direction = "TL", line_thickness = 10)),
         ],
         tempdirectory = "images"
     )
 
-    @test_reference "refs/grid_drawing.png" load("images/0000000007.png")
+    @test_reference "refs/grid_drawing_tl.png" load("images/0000000008.png")
     for i=1:10
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
 
-@testset "Drawing zero lines" begin
+@testset "Drawing Grid TR" begin
     video = Video(500, 500)
     javis(
-        video,
-        [
-            Action(1:10, ground),
-	    Action(1:10, (video, action, frame)-> zero_lines(video, action, frame, direction = :TL, line_thickness = 10)),
-        ],
-        tempdirectory = "images"
+	video,
+	[
+	    Action(1:10, ground),
+	    Action(1:10, (video, action, frame)-> draw_grid(video, action, frame, direction = "TR", line_gap = 25)),
+	    Action(1:10, (video, action, frame)-> zero_lines(video, action, frame, direction = "TR", line_thickness = 10)),
+	],
+	tempdirectory = "images"
     )
 
-    @test_reference "refs/zero_lines.png" load("images/0000000008.png")
+    @test_reference "refs/grid_drawing_tr.png" load("images/0000000008.png")
     for i=1:10
-        rm("images/$(lpad(i, 10, "0")).png")
+	rm("images/$(lpad(i, 10, "0")).png")
     end
 end
 
+@testset "Drawing Grid BL" begin
+    video = Video(500, 500)
+    javis(
+	video,
+	[
+	    Action(1:10, ground),
+	    Action(1:10, (video, action, frame)-> draw_grid(video, action, frame, direction = "BL", line_gap = 25)),
+	    Action(1:10, (video, action, frame)-> zero_lines(video, action, frame, direction = "BL", line_thickness = 10)),
+	],
+	tempdirectory = "images"
+    )
+
+    @test_reference "refs/grid_drawing_bl.png" load("images/0000000008.png")
+    for i=1:10
+	rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
+@testset "Drawing Grid BR" begin
+    video = Video(500, 500)
+    javis(
+	video,
+	[
+	    Action(1:10, ground),
+	    Action(1:10, (video, action, frame)-> draw_grid(video, action, frame, direction = "BR", line_gap = 25)),
+	    Action(1:10, (video, action, frame)-> zero_lines(video, action, frame, direction = "BR", line_thickness = 10)),
+	],
+	tempdirectory = "images"
+    )
+
+    @test_reference "refs/grid_drawing_br.png" load("images/0000000008.png")
+    for i=1:10
+	rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
