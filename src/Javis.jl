@@ -242,10 +242,17 @@ end
 """
     Translation(p::Union{Point, Symbol})
 
-Create a `Translation(p, p)` such that 
-if there is no animation the start position and end position are the same.
+Create a `Translation(O, p)` such that a translation is done from the origin.
 """
-Translation(p::Union{Point, Symbol}) = Translation(p, p)
+Translation(p::Union{Point, Symbol}) = Translation(O, p)
+
+"""
+    Translation(x::Real, y::Real)
+
+Create a `Translation(O, Point(x,y))` such that a translation is done from the origin.
+Shorthand for writing `Translation(Point(x,y))`.
+"""
+Translation(x::Real, y::Real) = Translation(Point(x, y))
 
 """
     Rotation <: Transition
@@ -266,10 +273,10 @@ end
 """
     Rotation(r::Union{Float64, Symbol})
 
-Rotation as a transition from `r` to itself.
-Can be used as a general non-animating rotation.
+Rotation as a transition from 0.0 to `r` .
+Can be used as a short-hand.
 """
-Rotation(r::Union{Float64, Symbol}) = Rotation(r, r)
+Rotation(r::Union{Float64, Symbol}) = Rotation(0.0, r)
 
 """
     Rotation(r::Union{Float64, Symbol}, center::Union{Point, Symbol})
@@ -294,7 +301,7 @@ We mean the mathematic definition of a continuous line and not a segment of a li
 
 # Fields
 - `p1::Point`: start point
-- `p2::Point`: second point to define the line)
+- `p2::Point`: second point to define the line
 """
 struct Line 
     p1 :: Point
