@@ -21,4 +21,32 @@ end
     Javis.compute_transformation!(action, video, 100)
     @test action.internal_transitions[1].by == Point(100,100)
 end
+
+@testset "translation from origin" begin
+    video = Video(500, 500)
+    # dummy action doesn't need a real function
+    action = Action(1:100, ()->1, Translation(Point(99, 99)))
+    # needs internal translation as well
+    push!(action.internal_transitions, Javis.InternalTranslation(O))
+
+    Javis.compute_transformation!(action, video, 1)
+    @test action.internal_transitions[1].by == O
+    Javis.compute_transformation!(action, video, 50)
+    @test action.internal_transitions[1].by == Point(49,49)
+    Javis.compute_transformation!(action, video, 100)
+    @test action.internal_transitions[1].by == Point(99,99)
+
+    video = Video(500, 500)
+    # dummy action doesn't need a real function
+    action = Action(1:100, ()->1, Translation(99, 99))
+    # needs internal translation as well
+    push!(action.internal_transitions, Javis.InternalTranslation(O))
+
+    Javis.compute_transformation!(action, video, 1)
+    @test action.internal_transitions[1].by == O
+    Javis.compute_transformation!(action, video, 50)
+    @test action.internal_transitions[1].by == Point(49,49)
+    Javis.compute_transformation!(action, video, 100)
+    @test action.internal_transitions[1].by == Point(99,99)
+end
 end
