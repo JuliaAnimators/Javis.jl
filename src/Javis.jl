@@ -1,6 +1,8 @@
 module Javis
 
-using Luxor, LaTeXStrings
+using LaTeXStrings
+using LightXML
+using Luxor
 
 """
     Video
@@ -17,12 +19,30 @@ mutable struct Video
     height  :: Int
     defs    :: Dict{Symbol, Any}
 end
+
 """
     Video(width, height)
 
 Create a video with a certain `width` and `height` in pixel.
+This also sets `CURRENT_VIDEO`.
 """
-Video(width, height) = Video(width, height, Dict{Symbol, Any}())
+function Video(width, height) 
+    video = Video(width, height, Dict{Symbol, Any}())
+    if isempty(CURRENT_VIDEO)
+        push!(CURRENT_VIDEO, video)
+    else
+        CURRENT_VIDEO[1] = video
+    end
+    return video
+end
+
+"""
+    CURRENT_VIDEO
+
+holds the current video in an array to be declared as a constant
+The current video can be accessed using CURRENT_VIDEO[1]
+"""
+const CURRENT_VIDEO = Array{Video, 1}()
 
 """
     Transformation
@@ -70,6 +90,40 @@ mutable struct Action <: ActionType
 end
 
 """
+    Rel
+
+Ability to define frames in a relative fashion.
+
+# Example
+```
+ Action(1:100, ground; in_global_layer=true),
+ Action(1:90, :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
+ Action(Rel(10), :blue_ball, (args...)->circ(p2, "blue"), Rotation(2π, from_rot, :red_ball)),
+ Action((video, args...)->path!(path_of_red, pos(:red_ball), "red"))
+```
+is the same as 
+```
+Action(1:100, ground; in_global_layer=true),
+Action(1:90, :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
+Action(91:100, :blue_ball, (args...)->circ(p2, "blue"), Rotation(2π, from_rot, :red_ball)),
+Action(91:100, (video, args...)->path!(path_of_red, pos(:red_ball), "red"))
+```
+
+# Fields
+- rel::UnitRange defines the frames in a relative fashion. 
+"""
+struct Rel
+    rel :: UnitRange
+end
+
+"""
+    Rel(i::Int)
+
+Shorthand for Rel(1:i)
+"""
+Rel(i::Int) = Rel(1:i)
+
+"""
     Action(frames, func::Function, args...)
 
 The most simple form of an action (if there are no `args`/`kwargs`) just calls
@@ -79,18 +133,78 @@ The most simple form of an action (if there are no `args`/`kwargs`) just calls
 Action(frames, func::Function, args...; kwargs...) = Action(frames, nothing, func, args...; kwargs...)
 
 """
-    Action(frames, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...; kwargs...)
+    Action(func::Function, args...)
+
+Similar to the above but uses the same as frames as the action above.
+"""
+Action(func::Function, args...; kwargs...) = Action(:same, nothing, func, args...; kwargs...)
+
+"""
+    Action(frames::UnitRange, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...; kwargs...)
 
 # Arguments
-- `frames`: defines for which frames this action is called
+- `frames::UnitRange`: defines for which frames this action is called
 - `id::Symbol`: Is used if the `func` returns something which shell be accessible by other actions later
 - `func::Function` the function that is called after the `transitions` are performed
 - `transitions::Transition...` a list of transitions that are performed before the function `func` itself is called
 
 The keywords arguments will be saved inside `.opts` as a `Dict{Symbol, Any}`
 """
-Action(frames, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...; kwargs...) = 
+function Action(frames::UnitRange, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...; kwargs...) 
+    CURRENT_VIDEO[1].defs[:last_frames] = frames
     Action(frames, id, func, collect(transitions), [], Dict(kwargs...))
+end
+
+"""
+    Action(frames::Symbol, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...; kwargs...)
+
+# Arguments
+- `frames::Symbol`: defines for which frames this action is called by using a symbol. 
+    Currently only `:same` is supported. This uses the same frames as the action before.
+- `id::Symbol`: Is used if the `func` returns something which shell be accessible by other actions later
+- `func::Function` the function that is called after the `transitions` are performed
+- `transitions::Transition...` a list of transitions that are performed before the function `func` itself is called
+
+The keywords arguments will be saved inside `.opts` as a `Dict{Symbol, Any}`
+"""
+function Action(frames::Symbol, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...; kwargs...) 
+    if !haskey(CURRENT_VIDEO[1].defs, :last_frames)
+        throw(ArgumentError("Frames need to be defined explicitly, at least for the first frame."))
+    end
+    last_frames = CURRENT_VIDEO[1].defs[:last_frames]
+    comp_frames = 1:1
+    if frames == :same
+        comp_frames = last_frames
+    else
+        throw(ArgumentError("Currently the only symbol supported for defining frames is `:same`"))
+    end
+    CURRENT_VIDEO[1].defs[:last_frames] = comp_frames
+    Action(comp_frames, id, func, collect(transitions), [], Dict(kwargs...))
+end
+
+"""
+    Action(frames::Rel, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...; kwargs...)
+
+# Arguments
+- `frames::Rel`: defines for which frames this action is by using relative frames.
+    i.e Rel(10) will be using the 10 frames after the last action.
+- `id::Symbol`: Is used if the `func` returns something which shell be accessible by other actions later
+- `func::Function` the function that is called after the `transitions` are performed
+- `transitions::Transition...` a list of transitions that are performed before the function `func` itself is called
+
+The keywords arguments will be saved inside `.opts` as a `Dict{Symbol, Any}`
+"""
+function Action(frames::Rel, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...; kwargs...) 
+    if !haskey(CURRENT_VIDEO[1].defs, :last_frames)
+        throw(ArgumentError("Frames need to be defined explicitly, at least for the first frame."))
+    end
+    last_frames = CURRENT_VIDEO[1].defs[:last_frames]
+    start_frame = last(last_frames)+first(frames.rel)
+    last_frame  = last(last_frames)+last(frames.rel)
+    comp_frames = start_frame:last_frame
+    CURRENT_VIDEO[1].defs[:last_frames] = comp_frames
+    Action(comp_frames, id, func, collect(transitions), [], Dict(kwargs...))
+end
 
 """
     BackgroundAction(frames, func::Function, args...; kwargs...) 
@@ -225,10 +339,6 @@ const LaTeXSVG = Dict{LaTeXString, String}(
     L"E=mc^2" => "<svg xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"8.976ex\" height=\"2.676ex\" style=\"vertical-align: -0.338ex;\" viewBox=\"0 -1006.6 3864.5 1152.1\" role=\"img\" focusable=\"false\" xmlns=\"http://www.w3.org/2000/svg\" aria-labelledby=\"MathJax-SVG-1-Title\">\n<title id=\"MathJax-SVG-1-Title\">upper E equals m c squared</title>\n<defs aria-hidden=\"true\">\n<path stroke-width=\"1\" id=\"E1-MJMATHI-45\" d=\"M492 213Q472 213 472 226Q472 230 477 250T482 285Q482 316 461 323T364 330H312Q311 328 277 192T243 52Q243 48 254 48T334 46Q428 46 458 48T518 61Q567 77 599 117T670 248Q680 270 683 272Q690 274 698 274Q718 274 718 261Q613 7 608 2Q605 0 322 0H133Q31 0 31 11Q31 13 34 25Q38 41 42 43T65 46Q92 46 125 49Q139 52 144 61Q146 66 215 342T285 622Q285 629 281 629Q273 632 228 634H197Q191 640 191 642T193 659Q197 676 203 680H757Q764 676 764 669Q764 664 751 557T737 447Q735 440 717 440H705Q698 445 698 453L701 476Q704 500 704 528Q704 558 697 578T678 609T643 625T596 632T532 634H485Q397 633 392 631Q388 629 386 622Q385 619 355 499T324 377Q347 376 372 376H398Q464 376 489 391T534 472Q538 488 540 490T557 493Q562 493 565 493T570 492T572 491T574 487T577 483L544 351Q511 218 508 216Q505 213 492 213Z\"></path>\n<path stroke-width=\"1\" id=\"E1-MJMAIN-3D\" d=\"M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z\"></path>\n<path stroke-width=\"1\" id=\"E1-MJMATHI-6D\" d=\"M21 287Q22 293 24 303T36 341T56 388T88 425T132 442T175 435T205 417T221 395T229 376L231 369Q231 367 232 367L243 378Q303 442 384 442Q401 442 415 440T441 433T460 423T475 411T485 398T493 385T497 373T500 364T502 357L510 367Q573 442 659 442Q713 442 746 415T780 336Q780 285 742 178T704 50Q705 36 709 31T724 26Q752 26 776 56T815 138Q818 149 821 151T837 153Q857 153 857 145Q857 144 853 130Q845 101 831 73T785 17T716 -10Q669 -10 648 17T627 73Q627 92 663 193T700 345Q700 404 656 404H651Q565 404 506 303L499 291L466 157Q433 26 428 16Q415 -11 385 -11Q372 -11 364 -4T353 8T350 18Q350 29 384 161L420 307Q423 322 423 345Q423 404 379 404H374Q288 404 229 303L222 291L189 157Q156 26 151 16Q138 -11 108 -11Q95 -11 87 -5T76 7T74 17Q74 30 112 181Q151 335 151 342Q154 357 154 369Q154 405 129 405Q107 405 92 377T69 316T57 280Q55 278 41 278H27Q21 284 21 287Z\"></path>\n<path stroke-width=\"1\" id=\"E1-MJMATHI-63\" d=\"M34 159Q34 268 120 355T306 442Q362 442 394 418T427 355Q427 326 408 306T360 285Q341 285 330 295T319 325T330 359T352 380T366 386H367Q367 388 361 392T340 400T306 404Q276 404 249 390Q228 381 206 359Q162 315 142 235T121 119Q121 73 147 50Q169 26 205 26H209Q321 26 394 111Q403 121 406 121Q410 121 419 112T429 98T420 83T391 55T346 25T282 0T202 -11Q127 -11 81 37T34 159Z\"></path>\n<path stroke-width=\"1\" id=\"E1-MJMAIN-32\" d=\"M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z\"></path>\n</defs>\n<g stroke=\"currentColor\" fill=\"currentColor\" stroke-width=\"0\" transform=\"matrix(1 0 0 -1 0 0)\" aria-hidden=\"true\">\n <use xlink:href=\"#E1-MJMATHI-45\" x=\"0\" y=\"0\"></use>\n <use xlink:href=\"#E1-MJMAIN-3D\" x=\"1042\" y=\"0\"></use>\n <use xlink:href=\"#E1-MJMATHI-6D\" x=\"2098\" y=\"0\"></use>\n<g transform=\"translate(2977,0)\">\n <use xlink:href=\"#E1-MJMATHI-63\" x=\"0\" y=\"0\"></use>\n <use transform=\"scale(0.707)\" xlink:href=\"#E1-MJMAIN-32\" x=\"613\" y=\"583\"></use>\n</g>\n</g>\n</svg>\n",
 )
 
-# holds the current video (Array to be declared as constant :D)
-# only holds one video at a time 
-const CURRENT_VIDEO = Array{Video, 1}()
-
 include("svg2luxor.jl")
 include("morphs.jl")
 
@@ -266,9 +376,9 @@ Add the latex string `text` to the top left corner of the LaTeX path. Can be add
 # Example
 
 ```
-using Luxor
 using Javis
 using LaTeXStrings
+using Luxor
 
 my_drawing = Drawing(400, 200, "test.png")
 background("white")
@@ -504,12 +614,6 @@ function javis(
             video.defs[action.id] = Transformation(O, 0.0)
         end
     end
-
-    if isempty(CURRENT_VIDEO)
-        push!(CURRENT_VIDEO, video)
-    else
-        CURRENT_VIDEO[1] = video
-    end
     
     filecounter = 1
     for frame in frames
@@ -575,7 +679,7 @@ end
 
 
 export javis, latex
-export Video, Action, BackgroundAction
+export Video, Action, BackgroundAction, Rel
 export Line, Translation, Rotation, Transformation
 export pos, angle
 export projection, morph

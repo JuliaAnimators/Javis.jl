@@ -87,8 +87,8 @@ i.e. use `circle(Point(100,100), 50)` instead of `circle(Point(100,100), 50, :st
 This creates a star that morphs into a circle and back.
 
 ```
-using Luxor
 using Javis
+using Luxor
 
 astar(args...) = star(O, 50) 
 acirc(args...) = circle(Point(100,100), 50) 
