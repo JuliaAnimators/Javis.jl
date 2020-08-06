@@ -1,6 +1,5 @@
 # Javis
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://Wikunia.github.io/Javis.jl/stable)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://Wikunia.github.io/Javis.jl/dev)
 [![Build Status](https://github.com/Wikunia/Javis.jl/workflows/CI/badge.svg)](https://github.com/Wikunia/Javis.jl/actions)
 [![Coverage](https://codecov.io/gh/Wikunia/Javis.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Wikunia/Javis.jl)
@@ -8,6 +7,9 @@
 **Javis:** **J**ulia M**a**thematical **Vis**ualizations and Animations
 
 Mathematical animations in Julia made easy. 
+
+You want to have a look before we provide a proper tutorial?
+Check out my blog post [Javis.jl - The beginning](https://opensourc.es/blog/javis-beginning)
 
 ---
 
