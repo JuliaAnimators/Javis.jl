@@ -36,8 +36,8 @@ end
     video = Video(500, 500)
     javis(video, [
         BackgroundAction(1:25, ground, Rotation(0.0), Translation(Point(25, 25))),
-        Action(1:25, latex_title),
-        Action(1:25, :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
+        Action(latex_title),
+        Action(Rel(-24:0), :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
         Action(1:25, :blue_ball, (args...)->circ(p2, "blue"), Rotation(to_rot, from_rot, :red_ball)),
         Action(1:25, (video, args...)->path!(path_of_red, pos(:red_ball), "red")),
         Action(1:25, (video, args...)->path!(path_of_blue, pos(:blue_ball), "blue")),
@@ -59,16 +59,16 @@ end
 	    Action(1:40, ground),
 	    
 	    Action(1:10, draw_grid(direction = "BL", line_gap = 25)),
-	    Action(1:10, zero_lines(direction = "BL", line_thickness = 10)),
+	    Action(zero_lines(direction = "BL", line_thickness = 10)),
 	    
-	    Action(11:20, draw_grid(direction = "BR", line_gap = 25)),
-	    Action(11:20, zero_lines(direction = "BR", line_thickness = 10)),
-	    
-	    Action(21:30, draw_grid(direction = "TL", line_gap = 25)),
-	    Action(21:30, zero_lines(direction = "TL", line_thickness = 10)),
-	    
-	    Action(31:40, draw_grid(direction = "TR", line_gap = 25)),
-	    Action(31:40, zero_lines(direction = "TR", line_thickness = 10)),
+	    Action(Rel(10), draw_grid(direction = "BR", line_gap = 25)),
+	    Action(zero_lines(direction = "BR", line_thickness = 10)),
+        
+        Action(Rel(10), draw_grid(direction = "TL", line_gap = 25)),
+	    Action(zero_lines(direction = "TL", line_thickness = 10)),
+        
+        Action(Rel(10), draw_grid(direction = "TR", line_gap = 25)),
+	    Action(zero_lines(direction = "TR", line_thickness = 10)),
 
 	],
 	tempdirectory = "images"
