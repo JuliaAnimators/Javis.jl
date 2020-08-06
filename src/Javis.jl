@@ -1,6 +1,8 @@
 module Javis
 
-using Luxor, LaTeXStrings
+using LaTeXStrings
+using LightXML
+using Luxor
 
 """
     Video
@@ -17,6 +19,7 @@ mutable struct Video
     height  :: Int
     defs    :: Dict{Symbol, Any}
 end
+
 """
     Video(width, height)
 
@@ -33,8 +36,12 @@ function Video(width, height)
     return video
 end
 
-# holds the current video (Array to be declared as constant :D)
-# only holds one video at a time 
+"""
+    CURRENT_VIDEO
+
+holds the current video in an array to be declared as a constant
+The current video can be accessed using CURRENT_VIDEO[1]
+"""
 const CURRENT_VIDEO = Array{Video, 1}()
 
 """
@@ -101,6 +108,9 @@ Action(1:90, :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
 Action(91:100, :blue_ball, (args...)->circ(p2, "blue"), Rotation(2π, from_rot, :red_ball)),
 Action(91:100, (video, args...)->path!(path_of_red, pos(:red_ball), "red"))
 ```
+
+# Fields
+- rel::UnitRange defines the frames in a relative fashion. 
 """
 struct Rel
     rel :: UnitRange
@@ -359,9 +369,9 @@ Add the latex string `text` to the top left corner of the LaTeX path. Can be add
 # Example
 
 ```
-using Luxor
 using Javis
 using LaTeXStrings
+using Luxor
 
 my_drawing = Drawing(400, 200, "test.png")
 background("white")

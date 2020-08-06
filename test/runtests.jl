@@ -1,8 +1,9 @@
-using Javis
-using Luxor
 using Images
+using Javis
 using LaTeXStrings
-using Test, ReferenceTests
+using Luxor
+using ReferenceTests
+using Test
 
 include("unit.jl")
 include("svg.jl")
