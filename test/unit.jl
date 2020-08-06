@@ -34,6 +34,9 @@ end
     video = Video(500, 500)
     # throws because the frames of the first action need to be defined explicitly
     @test_throws ArgumentError Action(()->1, Translation(Point(1,1), Point(100, 100)))
+    # throws because the frames of the first action need to be defined explicitly
+    @test_throws ArgumentError Action(Rel(10), ()->1, Translation(Point(1,1), Point(100, 100)))
+    Action(1:100, ()->1, Translation(Point(1,1), Point(100, 100)))
     # throws because :some is not supported as Symbol for `frames`
     @test_throws ArgumentError Action(:some, ()->1, Translation(Point(1,1), Point(100, 100)))    
 end
