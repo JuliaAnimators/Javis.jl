@@ -11,7 +11,7 @@ end
 function circ(p=O, color="black")
     sethue(color)
     circle(p, 25, :fill)
-    return Transformation(p, 0.0)
+    return p
 end
 
 function path!(points, pos, color)

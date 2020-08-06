@@ -434,9 +434,9 @@ function compute_transition!(internal_rotation::InternalRotation, rotation::Rota
     t = (frame-first(action.frames))/(length(action.frames)-1)
     from, to, center = rotation.from, rotation.to, rotation.center
     
-    center isa Symbol && (center = video.defs[center].p)
-    from isa Symbol && (from = video.defs[from].angle)
-    to isa Symbol && (to = video.defs[to].angle)
+    center isa Symbol && (center = pos(center))
+    from isa Symbol && (from = angle(from))
+    to isa Symbol && (to = angle(to))
         
     internal_rotation.angle = from+t*(to-from)
     internal_rotation.center = center
@@ -453,8 +453,8 @@ function compute_transition!(internal_translation::InternalTranslation, translat
     t = (frame-first(action.frames))/(length(action.frames)-1)
     from, to = translation.from, translation.to
 
-    from isa Symbol && (from = video.defs[from].angle)
-    to isa Symbol && (to = video.defs[to].angle)
+    from isa Symbol && (from = pos(from))
+    to isa Symbol && (to = pos(to))
         
     internal_translation.by = from+t*(to-from)
 end
@@ -489,19 +489,24 @@ function perform_transformation(trans::InternalRotation)
     rotate(trans.angle)
 end
 
+pos(p::Point) = p
+pos(t::Transformation) = t.p
+
 function pos(s::Symbol)
     defs = CURRENT_VIDEO[1].defs
     if haskey(defs, s)
-        defs[s].p
+        pos(defs[s])
     else
         error("The symbol $s is not defined.")
     end
 end
 
+angle(t::Transformation) = t.angle
+
 function angle(s::Symbol)
     defs = CURRENT_VIDEO[1].defs
     if haskey(defs, s)
-        defs[s].angle
+        angle(defs[s])
     else
         error("The symbol $s is not defined.")
     end
@@ -664,12 +669,16 @@ function perform_action(action, video, frame, origin_matrix)
     perform_transformation(action)
     res = action.func(video, action, frame)
     if action.id !== nothing
-        # if a transformation let's save the global coordinates
-        if res isa Transformation
-            current_matrix = cairotojuliamatrix(getmatrix())
+        current_global_matrix = cairotojuliamatrix(getmatrix())
+        # obtain current matrix without the initial matrix part
+        current_matrix = inv(origin_matrix)*current_global_matrix
 
-            # obtain current matrix without the inital matrix part
-            trans = inv(origin_matrix)*current_matrix*res
+        # if a transformation let's save the global coordinates
+        if res isa Point
+            vec = current_matrix*[res.x, res.y, 1.0]
+            video.defs[action.id] = Point(vec[1], vec[2])
+        elseif res isa Transformation
+            trans = current_matrix*res
             video.defs[action.id] = trans
         else # just save the result such that it can be used as one wishes
             video.defs[action.id] = res
