@@ -15,6 +15,16 @@ Mathematical animations in Julia made easy.
 
 For releases, we follow the semantic versioning protocol and enforce the [BlueStyle code style format](https://github.com/invenia/BlueStyle).
 
+## Installation
+
+To install `Javis` into your Julia installation, type into your Julia REPL the following:
+
+```
+julia> ] add Javis
+```
+
+That's all there is to it! 😃
+
 ## Testing
 
 1. Clone the repo to your computer and go into that directory:
