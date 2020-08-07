@@ -42,12 +42,15 @@ end
         Action(1:25, (video, args...)->path!(path_of_red, pos(:red_ball), "red")),
         Action(1:25, (video, args...)->path!(path_of_blue, pos(:blue_ball), "blue")),
         Action(1:25, (args...)->rad(pos(:red_ball), pos(:blue_ball), "black"))
-    ], tempdirectory="images")
+    ], tempdirectory="images", creategif=true, pathname="dancing.gif")
 
     @test_reference "refs/dancing_circles_16.png" load("images/0000000016.png")
+    @test isfile("dancing.gif")
     for i=1:25
         rm("images/$(lpad(i, 10, "0")).png")
     end
+    rm("images/palette.bmp")
+    rm("dancing.gif")
 end
 
 @testset "Dancing circles layered" begin 

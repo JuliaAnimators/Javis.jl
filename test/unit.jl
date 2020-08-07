@@ -34,7 +34,6 @@ end
     video = Video(500, 500)
     # dummy action doesn't need a real function
     action = Action(1:100, ()->1, Translation(Point(99, 99)))
-    println(action)
     # needs internal translation as well
     push!(action.internal_transitions, Javis.InternalTranslation(O))
 
