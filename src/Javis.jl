@@ -1,5 +1,6 @@
 module Javis
 
+using FFMPEG
 using LaTeXStrings
 using LightXML
 using Luxor
@@ -647,7 +648,10 @@ function javis(
     end
 
     !creategif && return 
-    run(`ffmpeg -loglevel panic -framerate $(framerate) -f image2 -i $(tempdirectory)/%10d.png -filter_complex "[0:v] split [a][b]; [a] palettegen=stats_mode=full:reserve_transparent=on:transparency_color=FFFFFF [p]; [b][p] paletteuse=new=1:alpha_threshold=128" -y $(pathname)`)
+    # generate a colorpalette first so ffmpeg does not have to guess it
+    ffmpeg_exe(`-loglevel panic -i $(tempdirectory)/%10d.png -vf "palettegen=stats_mode=diff" -y "$(tempdirectory)/palette.bmp"`)
+    # then apply the palette to get better results
+    ffmpeg_exe(`-loglevel panic -framerate $framerate -i $(tempdirectory)/%10d.png -i "$(tempdirectory)/palette.bmp" -lavfi "paletteuse=dither=sierra2_4a" -y $pathname`)
     !deletetemp && return 
     run(`rm -rf $(tempdirectory)`)
     mkpath(tempdirectory)
