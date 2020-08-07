@@ -15,6 +15,11 @@ makedocs(;
         "Home" => "index.md",
         "References" => "references.md",
         "Contributing" => "contributing.md",
+	"Tutorials" => [
+			"tutorials/tutorial_1.md",
+			"tutorials/tutorial_2.md",
+			"tutorials/tutorial_3.md"
+			],
     ],
 )
 
