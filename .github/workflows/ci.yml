@@ -10,6 +10,7 @@ jobs:
       matrix:
         version:
           - '1.4'
+          - '1.5'
         os:
           - ubuntu-latest
           - macOS-latest
