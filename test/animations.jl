@@ -42,7 +42,7 @@ end
         Action(1:25, (video, args...)->path!(path_of_red, pos(:red_ball), "red")),
         Action(1:25, (video, args...)->path!(path_of_blue, pos(:blue_ball), "blue")),
         Action(1:25, (args...)->rad(pos(:red_ball), pos(:blue_ball), "black"))
-    ], tempdirectory="images", creategif=true, pathname="dancing.gif")
+    ], tempdirectory="images", pathname="dancing.gif")
 
     @test_reference "refs/dancing_circles_16.png" load("images/0000000016.png")
     @test isfile("dancing.gif")
@@ -70,7 +70,7 @@ end
         Action(1:25, (video, args...)->path!(path_of_red, pos(:red_ball), "red")),
         Action(1:25, (video, args...)->path!(path_of_blue, pos(:blue_ball), "blue")),
         Action(1:25, (args...)->rad(pos(:red_ball), pos(:blue_ball), "black"))
-    ], tempdirectory="images")
+    ], tempdirectory="images", pathname="")
 
     @test_reference "refs/dancing_circles_16_rot_trans.png" load("images/0000000016.png")
     for i=1:25
@@ -81,24 +81,24 @@ end
 @testset "Drawing grid" begin
     video = Video(500, 500)
     javis(
-	video,
-	[
-	    Action(1:40, ground),
-	    
-	    Action(1:10, draw_grid(direction = "BL", line_gap = 25)),
-	    Action(zero_lines(direction = "BL", line_thickness = 10)),
-	    
-	    Action(Rel(10), draw_grid(direction = "BR", line_gap = 25)),
-	    Action(zero_lines(direction = "BR", line_thickness = 10)),
-        
-        Action(Rel(10), draw_grid(direction = "TL", line_gap = 25)),
-	    Action(zero_lines(direction = "TL", line_thickness = 10)),
-        
-        Action(Rel(10), draw_grid(direction = "TR", line_gap = 25)),
-	    Action(zero_lines(direction = "TR", line_thickness = 10)),
+        video,
+        [
+            Action(1:40, ground),
+            
+            Action(1:10, draw_grid(direction = "BL", line_gap = 25)),
+            Action(zero_lines(direction = "BL", line_thickness = 10)),
+            
+            Action(Rel(10), draw_grid(direction = "BR", line_gap = 25)),
+            Action(zero_lines(direction = "BR", line_thickness = 10)),
+            
+            Action(Rel(10), draw_grid(direction = "TL", line_gap = 25)),
+            Action(zero_lines(direction = "TL", line_thickness = 10)),
+            
+            Action(Rel(10), draw_grid(direction = "TR", line_gap = 25)),
+            Action(zero_lines(direction = "TR", line_thickness = 10)),
 
-	],
-	tempdirectory = "images"
+        ],
+        tempdirectory = "images", pathname=""
     )
 
     @test_reference "refs/grid_drawing_bl.png" load("images/0000000008.png")
@@ -106,7 +106,7 @@ end
     @test_reference "refs/grid_drawing_tl.png" load("images/0000000028.png")
     @test_reference "refs/grid_drawing_tr.png" load("images/0000000038.png")
     for i=1:40
-	rm("images/$(lpad(i, 10, "0")).png")
+	    rm("images/$(lpad(i, 10, "0")).png")
     end
 end
 
@@ -118,9 +118,30 @@ acirc(args...) = circle(Point(100,100), 30)
     javis(video, [
         Action(1:10, ground),
         Action(1:10, morph(astar, acirc))
-    ], tempdirectory="images")
+    ], tempdirectory="images", pathname="")
+
     @test_reference "refs/star2circle5.png" load("images/0000000005.png")
     for i=1:10
         rm("images/$(lpad(i, 10, "0")).png")
     end
+end
+
+@testset "test default kwargs" begin
+    video = Video(500, 500)
+    pathname = javis(video, [
+        Action(1:10, ground),
+        Action(1:10, morph(astar, acirc))
+    ]) 
+    path, ext = splitext(pathname)
+    @test ext == ".gif"
+    @test isfile(pathname)
+    rm(pathname)
+end
+
+@testset "test @error .mp3" begin
+    video = Video(500, 500)
+    @test_logs (:error,) javis(video, [
+        Action(1:10, ground),
+        Action(1:10, morph(astar, acirc))
+    ]; pathname="test.mp3") 
 end

@@ -4,6 +4,7 @@ using FFMPEG
 using LaTeXStrings
 using LightXML
 using Luxor
+using Random
 
 """
     Video
@@ -590,11 +591,9 @@ i.e :red_ball is an id for the position or the red ball which can be used in the
 function javis(
     video::Video,
     actions::Vector{AT};
-    creategif=false,
     framerate=30,
-    pathname="",
-    tempdirectory="",
-    deletetemp=false
+    pathname="javis_$(randstring(7)).gif",
+    tempdirectory=mktempdir(),
 ) where AT <: ActionType
     # get all frames
     frames = Int[]
@@ -647,15 +646,17 @@ function javis(
         filecounter += 1
     end
 
-    !creategif && return 
-    # generate a colorpalette first so ffmpeg does not have to guess it
-    ffmpeg_exe(`-loglevel panic -i $(tempdirectory)/%10d.png -vf "palettegen=stats_mode=diff" -y "$(tempdirectory)/palette.bmp"`)
-    # then apply the palette to get better results
-    ffmpeg_exe(`-loglevel panic -framerate $framerate -i $(tempdirectory)/%10d.png -i "$(tempdirectory)/palette.bmp" -lavfi "paletteuse=dither=sierra2_4a" -y $pathname`)
-    !deletetemp && return 
-    run(`rm -rf $(tempdirectory)`)
-    mkpath(tempdirectory)
-    nothing
+    isempty(pathname) && return
+    path, ext = splitext(pathname)
+    if ext == ".gif"
+        # generate a colorpalette first so ffmpeg does not have to guess it
+        ffmpeg_exe(`-loglevel panic -i $(tempdirectory)/%10d.png -vf "palettegen=stats_mode=diff" -y "$(tempdirectory)/palette.bmp"`)
+        # then apply the palette to get better results
+        ffmpeg_exe(`-loglevel panic -framerate $framerate -i $(tempdirectory)/%10d.png -i "$(tempdirectory)/palette.bmp" -lavfi "paletteuse=dither=sierra2_4a" -y $pathname`)
+    else
+        @error "Currently, only gif creation is supported and not a $ext."
+    end
+    return pathname
 end
 
 """
