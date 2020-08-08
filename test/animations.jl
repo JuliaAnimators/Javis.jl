@@ -137,3 +137,11 @@ end
     @test isfile(pathname)
     rm(pathname)
 end
+
+@testset "test @error .mp3" begin
+    video = Video(500, 500)
+    @test_logs (:error,) javis(video, [
+        Action(1:10, ground),
+        Action(1:10, morph(astar, acirc))
+    ]; pathname="test.mp3") 
+end

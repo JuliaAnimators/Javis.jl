@@ -654,7 +654,7 @@ function javis(
         # then apply the palette to get better results
         ffmpeg_exe(`-loglevel panic -framerate $framerate -i $(tempdirectory)/%10d.png -i "$(tempdirectory)/palette.bmp" -lavfi "paletteuse=dither=sierra2_4a" -y $pathname`)
     else
-        @error "Currently it's only supported to create a gif and not a $ext."
+        @error "Currently, only gif creation is supported and not a $ext."
     end
     return pathname
 end
