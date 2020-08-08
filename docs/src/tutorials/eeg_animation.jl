@@ -19,12 +19,20 @@ function circ(p = O, color = "black", action = :fill, radius = 25, edge = "solid
     return Transformation(p, 0.0)
 end
 
+function outline_circ(p = O, fill_color = "white", outline_color = "black", action = :fill, radius = 25)
+    sethue(fill_color)
+    circle(p, radius, :fill)
+    sethue(outline_color)
+    circle(p, radius, :stroke)
+    return Transformation(p, 0.0)
+end
+
 radius = 15
 demo = Video(500, 500)
 javis(
     demo,
     [
-        Action(1:100, ground),
+        Action(1:30, ground),
         Action(
             :same,
             :inside_circle,
@@ -35,57 +43,39 @@ javis(
         Action(:same, :vert_line, (args...) -> draw_line(Point(0, -170), Point(0, 170),"black", :stroke, "longdashed")),
         Action(:same, :horiz_line, (args...) -> draw_line(Point(-170, 0), Point(170, 0),"black", :stroke, "longdashed")),
 
-        Action(:same, :cz, (args...) -> circ(O, "white", :fill, radius)),
-        Action(:same, :c3, (args...) -> circ(Point(-70, 0), "white", :fill, radius)),
-        Action(:same, :c4, (args...) -> circ(Point(70, 0), "white", :fill, radius)),
+        Action(:same, :cz, (args...) -> outline_circ(O, "white", "black", :fill, radius)),
+        Action(:same, :c3, (args...) -> outline_circ(Point(-70, 0), "white", "black", :fill, radius)),
+        Action(:same, :c4, (args...) -> outline_circ(Point(70, 0), "white", "black", :fill, radius)),
 
-        Action(:same, :cz, (args...) -> circ(O, "black", :stroke, radius)),
-        Action(:same, :c3, (args...) -> circ(Point(-70, 0), "black", :stroke, radius)),
-        Action(:same, :c4, (args...) -> circ(Point(70, 0), "black", :stroke, radius)),
+        Action(:same, :t3, (args...) -> outline_circ(Point(-140, 0), "white", "black", :fill, radius)),
+        Action(:same, :t4, (args...) -> outline_circ(Point(140, 0), "white", "black", :fill, radius)),
 
-        Action(:same, :t3, (args...) -> circ(Point(-140, 0), "white", :fill, radius)),
-        Action(:same, :t4, (args...) -> circ(Point(140, 0), "white", :fill, radius)),
 
-        Action(:same, :t3, (args...) -> circ(Point(-140, 0), "black", :stroke, radius)),
-        Action(:same, :t4, (args...) -> circ(Point(140, 0), "black", :stroke, radius)),
+        Action(:same, :pz, (args...) -> outline_circ(Point(0, 70), "white", "black", :fill, radius)),
+        Action(:same, :p3, (args...) -> outline_circ(Point(-50, 70),"white", "black", :stroke, radius)),
+        Action(:same, :p4, (args...) -> outline_circ(Point(50, 70), "white", "black", :stroke, radius)),
 
-        Action(:same, :pz, (args...) -> circ(Point(0, 70), "white", :fill, radius)),
-        Action(:same, :pz, (args...) -> circ(Point(0, 70), "black", :stroke, radius)),
-        Action(:same, :p3, (args...) -> circ(Point(-50, 70), "black", :stroke, radius)),
-        Action(:same, :p4, (args...) -> circ(Point(50, 70), "black", :stroke, radius)),
-
-        Action(:same, :fz, (args...) -> circ(Point(0, -70), "white", :fill, radius)),
-        Action(:same, :fz, (args...) -> circ(Point(0, -70), "black", :stroke, radius)),
-	Action(:same, :f3, (args...) -> circ(Point(-50, -70), "black", :stroke, radius)),
-        Action(:same, :f4, (args...) -> circ(Point(50, -70), "black", :stroke, radius)),
-        Action(:same, :f8, (args...) -> circ(Point(115, -80), "white", :fill, radius)),
-        Action(:same, :f8, (args...) -> circ(Point(115, -80), "black", :stroke, radius)),
-        Action(:same, :f7, (args...) -> circ(Point(-115, -80), "white", :fill, radius)),
-        Action(:same, :f7, (args...) -> circ(Point(-115, -80), "black", :stroke, radius)),
+        Action(:same, :fz, (args...) -> outline_circ(Point(0, -70), "white", "black", :fill, radius)),
+	Action(:same, :f3, (args...) -> outline_circ(Point(-50, -70), "white",  "black", :stroke, radius)),
+        Action(:same, :f4, (args...) -> outline_circ(Point(50, -70), "white", "black", :stroke, radius)),
+        Action(:same, :f8, (args...) -> outline_circ(Point(115, -80), "white", "black", :fill, radius)),
+        Action(:same, :f7, (args...) -> outline_circ(Point(-115, -80), "white", "black", :fill, radius)),
         
-	Action(:same, :t6, (args...) -> circ(Point(115, 80), "white", :fill, radius)),
-        Action(:same, :t6, (args...) -> circ(Point(115, 80), "black", :stroke, radius)),
+	Action(:same, :t6, (args...) -> outline_circ(Point(115, 80), "white", "black", :fill, radius)),
 
-        Action(:same, :t5, (args...) -> circ(Point(-115, 80), "white", :fill, radius)),
-        Action(:same, :t5, (args...) -> circ(Point(-115, 80), "black", :stroke, radius)),
+        Action(:same, :t5, (args...) -> outline_circ(Point(-115, 80), "white", "black", :fill, radius)),
         
-	Action(:same, :fp2, (args...) -> circ(Point(40, -135), "white", :fill, radius)),
-        Action(:same, :fp2, (args...) -> circ(Point(40, -135), "black", :stroke, radius)),
+	Action(:same, :fp2, (args...) -> outline_circ(Point(40, -135), "white", "black", :fill, radius)),
 
-	Action(:same, :fp1, (args...) -> circ(Point(-40, -135), "white", :fill, radius)),
-        Action(:same, :fp1, (args...) -> circ(Point(-40, -135), "black", :stroke, radius)),
+	Action(:same, :fp1, (args...) -> outline_circ(Point(-40, -135), "white", "black", :fill, radius)),
 
-	Action(:same, :a1, (args...) -> circ(Point(-190, -10), "white", :fill, radius)),
-        Action(:same, :a1, (args...) -> circ(Point(-190, -10), "black", :stroke, radius)),
+	Action(:same, :a1, (args...) -> outline_circ(Point(-190, -10), "white", "black", :fill, radius)),
 
-	Action(:same, :a2, (args...) -> circ(Point(190, -10), "white", :fill, radius)),
-        Action(:same, :a2, (args...) -> circ(Point(190, -10), "black", :stroke, radius)),
+	Action(:same, :a2, (args...) -> outline_circ(Point(190, -10), "white", "black", :fill, radius)),
 
-	Action(:same, :o1, (args...) -> circ(Point(-40, 135), "white", :fill, radius)),
-        Action(:same, :o1, (args...) -> circ(Point(-40, 135), "black", :stroke, radius)),
+	Action(:same, :o1, (args...) -> outline_circ(Point(-40, 135), "white", "black", :fill, radius)),
 
-	Action(:same, :o2, (args...) -> circ(Point(40, 135), "white", :fill, radius)),
-        Action(:same, :o2, (args...) -> circ(Point(40, 135), "black", :stroke, radius)),
+	Action(:same, :o2, (args...) -> outline_circ(Point(40, 135), "white", "black", :fill, radius)),
     ],
     tempdirectory = "tmp-directory",
     creategif = true,
