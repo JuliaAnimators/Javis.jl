@@ -159,15 +159,17 @@ end
 astar(args...) = star(Point(-100,-100), 30) 
 acirc(args...) = circle(Point(100,100), 30) 
 
-@testset "morphing star2circle" begin
+@testset "morphing star2circle and back" begin
     video = Video(500, 500)
     javis(video, [
-        Action(1:10, ground),
-        Action(1:10, morph(astar, acirc))
+        Action(1:20, ground),
+        Action(1:10, morph(astar, acirc)),
+        Action(11:20, morph(acirc, astar))
     ], tempdirectory="images", pathname="")
 
     @test_reference "refs/star2circle5.png" load("images/0000000005.png")
-    for i=1:10
+    @test_reference "refs/star2circle15.png" load("images/0000000015.png")
+    for i=1:20
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
