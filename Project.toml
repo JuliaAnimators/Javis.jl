@@ -11,7 +11,7 @@ Luxor = "ae8d54c2-7ccd-5906-9d76-62fc9837b5bc"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [compat]
-FFMPEG = "0.3"
+FFMPEG = "0.3, 0.4"
 LaTeXStrings = "1.1"
 LightXML = "0.9"
 Luxor = "2"
