@@ -61,11 +61,27 @@ end
 @testset "Frames errors" begin
     video = Video(500, 500)
     # throws because the frames of the first action need to be defined explicitly
-    @test_throws ArgumentError Action(()->1, Translation(Point(1,1), Point(100, 100)))
+    @test_throws ArgumentError Action((args...)->1, Translation(Point(1,1), Point(100, 100)))
     # throws because the frames of the first action need to be defined explicitly
-    @test_throws ArgumentError Action(Rel(10), ()->1, Translation(Point(1,1), Point(100, 100)))
-    Action(1:100, ()->1, Translation(Point(1,1), Point(100, 100)))
+    @test_throws ArgumentError Action(Rel(10), (args...)->1, Translation(Point(1,1), Point(100, 100)))
+    Action(1:100, (args...)->1, Translation(Point(1,1), Point(100, 100)))
     # throws because :some is not supported as Symbol for `frames`
-    @test_throws ArgumentError Action(:some, ()->1, Translation(Point(1,1), Point(100, 100)))    
+    @test_throws ArgumentError Action(:some, (args...)->1, Translation(Point(1,1), Point(100, 100)))    
+end
+
+@testset "Unspecified symbol error" begin
+    video = Video(500, 500)
+    # throws because the frames of the first action need to be defined explicitly
+    @test_throws ErrorException javis(video, [
+        Action(1:100, (args...)->1),
+        Action(1:100, (args...)->line(O, pos(:non_existent), :stroke))
+    ])
+
+    video = Video(500, 500)
+    # throws because the frames of the first action need to be defined explicitly
+    @test_throws ErrorException javis(video, [
+        Action(1:100, (args...)->1),
+        Action(1:100, (args...)->line(O, ang(:non_existent), :stroke))
+    ])
 end
 end

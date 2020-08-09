@@ -14,6 +14,12 @@ function circ(p=O, color="black")
     return p
 end
 
+function circ_ret_trans(p=O, color="black")
+    sethue(color)
+    circle(p, 25, :fill)
+    return Transformation(p, 0.0)
+end
+
 function path!(points, pos, color)
     sethue(color)
     push!(points, pos)
@@ -78,6 +84,31 @@ end
     end
 end
 
+@testset "Dancing circles layered return Transformation" begin 
+    p1 = Point(100,0)
+    p2 = Point(100,80)
+    from_rot = 0.0
+    to_rot = 2π
+    path_of_blue = Point[]
+    path_of_red = Point[]
+
+    video = Video(500, 500)
+    javis(video, [
+        Action(1:25, ground, Rotation(π/2, π/2, O), Translation(Point(25,25), Point(25,25)); in_global_layer=true),
+        Action(1:25, latex_title),
+        Action(1:25, :red_ball, (args...)->circ_ret_trans(p1, "red"), Rotation(to_rot)),
+        Action(1:25, :blue_ball, (args...)->circ_ret_trans(p2, "blue"), Rotation(to_rot, from_rot, :red_ball)),
+        Action(1:25, (video, args...)->path!(path_of_red, pos(:red_ball), "red")),
+        Action(1:25, (video, args...)->path!(path_of_blue, pos(:blue_ball), "blue")),
+        Action(1:25, (args...)->rad(pos(:red_ball), pos(:blue_ball), "black"))
+    ], tempdirectory="images", pathname="")
+
+    @test_reference "refs/dancing_circles_16_rot_trans.png" load("images/0000000016.png")
+    for i=1:25
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
 @testset "Drawing grid" begin
     video = Video(500, 500)
     javis(
@@ -106,6 +137,21 @@ end
     @test_reference "refs/grid_drawing_tl.png" load("images/0000000028.png")
     @test_reference "refs/grid_drawing_tr.png" load("images/0000000038.png")
     for i=1:40
+	    rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
+@testset "Use returned angle" begin
+    video = Video(500, 500)
+    p = Point(100, 0)
+    javis(video, [
+        Action(1:10, ground),
+        Action(:same, :circ, (args...)->circ_ret_trans(p), Rotation(2π)),
+        Action((args...)->line(Point(-200, 0), Point(-200, -10*ang(:circ)), :stroke))
+    ], tempdirectory="images", pathname="")
+
+    @test_reference "refs/circle_angle.png" load("images/0000000008.png")
+    for i=1:10
 	    rm("images/$(lpad(i, 10, "0")).png")
     end
 end
@@ -145,3 +191,4 @@ end
         Action(1:10, morph(astar, acirc))
     ]; pathname="test.mp3") 
 end
+

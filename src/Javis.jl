@@ -503,12 +503,12 @@ function pos(s::Symbol)
     end
 end
 
-angle(t::Transformation) = t.angle
+ang(t::Transformation) = t.angle
 
-function angle(s::Symbol)
+function ang(s::Symbol)
     defs = CURRENT_VIDEO[1].defs
     if haskey(defs, s)
-        angle(defs[s])
+        ang(defs[s])
     else
         error("The symbol $s is not defined.")
     end
@@ -695,7 +695,7 @@ end
 export javis, latex
 export Video, Action, BackgroundAction, Rel
 export Line, Translation, Rotation, Transformation
-export pos, angle
+export pos, ang
 export projection, morph
 
 end
