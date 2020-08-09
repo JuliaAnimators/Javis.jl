@@ -283,10 +283,10 @@ Rotation(r::Union{Float64, Symbol}) = Rotation(0.0, r)
 """
     Rotation(r::Union{Float64, Symbol}, center::Union{Point, Symbol})
 
-Rotation as a transition from `r` to itself around `center`.
-Can be used as a general non-animating rotation around a point.
+Rotation as a transition from `0.0` to `r` around `center`.
+Can be used as a short-hand for rotating around a `center` point.
 """
-Rotation(r::Union{Float64, Symbol}, center::Union{Point, Symbol}) = Rotation(r, r, center)
+Rotation(r::Union{Float64, Symbol}, center::Union{Point, Symbol}) = Rotation(0.0, r, center)
 
 """
     Rotation(from, to)
