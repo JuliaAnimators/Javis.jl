@@ -501,15 +501,15 @@ function perform_transformation(trans::InternalRotation)
 end
 
 """
-    val(s::Symbol)
+    get_value(s::Symbol)
 
 Get access to the value that got saved in `s` by a previous action.
-If you want to access a position or angle check out [`pos`](@ref) and [`angle`](@ref).
+If you want to access a position or angle check out [`get_position`](@ref) and [`get_angle`](@ref).
 
 # Returns
 - `Any`: the value stored by a previous action.
 """
-function val(s::Symbol) 
+function get_value(s::Symbol) 
     defs = CURRENT_VIDEO[1].defs
     if haskey(defs, s)
         return defs[s]
@@ -518,31 +518,52 @@ function val(s::Symbol)
     end
 end
 
-pos(p::Point) = p
-pos(t::Transformation) = t.p
+"""
+    val(x)
+
+`val` is just a short-hand for [`get_value`](@ref)
+"""
+val(x) = get_value(x)
+
+get_position(p::Point) = p
+get_position(t::Transformation) = t.p
 
 """
-    pos(s::Symbol)
+    get_position(s::Symbol)
 
-Get access to the value that got saved in `s` by a previous action.
-If you want to access a position or angle check out [`pos`](@ref) and [`angle`](@ref).
+Get access to the position that got saved in `s` by a previous action.
 
 # Returns
 - `Point`: the point stored by a previous action.
 """
-pos(s::Symbol) = pos(val(s))
-
-angle(t::Transformation) = t.angle
+get_position(s::Symbol) = get_position(val(s))
 
 """
-    angle(s::Symbol)
+    pos(x)
+
+`pos` is just a short-hand for [`get_position`](@ref)
+"""
+pos(x) = get_position(x)
+
+get_angle(t::Transformation) = t.angle
+
+
+"""
+    get_angle(s::Symbol)
 
 Get access to the angle that got saved in `s` by a previous action.
 
 # Returns
 - `Float64`: the angle stored by a previous action i.e via `return Transformation(p, angle)`
 """
-angle(s::Symbol) = angle(val(s))
+get_angle(s::Symbol) = get_angle(val(s))
+
+"""
+    ang(x)
+
+`ang` is just a short-hand for [`get_angle`](@ref)
+"""
+ang(x) = get_angle(x)
 
 """
     projection(p::Point, l::Line)
@@ -725,7 +746,7 @@ end
 export javis, latex
 export Video, Action, BackgroundAction, Rel
 export Line, Translation, Rotation, Transformation
-export val, pos, angle
+export val, pos, ang, get_value, get_position, get_angle
 export projection, morph
 
 end

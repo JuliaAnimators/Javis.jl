@@ -5,6 +5,12 @@ using Luxor
 using ReferenceTests
 using Test
 
-include("unit.jl")
-include("svg.jl")
-include("animations.jl")
+@testset "Unit" begin
+    include("unit.jl")
+end
+@testset "SVG LaTeX tests" begin
+    include("svg.jl")
+end
+@testset "Animations" begin
+    include("animations.jl")
+end
