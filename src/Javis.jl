@@ -491,28 +491,58 @@ function perform_transformation(trans::InternalRotation)
     rotate(trans.angle)
 end
 
-pos(p::Point) = p
-pos(t::Transformation) = t.p
+get_position(p::Point) = p
+get_position(t::Transformation) = t.p
 
-function pos(s::Symbol)
+"""
+    get_position(s::Symbol)
+
+Get access to the position that got saved in `s` by a previous action.
+
+# Returns
+- `Point`: the point stored by a previous action.
+"""
+function get_position(s::Symbol)
     defs = CURRENT_VIDEO[1].defs
     if haskey(defs, s)
-        pos(defs[s])
+        get_position(defs[s])
     else
         error("The symbol $s is not defined.")
     end
 end
 
-ang(t::Transformation) = t.angle
+"""
+    pos(x)
 
-function ang(s::Symbol)
+`pos` is just a short-hand for [`get_position`](@ref)
+"""
+pos(x) = get_position(x)
+
+get_angle(t::Transformation) = t.angle
+
+"""
+    get_angle(s::Symbol)
+
+Get access to the angle that got saved in `s` by a previous action.
+
+# Returns
+- `Float64`: the angle stored by a previous action.
+"""
+function get_angle(s::Symbol)
     defs = CURRENT_VIDEO[1].defs
     if haskey(defs, s)
-        ang(defs[s])
+        get_angle(defs[s])
     else
         error("The symbol $s is not defined.")
     end
 end
+
+"""
+    ang(x)
+
+`ang` is just a short-hand for [`get_angle`](@ref)
+"""
+ang(x) = get_angle(x)
 
 """
     projection(p::Point, l::Line)
@@ -695,7 +725,7 @@ end
 export javis, latex
 export Video, Action, BackgroundAction, Rel
 export Line, Translation, Rotation, Transformation
-export pos, ang
+export pos, ang, get_position, get_angle
 export projection, morph
 
 end
