@@ -4,6 +4,12 @@ function ground(video, action, framenumber)
     return framenumber
 end
 
+function ground_color(color_bg, color_pen, framenumber) 
+    background(color_bg)
+    sethue(color_pen)
+    return framenumber
+end
+
 function latex_title(args...)
     translate(0, -200)
     latex(L"E=mc^2", 20)
@@ -163,7 +169,7 @@ acirc(args...) = circle(Point(100,100), 30)
 @testset "morphing star2circle and back" begin
     video = Video(500, 500)
     javis(video, [
-        Action(1:20, :framenumber, ground),
+        BackgroundAction(1:20, :framenumber, (args...)->ground_color("white", "black", args[3])),
         Action(1:10, (args...)->circle(Point(-100, 0), val(:framenumber), :fill)),
         Action(1:10, morph(astar, acirc)),
         Action(11:20, morph(acirc, astar))
