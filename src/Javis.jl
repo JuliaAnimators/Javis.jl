@@ -218,6 +218,15 @@ function BackgroundAction(frames, func::Function, args...; kwargs...)
     Action(frames, nothing, func, args...; in_global_layer=true, kwargs...)
 end
 
+"""
+    BackgroundAction(frames, id::Symbol, func::Function, args...; kwargs...) 
+
+Create an Action where `in_global_layer` is set to true and saves the return into `id`.
+"""
+function BackgroundAction(frames, id::Symbol, func::Function, args...; kwargs...)
+    Action(frames, id, func, args...; in_global_layer=true, kwargs...)
+end
+
 mutable struct InternalTranslation <: InternalTransition
     by :: Point
 end
@@ -491,6 +500,31 @@ function perform_transformation(trans::InternalRotation)
     rotate(trans.angle)
 end
 
+"""
+    get_value(s::Symbol)
+
+Get access to the value that got saved in `s` by a previous action.
+If you want to access a position or angle check out [`get_position`](@ref) and [`get_angle`](@ref).
+
+# Returns
+- `Any`: the value stored by a previous action.
+"""
+function get_value(s::Symbol) 
+    defs = CURRENT_VIDEO[1].defs
+    if haskey(defs, s)
+        return defs[s]
+    else
+        error("The symbol $s is not defined.")
+    end
+end
+
+"""
+    val(x)
+
+`val` is just a short-hand for [`get_value`](@ref)
+"""
+val(x) = get_value(x)
+
 get_position(p::Point) = p
 get_position(t::Transformation) = t.p
 
@@ -502,14 +536,7 @@ Get access to the position that got saved in `s` by a previous action.
 # Returns
 - `Point`: the point stored by a previous action.
 """
-function get_position(s::Symbol)
-    defs = CURRENT_VIDEO[1].defs
-    if haskey(defs, s)
-        get_position(defs[s])
-    else
-        error("The symbol $s is not defined.")
-    end
-end
+get_position(s::Symbol) = get_position(val(s))
 
 """
     pos(x)
@@ -520,22 +547,16 @@ pos(x) = get_position(x)
 
 get_angle(t::Transformation) = t.angle
 
+
 """
     get_angle(s::Symbol)
 
 Get access to the angle that got saved in `s` by a previous action.
 
 # Returns
-- `Float64`: the angle stored by a previous action.
+- `Float64`: the angle stored by a previous action i.e via `return Transformation(p, angle)`
 """
-function get_angle(s::Symbol)
-    defs = CURRENT_VIDEO[1].defs
-    if haskey(defs, s)
-        get_angle(defs[s])
-    else
-        error("The symbol $s is not defined.")
-    end
-end
+get_angle(s::Symbol) = get_angle(val(s))
 
 """
     ang(x)
@@ -725,7 +746,7 @@ end
 export javis, latex
 export Video, Action, BackgroundAction, Rel
 export Line, Translation, Rotation, Transformation
-export pos, ang, get_position, get_angle
+export val, pos, ang, get_value, get_position, get_angle
 export projection, morph
 
 end
