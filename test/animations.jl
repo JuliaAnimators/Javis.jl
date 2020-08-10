@@ -1,6 +1,7 @@
-function ground(args...) 
+function ground(video, action, framenumber) 
     background("white")
     sethue("blue")
+    return "Frame: $framenumber"
 end
 
 function latex_title(args...)
@@ -63,8 +64,8 @@ end
 
     video = Video(500, 500)
     javis(video, [
-        Action(1:25, ground, Rotation(π/2, π/2, O), Translation(Point(25,25), Point(25,25)); in_global_layer=true),
-        Action(1:25, latex_title),
+        Action(1:25, :framenumber, ground, Rotation(π/2, π/2, O), Translation(Point(25,25), Point(25,25)); in_global_layer=true),
+        Action(:same, (args...)->text(val(:framenumber), Point(0, -200))),
         Action(1:25, :red_ball, (args...)->circ(p1, "red"), Rotation(to_rot)),
         Action(1:25, :blue_ball, (args...)->circ(p2, "blue"), Rotation(to_rot, from_rot, :red_ball)),
         Action(1:25, (video, args...)->path!(path_of_red, pos(:red_ball), "red")),

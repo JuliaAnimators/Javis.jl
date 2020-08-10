@@ -218,6 +218,15 @@ function BackgroundAction(frames, func::Function, args...; kwargs...)
     Action(frames, nothing, func, args...; in_global_layer=true, kwargs...)
 end
 
+"""
+    BackgroundAction(frames, id::Symbol, func::Function, args...; kwargs...) 
+
+Create an Action where `in_global_layer` is set to true and saves the return into `id`.
+"""
+function BackgroundAction(frames, id::Symbol, func::Function, args...; kwargs...)
+    Action(frames, id, func, args...; in_global_layer=true, kwargs...)
+end
+
 mutable struct InternalTranslation <: InternalTransition
     by :: Point
 end
@@ -491,28 +500,49 @@ function perform_transformation(trans::InternalRotation)
     rotate(trans.angle)
 end
 
+"""
+    val(s::Symbol)
+
+Get access to the value that got saved in `s` by a previous action.
+If you want to access a position or angle check out [`pos`](@ref) and [`angle`](@ref).
+
+# Returns
+- `Any`: the value stored by a previous action.
+"""
+function val(s::Symbol) 
+    defs = CURRENT_VIDEO[1].defs
+    if haskey(defs, s)
+        return defs[s]
+    else
+        error("The symbol $s is not defined.")
+    end
+end
+
 pos(p::Point) = p
 pos(t::Transformation) = t.p
 
-function pos(s::Symbol)
-    defs = CURRENT_VIDEO[1].defs
-    if haskey(defs, s)
-        pos(defs[s])
-    else
-        error("The symbol $s is not defined.")
-    end
-end
+"""
+    pos(s::Symbol)
+
+Get access to the value that got saved in `s` by a previous action.
+If you want to access a position or angle check out [`pos`](@ref) and [`angle`](@ref).
+
+# Returns
+- `Point`: the point stored by a previous action.
+"""
+pos(s::Symbol) = pos(val(s))
 
 angle(t::Transformation) = t.angle
 
-function angle(s::Symbol)
-    defs = CURRENT_VIDEO[1].defs
-    if haskey(defs, s)
-        angle(defs[s])
-    else
-        error("The symbol $s is not defined.")
-    end
-end
+"""
+    angle(s::Symbol)
+
+Get access to the angle that got saved in `s` by a previous action.
+
+# Returns
+- `Float64`: the angle stored by a previous action i.e via `return Transformation(p, angle)`
+"""
+angle(s::Symbol) = angle(val(s))
 
 """
     projection(p::Point, l::Line)
@@ -695,7 +725,7 @@ end
 export javis, latex
 export Video, Action, BackgroundAction, Rel
 export Line, Translation, Rotation, Transformation
-export pos, angle
+export val, pos, angle
 export projection, morph
 
 end
