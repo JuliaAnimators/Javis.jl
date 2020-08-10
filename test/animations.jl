@@ -1,7 +1,7 @@
 function ground(video, action, framenumber) 
     background("white")
     sethue("blue")
-    return "Frame: $framenumber"
+    return framenumber
 end
 
 function latex_title(args...)
@@ -110,11 +110,6 @@ end
     end
 end
 
-function disp_text(t, p)
-    setfont("Helvetica", 24)
-    settext(t, p)
-end
-
 astar(args...) = star(Point(-100,-100), 30) 
 acirc(args...) = circle(Point(100,100), 30) 
 
@@ -122,7 +117,7 @@ acirc(args...) = circle(Point(100,100), 30)
     video = Video(500, 500)
     javis(video, [
         Action(1:10, :framenumber, ground),
-        Action(1:10, (args...)->disp_text(val(:framenumber), Point(0, -100))),
+        Action(1:10, (args...)->circle(Point(-100, 0), val(:framenumber), :fill)),
         Action(1:10, morph(astar, acirc))
     ], tempdirectory="images", pathname="")
 
