@@ -153,7 +153,7 @@ end
     p = Point(100, 0)
     javis(video, [
         Action(1:10, ground),
-        Action(:same, :circ, (args...)->circ_ret_trans(p), Rotation(2π)),
+        Action(:circ, (args...)->circ_ret_trans(p), Rotation(2π)),
         Action((args...)->line(Point(-200, 0), Point(-200, -10*ang(:circ)), :stroke))
     ], tempdirectory="images", pathname="")
 

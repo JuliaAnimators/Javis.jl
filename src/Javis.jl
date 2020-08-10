@@ -6,6 +6,8 @@ using LightXML
 using Luxor
 using Random
 
+const FRAMES_SYMBOL = [:same]
+
 """
     Video
 
@@ -125,6 +127,7 @@ Shorthand for Rel(1:i)
 """
 Rel(i::Int) = Rel(1:i)
 
+
 """
     Action(frames, func::Function, args...)
 
@@ -133,6 +136,20 @@ The most simple form of an action (if there are no `args`/`kwargs`) just calls
 `args` are defined it the next function definition and can be seen in action in this example [`javis`](@ref)
 """
 Action(frames, func::Function, args...; kwargs...) = Action(frames, nothing, func, args...; kwargs...)
+
+"""
+    Action(frames_or_id::Symbol, func::Function, args...)
+
+This function decides whether you wrote `Action(frames_symbol, ...)`, or `Action(id_symbol, ...)`
+If the symbol `frames_or_id` is not a `FRAMES_SYMBOL` then it is used as an id_symbol.
+"""
+function Action(frames_or_id::Symbol, func::Function, args...; kwargs...)
+    if frames_or_id in FRAMES_SYMBOL
+        Action(frames_or_id, nothing, func, args...; kwargs...)
+    else
+        Action(:same, frames_or_id, func, args...; kwargs...)
+    end
+end
 
 """
     Action(func::Function, args...)
