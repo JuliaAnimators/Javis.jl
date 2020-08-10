@@ -64,8 +64,7 @@ end
 
     video = Video(500, 500)
     javis(video, [
-        Action(1:25, :framenumber, ground, Rotation(π/2, π/2, O), Translation(Point(25,25), Point(25,25)); in_global_layer=true),
-        Action(:same, (args...)->text(val(:framenumber), Point(0, -200))),
+        Action(1:25, ground, Rotation(π/2, π/2, O), Translation(Point(25,25), Point(25,25)); in_global_layer=true),
         Action(1:25, :red_ball, (args...)->circ(p1, "red"), Rotation(to_rot)),
         Action(1:25, :blue_ball, (args...)->circ(p2, "blue"), Rotation(to_rot, from_rot, :red_ball)),
         Action(1:25, (video, args...)->path!(path_of_red, pos(:red_ball), "red")),
@@ -111,13 +110,19 @@ end
     end
 end
 
+function disp_text(t, p)
+    setfont("Helvetica", 24)
+    settext(t, p)
+end
+
 astar(args...) = star(Point(-100,-100), 30) 
 acirc(args...) = circle(Point(100,100), 30) 
 
 @testset "morphing star2circle" begin
     video = Video(500, 500)
     javis(video, [
-        Action(1:10, ground),
+        Action(1:10, :framenumber, ground),
+        Action(1:10, (args...)->disp_text(val(:framenumber), Point(0, -100))),
         Action(1:10, morph(astar, acirc))
     ], tempdirectory="images", pathname="")
 
