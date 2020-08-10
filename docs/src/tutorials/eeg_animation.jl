@@ -48,7 +48,7 @@ demo = Video(500, 500)
 javis(
     demo,
     [
-        Action(1:30, ground),
+        Action(1:10, ground),
         Action(
             :same,
             :inside_circle,
@@ -278,8 +278,6 @@ javis(
         ),
         Action(:same, :info, info_box),
     ],
-    tempdirectory = "tmp-directory",
-    creategif = true,
     pathname = "eeg.gif",
     framerate = 1,
 )
