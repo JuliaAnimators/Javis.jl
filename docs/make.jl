@@ -18,7 +18,8 @@ makedocs(;
 	"Tutorials" => [
 			"tutorials/tutorial_1.md",
 			"tutorials/tutorial_2.md",
-			"tutorials/tutorial_3.md"
+			"tutorials/tutorial_3.md",
+			"tutorials/project_1.md",
 			],
     ],
 )
