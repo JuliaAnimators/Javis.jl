@@ -4,6 +4,7 @@ using FFMPEG
 using LaTeXStrings
 using LightXML
 using Luxor
+using Random
 
 """
     Video
@@ -282,10 +283,10 @@ Rotation(r::Union{Float64, Symbol}) = Rotation(0.0, r)
 """
     Rotation(r::Union{Float64, Symbol}, center::Union{Point, Symbol})
 
-Rotation as a transition from `r` to itself around `center`.
-Can be used as a general non-animating rotation around a point.
+Rotation as a transition from `0.0` to `r` around `center`.
+Can be used as a short-hand for rotating around a `center` point.
 """
-Rotation(r::Union{Float64, Symbol}, center::Union{Point, Symbol}) = Rotation(r, r, center)
+Rotation(r::Union{Float64, Symbol}, center::Union{Point, Symbol}) = Rotation(0.0, r, center)
 
 """
     Rotation(from, to)
@@ -490,28 +491,58 @@ function perform_transformation(trans::InternalRotation)
     rotate(trans.angle)
 end
 
-pos(p::Point) = p
-pos(t::Transformation) = t.p
+get_position(p::Point) = p
+get_position(t::Transformation) = t.p
 
-function pos(s::Symbol)
+"""
+    get_position(s::Symbol)
+
+Get access to the position that got saved in `s` by a previous action.
+
+# Returns
+- `Point`: the point stored by a previous action.
+"""
+function get_position(s::Symbol)
     defs = CURRENT_VIDEO[1].defs
     if haskey(defs, s)
-        pos(defs[s])
+        get_position(defs[s])
     else
         error("The symbol $s is not defined.")
     end
 end
 
-angle(t::Transformation) = t.angle
+"""
+    pos(x)
 
-function angle(s::Symbol)
+`pos` is just a short-hand for [`get_position`](@ref)
+"""
+pos(x) = get_position(x)
+
+get_angle(t::Transformation) = t.angle
+
+"""
+    get_angle(s::Symbol)
+
+Get access to the angle that got saved in `s` by a previous action.
+
+# Returns
+- `Float64`: the angle stored by a previous action.
+"""
+function get_angle(s::Symbol)
     defs = CURRENT_VIDEO[1].defs
     if haskey(defs, s)
-        angle(defs[s])
+        get_angle(defs[s])
     else
         error("The symbol $s is not defined.")
     end
 end
+
+"""
+    ang(x)
+
+`ang` is just a short-hand for [`get_angle`](@ref)
+"""
+ang(x) = get_angle(x)
 
 """
     projection(p::Point, l::Line)
@@ -590,11 +621,9 @@ i.e :red_ball is an id for the position or the red ball which can be used in the
 function javis(
     video::Video,
     actions::Vector{AT};
-    creategif=false,
     framerate=30,
-    pathname="",
-    tempdirectory="",
-    deletetemp=false
+    pathname="javis_$(randstring(7)).gif",
+    tempdirectory=mktempdir(),
 ) where AT <: ActionType
     # get all frames
     frames = Int[]
@@ -647,15 +676,17 @@ function javis(
         filecounter += 1
     end
 
-    !creategif && return 
-    # generate a colorpalette first so ffmpeg does not have to guess it
-    ffmpeg_exe(`-loglevel panic -i $(tempdirectory)/%10d.png -vf "palettegen=stats_mode=diff" -y "$(tempdirectory)/palette.bmp"`)
-    # then apply the palette to get better results
-    ffmpeg_exe(`-loglevel panic -framerate $framerate -i $(tempdirectory)/%10d.png -i "$(tempdirectory)/palette.bmp" -lavfi "paletteuse=dither=sierra2_4a" -y $pathname`)
-    !deletetemp && return 
-    run(`rm -rf $(tempdirectory)`)
-    mkpath(tempdirectory)
-    nothing
+    isempty(pathname) && return
+    path, ext = splitext(pathname)
+    if ext == ".gif"
+        # generate a colorpalette first so ffmpeg does not have to guess it
+        ffmpeg_exe(`-loglevel panic -i $(tempdirectory)/%10d.png -vf "palettegen=stats_mode=diff" -y "$(tempdirectory)/palette.bmp"`)
+        # then apply the palette to get better results
+        ffmpeg_exe(`-loglevel panic -framerate $framerate -i $(tempdirectory)/%10d.png -i "$(tempdirectory)/palette.bmp" -lavfi "paletteuse=dither=sierra2_4a" -y $pathname`)
+    else
+        @error "Currently, only gif creation is supported and not a $ext."
+    end
+    return pathname
 end
 
 """
@@ -694,7 +725,7 @@ end
 export javis, latex
 export Video, Action, BackgroundAction, Rel
 export Line, Translation, Rotation, Transformation
-export pos, angle
+export pos, ang, get_position, get_angle
 export projection, morph
 
 end

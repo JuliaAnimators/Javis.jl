@@ -58,14 +58,56 @@ end
     @test action.internal_transitions[1].by == Point(99,99)
 end
 
+@testset "rotations" begin
+    video = Video(500, 500)
+    # dummy action doesn't need a real function
+    action = Action(1:100, ()->1, Rotation(2π))
+    # needs internal translation as well
+    push!(action.internal_transitions, Javis.InternalRotation(0.0, O))
+
+    Javis.compute_transformation!(action, video, 1)
+    @test action.internal_transitions[1].angle == 0.0
+    Javis.compute_transformation!(action, video, 100)
+    @test action.internal_transitions[1].angle == 2π
+
+    video = Video(500, 500)
+    # dummy action doesn't need a real function
+    action = Action(1:100, ()->1, Rotation(2π, Point(2.0, 5.0)))
+    # needs internal translation as well
+    push!(action.internal_transitions, Javis.InternalRotation(0.0, O))
+
+    Javis.compute_transformation!(action, video, 1)
+    @test action.internal_transitions[1].angle == 0.0
+    @test action.internal_transitions[1].center == Point(2.0, 5.0)
+    Javis.compute_transformation!(action, video, 100)
+    @test action.internal_transitions[1].angle == 2π
+    @test action.internal_transitions[1].center == Point(2.0, 5.0)
+end
+
 @testset "Frames errors" begin
     video = Video(500, 500)
     # throws because the frames of the first action need to be defined explicitly
-    @test_throws ArgumentError Action(()->1, Translation(Point(1,1), Point(100, 100)))
+    @test_throws ArgumentError Action((args...)->1, Translation(Point(1,1), Point(100, 100)))
     # throws because the frames of the first action need to be defined explicitly
-    @test_throws ArgumentError Action(Rel(10), ()->1, Translation(Point(1,1), Point(100, 100)))
-    Action(1:100, ()->1, Translation(Point(1,1), Point(100, 100)))
+    @test_throws ArgumentError Action(Rel(10), (args...)->1, Translation(Point(1,1), Point(100, 100)))
+    Action(1:100, (args...)->1, Translation(Point(1,1), Point(100, 100)))
     # throws because :some is not supported as Symbol for `frames`
-    @test_throws ArgumentError Action(:some, ()->1, Translation(Point(1,1), Point(100, 100)))    
+    @test_throws ArgumentError Action(:some, (args...)->1, Translation(Point(1,1), Point(100, 100)))    
+end
+
+@testset "Unspecified symbol error" begin
+    video = Video(500, 500)
+    # throws because the frames of the first action need to be defined explicitly
+    @test_throws ErrorException javis(video, [
+        Action(1:100, (args...)->1),
+        Action(1:100, (args...)->line(O, pos(:non_existent), :stroke))
+    ])
+
+    video = Video(500, 500)
+    # throws because the frames of the first action need to be defined explicitly
+    @test_throws ErrorException javis(video, [
+        Action(1:100, (args...)->1),
+        Action(1:100, (args...)->line(O, ang(:non_existent), :stroke))
+    ])
 end
 end
