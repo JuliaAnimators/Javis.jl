@@ -1,7 +1,8 @@
 """
     setline(linewidth)
 
-Set the line width and multiplies it with the current multiplier which is i.e. set by [`appear`](@ref) and [`disappear`](@ref).
+Set the line width and multiply it with the current multiplier
+which is i.e. set by [`appear`](@ref) and [`disappear`](@ref).
 
 # Arguments:
 - `linewidth`: the line width in pixel
@@ -17,7 +18,8 @@ end
 """
     setopacity(linewidth)
 
-Set the opacity and multiplies it with the current multiplier which is i.e. set by [`appear`](@ref) and [`disappear`](@ref).
+Set the opacity and multiply it with the current multiplier
+which is i.e. set by [`appear`](@ref) and [`disappear`](@ref).
 
 # Arguments:
 - `opacity`: the opacity between 0.0 and 1.0

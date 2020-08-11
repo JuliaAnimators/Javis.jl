@@ -1,8 +1,8 @@
 #=
     This file handles the conversion from svg produced by `tex2svg` to Luxor commands.
-    It currently misses a lot of possible commands that svg supports. 
-    Warnings are thrown if this happens such that one can easily grasp whether it should have worked or 
-    whether there is something missing
+    It currently misses a lot of possible commands that svg supports.
+    Warnings are thrown if this happens such that one can easily grasp whether it
+    should have worked or whether there is something missing
 =#
 
 """
@@ -33,7 +33,7 @@ end
 """
     draw_obj(::Val{:g}, o, defs)
 
-Draws a group by setting the attributes (like transformations) 
+Draws a group by setting the attributes (like transformations)
 and then calls `draw_obj` for all child elements.
 """
 function draw_obj(::Val{:g}, o, defs)
@@ -61,7 +61,7 @@ function draw_obj(::Val{:use}, o, defs)
         def = defs[id]
         sym = Symbol(name(def))
         draw_obj(Val{sym}(), def, defs)
-    else 
+    else
         @warn "There is no definition for $id"
     end
 end
@@ -69,13 +69,13 @@ end
 """
     draw_obj(::Val{:path}, o, defs)
 
-Calls the commands specified in the path data. 
+Calls the commands specified in the path data.
 Currently supports only a subset of possible SVG commands.
 """
 function draw_obj(::Val{:path}, o, defs)
     set_attrs(o)
     data = attribute(o, "d")
-   
+
     # split without loosing the command
     data_parts = split(data, r"(?=[A-Za-z])")
     # needs to keep track of the current point `c_pt` and the last point `l_pt`
@@ -124,7 +124,7 @@ end
 
 Moving to the specified point
 """
-function path_move(x,y) 
+function path_move(x,y)
     p = Point(x,y)
     move(p)
     p
@@ -135,7 +135,7 @@ end
 
 Drawing a quadratic bezier curve by computing a cubic one as that is supported by Luxor
 """
-function path_quadratic(c_pt::Point, x,y, xe, ye) 
+function path_quadratic(c_pt::Point, x,y, xe, ye)
     e_pt = Point(xe,ye)
     qc = Point(x,y)
     # compute the control points of a cubic bezier curve
@@ -182,11 +182,11 @@ set_transform(::Val{:translate}, x,y) = translate(x,y)
 set_transform(::Val{:scale}, x,y=x) = scale(x,y)
 
 """
-    set_transform(::Val{:matrix}, args...) 
+    set_transform(::Val{:matrix}, args...)
 
 Multiply the new matrix with the current matrix and set it.
 """
-function set_transform(::Val{:matrix}, args...) 
+function set_transform(::Val{:matrix}, args...)
     old = cairotojuliamatrix(getmatrix())
     update = cairotojuliamatrix(collect(args))
     new = old*update
@@ -224,21 +224,22 @@ function pathsvg(svg, fontsize=10)
         defs[attribute(def, "id")] = def
     end
     x, y, width, height = parse.(Float64, split(attribute(xroot, "viewBox")))
-    # remove ex in the end 
+    # remove ex in the end
     ex_width = parse(Float64, attribute(xroot, "width")[1:end-2])
     ex_height = parse(Float64, attribute(xroot, "height")[1:end-2])
     # everything capsulated in a layer
     @layer begin
         # unit ex: half of font size
         # such that we can scale half of a font size (size of a lower letter)
-        # with the corresponding height of the svg canvas and the ex_height given in it's description
+        # with the corresponding height of the svg canvas
+        # and the ex_height given in it's description
         scale((fontsize/2)/(height/ex_height))
         translate(-x, -y)
 
         for child in collect(child_elements(xroot))
             sym_name = Symbol(name(child))
             @layer begin
-                draw_obj(Val{sym_name}(), child, defs)                
+                draw_obj(Val{sym_name}(), child, defs)
             end
         end
     end

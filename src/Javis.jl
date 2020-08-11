@@ -41,7 +41,7 @@ const CURRENT_VIDEO = Array{Video, 1}()
 Create a video with a certain `width` and `height` in pixel.
 This also sets `CURRENT_VIDEO`.
 """
-function Video(width, height) 
+function Video(width, height)
     video = Video(width, height, Dict{Symbol, Any}())
     if isempty(CURRENT_VIDEO)
         push!(CURRENT_VIDEO, video)
@@ -54,9 +54,10 @@ end
 """
     Transformation
 
-Defines a transformation which can be returned by an action to be accessible later. 
-See the `circ` function inside the [`javis`](@ref) as an example. 
-It can be accessed by another [`Action`])(@ref) using the symbol notation like `:red_ball` in the example.
+Defines a transformation which can be returned by an action to be accessible later.
+See the `circ` function inside the [`javis`](@ref) as an example.
+It can be accessed by another [`Action`])(@ref) using the symbol notation
+like `:red_ball` in the example.
 
 # Fields
 - `p::Point`: the translation part of the transformation
@@ -79,7 +80,8 @@ Defines a subaction with relative frames and a function.
 
 # Fields
 - `frames::UnitRange{Int}`: the frames relative to the parent [`Action`](@ref)
-- `func::Function`: the function that gets called in each of those frames. Takes the following arguments: video, action, subaction, rel_frame
+- `func::Function`: the function that gets called in each of those frames.
+    Takes the following arguments: video, action, subaction, rel_frame
 """
 mutable struct SubAction <: ActionType
     frames                  :: UnitRange{Int}
@@ -93,9 +95,11 @@ The current settings of an [`Action`](@ref) which are saved in `action.current_s
 
 # Fields
 - `line_width::Float64`: the current line width
-- `mul_line_width::Float64`: the current multiplier for line width. The actual line width is then: `mul_line_width * line_width`
+- `mul_line_width::Float64`: the current multiplier for line width.
+    The actual line width is then: `mul_line_width * line_width`
 - `opacity::Float64`: the current opcaity
-- `mul_opacity::Float64`: the current multiplier for opacity. The actual opacity is then: `mul_opacity * opacity`
+- `mul_opacity::Float64`: the current multiplier for opacity.
+    The actual opacity is then: `mul_opacity * opacity`
 """
 mutable struct ActionSetting
     line_width     :: Float64
@@ -121,16 +125,19 @@ end
 """
     Action
 
-Defines what is drawn in a defined frame range. 
+Defines what is drawn in a defined frame range.
 
 # Fields
 - `frames`: A range of frames for which the `Action` is called
 - `id::Union{Nothing, Symbol}`: An id which can be used to save the result of `func`
-- `func::Function`: The drawing function which draws something on the canvas. 
+- `func::Function`: The drawing function which draws something on the canvas.
     It gets called with the arguments `video, action, frame`
-- `transitions::Vector{Transition}` a list of transitions that can be performed before the function gets called.
-- `internal_transitions::Vector{InternalTransition}`: Similar to `transitions` but holds the concrete information 
-    whereas `Transition` can hold links to other actions which need to be computed first. See [`compute_transformation!`](@ref)
+- `transitions::Vector{Transition}` a list of transitions
+    which can be performed before the function gets called.
+- `internal_transitions::Vector{InternalTransition}`:
+    Similar to `transitions` but holds the concrete information whereas `Transition` can
+    hold links to other actions which need to be computed first.
+    See [`compute_transformation!`](@ref)
 - `opts::Any` can hold any options defined by the user
 """
 mutable struct Action <: ActionType
@@ -165,7 +172,7 @@ Ability to define frames in a relative fashion.
  Action(Rel(10), :blue_ball, (args...)->circ(p2, "blue"), Rotation(2π, from_rot, :red_ball)),
  Action((video, args...)->path!(path_of_red, pos(:red_ball), "red"))
 ```
-is the same as 
+is the same as
 ```
 Action(1:100, ground; in_global_layer=true),
 Action(1:90, :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
@@ -174,7 +181,7 @@ Action(91:100, (video, args...)->path!(path_of_red, pos(:red_ball), "red"))
 ```
 
 # Fields
-- rel::UnitRange defines the frames in a relative fashion. 
+- rel::UnitRange defines the frames in a relative fashion.
 """
 struct Rel
     rel :: UnitRange
@@ -192,15 +199,18 @@ Rel(i::Int) = Rel(1:i)
     Action(frames, func::Function, args...)
 
 The most simple form of an action (if there are no `args`/`kwargs`) just calls
-`func(video, action, frame)` for each of the frames it is defined for. 
-`args` are defined it the next function definition and can be seen in action in this example [`javis`](@ref)
+`func(video, action, frame)` for each of the frames it is defined for.
+`args` are defined it the next function definition and can be seen in action
+    in this example [`javis`](@ref)
 """
-Action(frames, func::Function, args...; kwargs...) = Action(frames, nothing, func, args...; kwargs...)
+Action(frames, func::Function, args...; kwargs...) =
+    Action(frames, nothing, func, args...; kwargs...)
 
 """
     Action(frames_or_id::Symbol, func::Function, args...)
 
-This function decides whether you wrote `Action(frames_symbol, ...)`, or `Action(id_symbol, ...)`
+This function decides whether you wrote `Action(frames_symbol, ...)`,
+    or `Action(id_symbol, ...)`
 If the symbol `frames_or_id` is not a `FRAMES_SYMBOL` then it is used as an id_symbol.
 """
 function Action(frames_or_id::Symbol, func::Function, args...; kwargs...)
@@ -216,20 +226,25 @@ end
 
 Similar to the above but uses the same as frames as the action above.
 """
-Action(func::Function, args...; kwargs...) = Action(:same, nothing, func, args...; kwargs...)
+Action(func::Function, args...; kwargs...) =
+    Action(:same, nothing, func, args...; kwargs...)
 
 """
-    Action(frames::UnitRange, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...; kwargs...)
+    Action(frames::UnitRange, id::Union{Nothing,Symbol}, func::Function,
+           transitions::Transition...; kwargs...)
 
 # Arguments
 - `frames::UnitRange`: defines for which frames this action is called
-- `id::Symbol`: Is used if the `func` returns something which shell be accessible by other actions later
+- `id::Symbol`: Is used if the `func` returns something which
+    shall be accessible by other actions later
 - `func::Function` the function that is called after the `transitions` are performed
-- `transitions::Transition...` a list of transitions that are performed before the function `func` itself is called
+- `transitions::Transition...` a list of transitions that are performed before
+    the function `func` itself is called
 
 The keywords arguments will be saved inside `.opts` as a `Dict{Symbol, Any}`
 """
-function Action(frames::UnitRange, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...; kwargs...) 
+function Action(frames::UnitRange, id::Union{Nothing,Symbol}, func::Function,
+                transitions::Transition...; kwargs...)
     CURRENT_VIDEO[1].defs[:last_frames] = frames
     opts = Dict(kwargs...)
     subactions = SubAction[]
@@ -241,18 +256,22 @@ function Action(frames::UnitRange, id::Union{Nothing,Symbol}, func::Function, tr
 end
 
 """
-    Action(frames::Symbol, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...; kwargs...)
+    Action(frames::Symbol, id::Union{Nothing,Symbol}, func::Function,
+           transitions::Transition...; kwargs...)
 
 # Arguments
-- `frames::Symbol`: defines for which frames this action is called by using a symbol. 
+- `frames::Symbol`: defines for which frames this action is called by using a symbol.
     Currently only `:same` is supported. This uses the same frames as the action before.
-- `id::Symbol`: Is used if the `func` returns something which shell be accessible by other actions later
+- `id::Symbol`: Is used if the `func` returns something which shall be accessible by
+    other actions later
 - `func::Function` the function that is called after the `transitions` are performed
-- `transitions::Transition...` a list of transitions that are performed before the function `func` itself is called
+- `transitions::Transition...` a list of transitions that are performed
+    before the function `func` itself is called
 
 The keywords arguments will be saved inside `.opts` as a `Dict{Symbol, Any}`
 """
-function Action(frames::Symbol, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...; kwargs...) 
+function Action(frames::Symbol, id::Union{Nothing,Symbol}, func::Function,
+         transitions::Transition...; kwargs...)
     if !haskey(CURRENT_VIDEO[1].defs, :last_frames)
         throw(ArgumentError("Frames need to be defined explicitly, at least for the first frame."))
     end
@@ -268,18 +287,22 @@ function Action(frames::Symbol, id::Union{Nothing,Symbol}, func::Function, trans
 end
 
 """
-    Action(frames::Rel, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...; kwargs...)
+    Action(frames::Rel, id::Union{Nothing,Symbol}, func::Function,
+           transitions::Transition...; kwargs...)
 
 # Arguments
 - `frames::Rel`: defines for which frames this action is by using relative frames.
     i.e Rel(10) will be using the 10 frames after the last action.
-- `id::Symbol`: Is used if the `func` returns something which shell be accessible by other actions later
+- `id::Symbol`: Is used if the `func` returns something which shall be accessible
+    by other actions later
 - `func::Function` the function that is called after the `transitions` are performed
-- `transitions::Transition...` a list of transitions that are performed before the function `func` itself is called
+- `transitions::Transition...` a list of transitions that are performed
+    before the function `func` itself is called
 
 The keywords arguments will be saved inside `.opts` as a `Dict{Symbol, Any}`
 """
-function Action(frames::Rel, id::Union{Nothing,Symbol}, func::Function, transitions::Transition...; kwargs...) 
+function Action(frames::Rel, id::Union{Nothing,Symbol}, func::Function,
+                transitions::Transition...; kwargs...)
     if !haskey(CURRENT_VIDEO[1].defs, :last_frames)
         throw(ArgumentError("Frames need to be defined explicitly, at least for the first frame."))
     end
@@ -292,7 +315,7 @@ function Action(frames::Rel, id::Union{Nothing,Symbol}, func::Function, transiti
 end
 
 """
-    BackgroundAction(frames, func::Function, args...; kwargs...) 
+    BackgroundAction(frames, func::Function, args...; kwargs...)
 
 Create an Action where `in_global_layer` is set to true such that
 i.e the specified color in the background is applied globally (basically a new default)
@@ -302,7 +325,7 @@ function BackgroundAction(frames, func::Function, args...; kwargs...)
 end
 
 """
-    BackgroundAction(frames, id::Symbol, func::Function, args...; kwargs...) 
+    BackgroundAction(frames, id::Symbol, func::Function, args...; kwargs...)
 
 Create an Action where `in_global_layer` is set to true and saves the return into `id`.
 """
@@ -325,7 +348,8 @@ end
 Stores the `Point` or a link for the start and end position of the translation
 
 # Fields
-`from::Union{Point, Symbol}`: The start position or a link to the start position. See `:red_ball` in [`javis`](@ref) 
+`from::Union{Point, Symbol}`: The start position or a link to the start position.
+    See `:red_ball` in [`javis`](@ref)
 `to::Union{Point, Symbol}`: The end position or a link to the end position
 """
 struct Translation <: Transition
@@ -351,7 +375,8 @@ Translation(x::Real, y::Real) = Translation(Point(x, y))
 """
     Rotation <: Transition
 
-Stores the rotation similar to [`Translation`](@ref) with `from` and `to` but also the rotation point.
+Stores the rotation similar to [`Translation`](@ref) with `from` and `to`
+but also the rotation point.
 
 # Fields
 - `from::Union{Float64, Symbol}`: The start rotation or a link to it
@@ -397,7 +422,7 @@ We mean the mathematic definition of a continuous line and not a segment of a li
 - `p1::Point`: start point
 - `p2::Point`: second point to define the line
 """
-struct Line 
+struct Line
     p1 :: Point
     p2 :: Point
 end
@@ -445,17 +470,21 @@ latex(text::LaTeXString, action::Symbol) = latex(text, 10, action)
 
 `latex(text::LaTeXString, font_size::Real, action::Symbol)`
 
-Add the latex string `text` to the top left corner of the LaTeX path. Can be added to `Luxor.jl` graphics such as `Video` or `Drawing`.
+Add the latex string `text` to the top left corner of the LaTeX path.
+Can be added to `Luxor.jl` graphics such as `Video` or `Drawing`.
 
 **NOTE: This only works if `tex2svg` is installed.**
-**It can be installed using the following command (you may have to prefix this command with `sudo` depending on your installation):**
+**It can be installed using the following command
+    (you may have to prefix this command with `sudo` depending on your installation):**
 
 > `npm install -g mathjax-node-cli`
 
 # Arguments
 - `text::LaTeXString`: a LaTeX string to render.
 - `font_size::Real`: integer font size of LaTeX string. Default `10`.
-- `action::Symbol`: graphics actions defined by `Luxor.jl`. Default `:stroke`. Available actions:
+- `action::Symbol`: graphics actions defined by `Luxor.jl`. Default `:stroke`.
+
+Available actions:
   - `:fill` - See `Luxor.fillpath`.
   - `:stroke` - See `Luxor.strokepath`.
   - `:clip` - See `Luxor.clip`.
@@ -483,14 +512,14 @@ finish()
 
 """
 function latex(text::LaTeXString, font_size::Real, action::Symbol)
-    # check if it's cached 
+    # check if it's cached
     if haskey(LaTeXSVG, text)
         svg = LaTeXSVG[text]
     else
         # remove the $
         ts = text.s[2:end-1]
         command = `tex2svg $ts`
-        try 
+        try
             svg = read(command, String)
         catch e
             @warn "Using LaTeX needs the program `tex2svg` which might not be installed"
@@ -507,7 +536,7 @@ function latex(text::LaTeXString, font_size::Real, action::Symbol)
 end
 
 """
-    compute_transformation!(action::ActionType, video::Video, frame::Int) 
+    compute_transformation!(action::ActionType, video::Video, frame::Int)
 
 Update action.internal_transitions for the current frame number
 """
@@ -518,47 +547,52 @@ function compute_transformation!(action::ActionType, video::Video, frame::Int)
 end
 
 """
-    compute_transition!(internal_rotation::InternalRotation, rotation::Rotation, video, action::ActionType, frame)
+    compute_transition!(internal_rotation::InternalRotation, rotation::Rotation, video,
+                        action::ActionType, frame)
 
 Computes the rotation transformation for the `action`.
 If the `Rotation` is given directly it uses the frame number for interpolation.
 If `rotation` includes symbols the current definition of that look up is used for computation.
 """
-function compute_transition!(internal_rotation::InternalRotation, rotation::Rotation, video, action::ActionType, frame)
+function compute_transition!(internal_rotation::InternalRotation, rotation::Rotation,
+                             video, action::ActionType, frame)
     t = (frame-first(action.frames))/(length(action.frames)-1)
     from, to, center = rotation.from, rotation.to, rotation.center
-    
+
     center isa Symbol && (center = pos(center))
     from isa Symbol && (from = angle(from))
     to isa Symbol && (to = angle(to))
-        
+
     internal_rotation.angle = from+t*(to-from)
     internal_rotation.center = center
 end
 
 """
-    compute_transition!(internal_translation::InternalTranslation, translation::Translation, video, action::ActionType, frame)
+    compute_transition!(internal_translation::InternalTranslation, translation::Translation,
+                        video, action::ActionType, frame)
 
 Computes the translation transformation for the `action`.
 If the `translation` is given directly it uses the frame number for interpolation.
-If `translation` includes symbols the current definition of that look up is used for computation.
+If `translation` includes symbols the current definition of that symbol is looked up
+and used for computation.
 """
-function compute_transition!(internal_translation::InternalTranslation, translation::Translation, video, action::ActionType, frame)
+function compute_transition!(internal_translation::InternalTranslation,
+                             translation::Translation, video, action::ActionType, frame)
     t = (frame-first(action.frames))/(length(action.frames)-1)
     from, to = translation.from, translation.to
 
     from isa Symbol && (from = pos(from))
     to isa Symbol && (to = pos(to))
-        
+
     internal_translation.by = from+t*(to-from)
 end
 
 """
-    perform_transformation(action::ActionType) 
+    perform_transformation(action::ActionType)
 
 Perform the transformations as described in action.internal_transitions
 """
-function perform_transformation(action::ActionType) 
+function perform_transformation(action::ActionType)
     for trans in action.internal_transitions
         perform_transformation(trans)
     end
@@ -587,12 +621,13 @@ end
     get_value(s::Symbol)
 
 Get access to the value that got saved in `s` by a previous action.
-If you want to access a position or angle check out [`get_position`](@ref) and [`get_angle`](@ref).
+If you want to access a position or angle check out [`get_position`](@ref)
+and [`get_angle`](@ref).
 
 # Returns
 - `Any`: the value stored by a previous action.
 """
-function get_value(s::Symbol) 
+function get_value(s::Symbol)
     defs = CURRENT_VIDEO[1].defs
     if haskey(defs, s)
         return defs[s]
@@ -659,10 +694,10 @@ function projection(p::Point, l::Line)
     v = l.p2 - o
     # point also moved to origin
     x = p - o
-    
+
     # scalar product <x,v>/<v,v>
     c = (x.x * v.x + x.y * v.y) / (v.x^2 + v.y^2)
-    return c*v+o 
+    return c*v+o
 end
 
 """
@@ -684,15 +719,13 @@ Instead of using actions and a video instead of scenes in a movie.
 - `actions::Vector{Action}`: All actions that are performed
 
 # Keywords
-- `creategif::Bool`: defines whether the images should be rendered to a gif
 - `framerate::Int`: The frame rate of the video
 - `pathname::String`: The path for the gif if `creategif = true`
-- `tempdirectory::String`: The folder where each frame is stored 
-- `deletetemp::Bool`: If true and `creategif` is true => tempdirectory is emptied after the gif is created
+- `tempdirectory::String`: The folder where each frame is stored
 
 # Example
 ```
-function ground(args...) 
+function ground(args...)
     background("white")
     sethue("black")
 end
@@ -719,8 +752,8 @@ javis(demo, [
 ```
 
 This structure makes it possible to refer to positions of previous actions
-i.e :red_ball is an id for the position or the red ball which can be used in the Rotation of the next ball.
-
+i.e :red_ball is an id for the position or the red ball which can be used in the
+rotation of the next ball.
 """
 function javis(
     video::Video,
@@ -760,7 +793,7 @@ function javis(
         CURRENT_ACTION[1] = actions[1]
     end
     background_settings = ActionSetting()
-    
+
     filecounter = 1
     for frame in frames
         Drawing(video.width, video.height, "$(tempdirectory)/$(lpad(filecounter, 10, "0")).png")
@@ -768,7 +801,8 @@ function javis(
         origin_matrix = cairotojuliamatrix(getmatrix())
         # this frame needs doing, see if each of the scenes defines it
         for action in actions
-            # if action is not in global layer this sets the background_settings from the parent background action
+            # if action is not in global layer this sets the background_settings
+            # from the parent background action
             update_action_settings!(action, background_settings)
             CURRENT_ACTION[1] = action
             if frame in action.frames
@@ -785,11 +819,11 @@ function javis(
                 # or in its own layer (default)
                 in_global_layer = get(action.opts, :in_global_layer, false)
                 if !in_global_layer
-                    @layer begin 
-                        perform_action(action, video, frame, origin_matrix)                
+                    @layer begin
+                        perform_action(action, video, frame, origin_matrix)
                     end
                 else
-                    perform_action(action, video, frame, origin_matrix)  
+                    perform_action(action, video, frame, origin_matrix)
                     # update origin_matrix as it's inside the global layer
                     origin_matrix = cairotojuliamatrix(getmatrix())
                 end
@@ -805,9 +839,12 @@ function javis(
     path, ext = splitext(pathname)
     if ext == ".gif"
         # generate a colorpalette first so ffmpeg does not have to guess it
-        ffmpeg_exe(`-loglevel panic -i $(tempdirectory)/%10d.png -vf "palettegen=stats_mode=diff" -y "$(tempdirectory)/palette.bmp"`)
+        ffmpeg_exe(`-loglevel panic -i $(tempdirectory)/%10d.png -vf
+                    "palettegen=stats_mode=diff" -y "$(tempdirectory)/palette.bmp"`)
         # then apply the palette to get better results
-        ffmpeg_exe(`-loglevel panic -framerate $framerate -i $(tempdirectory)/%10d.png -i "$(tempdirectory)/palette.bmp" -lavfi "paletteuse=dither=sierra2_4a" -y $pathname`)
+        ffmpeg_exe(`-loglevel panic -framerate $framerate -i $(tempdirectory)/%10d.png -i
+                    "$(tempdirectory)/palette.bmp" -lavfi
+                    "paletteuse=dither=sierra2_4a" -y $pathname`)
     else
         @error "Currently, only gif creation is supported and not a $ext."
     end

@@ -23,10 +23,10 @@ Example call of this function within an `Action`.
 """
 function draw_grid(; direction::AbstractString = "TR", line_gap = 25)
     return (video, action, frame) ->
-        _draw_grid(video, 
-		   action, 
-		   frame; 
-		   direction = direction, 
+        _draw_grid(video,
+		   action,
+		   frame;
+		   direction = direction,
 		   line_gap = line_gap)
 end
 
@@ -87,20 +87,29 @@ end
 
 """
 
-`zero_lines(video::Video, action::Action, frame::Int; direction::AbstractString = "TR", line_thickness = 10)`
+`zero_lines(video::Video, action::Action, frame::Int; direction::AbstractString = "TR",
+            line_thickness = 10)`
 
-Draws zero lines on the given frame of a Video. A closure for the [`_zero_lines`](@ref) internal function.
+Draws zero lines on the given frame of a Video.
+A closure for the [`_zero_lines`](@ref) internal function.
 
 # Arguments
-- `direction::AbstractString`: Direction for how vertical and horizontal axes are drawn. Default: `"TR"` Available Orientations:
-  - `"TR"` - Vertical axis drawn towards the **T**op and horizontal axis drawn to the **R**ight of the frame.
-  - `"TL"` - Vertical axis drawn towards the **T**op and horizontal axis drawn to the **L**eft of the frame.
-  - `"BR"` - Vertical axis drawn towards the **B**ottom and horizontal axis drawn to the **R**ight of the frame.
-  - `"BL"` - Vertical axis drawn towards the **B**ottom and horizontal axis drawn to the **L**eft of the frame.
+- `direction::AbstractString`: Direction for how vertical and horizontal axes are drawn.
+Default: `"TR"` Available Orientations:
+  - `"TR"` - Vertical axis drawn towards the **T**op and horizontal axis drawn
+    to the **R**ight of the frame.
+  - `"TL"` - Vertical axis drawn towards the **T**op and horizontal axis drawn
+    to the **L**eft of the frame.
+  - `"BR"` - Vertical axis drawn towards the **B**ottom and horizontal axis drawn
+    to the **R**ight of the frame.
+  - `"BL"` - Vertical axis drawn towards the **B**ottom and horizontal axis drawn
+    to the **L**eft of the frame.
 - `line_thickness`: Defines the thickness of the zero lines. Default: `10`
 
 # Example
-This example will produce an animation with the vertical axis being drawn towards the top and the horizontal axis being drawn towards the left. One will need to define their own path for `tempdirectory` and `pathname`.
+This example will produce an animation with the vertical axis being drawn towards the top
+and the horizontal axis being drawn towards the left.
+One will need to define their own path for `tempdirectory` and `pathname`.
 
 ```
 ...
@@ -110,7 +119,7 @@ This example will produce an animation with the vertical axis being drawn toward
 
 """
 function zero_lines(; direction::AbstractString = "TR", line_thickness = 10)
-    return (video, action, frame) -> 
+    return (video, action, frame) ->
        _zero_lines(video,
         	   action,
         	   frame;

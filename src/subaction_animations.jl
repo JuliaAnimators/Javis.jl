@@ -8,16 +8,20 @@ Action(101:200, (args...)->house_of_nicholas(); subactions = [
             SubAction(81:100, disappear(:fade))
         ])
 ```
-In this case the `house_of_nicholas` will fade in during the first 20 frames of the [`Action`](@ref) so `101-120`.
+In this case the `house_of_nicholas` will fade in during the first 20 frames
+of the [`Action`](@ref) so `101-120`.
 
 # Arguments
-- `s::Symbol`: the symbol defines the animation of appearance 
+- `s::Symbol`: the symbol defines the animation of appearance
     The only symbols that are currently supported are:
-    - `:fade_line_width` which increases the line width up to the default value or the value specified by [`setline`](@ref)
-    - `:fade` which increases the opcacity up to the default value or the value specified by [`setopacity`](@ref)
+    - `:fade_line_width` which increases the line width up to the default value
+       or the value specified by [`setline`](@ref)
+    - `:fade` which increases the opcacity up to the default value
+       or the value specified by [`setopacity`](@ref)
 """
 function appear(s::Symbol)
-    (video, action, subaction, rel_frame) -> appear(video, action, subaction, rel_frame, Val(s))
+    (video, action, subaction, rel_frame) ->
+        appear(video, action, subaction, rel_frame, Val(s))
 end
 
 function appear(video, action, subaction, rel_frame, symbol::Val{:fade_line_width})
@@ -42,16 +46,20 @@ Action(101:200, (args...)->house_of_nicholas(); subactions = [
             SubAction(81:100, disappear(:fade))
         ])
 ```
-In this case the `house_of_nicholas` will fade out during the last 20 frames of the [`Action`](@ref) so `181-200`.
+In this case the `house_of_nicholas` will fade out during the last 20 frames
+of the [`Action`](@ref) so `181-200`.
 
 # Arguments
-- `s::Symbol`: the symbol defines the animation of disappearance 
+- `s::Symbol`: the symbol defines the animation of disappearance
     The only symbols that are currently supported are:
-    - `:fade_line_width` which descreases the line width up to the default value or the value specified by [`setline`](@ref)
-    - `:fade` which decreases the opcacity up to the default value or the value specified by [`setopacity`](@ref)
+    - `:fade_line_width` which descreases the line width up to the default value
+        or the value specified by [`setline`](@ref)
+    - `:fade` which decreases the opcacity up to the default value
+        or the value specified by [`setopacity`](@ref)
 """
 function disappear(s::Symbol)
-    (video, action, subaction, rel_frame) -> disappear(video, action, subaction, rel_frame, Val(s))
+    (video, action, subaction, rel_frame) ->
+        disappear(video, action, subaction, rel_frame, Val(s))
 end
 
 function disappear(video, action, subaction, rel_frame, symbol::Val{:fade_line_width})
