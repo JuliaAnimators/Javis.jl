@@ -68,7 +68,7 @@ end
 """
     morph(from_func::Function, to_func::Function)
 
-A closure for the [`morph_internal`](@ref) function.
+A closure for the [`_morph`](@ref) function.
 This makes it easier to write the function inside an `Action`.
 
 Currently morphing is quite simple and only works for basic shapes.
@@ -104,7 +104,7 @@ javis(video, [
 ```
 """
 function morph(from_func::Function, to_func::Function)
-    return (video, action, frame) -> morph_internal(video, action, frame, from_func, to_func)
+    return (video, action, frame) -> _morph(video, action, frame, from_func, to_func)
 end
 
 """
@@ -112,7 +112,7 @@ end
 
 Converts the paths created by the functions to polygons and calls [`match_num_point!`](@ref)
 such that both polygons have the same number of points.
-This is done once inside [`morph_internal`](@ref).
+This is done once inside [`_morph`](@ref).
 Saves the two polygons inside `action.opts[:from_poly]` and `action.opts[:to_poly]`.
 
 **Assumption:** Both functions create only a single polygon each.
@@ -158,11 +158,11 @@ function save_morph_polygons!(action::Action, from_func::Function, to_func::Func
 end
 
 """
-    morph_internal(video::Video, action::Action, frame, from_func::Function, to_func::Function)
+    _morph(video::Video, action::Action, frame, from_func::Function, to_func::Function)
 
 Internal version of [`morph`](@ref) but described there.
 """
-function morph_internal(video::Video, action::Action, frame,
+function _morph(video::Video, action::Action, frame,
                         from_func::Function, to_func::Function)
     # computation of the polygons and the best way to morph in the first frame
     if frame == first(action.frames)
