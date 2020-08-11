@@ -182,6 +182,47 @@ acirc(args...) = circle(Point(100,100), 30)
     end
 end
 
+function house_of_nicholas(p1=O, width=100, color="black")
+    # sethue(color)
+    #     .p1
+    # .p2   .p3
+    #
+    # .p4   .p5
+    width2 = div(width, 2)
+    p2 = p1 + Point(-width2, width2)
+    p3 = p1 + Point(width2, width2)
+    p4 = p2 + Point(0, width)
+    p5 = p3 + Point(0, width)
+    setline(3)
+    line(p4, p5, :stroke)
+    line(p5, p2, :stroke)
+    line(p2, p4, :stroke)
+    line(p4, p3, :stroke)
+    line(p3, p1, :stroke)
+    line(p1, p2, :stroke)
+    line(p2, p3, :stroke)
+    setline(8)
+    line(p3, p5, :stroke)
+end
+
+@testset "House of Nicholas" begin
+    demo = Video(500, 500)
+    javis(demo, [
+        BackgroundAction(1:50, ground),
+        Action((args...)->house_of_nicholas(); subactions = [
+            SubAction(1:25, appear(:fade)),
+            SubAction(26:50, disappear(:fade))
+        ])
+    ], tempdirectory="images", pathname="")
+
+    @test_reference "refs/nicholas15.png" load("images/0000000015.png")
+    @test_reference "refs/nicholas25.png" load("images/0000000025.png")
+    @test_reference "refs/nicholas35.png" load("images/0000000035.png")
+    for i=1:50
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
 @testset "test default kwargs" begin
     video = Video(500, 500)
     pathname = javis(video, [

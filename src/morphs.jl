@@ -88,7 +88,6 @@ This creates a star that morphs into a circle and back.
 
 ```
 using Javis
-using Luxor
 
 astar(args...) = star(O, 50) 
 acirc(args...) = circle(Point(100,100), 50) 
