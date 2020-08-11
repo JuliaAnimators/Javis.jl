@@ -1,7 +1,9 @@
 """
     appear(s::Symbol)
 
-Appear can be used inside a [`SubAction`](@ref) i.e.
+Appear can be used inside a [`SubAction`](@ref)
+
+# Example
 ```
 Action(101:200, (args...)->house_of_nicholas(); subactions = [
             SubAction(1:20, appear(:fade)),
@@ -39,7 +41,9 @@ end
 """
     disappear(s::Symbol)
 
-Disappear can be used inside a [`SubAction`](@ref) i.e.
+Disappear can be used inside a [`SubAction`](@ref)
+
+# Example
 ```
 Action(101:200, (args...)->house_of_nicholas(); subactions = [
             SubAction(1:20, appear(:fade)),
