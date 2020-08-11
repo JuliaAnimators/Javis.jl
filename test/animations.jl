@@ -53,7 +53,7 @@ end
         Action(Rel(-24:0), :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
         Action(1:25, :blue_ball, (args...)->circ(p2, "blue"), Rotation(to_rot, from_rot, :red_ball)),
         Action(1:25, (video, args...)->path!(path_of_red, get_position(:red_ball), "red")),
-        Action(1:25, (video, args...)->path!(path_of_blue, pos(:blue_ball), "blue")),
+        Action(:same, (video, args...)->path!(path_of_blue, pos(:blue_ball), "blue")),
         Action(1:25, (args...)->rad(pos(:red_ball), pos(:blue_ball), "black"))
     ], tempdirectory="images", pathname="dancing.gif")
 
@@ -153,7 +153,7 @@ end
     p = Point(100, 0)
     javis(video, [
         Action(1:10, ground),
-        Action(:same, :circ, (args...)->circ_ret_trans(p), Rotation(2π)),
+        Action(:circ, (args...)->circ_ret_trans(p), Rotation(2π)),
         Action((args...)->line(Point(-200, 0), Point(-200, -10*ang(:circ)), :stroke))
     ], tempdirectory="images", pathname="")
 
