@@ -72,12 +72,29 @@ abstract type InternalTransition end
 
 abstract type ActionType end
 
-# TODO: Comments
+"""
+    SubAction <: ActionType
+
+Defines a subaction with relative frames and a function.
+
+# Fields
+- `frames::UnitRange{Int}`: the frames relative to the parent [`Action`](@ref)
+- `func::Function`: the function that gets called in each of those frames. Takes the following arguments: video, action, subaction, rel_frame
+"""
 mutable struct SubAction <: ActionType
     frames                  :: UnitRange{Int}
     func                    :: Function
 end
 
+"""
+    ActionSetting
+
+The current settings of an [`Action`](@ref) which are saved in `action.current_setting`.
+
+# Fields
+- `line_width::Float64`: the current line width
+- `mul_line_width::Float64`: the current multiplier for line width. The actual line width is then: `mul_line_width * line_width`
+"""
 mutable struct ActionSetting
     line_width     :: Float64
     mul_line_width :: Float64 # the multiplier of line width is between 0 and 1
@@ -736,10 +753,10 @@ function javis(
         # this frame needs doing, see if each of the scenes defines it
         for action in actions
             CURRENT_ACTION[1] = action
-
             if frame in action.frames
                 # relative frame number for subactions
                 rel_frame = frame-first(action.frames) + 1
+                # call currently active subactions
                 for subaction in action.subactions
                     if rel_frame in subaction.frames
                         subaction.func(video, action, subaction, rel_frame)
@@ -810,6 +827,11 @@ function perform_action(action, video, frame, origin_matrix)
     end
 end
 
+"""
+    set_action_defaults!(action)
+
+Set the default value for line_width and calls `Luxor.setline`.
+"""
 function set_action_defaults!(action)
     cs  = action.current_setting
     current_line_width = cs.line_width * cs.mul_line_width
