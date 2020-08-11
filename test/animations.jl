@@ -182,6 +182,12 @@ acirc(args...) = circle(Point(100,100), 30)
     end
 end
 
+function ground_nicholas(args...)
+    background("white")
+    sethue("blue")
+    setline(3)
+end
+
 function house_of_nicholas(p1=O, width=100, color="black")
     # sethue(color)
     #     .p1
@@ -193,7 +199,6 @@ function house_of_nicholas(p1=O, width=100, color="black")
     p3 = p1 + Point(width2, width2)
     p4 = p2 + Point(0, width)
     p5 = p3 + Point(0, width)
-    setline(3)
     line(p4, p5, :stroke)
     line(p5, p2, :stroke)
     line(p2, p4, :stroke)
@@ -208,7 +213,7 @@ end
 @testset "House of Nicholas" begin
     demo = Video(500, 500)
     javis(demo, [
-        BackgroundAction(1:50, ground),
+        BackgroundAction(1:50, ground_nicholas),
         Action((args...)->house_of_nicholas(); subactions = [
             SubAction(1:25, appear(:fade)),
             SubAction(26:50, disappear(:fade))

@@ -103,6 +103,16 @@ end
 ActionSetting() = ActionSetting(1.0, 1.0)
 
 """
+    update_ActionSetting!(as::ActionSetting, by::ActionSetting)
+
+Set the fields of `as` to the same as `by`. Basically copying them over.
+"""
+function update_ActionSetting!(as::ActionSetting, by::ActionSetting)
+    as.line_width = by.line_width
+    as.mul_line_width = by.mul_line_width
+end
+
+"""
     Action
 
 Defines what is drawn in a defined frame range. 
@@ -743,7 +753,7 @@ function javis(
     else
         CURRENT_ACTION[1] = actions[1]
     end
-
+    background_settings = ActionSetting()
     
     filecounter = 1
     for frame in frames
@@ -752,6 +762,8 @@ function javis(
         origin_matrix = cairotojuliamatrix(getmatrix())
         # this frame needs doing, see if each of the scenes defines it
         for action in actions
+            # if action is not in global layer this sets the background_settings from the parent background action
+            update_action_settings!(action, background_settings)
             CURRENT_ACTION[1] = action
             if frame in action.frames
                 # relative frame number for subactions
@@ -776,6 +788,8 @@ function javis(
                     origin_matrix = cairotojuliamatrix(getmatrix())
                 end
             end
+            # if action is in global layer this changes the background settings
+            update_background_settings!(background_settings, action)
         end
         finish()
         filecounter += 1
@@ -792,6 +806,17 @@ function javis(
         @error "Currently, only gif creation is supported and not a $ext."
     end
     return pathname
+end
+
+function update_background_settings!(setting::ActionSetting, action::Action)
+    in_global_layer = get(action.opts, :in_global_layer, false)
+    if in_global_layer
+        update_ActionSetting!(setting, action.current_setting)
+    end
+end
+
+function update_action_settings!(action::Action, setting::ActionSetting)
+    update_ActionSetting!(action.current_setting, setting)
 end
 
 """
