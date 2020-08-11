@@ -53,7 +53,7 @@ end
         Action(Rel(-24:0), :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
         Action(1:25, :blue_ball, (args...)->circ(p2, "blue"), Rotation(to_rot, from_rot, :red_ball)),
         Action(1:25, (video, args...)->path!(path_of_red, get_position(:red_ball), "red")),
-        Action(1:25, (video, args...)->path!(path_of_blue, pos(:blue_ball), "blue")),
+        Action(:same, (video, args...)->path!(path_of_blue, pos(:blue_ball), "blue")),
         Action(1:25, (args...)->rad(pos(:red_ball), pos(:blue_ball), "black"))
     ], tempdirectory="images", pathname="dancing.gif")
 
