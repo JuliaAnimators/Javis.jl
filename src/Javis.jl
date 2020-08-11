@@ -759,6 +759,15 @@ function perform_action(action, video, frame, origin_matrix)
     end
 end
 
+const LUXOR_DONT_EXPORT = [:boundingbox, :Boxmaptile, :Sequence]
+
+# Export each function from Luxor
+for func in names(Luxor; imported=true)
+    if !(func in LUXOR_DONT_EXPORT)
+        eval(Meta.parse("import Luxor." * string(func)))
+        eval(Expr(:export, func))
+    end
+end
 
 export javis, latex
 export Video, Action, BackgroundAction, Rel

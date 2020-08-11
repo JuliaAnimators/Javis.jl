@@ -1,7 +1,6 @@
 using Images
 using Javis
 using LaTeXStrings
-using Luxor
 using ReferenceTests
 using Test
 
