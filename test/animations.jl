@@ -188,7 +188,7 @@ function ground_nicholas(args...)
     setline(3)
 end
 
-function house_of_nicholas(p1=O, width=100, color="black")
+function house_of_nicholas(;p1=O, width=100, color="black")
     # sethue(color)
     #     .p1
     # .p2   .p3
@@ -210,19 +210,53 @@ function house_of_nicholas(p1=O, width=100, color="black")
     line(p3, p5, :stroke)
 end
 
-@testset "House of Nicholas" begin
+@testset "House of Nicholas line_width" begin
     demo = Video(500, 500)
     javis(demo, [
         BackgroundAction(1:50, ground_nicholas),
         Action((args...)->house_of_nicholas(); subactions = [
-            SubAction(1:25, appear(:fade)),
-            SubAction(26:50, disappear(:fade))
+            SubAction(1:25, appear(:fade_line_width)),
+            SubAction(26:50, disappear(:fade_line_width))
         ])
     ], tempdirectory="images", pathname="")
 
     @test_reference "refs/nicholas15.png" load("images/0000000015.png")
     @test_reference "refs/nicholas25.png" load("images/0000000025.png")
     @test_reference "refs/nicholas35.png" load("images/0000000035.png")
+    for i=1:50
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
+function ground_opacity(args...)
+    background("white")
+    sethue("black")
+    setopacity(0.5)
+end
+
+function square_opacity(p1, w)
+    setopacity(1.0)
+    sethue("red")
+    rect(p1, w, w, :fill)
+end
+
+@testset "Circle/square appear opacity" begin
+    demo = Video(500, 500)
+    javis(demo, [
+        BackgroundAction(1:50, ground_opacity),
+        Action((args...)->circ(); subactions = [
+            SubAction(1:25, appear(:fade)),
+            SubAction(26:50, disappear(:fade))
+        ]),
+        Action((args...)->square_opacity(Point(-100, 0), 60); subactions = [
+            SubAction(1:25, appear(:fade)),
+            SubAction(26:50, disappear(:fade))
+        ])
+    ], tempdirectory="images", pathname="")
+
+    @test_reference "refs/circlerSquare15opacity.png" load("images/0000000015.png")
+    @test_reference "refs/circlerSquare25opacity.png" load("images/0000000025.png")
+    @test_reference "refs/circlerSquare35opacity.png" load("images/0000000035.png")
     for i=1:50
         rm("images/$(lpad(i, 10, "0")).png")
     end

@@ -94,13 +94,17 @@ The current settings of an [`Action`](@ref) which are saved in `action.current_s
 # Fields
 - `line_width::Float64`: the current line width
 - `mul_line_width::Float64`: the current multiplier for line width. The actual line width is then: `mul_line_width * line_width`
+- `opacity::Float64`: the current opcaity
+- `mul_opacity::Float64`: the current multiplier for opacity. The actual opacity is then: `mul_opacity * opacity`
 """
 mutable struct ActionSetting
     line_width     :: Float64
     mul_line_width :: Float64 # the multiplier of line width is between 0 and 1
+    opacity     :: Float64
+    mul_opacity :: Float64 # the multiplier of opacity is between 0 and 1
 end
 
-ActionSetting() = ActionSetting(1.0, 1.0)
+ActionSetting() = ActionSetting(1.0, 1.0, 1.0, 1.0)
 
 """
     update_ActionSetting!(as::ActionSetting, by::ActionSetting)
@@ -110,6 +114,8 @@ Set the fields of `as` to the same as `by`. Basically copying them over.
 function update_ActionSetting!(as::ActionSetting, by::ActionSetting)
     as.line_width = by.line_width
     as.mul_line_width = by.mul_line_width
+    as.opacity = by.opacity
+    as.mul_opacity = by.mul_opacity
 end
 
 """
@@ -855,15 +861,20 @@ end
 """
     set_action_defaults!(action)
 
-Set the default value for line_width and calls `Luxor.setline`.
+Set the default action values
+- line_width and calls `Luxor.setline`.
+- opacity and calls `Luxor.opacity`.
 """
 function set_action_defaults!(action)
     cs  = action.current_setting
     current_line_width = cs.line_width * cs.mul_line_width
     Luxor.setline(current_line_width)
+    current_opacity = cs.opacity * cs.mul_opacity
+    Luxor.setopacity(current_opacity)
 end
 
-const LUXOR_DONT_EXPORT = [:boundingbox, :Boxmaptile, :Sequence, :setline]
+const LUXOR_DONT_EXPORT = [:boundingbox, :Boxmaptile, :Sequence,
+                           :setline, :setopacity]
 
 # Export each function from Luxor
 for func in names(Luxor; imported=true)
@@ -881,6 +892,6 @@ export projection, morph
 export appear, disappear
 
 # luxor extensions
-export setline
+export setline, setopacity
 
 end
