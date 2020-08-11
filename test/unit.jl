@@ -92,7 +92,7 @@ end
     @test_throws ArgumentError Action(Rel(10), (args...)->1, Translation(Point(1,1), Point(100, 100)))
     Action(1:100, (args...)->1, Translation(Point(1,1), Point(100, 100)))
     # throws because :some is not supported as Symbol for `frames`
-    @test_throws ArgumentError Action(:some, (args...)->1, Translation(Point(1,1), Point(100, 100)))    
+    @test_throws ArgumentError Action(:some, :id, (args...)->1, Translation(Point(1,1), Point(100, 100)))    
 end
 
 @testset "Unspecified symbol error" begin

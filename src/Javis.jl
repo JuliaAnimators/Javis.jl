@@ -6,6 +6,8 @@ using LightXML
 using Luxor
 using Random
 
+const FRAMES_SYMBOL = [:same]
+
 """
     Video
 
@@ -125,6 +127,7 @@ Shorthand for Rel(1:i)
 """
 Rel(i::Int) = Rel(1:i)
 
+
 """
     Action(frames, func::Function, args...)
 
@@ -133,6 +136,20 @@ The most simple form of an action (if there are no `args`/`kwargs`) just calls
 `args` are defined it the next function definition and can be seen in action in this example [`javis`](@ref)
 """
 Action(frames, func::Function, args...; kwargs...) = Action(frames, nothing, func, args...; kwargs...)
+
+"""
+    Action(frames_or_id::Symbol, func::Function, args...)
+
+This function decides whether you wrote `Action(frames_symbol, ...)`, or `Action(id_symbol, ...)`
+If the symbol `frames_or_id` is not a `FRAMES_SYMBOL` then it is used as an id_symbol.
+"""
+function Action(frames_or_id::Symbol, func::Function, args...; kwargs...)
+    if frames_or_id in FRAMES_SYMBOL
+        Action(frames_or_id, nothing, func, args...; kwargs...)
+    else
+        Action(:same, frames_or_id, func, args...; kwargs...)
+    end
+end
 
 """
     Action(func::Function, args...)
@@ -216,6 +233,15 @@ i.e the specified color in the background is applied globally (basically a new d
 """
 function BackgroundAction(frames, func::Function, args...; kwargs...)
     Action(frames, nothing, func, args...; in_global_layer=true, kwargs...)
+end
+
+"""
+    BackgroundAction(frames, id::Symbol, func::Function, args...; kwargs...) 
+
+Create an Action where `in_global_layer` is set to true and saves the return into `id`.
+"""
+function BackgroundAction(frames, id::Symbol, func::Function, args...; kwargs...)
+    Action(frames, id, func, args...; in_global_layer=true, kwargs...)
 end
 
 mutable struct InternalTranslation <: InternalTransition
@@ -491,6 +517,31 @@ function perform_transformation(trans::InternalRotation)
     rotate(trans.angle)
 end
 
+"""
+    get_value(s::Symbol)
+
+Get access to the value that got saved in `s` by a previous action.
+If you want to access a position or angle check out [`get_position`](@ref) and [`get_angle`](@ref).
+
+# Returns
+- `Any`: the value stored by a previous action.
+"""
+function get_value(s::Symbol) 
+    defs = CURRENT_VIDEO[1].defs
+    if haskey(defs, s)
+        return defs[s]
+    else
+        error("The symbol $s is not defined.")
+    end
+end
+
+"""
+    val(x)
+
+`val` is just a short-hand for [`get_value`](@ref)
+"""
+val(x) = get_value(x)
+
 get_position(p::Point) = p
 get_position(t::Transformation) = t.p
 
@@ -502,14 +553,7 @@ Get access to the position that got saved in `s` by a previous action.
 # Returns
 - `Point`: the point stored by a previous action.
 """
-function get_position(s::Symbol)
-    defs = CURRENT_VIDEO[1].defs
-    if haskey(defs, s)
-        get_position(defs[s])
-    else
-        error("The symbol $s is not defined.")
-    end
-end
+get_position(s::Symbol) = get_position(val(s))
 
 """
     pos(x)
@@ -520,22 +564,16 @@ pos(x) = get_position(x)
 
 get_angle(t::Transformation) = t.angle
 
+
 """
     get_angle(s::Symbol)
 
 Get access to the angle that got saved in `s` by a previous action.
 
 # Returns
-- `Float64`: the angle stored by a previous action.
+- `Float64`: the angle stored by a previous action i.e via `return Transformation(p, angle)`
 """
-function get_angle(s::Symbol)
-    defs = CURRENT_VIDEO[1].defs
-    if haskey(defs, s)
-        get_angle(defs[s])
-    else
-        error("The symbol $s is not defined.")
-    end
-end
+get_angle(s::Symbol) = get_angle(val(s))
 
 """
     ang(x)
@@ -721,11 +759,20 @@ function perform_action(action, video, frame, origin_matrix)
     end
 end
 
+const LUXOR_DONT_EXPORT = [:boundingbox, :Boxmaptile, :Sequence]
+
+# Export each function from Luxor
+for func in names(Luxor; imported=true)
+    if !(func in LUXOR_DONT_EXPORT)
+        eval(Meta.parse("import Luxor." * string(func)))
+        eval(Expr(:export, func))
+    end
+end
 
 export javis, latex
 export Video, Action, BackgroundAction, Rel
 export Line, Translation, Rotation, Transformation
-export pos, ang, get_position, get_angle
+export val, pos, ang, get_value, get_position, get_angle
 export projection, morph
 
 end

@@ -1,6 +1,13 @@
-function ground(args...) 
+function ground(video, action, framenumber) 
     background("white")
     sethue("blue")
+    return framenumber
+end
+
+function ground_color(color_bg, color_pen, framenumber) 
+    background(color_bg)
+    sethue(color_pen)
+    return framenumber
 end
 
 function latex_title(args...)
@@ -46,7 +53,7 @@ end
         Action(Rel(-24:0), :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
         Action(1:25, :blue_ball, (args...)->circ(p2, "blue"), Rotation(to_rot, from_rot, :red_ball)),
         Action(1:25, (video, args...)->path!(path_of_red, get_position(:red_ball), "red")),
-        Action(1:25, (video, args...)->path!(path_of_blue, pos(:blue_ball), "blue")),
+        Action(:same, (video, args...)->path!(path_of_blue, pos(:blue_ball), "blue")),
         Action(1:25, (args...)->rad(pos(:red_ball), pos(:blue_ball), "black"))
     ], tempdirectory="images", pathname="dancing.gif")
 
@@ -73,7 +80,7 @@ end
         Action(1:25, latex_title),
         Action(1:25, :red_ball, (args...)->circ(p1, "red"), Rotation(to_rot)),
         Action(1:25, :blue_ball, (args...)->circ(p2, "blue"), Rotation(to_rot, from_rot, :red_ball)),
-        Action(1:25, (video, args...)->path!(path_of_red, pos(:red_ball), "red")),
+        Action(1:25, (video, args...)->path!(path_of_red, get_position(:red_ball), "red")),
         Action(1:25, (video, args...)->path!(path_of_blue, pos(:blue_ball), "blue")),
         Action(1:25, (args...)->rad(pos(:red_ball), pos(:blue_ball), "black"))
     ], tempdirectory="images", pathname="")
@@ -146,7 +153,7 @@ end
     p = Point(100, 0)
     javis(video, [
         Action(1:10, ground),
-        Action(:same, :circ, (args...)->circ_ret_trans(p), Rotation(2π)),
+        Action(:circ, (args...)->circ_ret_trans(p), Rotation(2π)),
         Action((args...)->line(Point(-200, 0), Point(-200, -10*ang(:circ)), :stroke))
     ], tempdirectory="images", pathname="")
 
@@ -162,7 +169,8 @@ acirc(args...) = circle(Point(100,100), 30)
 @testset "morphing star2circle and back" begin
     video = Video(500, 500)
     javis(video, [
-        Action(1:20, ground),
+        BackgroundAction(1:20, :framenumber, (args...)->ground_color("white", "black", args[3])),
+        Action(1:10, (args...)->circle(Point(-100, 0), val(:framenumber), :fill)),
         Action(1:10, morph(astar, acirc)),
         Action(11:20, morph(acirc, astar))
     ], tempdirectory="images", pathname="")
