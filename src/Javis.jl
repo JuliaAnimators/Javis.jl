@@ -742,6 +742,11 @@ function perform_action(action, video, frame, origin_matrix)
     end
 end
 
+# Export each function from Luxor
+for func in names(Luxor)
+  eval(Meta.parse("import Luxor." * string(func)))
+  eval(Expr(:export, func))
+end
 
 export javis, latex
 export Video, Action, BackgroundAction, Rel
