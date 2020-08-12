@@ -71,10 +71,10 @@ end
 abstract type Transition end
 abstract type InternalTransition end
 
-abstract type ActionType end
+abstract type AbstractAction end
 
 """
-    SubAction <: ActionType
+    SubAction <: AbstractAction
 
 Defines a subaction with relative frames and a function.
 
@@ -83,10 +83,70 @@ Defines a subaction with relative frames and a function.
 - `func::Function`: the function that gets called in each of those frames.
     Takes the following arguments: video, action, subaction, rel_frame
 """
-mutable struct SubAction <: ActionType
+mutable struct SubAction <: AbstractAction
     frames                  :: UnitRange{Int}
     func                    :: Function
+    transitions             :: Vector{Transition}
+    internal_transitions    :: Vector{InternalTransition}
 end
+
+"""
+    SubAction(frames::UnitRange, func::Function)
+
+A `SubAction` can be defined with frames and a function inside the `subactions` kwarg of an [`Action`](@ref).
+In the following example the `house_of_nicholas` (which is not part of Javis) appears in the first 20 frimes 
+which means the opacity is increased from 0 to 1.0. Then it stays at full opacity and disappears the same way 
+in the last 20 frames.
+
+# Example 
+javis(demo, [
+    BackgroundAction(1:100, ground),
+    Action((args...)->house_of_nicholas(); subactions = [
+        SubAction(1:20, appear(:fade)),
+        SubAction(81:100, disappear(:fade))
+    ])
+])
+
+# Arguments
+- `frames::UnitRange`: A list of frames for which the function should be called. 
+    - The frame numbers are relative to the parent [`Action`](@ref).
+- `func::Function`: The function that gets called for the frames. 
+    - Needs to have four arguments: `video, action, subaction, rel_frame` 
+    - For [`appear`](@ref) and [`disappear`](@ref) a closure exists such that `appear(:fade)` works. 
+"""
+SubAction(frames::UnitRange, func::Function) = SubAction(frames, func, [], [])
+
+"""
+    SubAction(frames::UnitRange, trans::Transition...)
+
+A `SubAction` can also be defined this way with having a list of transitions. 
+This is similar to defining transitions inside [`Action`](@ref)
+
+In the following example a circle is faded in during the first 25 frames then moves to
+- `Point(100, 20)` then to `Point(120, -20)` (the translations are added)
+- and then back to the origin
+In the last 25 frames it disappears from the world.
+
+# Example
+```
+javis(demo, [
+        BackgroundAction(1:200, ground_opacity),
+        Action((args...)->circle(O, 50, :fill); subactions = [
+            SubAction(1:25, appear(:fade)),
+            SubAction(26:75, Translation(Point(100, 20))),
+            SubAction(76:100, Translation(Point(20, -40))),
+            SubAction(101:175, Translation(Point(-120, 20))),
+            SubAction(176:200, disappear(:fade))
+        ]),
+    ], tempdirectory="current/images", pathname="current/circle_square.gif")
+```
+
+# Arguments
+- `frames::UnitRange`: A list of frames for which the function should be called. 
+    - The frame numbers are relative to the parent [`Action`](@ref).
+- `trans::Transition...`: A list of transitions that shall be performed.
+"""
+SubAction(frames::UnitRange, trans::Transition...) = SubAction(frames, (args...)->1, collect(trans), [])
 
 """
     ActionSetting
@@ -140,7 +200,7 @@ Defines what is drawn in a defined frame range.
     See [`compute_transformation!`](@ref)
 - `opts::Any` can hold any options defined by the user
 """
-mutable struct Action <: ActionType
+mutable struct Action <: AbstractAction
     frames                  :: UnitRange{Int}
     id                      :: Union{Nothing, Symbol}
     func                    :: Function
@@ -536,11 +596,11 @@ function latex(text::LaTeXString, font_size::Real, action::Symbol)
 end
 
 """
-    compute_transformation!(action::ActionType, video::Video, frame::Int)
+    compute_transformation!(action::AbstractAction, video::Video, frame::Int)
 
 Update action.internal_transitions for the current frame number
 """
-function compute_transformation!(action::ActionType, video::Video, frame::Int)
+function compute_transformation!(action::AbstractAction, video::Video, frame::Int)
     for (trans,internal_trans) in zip(action.transitions, action.internal_transitions)
         compute_transition!(internal_trans, trans, video, action, frame)
     end
@@ -548,15 +608,17 @@ end
 
 """
     compute_transition!(internal_rotation::InternalRotation, rotation::Rotation, video,
-                        action::ActionType, frame)
+                        action::AbstractAction, frame)
 
 Computes the rotation transformation for the `action`.
 If the `Rotation` is given directly it uses the frame number for interpolation.
 If `rotation` includes symbols the current definition of that look up is used for computation.
 """
 function compute_transition!(internal_rotation::InternalRotation, rotation::Rotation,
-                             video, action::ActionType, frame)
+                             video, action::AbstractAction, frame)
     t = (frame-first(action.frames))/(length(action.frames)-1)
+    # makes sense to only allow 0 ≤ t ≤ 1
+    t = min(1.0, t)
     from, to, center = rotation.from, rotation.to, rotation.center
 
     center isa Symbol && (center = pos(center))
@@ -569,7 +631,7 @@ end
 
 """
     compute_transition!(internal_translation::InternalTranslation, translation::Translation,
-                        video, action::ActionType, frame)
+                        video, action::AbstractAction, frame)
 
 Computes the translation transformation for the `action`.
 If the `translation` is given directly it uses the frame number for interpolation.
@@ -577,8 +639,10 @@ If `translation` includes symbols the current definition of that symbol is looke
 and used for computation.
 """
 function compute_transition!(internal_translation::InternalTranslation,
-                             translation::Translation, video, action::ActionType, frame)
+                             translation::Translation, video, action::AbstractAction, frame)
     t = (frame-first(action.frames))/(length(action.frames)-1)
+    # makes sense to only allow 0 ≤ t ≤ 1
+    t = min(1.0, t)
     from, to = translation.from, translation.to
 
     from isa Symbol && (from = pos(from))
@@ -588,11 +652,11 @@ function compute_transition!(internal_translation::InternalTranslation,
 end
 
 """
-    perform_transformation(action::ActionType)
+    perform_transformation(action::AbstractAction)
 
 Perform the transformations as described in action.internal_transitions
 """
-function perform_transformation(action::ActionType)
+function perform_transformation(action::AbstractAction)
     for trans in action.internal_transitions
         perform_transformation(trans)
     end
@@ -701,9 +765,25 @@ function projection(p::Point, l::Line)
 end
 
 """
+    create_internal_transitions!(action::AbstractAction)
+
+For every translation an internal translation is added to `action.internal_transitions`.
+Same is true for all other transitions.
+"""
+function create_internal_transitions!(action::AbstractAction)
+    for trans in action.transitions
+        if trans isa Translation
+            push!(action.internal_transitions, InternalTranslation(O))
+        elseif trans isa Rotation
+            push!(action.internal_transitions, InternalRotation(0.0, O))
+        end
+    end
+end
+
+"""
     javis(
         video::Video,
-        actions::Vector{ActionType};
+        actions::Vector{AbstractAction};
         creategif=false,
         framerate=30,
         pathname="",
@@ -761,7 +841,7 @@ function javis(
     framerate=30,
     pathname="javis_$(randstring(7)).gif",
     tempdirectory=mktempdir(),
-) where AT <: ActionType
+) where AT <: AbstractAction
     # get all frames
     frames = Int[]
     for action in actions
@@ -771,12 +851,9 @@ function javis(
 
     # create internal transition objects
     for action in actions
-        for trans in action.transitions
-            if trans isa Translation
-                push!(action.internal_transitions, InternalTranslation(O))
-            elseif trans isa Rotation
-                push!(action.internal_transitions, InternalRotation(0.0, O))
-            end
+        create_internal_transitions!(action)
+        for subaction in action.subactions
+            create_internal_transitions!(subaction)
         end
     end
 
@@ -806,15 +883,6 @@ function javis(
             update_action_settings!(action, background_settings)
             CURRENT_ACTION[1] = action
             if frame in action.frames
-                # relative frame number for subactions
-                rel_frame = frame-first(action.frames) + 1
-                # call currently active subactions
-                for subaction in action.subactions
-                    if rel_frame in subaction.frames
-                        subaction.func(video, action, subaction, rel_frame)
-                    end
-                end
-
                 # check if the action should be part of the global layer (i.e BackgroundAction)
                 # or in its own layer (default)
                 in_global_layer = get(action.opts, :in_global_layer, false)
@@ -865,7 +933,7 @@ end
 """
     perform_action(action, video, frame, origin_matrix)
 
-Is called inside the `javis` and does everything handled for an `ActionType`.
+Is called inside the `javis` and does everything handled for an `AbstractAction`.
 It is a 4-step process:
 - compute the transformation for this action (translation, rotation, scale)
 - do the transformation
@@ -873,9 +941,28 @@ It is a 4-step process:
 - save the result of the action if wanted inside `video.defs`
 """
 function perform_action(action, video, frame, origin_matrix)
-    set_action_defaults!(action)
+    # first compute and perform the global transformations of this action
     compute_transformation!(action, video, frame)
     perform_transformation(action)
+
+    # relative frame number for subactions
+    rel_frame = frame-first(action.frames) + 1
+    # call currently active subactions and their transformations
+    for subaction in action.subactions
+        if rel_frame in subaction.frames
+            subaction.func(video, action, subaction, rel_frame)
+            compute_transformation!(subaction, video, frame)
+            perform_transformation(subaction)
+        elseif rel_frame > last(subaction.frames)
+            # have the transformation from the last active frame
+            compute_transformation!(subaction, video, last(subaction.frames))
+            perform_transformation(subaction)
+        end
+    end
+
+    # set the defaults for the frame like setline() and setopacity()
+    # which can depend on the subactions
+    set_action_defaults!(action)
     res = action.func(video, action, frame)
     if action.id !== nothing
         current_global_matrix = cairotojuliamatrix(getmatrix())

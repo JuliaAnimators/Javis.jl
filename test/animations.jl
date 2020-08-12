@@ -249,14 +249,15 @@ end
             SubAction(26:50, disappear(:fade))
         ]),
         Action((args...)->square_opacity(Point(-100, 0), 60); subactions = [
-            SubAction(1:25, appear(:fade)),
-            SubAction(26:50, disappear(:fade))
+            SubAction(1:15, appear(:fade)),
+            SubAction(16:35, Translation(100, 50)),
+            SubAction(36:50, disappear(:fade))
         ])
     ], tempdirectory="images", pathname="")
 
-    @test_reference "refs/circlerSquare15opacity.png" load("images/0000000015.png")
+    @test_reference "refs/circlerSquare07opacity.png" load("images/0000000007.png")
     @test_reference "refs/circlerSquare25opacity.png" load("images/0000000025.png")
-    @test_reference "refs/circlerSquare35opacity.png" load("images/0000000035.png")
+    @test_reference "refs/circlerSquare42opacity.png" load("images/0000000042.png")
     for i=1:50
         rm("images/$(lpad(i, 10, "0")).png")
     end
