@@ -94,11 +94,11 @@ end
     SubAction(frames::UnitRange, func::Function)
 
 A `SubAction` can be defined with frames and a function inside the `subactions` kwarg of an [`Action`](@ref).
-In the following example the `house_of_nicholas` (which is not part of Javis) appears in the first 20 frimes 
-which means the opacity is increased from 0 to 1.0. Then it stays at full opacity and disappears the same way 
+In the following example the `house_of_nicholas` (which is not part of Javis) appears in the first 20 frames
+which means the opacity is increased from 0 to 1.0. Then it stays at full opacity and disappears the same way
 in the last 20 frames.
 
-# Example 
+# Example
 javis(demo, [
     BackgroundAction(1:100, ground),
     Action((args...)->house_of_nicholas(); subactions = [
@@ -108,18 +108,18 @@ javis(demo, [
 ])
 
 # Arguments
-- `frames::UnitRange`: A list of frames for which the function should be called. 
+- `frames::UnitRange`: A list of frames for which the function should be called.
     - The frame numbers are relative to the parent [`Action`](@ref).
-- `func::Function`: The function that gets called for the frames. 
-    - Needs to have four arguments: `video, action, subaction, rel_frame` 
-    - For [`appear`](@ref) and [`disappear`](@ref) a closure exists such that `appear(:fade)` works. 
+- `func::Function`: The function that gets called for the frames.
+    - Needs to have four arguments: `video, action, subaction, rel_frame`
+    - For [`appear`](@ref) and [`disappear`](@ref) a closure exists such that `appear(:fade)` works.
 """
 SubAction(frames::UnitRange, func::Function) = SubAction(frames, func, [], [])
 
 """
     SubAction(frames::UnitRange, trans::Transition...)
 
-A `SubAction` can also be defined this way with having a list of transitions. 
+A `SubAction` can also be defined this way with having a list of transitions.
 This is similar to defining transitions inside [`Action`](@ref)
 
 In the following example a circle is faded in during the first 25 frames then moves to
@@ -142,7 +142,7 @@ javis(demo, [
 ```
 
 # Arguments
-- `frames::UnitRange`: A list of frames for which the function should be called. 
+- `frames::UnitRange`: A list of frames for which the function should be called.
     - The frame numbers are relative to the parent [`Action`](@ref).
 - `trans::Transition...`: A list of transitions that shall be performed.
 """
@@ -954,6 +954,8 @@ function perform_action(action, video, frame, origin_matrix)
             compute_transformation!(subaction, video, frame)
             perform_transformation(subaction)
         elseif rel_frame > last(subaction.frames)
+            # call the subaction on the last frame i.e. disappeared things stay disappeared
+            subaction.func(video, action, subaction, last(subaction.frames))
             # have the transformation from the last active frame
             compute_transformation!(subaction, video, last(subaction.frames))
             perform_transformation(subaction)
