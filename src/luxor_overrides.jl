@@ -4,6 +4,14 @@
 Set the line width and multiply it with the current multiplier
 which is i.e. set by [`appear`](@ref) and [`disappear`](@ref).
 
+Normal behavior without any animation is the same as `Luxor.setline`.
+
+# Example
+```
+setline(10)
+line(O, Point(10, 10))
+```
+
 # Arguments:
 - `linewidth`: the line width in pixel
 """
@@ -20,6 +28,14 @@ end
 
 Set the opacity and multiply it with the current multiplier
 which is i.e. set by [`appear`](@ref) and [`disappear`](@ref).
+
+Normal behavior without any animation is the same as `Luxor.setopacity`.
+
+# Example
+```
+setopacity(0.5)
+circle(O, 20, :fill)
+```
 
 # Arguments:
 - `opacity`: the opacity between 0.0 and 1.0

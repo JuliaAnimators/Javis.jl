@@ -6,9 +6,9 @@ Appear can be used inside a [`SubAction`](@ref)
 # Example
 ```
 Action(101:200, (args...)->house_of_nicholas(); subactions = [
-            SubAction(1:20, appear(:fade)),
-            SubAction(81:100, disappear(:fade))
-        ])
+    SubAction(1:20, appear(:fade)),
+    SubAction(81:100, disappear(:fade))
+])
 ```
 In this case the `house_of_nicholas` will fade in during the first 20 frames
 of the [`Action`](@ref) so `101-120`.
@@ -46,9 +46,9 @@ Disappear can be used inside a [`SubAction`](@ref)
 # Example
 ```
 Action(101:200, (args...)->house_of_nicholas(); subactions = [
-            SubAction(1:20, appear(:fade)),
-            SubAction(81:100, disappear(:fade))
-        ])
+    SubAction(1:20, appear(:fade)),
+    SubAction(81:100, disappear(:fade))
+])
 ```
 In this case the `house_of_nicholas` will fade out during the last 20 frames
 of the [`Action`](@ref) so `181-200`.
