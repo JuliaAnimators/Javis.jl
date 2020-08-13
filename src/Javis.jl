@@ -56,6 +56,7 @@ end
 
 Defines a transformation which can be returned by an action to be accessible later.
 See the `circ` function inside the [`javis`](@ref) as an example.
+
 It can be accessed by another [`Action`])(@ref) using the symbol notation
 like `:red_ball` in the example.
 
@@ -537,7 +538,7 @@ latex(text::LaTeXString, action::Symbol) = latex(text, 10, action)
 
 """
 
-`latex(text::LaTeXString, font_size::Real, action::Symbol)`
+    latex(text::LaTeXString, font_size::Real, action::Symbol)
 
 Add the latex string `text` to the top left corner of the LaTeX path.
 Can be added to `Luxor.jl` graphics such as `Video` or `Drawing`.
@@ -550,18 +551,11 @@ Can be added to `Luxor.jl` graphics such as `Video` or `Drawing`.
 
 # Arguments
 - `text::LaTeXString`: a LaTeX string to render.
-- `font_size::Real`: integer font size of LaTeX string. Default `10`.
+- `font_size::Real`: font size of LaTeX string. Default `10`.
 - `action::Symbol`: graphics actions defined by `Luxor.jl`. Default `:stroke`.
-
 Available actions:
-  - `:fill` - See `Luxor.fillpath`.
-  - `:stroke` - See `Luxor.strokepath`.
-  - `:clip` - See `Luxor.clip`.
-  - `:fillstroke` - See `Luxor.fillstroke`.
-  - `:fillpreserve` - See `Luxor.fillpreserve`.
-  - `:strokepreserve` - See `Luxor.strokepreserve`.
-  - `:none` - Does nothing.
-  - `:path` - See Luxor docs for `polygons.md`
+  - `:stroke` -  Draws the latex string on the canvas. For more info check `Luxor.strokepath`
+  - `:path` - Creates the path of the latex string but does not render it to the canvas.
 
 # Throws
 - `IOError`: mathjax-node-cli is not installed
@@ -879,7 +873,7 @@ function javis(
         CURRENT_ACTION[1] = actions[1]
     end
     background_settings = ActionSetting()
-
+  
     filecounter = 1
     for frame in frames
         Drawing(video.width, video.height, "$(tempdirectory)/$(lpad(filecounter, 10, "0")).png")
