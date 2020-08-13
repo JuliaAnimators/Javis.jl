@@ -2,7 +2,7 @@
 
 `draw_grid(video::Video, action::Action, frame::Int; direction::AbstractString = "TR", line_gap = 25)`
 
-Draws an oriented grid on the given frame of a Video. A closure for the [`_draw_grid`](@ref) internal function.
+Draws an oriented grid on the given frame of a Video.
 
 # Arguments
 - `direction::AbstractString`: Where grid animation finishes. Default: `"TR"` Available Orientations:
@@ -91,7 +91,6 @@ end
             line_thickness = 10)`
 
 Draws zero lines on the given frame of a Video.
-A closure for the [`_zero_lines`](@ref) internal function.
 
 # Arguments
 - `direction::AbstractString`: Direction for how vertical and horizontal axes are drawn.
