@@ -1,10 +1,10 @@
-function ground(video, action, framenumber) 
+function ground(video, action, framenumber)
     background("white")
     sethue("blue")
     return framenumber
 end
 
-function ground_color(color_bg, color_pen, framenumber) 
+function ground_color(color_bg, color_pen, framenumber)
     background(color_bg)
     sethue(color_pen)
     return framenumber
@@ -38,7 +38,7 @@ function rad(p1, p2, color)
     line(p1,p2, :stroke)
 end
 
-@testset "Dancing circles" begin 
+@testset "Dancing circles" begin
     p1 = Point(100,0)
     p2 = Point(100,80)
     from_rot = 0.0
@@ -66,7 +66,7 @@ end
     rm("dancing.gif")
 end
 
-@testset "Dancing circles layered" begin 
+@testset "Dancing circles layered" begin
     p1 = Point(100,0)
     p2 = Point(100,80)
     from_rot = 0.0
@@ -91,7 +91,7 @@ end
     end
 end
 
-@testset "Dancing circles layered return Transformation" begin 
+@testset "Dancing circles layered return Transformation" begin
     p1 = Point(100,0)
     p2 = Point(100,80)
     from_rot = 0.0
@@ -122,16 +122,16 @@ end
         video,
         [
             Action(1:40, ground),
-            
+
             Action(1:10, draw_grid(direction = "BL", line_gap = 25)),
             Action(zero_lines(direction = "BL", line_thickness = 10)),
-            
+
             Action(Rel(10), draw_grid(direction = "BR", line_gap = 25)),
             Action(zero_lines(direction = "BR", line_thickness = 10)),
-            
+
             Action(Rel(10), draw_grid(direction = "TL", line_gap = 25)),
             Action(zero_lines(direction = "TL", line_thickness = 10)),
-            
+
             Action(Rel(10), draw_grid(direction = "TR", line_gap = 25)),
             Action(zero_lines(direction = "TR", line_thickness = 10)),
 
@@ -163,8 +163,8 @@ end
     end
 end
 
-astar(args...) = star(Point(-100,-100), 30) 
-acirc(args...) = circle(Point(100,100), 30) 
+astar(args...) = star(Point(-100,-100), 30)
+acirc(args...) = circle(Point(100,100), 30)
 
 @testset "morphing star2circle and back" begin
     video = Video(500, 500)
@@ -182,12 +182,96 @@ acirc(args...) = circle(Point(100,100), 30)
     end
 end
 
+function ground_nicholas(args...)
+    background("white")
+    sethue("blue")
+    setline(3)
+end
+
+function house_of_nicholas(;p1=O, width=100, color="black")
+    # sethue(color)
+    #     .p1
+    # .p2   .p3
+    #
+    # .p4   .p5
+    width2 = div(width, 2)
+    p2 = p1 + Point(-width2, width2)
+    p3 = p1 + Point(width2, width2)
+    p4 = p2 + Point(0, width)
+    p5 = p3 + Point(0, width)
+    line(p4, p5, :stroke)
+    line(p5, p2, :stroke)
+    line(p2, p4, :stroke)
+    line(p4, p3, :stroke)
+    line(p3, p1, :stroke)
+    line(p1, p2, :stroke)
+    line(p2, p3, :stroke)
+    setline(8)
+    line(p3, p5, :stroke)
+end
+
+@testset "House of Nicholas line_width" begin
+    demo = Video(500, 500)
+    javis(demo, [
+        BackgroundAction(1:50, ground_nicholas),
+        Action((args...)->house_of_nicholas(); subactions = [
+            SubAction(1:25, appear(:fade_line_width)),
+            SubAction(26:50, disappear(:fade_line_width))
+        ])
+    ], tempdirectory="images", pathname="")
+
+    @test_reference "refs/nicholas15.png" load("images/0000000015.png")
+    @test_reference "refs/nicholas25.png" load("images/0000000025.png")
+    @test_reference "refs/nicholas35.png" load("images/0000000035.png")
+    for i=1:50
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
+function ground_opacity(args...)
+    background("white")
+    sethue("black")
+    setopacity(0.5)
+end
+
+function square_opacity(p1, w)
+    setopacity(1.0)
+    sethue("red")
+    rect(p1, w, w, :fill)
+end
+
+@testset "Circle/square appear opacity" begin
+    demo = Video(500, 500)
+    javis(demo, [
+        BackgroundAction(1:50, ground_opacity),
+        Action((args...)->circ(); subactions = [
+            SubAction(1:25, appear(:fade)),
+            SubAction(26:50, disappear(:fade))
+        ]),
+        Action((args...)->square_opacity(Point(-100, 0), 60); subactions = [
+            SubAction(1:15, appear(:fade)),
+            SubAction(16:35, Translation(100, 50)),
+            SubAction(36:45, disappear(:fade))
+            # for 46-50 it should still be disappeared
+        ])
+    ], tempdirectory="images", pathname="")
+
+    @test_reference "refs/circlerSquare07opacity.png" load("images/0000000007.png")
+    @test_reference "refs/circlerSquare25opacity.png" load("images/0000000025.png")
+    @test_reference "refs/circlerSquare42opacity.png" load("images/0000000042.png")
+    # test that the last frame is completely white
+    @test sum(load("images/0000000050.png")) == RGB{Float64}(500*500, 500*500, 500*500)
+    for i=1:50
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
 @testset "test default kwargs" begin
     video = Video(500, 500)
     pathname = javis(video, [
         Action(1:10, ground),
         Action(1:10, morph(astar, acirc))
-    ]) 
+    ])
     path, ext = splitext(pathname)
     @test ext == ".gif"
     @test isfile(pathname)
@@ -199,6 +283,5 @@ end
     @test_logs (:error,) javis(video, [
         Action(1:10, ground),
         Action(1:10, morph(astar, acirc))
-    ]; pathname="test.mp3") 
+    ]; pathname="test.mp3")
 end
-

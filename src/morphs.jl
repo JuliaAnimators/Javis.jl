@@ -1,9 +1,9 @@
 """
     match_num_point!(poly_1::Vector{Point}, poly_2::Vector{Point})
 
-This is a helper function for [`morph`](@ref). 
-Given two polygons `poly_1` and `poly_2` points are added to the polygon with less points 
-until both polygons have the same number of points. 
+This is a helper function for [`morph`](@ref).
+Given two polygons `poly_1` and `poly_2` points are added to the polygon with less points
+until both polygons have the same number of points.
 The polygon with less points gets mutated during this process.
 
 # Arguments
@@ -14,7 +14,7 @@ function match_num_point!(poly_1::Vector{Point}, poly_2::Vector{Point})
     l1 = length(poly_1)
     l2 = length(poly_2)
     # if both have the same number of points => we are done
-    l1 == l2 && return 
+    l1 == l2 && return
 
     # poly_1 should have less points than poly_2 so we flip if this is not the case
     flipped = false
@@ -26,13 +26,13 @@ function match_num_point!(poly_1::Vector{Point}, poly_2::Vector{Point})
 
     # the difference of the length of points
     diff = l2-l1
-    
+
     points_per_edge = div(diff, l1)
-    # how many extra points do we need 
+    # how many extra points do we need
     points_per_edge_extra = rem(diff, l1)
     # => will add them to the first `points_per_edge_extra` edges
 
-    # index is the index where the next point is added 
+    # index is the index where the next point is added
     index = 2
     poly_1_orig = copy(poly_1)
     for i in 1:l1
@@ -59,7 +59,7 @@ function match_num_point!(poly_1::Vector{Point}, poly_2::Vector{Point})
         index += 1
     end
 
-    if flipped 
+    if flipped
         poly_1, poly_2 = poly_2, poly_1
     end
     @assert length(poly_1) == length(poly_2)
@@ -68,17 +68,19 @@ end
 """
     morph(from_func::Function, to_func::Function)
 
-A closure for the [`morph_internal`](@ref) function. This makes it easier to write the function inside an `Action`.
+A closure for the [`_morph`](@ref) function.
+This makes it easier to write the function inside an `Action`.
 
-Currently morphing is quite simple and only works for basic shapes. It especially does not work with
-functions which produce more than one polygon or which produce filled polygons. 
-Blending between fills of polygons is definitely coming at a later stage. 
+Currently morphing is quite simple and only works for basic shapes.
+It especially does not work with functions which produce more than one polygon
+or which produce filled polygons.
+Blending between fills of polygons is definitely coming at a later stage.
 
 **Important:** The functions itself should not draw the polygon
 i.e. use `circle(Point(100,100), 50)` instead of `circle(Point(100,100), 50, :stroke)`
 
 # Arguments
-- `from_func::Function`: The function that creates the path for the first polygon. 
+- `from_func::Function`: The function that creates the path for the first polygon.
 - `to_func::Function`: Same as `from_func` but it defines the "result" polygon,
                        which will be displayed at the end of the Action
 
@@ -88,29 +90,29 @@ This creates a star that morphs into a circle and back.
 
 ```
 using Javis
-using Luxor
 
-astar(args...) = star(O, 50) 
-acirc(args...) = circle(Point(100,100), 50) 
+astar(args...) = star(O, 50)
+acirc(args...) = circle(Point(100,100), 50)
 
 video = Video(500, 500)
 javis(video, [
     Action(1:100, ground),
     Action(1:50, morph(astar, acirc)),
     Action(51:100, morph(acirc, astar))
-], creategif=true, tempdirectory="images", 
+], creategif=true, tempdirectory="images",
     pathname="star2circle.gif", deletetemp=true)
 ```
 """
 function morph(from_func::Function, to_func::Function)
-    return (video, action, frame) -> morph_internal(video, action, frame, from_func, to_func)
+    return (video, action, frame) -> _morph(video, action, frame, from_func, to_func)
 end
 
 """
     save_morph_polygons!(action::Action, from_func::Function, to_func::Function)
 
-Converts the paths created by the functions to polygons and calls [`match_num_point!`](@ref) such that both polygons
-have the same number of points. This is done once inside [`morph_internal`](@ref).
+Converts the paths created by the functions to polygons and calls [`match_num_point!`](@ref)
+such that both polygons have the same number of points.
+This is done once inside [`_morph`](@ref).
 Saves the two polygons inside `action.opts[:from_poly]` and `action.opts[:to_poly]`.
 
 **Assumption:** Both functions create only a single polygon each.
@@ -125,7 +127,7 @@ function save_morph_polygons!(action::Action, from_func::Function, to_func::Func
     to_func()
     closepath()
     to_poly = pathtopoly()[1]
-    
+
     match_num_point!(from_poly, to_poly)
 
     # find the smallest morphing distance to match the points in a more natural way
@@ -156,11 +158,12 @@ function save_morph_polygons!(action::Action, from_func::Function, to_func::Func
 end
 
 """
-    morph_internal(video::Video, action::Action, frame, from_func::Function, to_func::Function)
+    _morph(video::Video, action::Action, frame, from_func::Function, to_func::Function)
 
 Internal version of [`morph`](@ref) but described there.
 """
-function morph_internal(video::Video, action::Action, frame, from_func::Function, to_func::Function)
+function _morph(video::Video, action::Action, frame,
+                        from_func::Function, to_func::Function)
     # computation of the polygons and the best way to morph in the first frame
     if frame == first(action.frames)
         save_morph_polygons!(action, from_func, to_func)
@@ -173,7 +176,7 @@ function morph_internal(video::Video, action::Action, frame, from_func::Function
 
     # compute the interpolation variable `t` for the current frame
     t = (frame-first(action.frames))/(length(action.frames)-1)
-    
+
     for (i, p1, p2) in zip(1:length(from_poly), from_poly, to_poly)
         new_point = p1+t*(p2-p1)
         points[i] = new_point
