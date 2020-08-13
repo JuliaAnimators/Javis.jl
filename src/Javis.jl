@@ -85,8 +85,8 @@ A SubAction should not be created by hand but instead by using one of the constr
 # Fields
 - `frames::UnitRange{Int}`: the frames relative to the parent [`Action`](@ref)
 - `func::Function`: the function that gets called in each of those frames.
-    Takes the following arguments: video, action, subaction, rel_frame
-- `transitions::Vector{Transition}`: A list of transitions like [`Translate`](@ref)
+    Takes the following arguments: `video, action, subaction, rel_frame`
+- `transitions::Vector{Transition}`: A list of transitions like [`Translation`](@ref)
 - `internal_transitions::Vector{InternalTransition}`:
     A list of internal transitions which store the current transition for a specific frame.
 """
@@ -873,7 +873,7 @@ function javis(
         CURRENT_ACTION[1] = actions[1]
     end
     background_settings = ActionSetting()
-  
+
     filecounter = 1
     for frame in frames
         Drawing(video.width, video.height, "$(tempdirectory)/$(lpad(filecounter, 10, "0")).png")
