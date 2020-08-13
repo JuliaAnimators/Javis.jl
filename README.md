@@ -48,7 +48,7 @@ If you want to dive into it directly make sure to check out our [documentation](
 
 I want to thank a couple of people who helped make this possible.
 
-- First of all the over thousand contributors of Julia itself.
+- First of all the over thousand contributors of Julia itself
 - [Cormullion](https://github.com/cormullion) the inventor of [Luxor.jl](https://github.com/JuliaGraphics/Luxor.jl)
 - [JuliaGraphics in general](https://github.com/cormullion) who provide the wrapper [Cairo.jl](https://github.com/JuliaGraphics/Cairo.jl) for the [Cairo graphics library](https://www.cairographics.org/)
 - [Jacob Zelko](https://github.com/TheCedarPrince) as the second main developer of this project
