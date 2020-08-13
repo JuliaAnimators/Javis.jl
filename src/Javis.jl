@@ -954,7 +954,7 @@ function perform_action(action, video, frame, origin_matrix)
     for subaction in action.subactions
         if rel_frame in subaction.frames
             subaction.func(video, action, subaction, rel_frame)
-            compute_transformation!(subaction, video, frame)
+            compute_transformation!(subaction, video, rel_frame)
             perform_transformation(subaction)
         elseif rel_frame > last(subaction.frames)
             # call the subaction on the last frame i.e. disappeared things stay disappeared

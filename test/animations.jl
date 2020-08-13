@@ -248,11 +248,11 @@ end
             SubAction(1:25, appear(:fade)),
             SubAction(26:50, disappear(:fade))
         ]),
-        Action((args...)->square_opacity(Point(-100, 0), 60); subactions = [
+        Action(5:50, (args...)->square_opacity(Point(-100, 0), 60); subactions = [
             SubAction(1:15, appear(:fade)),
             SubAction(16:35, Translation(100, 50)),
-            SubAction(36:45, disappear(:fade))
-            # for 46-50 it should still be disappeared
+            SubAction(36:40, disappear(:fade))
+            # for global frames 46-50 it should still be disappeared
         ])
     ], tempdirectory="images", pathname="")
 
