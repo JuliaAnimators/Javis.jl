@@ -2,6 +2,8 @@
 
 You have learned a couple of cool features of Javis already. Now you're ready to finally meet our little mascot. Well actually you can't just see him, we have to create him first. :smile:
 
+## Our goal
+
 Let's create a list of what we want first
 - a circular head
 - some hair
@@ -10,7 +12,11 @@ Let's create a list of what we want first
 - a moving mouth
 - he should say something
 
-This should show you the power of `SubAction` so we want each of those appear (fade in) one after another.
+## Learning Outcomes
+
+This tutorial should show you the power of `SubAction` so we want each of those appear (fade in) one after another.
+
+## Starting with the basics of SubAction
 
 ```julia
 using Javis
@@ -131,6 +137,8 @@ end
 
 ![Up to the nose](./assets/jarvis_nose.gif)
 
+## Using Transformations
+
 Let's give him some moving lips so he can communicate with us:
 
 ```julia
@@ -200,6 +208,8 @@ Action(120:150, (args...)->speak("How are you?"); subactions=[
 ```
 
 This time we also use the [`disappear`](@ref) function to fade out the text.
+
+## Final outcome and code
 
 ![Jarvis](./assets/jarvis.gif)
 
@@ -298,7 +308,3 @@ function face()
     ], pathname="jarvis.gif", framerate=15)
 end
 ```
-
-
-
-
