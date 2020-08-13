@@ -76,12 +76,18 @@ abstract type AbstractAction end
 """
     SubAction <: AbstractAction
 
-Defines a subaction with relative frames and a function.
+A SubAction can be used in the keyword arguments of an [`Action`](@ref) to define small
+sub actions on the action function, such as [`appear`](@ref).
+
+A SubAction should not be created by hand but instead by using one of the constructors.
 
 # Fields
 - `frames::UnitRange{Int}`: the frames relative to the parent [`Action`](@ref)
 - `func::Function`: the function that gets called in each of those frames.
     Takes the following arguments: video, action, subaction, rel_frame
+- `transitions::Vector{Transition}`: A list of transitions like [`Translate`](@ref)
+- `internal_transitions::Vector{InternalTransition}`:
+    A list of internal transitions which store the current transition for a specific frame.
 """
 mutable struct SubAction <: AbstractAction
     frames                  :: UnitRange{Int}
@@ -95,14 +101,14 @@ end
 
 A `SubAction` can be defined with frames and a function
 inside the `subactions` kwarg of an [`Action`](@ref).
-In the following example the `house_of_nicholas` (which is not part of Javis)
-appears in the first 20 frames which means the opacity is increased from 0 to 1.0.
+In the following example a filled circle with radius 50 appears in the first 20 frames,
+which means the opacity is increased from 0 to 1.0.
 Then it stays at full opacity and disappears the same way in the last 20 frames.
 
 # Example
 javis(demo, [
     BackgroundAction(1:100, ground),
-    Action((args...)->house_of_nicholas(); subactions = [
+    Action((args...)->circle(O, 50, :fill); subactions = [
         SubAction(1:20, appear(:fade)),
         SubAction(81:100, disappear(:fade))
     ])
