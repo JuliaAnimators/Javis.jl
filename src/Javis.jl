@@ -376,21 +376,24 @@ latex(text::LaTeXString, action::Symbol) = latex(text, 10, action)
 
 """
 
-`latex(text::LaTeXString, font_size::Real, action::Symbol)`
+    latex(text::LaTeXString, font_size::Real, action::Symbol)
 
-Add the latex string `text` to the top left corner of the LaTeX path. Can be added to `Luxor.jl` graphics such as `Video` or `Drawing`.
+Add the latex string `text` to the top left corner of the LaTeX path.
+Can be added to `Luxor.jl` graphics such as `Video` or `Drawing`.
 
 **NOTE: This only works if `tex2svg` is installed.**
-**It can be installed using the following command (you may have to prefix this command with `sudo` depending on your installation):**
+**It can be installed using the following command
+    (you may have to prefix this command with `sudo` depending on your installation):**
 
 > `npm install -g mathjax-node-cli`
 
 # Arguments
 - `text::LaTeXString`: a LaTeX string to render.
-- `font_size::Real`: integer font size of LaTeX string. Default `10`.
-- `action::Symbol`: graphics actions defined by `Luxor.jl`. Default `:stroke`. Available actions:
-  - `:stroke` - See `Luxor.strokepath`.
-  - `:path` - See Luxor docs for `polygons.md`
+- `font_size::Real`: font size of LaTeX string. Default `10`.
+- `action::Symbol`: graphics actions defined by `Luxor.jl`. Default `:stroke`.
+Available actions:
+  - `:stroke` -  Draws the latex string on the canvas. For more info check `Luxor.strokepath`
+  - `:path` - Creates the path of the latex string but does not render it to the canvas.
 
 # Throws
 - `IOError`: mathjax-node-cli is not installed
