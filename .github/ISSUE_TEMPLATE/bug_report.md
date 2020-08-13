@@ -1,0 +1,29 @@
+---
+name: Bug report
+about: Create a report to help us improve
+title: "[BUG] "
+labels: bug
+assignees: ''
+
+---
+
+**Describe the bug**
+A clear and concise description of what the bug is.
+
+**To Reproduce**
+1. Julia Version
+
+2. Operating system
+
+3. Minimum working example
+
+**Expected behavior**
+A clear and concise description of what you expected to happen.
+
+**Stacktrace of Error or What actually happened**
+
+**Screenshots**
+If applicable, add your gif or drawing to help explain your problem.
+
+**Additional context**
+Add any other context about the problem here.
