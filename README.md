@@ -6,7 +6,7 @@
 [![Build Status](https://github.com/Wikunia/Javis.jl/workflows/CI/badge.svg)](https://github.com/Wikunia/Javis.jl/actions)
 [![Coverage](https://codecov.io/gh/Wikunia/Javis.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Wikunia/Javis.jl)
 
-**Javis:** **J**ulia M**a**thematical **Vis**ualizations and Animations
+**Javis:** **J**ulia **A**nimations and **Vis**ualizations
 
 ## Introduction 
 
@@ -26,7 +26,7 @@ julia> ] add Javis
 
 That's all there is to it! 😃
 
-### Dependencies
+### Optional Dependency
 
 Javis supports LaTeX and currently we need this node dependency for it. We are looking forward to the time when everything can be handled by Julia.
 
@@ -38,7 +38,7 @@ If you don't need LaTeX there is no reason to install this :wink:
 
 ## State of development
 
-Javis.jl is currently under heavy development but we wanted to bring you a first version after we received over 30 stars. It makes it easier to try out Javis.jl for you and we are looking forward to bug reports and issue request. More the latter, but we expect things to fail!
+Javis.jl is currently under heavy development but we wanted to bring you a first version after we received over 30 stars. It makes it easier to try out Javis.jl for you and we are looking forward to bug reports and issue requests. More the latter, but we expect things to fail!
 
 ## Tutorials 
 
@@ -50,6 +50,7 @@ I want to thank a couple of people who helped make this possible.
 
 - First of all the over thousand contributors of Julia itself.
 - [Cormullion](https://github.com/cormullion) the inventor of [Luxor.jl](https://github.com/JuliaGraphics/Luxor.jl)
+- [JuliaGraphics in general](https://github.com/cormullion) who provide the wrapper [Cairo.jl](https://github.com/JuliaGraphics/Cairo.jl) for the [Cairo graphics library](https://www.cairographics.org/)
 - [Jacob Zelko](https://github.com/TheCedarPrince) as the second main developer of this project
 - [Sudomaze](https://github.com/sudomaze) for helping out with tutorials and feedback
 
