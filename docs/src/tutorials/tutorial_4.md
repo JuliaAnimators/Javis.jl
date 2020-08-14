@@ -323,3 +323,7 @@ function face()
     ], pathname="jarvis.gif", framerate=15)
 end
 ```
+
+> **Author(s):** Ole Kröger, Jacob Zelko \
+> **Date:** August 14th, 2020 \
+> **Tag(s):** jarvis, subactions, fade, transformations
