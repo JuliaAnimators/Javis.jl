@@ -8,7 +8,17 @@ If you have not installed `Javis` yet, please visit the homepage to [read the in
 
 ## Explanation
 
-[`Luxor.jl`](https://github.com/JuliaGraphics/Luxor.jl) allows you to draw on a canvas. It provides simple functions like `line`, `circle` and so on and does animation. If you're interested in 2D graphics, you should definitely check out the awesome `Luxor` Tutorial.
+[`Luxor.jl`](https://github.com/JuliaGraphics/Luxor.jl) allows you to draw on a canvas. It provides simple functions like `line`, `circle` and one can do simple animations. 
+
+Javis is one abstraction layer above to make animations a little easier.
+
+If you're interested in 2D graphics, you should definitely check out the awesome `Luxor` Tutorial.
+
+## Learning outcomes
+
+In this tutorial you'll learn how to make a basic animation using Javis by using what we call `Action` as well as rotation and learn a couple of Luxor functions if you haven't used Luxor before.
+
+## A simple animation
 
 In order to use `Javis.jl`, you will need to include the following in your file.
 
@@ -72,7 +82,7 @@ javis(
 
 #### BackgroundAction
 
-`BackgroundAction` is basically the same as an `Action` but it leaks everything to the outside
+`BackgroundAction` is basically the same as an `Action` but it leaks everything to the outside i.e it is able to set defaults like pen color, line width, etc in that action.
 
 ```julia
 BackgroundAction(
@@ -82,9 +92,9 @@ BackgroundAction(
 ```
 
 * `frames`: a range of frames it is applied to.
-* `func`: the function that is called for each frame (in this example, we will be using `ground()`).
+* `func`: the function that is called for each frame (in this example, we will be using `ground`).
 
-##### ground()
+##### `ground`
 
 ```julia
 function ground(args...) 
@@ -102,7 +112,7 @@ The `ground` function sets the background to white and the paint brush color to 
 
 They are irrelevant for the background such that we don't need to write them down explicitly. "Unfortunately" we need to write `args...` such that Julia actually knows that we have a method that accepts those three arguments. The `...` basically stands for as many arguments as you want.
 
-*Note: `sethue` is the same as `setcolor` but doesn't mess with the opacity.*
+> **Note:** `sethue` is the same as `setcolor` but doesn't mess with the opacity.
 
 
 To draw a white background use the following:
@@ -127,7 +137,7 @@ Action(
 )
 ```
 * `frames`: Range of frames it is applied to.
-* `variable_name` (optional): Variable name for the action to be applied on.
+* `variable_name` (optional): Variable name for the action to save the result of `func`.
 * `func`: Function call to set action.
 * `transition` (optional): Transition struct (for this tutorial, we will be using `Rotation()`).
 
@@ -142,7 +152,7 @@ Action(
 )
 ```
 
-[`sethue`](https://juliagraphics.github.io/Luxor.jl/stable/colors-styles/#Luxor.sethue), [`circle`](https://juliagraphics.github.io/Luxor.jl/stable/simplegraphics/#Luxor.circle), and [`line`](https://juliagraphics.github.io/Luxor.jl/stable/simplegraphics/#Luxor.line) are path of `Luxor.jl`, so we are using them to define `object()`, `path()`, and `connector()`. These functions will be used in this tutorials to replace `func` in `Action()`.
+[`sethue`](https://juliagraphics.github.io/Luxor.jl/stable/colors-styles/#Luxor.sethue), [`circle`](https://juliagraphics.github.io/Luxor.jl/stable/simplegraphics/#Luxor.circle), and [`line`](https://juliagraphics.github.io/Luxor.jl/stable/simplegraphics/#Luxor.line) are path of `Luxor.jl`, so we are using them to define `object()`, `path!()`, and `connector()`. These functions will be used in this tutorials to replace `func` in `Action()`.
 
 ##### Draw a circle
 To draw a circle, use the following:
@@ -175,7 +185,7 @@ javis(
     [
         BackgroundAction(1:70, ground),
         Action(1:70,:red_ball, (args...)->object(Point(100,0), "red")),
-        Action(1:70, :blue_ball, (args...)-> object(Point(100,80), "blue")
+        Action(1:70, :blue_ball, (args...)->object(Point(100,80), "blue")
     ],
     pathname="multiple_circles.gif"
 )
@@ -222,6 +232,7 @@ javis(
 ![](assets/rotation.gif)
 
 To draw a circle with rotation and dynamic center, use the following:
+
 ```julia
 Rotation(
     2π,
@@ -242,16 +253,20 @@ javis(
 )
 ```
 
+The blue ball now rotates around the red ball. We'll add some more to the animation to see this more clearly.
+
 ![](assets/dynamic_rotation.gif)
 
 ##### Draw dotted points
+
+Let's draw the path that both of the balls take:
 
 To draw dotted points
 ```julia
 function path!(points, pos, color)
     sethue(color)
     push!(points, pos) # add pos to points
-    circle.(points, 2, :fill)
+    circle.(points, 2, :fill) # draws a circle for each point using broadcasting
 end
 ```
 
@@ -269,9 +284,12 @@ javis(
 )
 ```
 
+Here the [`pos`](@ref) takes the position of the `:red_ball` and passed it as an argument into our new `path!` function.
+
 ![](assets/dotted_points.gif)
 
-To draw a line that connects two points
+It's easier to see that the blue ball we introduced earlier does actually rotate around around the red ball by drawing a line that connects both balls. 
+
 ```julia
 function connector(p1, p2, color)
     sethue(color)
@@ -285,7 +303,7 @@ javis(
     [
         BackgroundAction(1:70, ground),
         Action(1:70,:red_ball, (args...)->object(Point(100,0), "red"), Rotation(0.0, 2π)), 
-        Action(1:70, :blue_ball, (args...)-> object(Point(100,80), "blue"), Rotation(2π, 0.0, :red_ball)), 
+        Action(1:70, :blue_ball, (args...)->object(Point(100,80), "blue"), Rotation(2π, 0.0, :red_ball)), 
         Action(1:70, (args...)->connector(pos(:red_ball), pos(:blue_ball), "black"))
     ],
     pathname="connect_two_points.gif" # path with output file name
@@ -295,6 +313,8 @@ javis(
 ![](assets/connect_two_points.gif)
 
 ## Everything together!
+
+Let's put everything into one animation:
 
 ```julia
 using Javis
@@ -351,3 +371,15 @@ javis(
 ```
 
 ![](assets/dancing_circles.gif)
+
+## Conclusion
+
+To recap, by working through this animation you should now:
+
+1. Know how to make a simple animation in Javis
+2. Understand the difference between `Action` and `BackgroundAction`
+3. Be able to connect actions together using the variable syntax and the `pos` function
+
+> **Author(s):** Sudomaze, Ole Kröger, Jacob Zelko \
+> **Date:** August 14th, 2020 \
+> **Tag(s):** action, rotation
