@@ -4,11 +4,11 @@
 
 If you are reading this tutorial, I am going to assume this is the first time you are using `Javis` to create an animation. In that case, welcome to `Javis`! 😃 By following this tutorial, we are going to make you a director of your very own animations written in pure Julia! 🎬 🎥
 
-If you have not installed `Javis` yet, please visit the homepage to [read the installation instructions](/index.html#Installation).
+If you have not installed `Javis` yet, please visit the homepage to [read the installation instructions](../index.html#Installation).
 
 ## Explanation
 
-Luxor.jl drawing onto a canvas. It provides simple functions like line, circle and so on and does animation. If you're interested in 2D graphics, you should definitely check out the awesome Luxor Tutorial.
+[`Luxor.jl`](https://github.com/JuliaGraphics/Luxor.jl) allows you to draw on a canvas. It provides simple functions like `line`, `circle` and so on and does animation. If you're interested in 2D graphics, you should definitely check out the awesome `Luxor` Tutorial.
 
 In order to use `Javis.jl`, you will need to include the following in your file.
 
@@ -70,7 +70,9 @@ javis(
 )
 ```
 
-#### BackgroundAction()
+#### BackgroundAction
+
+`BackgroundAction` is basically the same as an `Action` but it leaks everything to the outside
 
 ```julia
 BackgroundAction(
@@ -100,8 +102,10 @@ The `ground` function sets the background to white and the paint brush color to 
 
 They are irrelevant for the background such that we don't need to write them down explicitly. "Unfortunately" we need to write `args...` such that Julia actually knows that we have a method that accepts those three arguments. The `...` basically stands for as many arguments as you want.
 
-Note: `sethue` is the same as `setcolor` but doesn't mess with the opacity
+*Note: `sethue` is the same as `setcolor` but doesn't mess with the opacity.*
 
+
+To draw a white background use the following:
 
 ```julia
 BackgroundAction(
@@ -110,14 +114,12 @@ BackgroundAction(
 )
 ```
 
-![](assets/background.gif)
-
 #### Action()
 
 ```julia
 Action(
     [[frames]], # Range (Int:Int)
-    :[[variable_name]], # Variable name
+    :[[variable_name]], # Variable name (optional)
     (args...)->
         [[func]] # Function call
     , 
@@ -125,9 +127,9 @@ Action(
 )
 ```
 * `frames`: Range of frames it is applied to.
-* `variable_name`: Variable name for the action to be applied on.
-* `func`: Function call to set action
-* `transition` (optional): Transition struct (for this tutorial, we will be using `Rotation()`)
+* `variable_name` (optional): Variable name for the action to be applied on.
+* `func`: Function call to set action.
+* `transition` (optional): Transition struct (for this tutorial, we will be using `Rotation()`).
 
 ```julia
 Action(
@@ -140,8 +142,10 @@ Action(
 )
 ```
 
-[`sethue`](), [`circle`](), and [`line`]() are path of `Luxon.jl`, so we are using them to define `object()`, `track()`, and `connector()`. These functions will be used in this tutorials to replace `func` in `Action()`.
+[`sethue`](https://juliagraphics.github.io/Luxor.jl/stable/colors-styles/#Luxor.sethue), [`circle`](https://juliagraphics.github.io/Luxor.jl/stable/simplegraphics/#Luxor.circle), and [`line`](https://juliagraphics.github.io/Luxor.jl/stable/simplegraphics/#Luxor.line) are path of `Luxor.jl`, so we are using them to define `object()`, `path()`, and `connector()`. These functions will be used in this tutorials to replace `func` in `Action()`.
 
+##### Draw a circle
+To draw a circle, use the following:
 ```julia
 # to draw the circle
 function object(p=O, color="black")
@@ -164,6 +168,7 @@ javis(
 
 ![](assets/circle.gif)
 
+To draw multiple circles, use the following:
 ```julia
 javis(
     video,  
@@ -178,20 +183,24 @@ javis(
 
 ![](assets/multiple_circles.gif)
 
+##### Rotation
+
 ```julia
 Rotation(
-    [[start]], # Radian
-    [[end]],  # Radian
+    [[start]], # Radian (optional)
+    [[target]],  # Radian
     :[[center]] # Variable name (optional)
 )
 ```
 
 Rotation struct for the rotation animation.
 
-* `start`: where the rotation starts in radian.
-* `end`: where the rotation ends in radian.
-* `center` (optional): you can have the center of rotation of another object
+* `start` (optional): where the rotation starts in radian. The default value is `0.0` (the origin).
+* `target`: where the rotation ends in radian.
+* `center` (optional): you can have the center of rotation of another object.
 
+
+To draw a circle with rotation, use the following:
 ```julia
 Rotation(
     0.0,
@@ -212,6 +221,7 @@ javis(
 
 ![](assets/rotation.gif)
 
+To draw a circle with rotation and dynamic center, use the following:
 ```julia
 Rotation(
     2π,
@@ -234,8 +244,10 @@ javis(
 
 ![](assets/dynamic_rotation.gif)
 
+##### Draw dotted points
+
+To draw dotted points
 ```julia
-# to draw the dotted points
 function path!(points, pos, color)
     sethue(color)
     push!(points, pos) # add pos to points
@@ -259,8 +271,8 @@ javis(
 
 ![](assets/dotted_points.gif)
 
+To draw a line that connects two points
 ```julia
-# to draw a line to connect two points
 function connector(p1, p2, color)
     sethue(color)
     line(p1,p2, :stroke)
@@ -279,6 +291,7 @@ javis(
     pathname="connect_two_points.gif" # path with output file name
 )
 ```
+
 ![](assets/connect_two_points.gif)
 
 ## Everything together!
@@ -286,27 +299,27 @@ javis(
 ```julia
 using Javis
 
-# the function to be applied on every frame
+# applied on every frame
 function ground(args...)
     background("white") # canvas background
     sethue("black") # pen color
 end
 
-# to draw the circle object
+# draw a circle
 function object(p=O, color="black")
     sethue(color)
     circle(p, 25, :fill)
     return p
 end
 
-# to draw the dotted points
+# draw dotted points
 function path!(points, pos, color)
     sethue(color)
     push!(points, pos)
     circle.(points, 2, :fill)
 end
 
-# to draw a line to connect two points
+# draw a line to connect two points
 function connector(p1, p2, color)
     sethue(color)
     line(p1,p2, :stroke)
@@ -336,4 +349,5 @@ javis(
     pathname="dancing_circles.gif" # path with output file name
 )
 ```
+
 ![](assets/dancing_circles.gif)
