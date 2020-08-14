@@ -352,10 +352,16 @@ Congratulations! 🎉 🎉 🎉
 You made a brain! 
 To recap, by working through this animation you should now:
 
+<<<<<<< HEAD
 1. Clearly understand how to use an `Action` 
 2. Be able to create your own `Action`
 3. Know how to approach complex animations
 4. Make meaningful information displayed easily on your animations
+=======
+1. Clearly understand how to use an `Action` and see how to make your own `Action`
+2. See how to create complex animations
+3. Know how to display meaningful information on your animations
+>>>>>>> 45e7aabd588f5b267102da0a7b8d5cd33b7d2d6e
 
 Great job leveling up your `Javis` skills! 💪
 
@@ -501,5 +507,9 @@ javis(
 
 > **Author(s):** Jacob Zelko, Ole Kröger \
 > **Date:** August 11th, 2020 \
+<<<<<<< HEAD
 > **Tag(s):** brain, EEG, project, tutorial, electrodes, Action, BackgroundAction
+=======
+> **Tag(s):** brain, EEG, project, tutorial, electrodes
+>>>>>>> 45e7aabd588f5b267102da0a7b8d5cd33b7d2d6e
 
