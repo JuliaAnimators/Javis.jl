@@ -1,6 +1,6 @@
-# **Tutorial 4:** Do you know our Mascot? - Learn about transitions and subactions!
+# **Tutorial 4:** Do You Know Our Mascot? - Learn About Transitions And Subactions!
 
-You have learned a couple of cool features of Javis already. Now you're ready to finally meet our little mascot. Well actually you can't just see him, we have to create him first. :smile:
+You have learned a couple of cool features of Javis already. Now you're ready to finally meet our little mascot. Well actually you can't just see him, we have to create him first. 😄
 
 ## Our goal
 
@@ -14,9 +14,11 @@ Let's create a list of what we want first
 
 ## Learning Outcomes
 
-This tutorial should show you the power of `SubAction` so we want each of those appear (fade in) one after another.
+This tutorial should show you the power of subactions which can be used to let your objects appear and disappear as well as move on a finer grained scale.
 
 ## Starting with the basics of SubAction
+
+The `ground` function should be familiar to you as well as the general structure of the `javis` function if you have seen the first [tutorial](tutorial_1.md).
 
 ```julia
 using Javis
@@ -43,9 +45,7 @@ function face()
 end
 ```
 
-The `ground` function should be familiar to you as well as the general structure of the `javis` function.
-
-A new part is the second `Action` which takes in a function and `subactions` as a keyword argument. 
+A new part is the second `Action` which takes in a function and `subactions` as a keyword argument this time.
 
 If you're wondering where the `frames` are specified:
 - You can leave the frames blank as here and then the frames from the previous action are used. 
@@ -57,6 +57,8 @@ A function of a `SubAction` is normally either [`appear`](@ref) or [`disappear`]
 In theory you can define your own but that is way outside of this tutorial.
 
 For the title we want that the text appears in the first 5 frames of the action. More precisely we let it fade in. 
+
+## The upper part of the head
 
 Let's continue with a bit more before we draw part of the mascot.
 
@@ -70,7 +72,9 @@ Action(16:150, (args...)->circle(O, 100, :stroke); subactions=[
 
 This is very similar to the previous action. Here we can see that `SubAction` uses relative frame numbers such that the head appears in the frames `16:30` and then is at full opacity afterwards.
 
-Just a small refresher: We need the anonymous function `(args...)->circle(O, 100, :stroke)` as each function gets called with the three arguments `video, action, frame`.
+>> **Note:** Just a small refresher: We need the anonymous function `(args...)->circle(O, 100, :stroke)` as each function gets called with the three arguments `video, action, frame`.
+
+### The power of splatting
 
 Okay let's add some hair shall we?
 
@@ -94,7 +98,9 @@ end
 
 It draws one brown hair blob given the angle. We basically rotate the whole canvas and then draw the circle always at the same local position. 
 
-Now how do we draw the hair now without creating an action for each blob?
+Now how do we draw the hair without creating an action for each blob?
+
+Well we actually create an Action for each blob but we can use a for loop for this.
 
 We can use splatting for that :wink:
 
@@ -105,6 +111,8 @@ We can use splatting for that :wink:
     ]) for i=1:20
 ]...,
 ```
+
+We first create a vector using the `[foobar for i=1:20]` notation but as the javis function expects `foobar, foobar, ..., foobar` without the vector we use splatting like `[foobar for i=1:20]...`
 
 I think you get the idea of how to use `appear` now. Let's add some eyes and a nose quickly before we draw our first gif.
 
@@ -164,7 +172,7 @@ This function uses some more functions of the awesome Luxor package.
 The lips should be a little thicker than the other lines that we have drawn so far so let's set `setline(2)`. (default is 1).
 First we move to the starting point of the lip and create two control points a bit below and to the vertical center.
 
-The `curve` function is used to draw a bezier curve. 
+The `curve` function is used to draw a cubic [Bézier curve](https://en.wikipedia.org/wiki/B%C3%A9zier_curve). 
 It unfortunately doesn't support the `:stroke` at the end so we have to do this with `do_action(:stroke)` this time.
 
 Now our two actions:
@@ -209,15 +217,22 @@ Action(120:150, (args...)->speak("How are you?"); subactions=[
 
 This time we also use the [`disappear`](@ref) function to fade out the text.
 
-## Final outcome and code
 
 ![Jarvis](./assets/jarvis.gif)
+
+## Conclusion
+
+To recap, by working through this animation you should now:
+
+1. Understand how to make objects appear and disappear using subactions
+2. Be able to move objects inside subactions to have a finer control of the movement
+3. Know how to use splatting (the `...`) to create actions in a loop
 
 Hope you had as much fun reading this tutorial as I had creating our mascot.
 
 You're now ready to create your own big project.
 
-The whole code:
+## The Code
 
 ```julia
 using Javis
