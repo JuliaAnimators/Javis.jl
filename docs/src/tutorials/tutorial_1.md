@@ -2,99 +2,101 @@
 
 ## Introduction
 
-If you are reading this tutorial, I am going to assume this is the first time you are using `Javis` to create an animation. In that case, welcome to `Javis`! 😃 By following this tutorial, we are going to make you a director of your very own animations written in pure Julia! 🎬 🎥
+If you are reading this tutorial, I am going to assume this is the first time you are using `Javis` to create an animation. 
+In that case, welcome to `Javis`! 😃 
+By following this tutorial, we are going to make you a director of your very own animations written in pure Julia! 🎬 🎥
 
 If you have not installed `Javis` yet, please visit the homepage to [read the installation instructions](../index.html#Installation).
 
-## Explanation
+## Learning Outcomes
 
-[`Luxor.jl`](https://github.com/JuliaGraphics/Luxor.jl) allows you to draw on a canvas. It provides simple functions like `line`, `circle` and one can do simple animations. 
+In this tutorial you'll learn:
 
-Javis is one abstraction layer above to make animations a little easier.
+- What `Javis.jl` is.
+- How to make a basic animation using `Action` objects.
+- Move objects created by `Javis`.
+- Elements of `Luxor.jl`.
 
-If you're interested in 2D graphics, you should definitely check out the awesome `Luxor` Tutorial.
+By the end of this tutorial, you will have made the following animation:
 
-## Learning outcomes
+![](assets/dancing_circles.gif)
 
-In this tutorial you'll learn how to make a basic animation using Javis by using what we call `Action` as well as rotation and learn a couple of Luxor functions if you haven't used Luxor before.
+With all that said, let's dive in to this tutorial! ✨
 
-## A simple animation
+## So... What Is `Javis.jl`?
 
-In order to use `Javis.jl`, you will need to include the following in your file.
+`Javis.jl` is an abstraction on top of powerful graphics tools to make animations and visualizations easy to make.
+It is built on top of the fantastic Julia animation packages, [`Luxor.jl`](https://github.com/JuliaGraphics/Luxor.jl) and [`Cairo.jl`](https://github.com/JuliaGraphics/Cairo.jl).
+`Cairo.jl` is much too complex to explain here, but `Luxor.jl` gives one the ability to define and draw on a canvas.
+`Luxor.jl` provides simple functions like `line`, `circle` and `Draw` by which one can make animations. 
+
+> **NOTE:** If you're interested in 2D graphics, you should definitely check out the awesome `Luxor.jl` package.
+> It has a [great tutorial](https://juliagraphics.github.io/Luxor.jl/stable/tutorial/) that will give you an even greater understanding of how `Javis.jl` works.
+
+## The `javis` Function - the Heart of `Javis.jl`
+
+In order to use `Javis`, we will start with the following import:
 
 ```julia
 using Javis
 
+```
+
+Then, we will introduce our first and most import function from `Javis` - the `javis` function:
+
+```
 javis(
-    [[video]], # Video struct
-    [[actions]], # Vector
-    pathname=[[pathname]] # String
+    video = [[video]], 
+    actions = [[actions]], 
+    pathname = [[pathname]]
 )
 ```
 
-`javis()` has three parameters: 
-* `video`
-* `actions`
-* `pathname`
+The `javis` function has three key word parameters that the user must define in order to create an animation:
 
-### pathname
+- `video` - a `Video` struct
+- `actions` - a vector of `Action` objects
+- `pathname` - a `String` 
 
-The `pathname` is a String. In order to get the final result of `javis`, you will need to set `pathname` to the path where the gif will be stored and the gif name. Similar to the following:
+These kwargs are further explained in the following sections. 
+
+### `video`
+
+The `video` argument requires a `Video` struct.
+This `Video` struct creates the canvas upon which we will draw. 🎨 
+To create a `Video` object, one defines the constructor with a width and height:
+
+```julia
+myvideo = Video(500,500) # 500 x 500 // width x height
+
+```
+
+### `actions`
+
+Core to not only the `javis` function but the entire `Javis.jl` library are `Action` objects. 
+`Action` objects will be better explained in [Tutorial 2](tutorial_2.html).
+For now, just know that an `Action` object is what draws shapes or moves shapes on a `Video`. In the `javis` function, the `actions` kwarg is a vector of `Action` objects.
+
+### `pathname`
+
+The `pathname` is a `String` that defines where to put the output animation on your computer.
+In the `pathname`, you must end the path with the name of the animation and its associated filetype extension.
+Here is an example invocation of the `javis` function with a provided path name:
 
 ```julia
 javis(
-    [[video]], # Video struct
-    [[actions]], # Vector
-    pathname="/path/animation.gif"
+    myvideo, 
+    myactions, 
+    pathname = "/home/myanimation.gif"
 )
 ```
 
-### Video
+## Making Our Animation
 
-The `video` is a Video struct and its constructor arguments are width and height.
+We need to set-up a few functions that will be able to make our animation! 
 
-```julia
-video = Video(500,500) # 500x500 // width x height
-javis(
-    video,
-    [[actions]], # Vector
-    pathname="/path/animation.gif"
-)
-```
-
-### Actions
-
-The `actions` is a Vector of actions. There are two types of actions:
-
-* `BackgroundAction`
-* `Action`
-
-```julia
-video = Video(500,500)
-javis(
-    video,
-    [
-        ...
-    ],
-    pathname="/path/animation.gif"
-)
-```
-
-#### BackgroundAction
-
-`BackgroundAction` is basically the same as an `Action` but it leaks everything to the outside i.e it is able to set defaults like pen color, line width, etc in that action.
-
-```julia
-BackgroundAction(
-    [[frames]], # Range (Int:Int)
-    [[func]] # Function call
-)
-```
-
-* `frames`: a range of frames it is applied to.
-* `func`: the function that is called for each frame (in this example, we will be using `ground`).
-
-##### `ground`
+Our first function is the `ground` function.
+The `ground` function sets the background to white and the "pen" color to black:
 
 ```julia
 function ground(args...) 
@@ -103,61 +105,21 @@ function ground(args...)
 end
 ```
 
-The `ground` function sets the background to white and the paint brush color to black.
+> **NOTE:** One may wonder, "why is `args...` needed in the `ground` function?"
+> To explain, each user-defined function gets three arguments `video`, `action`, and `frame` provided by `javis`
+> These arguments are defined below:
+>
+> - `video`: Video struct
+> - `action`: Action struct
+> - `frame`: the current frame number
+>
+> Although these arguments are irrelevant for the `ground` function, we need to write `args...` such that Julia actually knows that we have a method that accepts those three arguments.
+> The `...` basically stands for as many arguments as you want.
 
-**Why do I need the `args...`?** Each user function gets three arguments `video, action, frame` in order:
-* `Video`: Video struct
-* `Action`: Action struct
-* `frame`: the current frame number
-
-They are irrelevant for the background such that we don't need to write them down explicitly. "Unfortunately" we need to write `args...` such that Julia actually knows that we have a method that accepts those three arguments. The `...` basically stands for as many arguments as you want.
-
-> **Note:** `sethue` is the same as `setcolor` but doesn't mess with the opacity.
-
-
-To draw a white background use the following:
-
-```julia
-BackgroundAction(
-    1:70, # 70 frames
-    ground # apply ground function for each frame
-)
-```
-
-#### Action()
+As `Javis` does not provide a method for drawing circles, we need to make one ourselves!
+Here is how that code looks:
 
 ```julia
-Action(
-    [[frames]], # Range (Int:Int)
-    :[[variable_name]], # Variable name (optional)
-    (args...)->
-        [[func]] # Function call
-    , 
-    [[transition]] # Transition struct (optional)
-)
-```
-* `frames`: Range of frames it is applied to.
-* `variable_name` (optional): Variable name for the action to save the result of `func`.
-* `func`: Function call to set action.
-* `transition` (optional): Transition struct (for this tutorial, we will be using `Rotation()`).
-
-```julia
-Action(
-    1:70, # 70 frames
-    :red_ball, # variable name
-    (args...)->
-        [[func]] # function call
-    , 
-    [[transition]] # Transition struct (optional)
-)
-```
-
-[`sethue`](https://juliagraphics.github.io/Luxor.jl/stable/colors-styles/#Luxor.sethue), [`circle`](https://juliagraphics.github.io/Luxor.jl/stable/simplegraphics/#Luxor.circle), and [`line`](https://juliagraphics.github.io/Luxor.jl/stable/simplegraphics/#Luxor.line) are path of `Luxor.jl`, so we are using them to define `object()`, `path!()`, and `connector()`. These functions will be used in this tutorials to replace `func` in `Action()`.
-
-##### Draw a circle
-To draw a circle, use the following:
-```julia
-# to draw the circle
 function object(p=O, color="black")
     sethue(color)
     circle(p, 25, :fill)
@@ -165,12 +127,19 @@ function object(p=O, color="black")
 end
 ```
 
+## Let's Draw a Circle!
+
+Using our newly found `Javis` knowledge, we can now draw a circle!
+We do the following after importing the `Javis.jl` package and defining our own functions (don't worry if you don't understand the syntax here - it is too advanced for this tutorial but will be explained in future tutorials):
+
+
 ```julia
+myvideo = Video(500, 500)
 javis(
-    video,  
+    myvideo,  
     [
         BackgroundAction(1:70, ground),
-        Action(1:70,:red_ball, (args...)->object(Point(100,0), "red")),
+        Action(1:70, :red_ball, (args...) -> object(Point(100,0), "red")),
     ],
     pathname="circle.gif"
 )
@@ -178,10 +147,13 @@ javis(
 
 ![](assets/circle.gif)
 
-To draw multiple circles, use the following:
+You did it! 🎉 You created your first drawing with `Javis`! 🔴
+
+Let's go crazy and draw another one:
+
 ```julia
 javis(
-    video,  
+    myvideo,  
     [
         BackgroundAction(1:70, ground),
         Action(1:70,:red_ball, (args...)->object(Point(100,0), "red")),
@@ -193,34 +165,18 @@ javis(
 
 ![](assets/multiple_circles.gif)
 
-##### Rotation
+So, this drawing - it's all nice and all, but perhaps a little...
+Dull? 
+This is supposed to be an animation!
+Let's make these balls dance. 💃
 
-```julia
-Rotation(
-    [[start]], # Radian (optional)
-    [[target]],  # Radian
-    :[[center]] # Variable name (optional)
-)
-```
+## It Takes Two to Tango 💃
 
-Rotation struct for the rotation animation.
-
-* `start` (optional): where the rotation starts in radian. The default value is `0.0` (the origin).
-* `target`: where the rotation ends in radian.
-* `center` (optional): you can have the center of rotation of another object.
-
-
-To draw a circle with rotation, use the following:
-```julia
-Rotation(
-    0.0,
-    2π 
-)
-```
+Let's use the special modifier, `Rotation`, to produce a ball that rotates in a circle:
 
 ```julia
 javis(
-    video,  
+    myvideo,  
     [
         BackgroundAction(1:70, ground),
         Action(1:70,:red_ball, (args...)->object(Point(100,0), "red"), Rotation(0.0, 2π)),
@@ -231,15 +187,11 @@ javis(
 
 ![](assets/rotation.gif)
 
-To draw a circle with rotation and dynamic center, use the following:
+Now that's what I call dancing!
+However, I think our red ball is a bit lonely, don't you think?
+It needs a partner!
 
-```julia
-Rotation(
-    2π,
-    0.0, 
-    :red_ball
-)
-```
+To make another ball appear, execute the following code snippet:
 
 ```julia
 javis(
@@ -253,15 +205,16 @@ javis(
 )
 ```
 
-The blue ball now rotates around the red ball. We'll add some more to the animation to see this more clearly.
-
 ![](assets/dynamic_rotation.gif)
 
-##### Draw dotted points
+There we go! 
 
-Let's draw the path that both of the balls take:
+## Mapping an Orbit 🚀
 
-To draw dotted points
+Now, imagine we are astronomers and we model these balls as planets.
+It would be important to know their orbital trajectories!
+To do so, let's draw the path that both of the balls take with this new function:
+
 ```julia
 function path!(points, pos, color)
     sethue(color)
@@ -269,6 +222,8 @@ function path!(points, pos, color)
     circle.(points, 2, :fill) # draws a circle for each point using broadcasting
 end
 ```
+
+Then, using this function, we can execute the following block:
 
 ```julia
 path_of_red = Point[]
@@ -284,11 +239,13 @@ javis(
 )
 ```
 
-Here the [`pos`](@ref) takes the position of the `:red_ball` and passed it as an argument into our new `path!` function.
-
 ![](assets/dotted_points.gif)
 
-It's easier to see that the blue ball we introduced earlier does actually rotate around around the red ball by drawing a line that connects both balls. 
+Fantastic!
+That's a pretty regular orbit I must say!
+
+Now, to easily visualize our two "planets" (the red and blue balls), let's connect them together. 
+We can do so by drawing a line that connects both balls:
 
 ```julia
 function connector(p1, p2, color)
@@ -296,6 +253,8 @@ function connector(p1, p2, color)
     line(p1,p2, :stroke)
 end
 ```
+
+And to show this link:
 
 ```julia
 javis(
@@ -312,9 +271,7 @@ javis(
 
 ![](assets/connect_two_points.gif)
 
-## Everything together!
-
-Let's put everything into one animation:
+Perfect! Now, let's put everything together to see our orbiting planets' trajectories:
 
 ```julia
 using Javis
@@ -372,14 +329,23 @@ javis(
 
 ![](assets/dancing_circles.gif)
 
+Do you see any little green men on these planets? 👽 
+
 ## Conclusion
+
+Amazing!!!
+You have just made your first animation using `Javis.jl` and we are so proud!
+I hope you feel like you accomplished something!
 
 To recap, by working through this animation you should now:
 
 1. Know how to make a simple animation in Javis
 2. Understand the difference between `Action` and `BackgroundAction`
-3. Be able to connect actions together using the variable syntax and the `pos` function
+3. Be able to connect actions together using variable syntax
 
-> **Author(s):** Sudomaze, Ole Kröger, Jacob Zelko \
+If you want to know more and experiment with `Javis`, go onto the following tutorials!
+We wish you best on your `Javis` journey!
+
+> **Author(s):** @sudomaze, Ole Kröger, Jacob Zelko \
 > **Date:** August 14th, 2020 \
 > **Tag(s):** action, rotation
