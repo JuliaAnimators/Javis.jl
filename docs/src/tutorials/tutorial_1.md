@@ -25,8 +25,8 @@ With all that said, let's dive in to this tutorial! ✨
 
 ## So... What Is `Javis.jl`?
 
-`Javis.jl` is an abstraction on top of powerful graphics tools to make animations and visualizations easy to make.
-It is built on top of the fantastic Julia animation packages, [`Luxor.jl`](https://github.com/JuliaGraphics/Luxor.jl) and [`Cairo.jl`](https://github.com/JuliaGraphics/Cairo.jl).
+`Javis.jl` is an abstraction on top of powerful graphics tools to make animations and visualizations easy to create.
+It is built on top of the fantastic Julia drawing packages, [`Luxor.jl`](https://github.com/JuliaGraphics/Luxor.jl) and [`Cairo.jl`](https://github.com/JuliaGraphics/Cairo.jl).
 `Cairo.jl` is much too complex to explain here, but `Luxor.jl` gives one the ability to define and draw on a canvas.
 `Luxor.jl` provides simple functions like `line`, `circle` and `Draw` by which one can make animations. 
 
@@ -39,7 +39,6 @@ In order to use `Javis`, we will start with the following import:
 
 ```julia
 using Javis
-
 ```
 
 Then, we will introduce our first and most import function from `Javis` - the `javis` function:
@@ -68,14 +67,14 @@ To create a `Video` object, one defines the constructor with a width and height:
 
 ```julia
 myvideo = Video(500,500) # 500 x 500 // width x height
-
 ```
 
 ### `actions`
 
 Core to not only the `javis` function but the entire `Javis.jl` library are `Action` objects. 
 `Action` objects will be better explained in [Tutorial 2](tutorial_2.html).
-For now, just know that an `Action` object is what draws shapes or moves shapes on a `Video`. In the `javis` function, the `actions` kwarg is a vector of `Action` objects.
+For now, just know that an `Action` object is what draws shapes or moves shapes on a `Video`.
+In the `javis` function, `actions` is a vector of `Action` objects.
 
 ### `pathname`
 
@@ -116,7 +115,8 @@ end
 > Although these arguments are irrelevant for the `ground` function, we need to write `args...` such that Julia actually knows that we have a method that accepts those three arguments.
 > The `...` basically stands for as many arguments as you want.
 
-As `Javis` does not provide a method for drawing circles, we need to make one ourselves!
+Although `Luxor.jl` provides the functionality to draw circles,  `Javis` does not. 
+We use `Luxor.jl` to create a function that defines a color for circles and draws the circles accordingly.
 Here is how that code looks:
 
 ```julia
@@ -222,6 +222,8 @@ function path!(points, pos, color)
     circle.(points, 2, :fill) # draws a circle for each point using broadcasting
 end
 ```
+
+> **NOTE:** The [`pos`](@ref) takes the **pos**ition of the `:red_ball` and passes it as an argument into the `path!` function. 
 
 Then, using this function, we can execute the following block:
 
