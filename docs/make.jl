@@ -13,14 +13,15 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
-	"Mission" => "mission.md",
+        "Tutorials" => [
+            "tutorials/tutorial_1.md",
+            "tutorials/tutorial_2.md",
+            "tutorials/tutorial_3.md",
+            "tutorials/tutorial_4.md",
+            ],
+        "Mission" => "mission.md",
         "References" => "references.md",
         "Contributing" => "contributing.md",
-	"Tutorials" => [
-			"tutorials/tutorial_1.md",
-			"tutorials/tutorial_2.md",
-			"tutorials/tutorial_3.md",
-			],
     ],
 )
 
