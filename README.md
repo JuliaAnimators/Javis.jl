@@ -12,9 +12,9 @@
 
 **Javis:** makes generating simple animations a breeze.
 
-![Jarvis](jarvis.gif)
+![Jarvis](assets/jarvis.gif)
 
-![EEG](eeg.gif)
+![EEG](assets/eeg.gif)
 
 ## Installation
 
