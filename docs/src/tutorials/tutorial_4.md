@@ -14,9 +14,16 @@ Let's create a list of what we want first
 
 ## Learning Outcomes
 
-This tutorial should show you the power of subactions which can be used to let your objects appear and disappear as well as move on a finer grained scale.
+This tutorial demonstrates the power of subactions.
+A `SubAction` can be used to finely manipulate objects in your animation or visualization. 
 
-## Starting with the basics of SubAction
+From this tutorial, you will learn how to:
+
+1. Finely control objects by making them appear and disappear using a `SubAction`.
+2. Move objects using a `SubAction`.
+3. Learn Julia splatting syntax (the `...`) to create multiple actions quickly.
+
+## Starting with the Basics of SubAction
 
 The `ground` function should be familiar to you as well as the general structure of the `javis` function if you have seen the first [tutorial](tutorial_1.md).
 
@@ -45,20 +52,28 @@ function face()
 end
 ```
 
-A new part is the second `Action` which takes in a function and `subactions` as a keyword argument this time.
+A new component introduced in this tutorial is shown in the second `Action`.
+It is the kwarg `subactions` followed by the object `SubAction`.
+A `SubAction` is invoked when you want to apply an additional action or provide an additional functionality to the original `Action`.
+Although one could use standard an `Action` to achieve the same functionality, `subactions` provide a much easier and more organized method that also improves readability.
 
-If you're wondering where the `frames` are specified:
-- You can leave the frames blank as here and then the frames from the previous action are used. 
+> **NOTE:** For an `Action` you can leave the frames arg blank. 
+> The frames from the previous action are used. 
 
-The `subactions` keyword uses a list of [`SubAction`](@ref) structs which are defined in a similar fashion with `frames` and a function but are in some sense simpler than the `Action`. 
+The `subactions` keyword uses a list of [`SubAction`](@ref) structs which are defined in a similar fashion as `Action` with `frames` and a `function` but are in some sense simpler than the `Action`. 
 
 A function of a `SubAction` is normally either [`appear`](@ref) or [`disappear`](@ref) at the moment or one of two transformations: [`Translation`](@ref) and [`Rotation`](@ref).
 
 In theory you can define your own but that is way outside of this tutorial.
 
-For the title we want that the text appears in the first 5 frames of the action. More precisely we let it fade in. 
+**Let's summarize the functionality:**
 
-## The upper part of the head
+With the invocation of `SubAction` in the `face` function, the `javis` function can be broken down as follows:
+- We define our set, the background, for the animation using a `BackgroundAction`.
+- Using the `title` function, we invoke an `Action` and then provide a `SubAction`.
+  - The `SubAction` utilizes the `Javis.jl` provided function, `appear` to cause the title to slowly appear in the first 5 frames of the `Action`. 
+
+## The Upper Part of the Head
 
 Let's continue with a bit more before we draw part of the mascot.
 
@@ -74,7 +89,7 @@ This is very similar to the previous action. Here we can see that `SubAction` us
 
 >> **Note:** Just a small refresher: We need the anonymous function `(args...)->circle(O, 100, :stroke)` as each function gets called with the three arguments `video, action, frame`.
 
-### The power of splatting
+### The Power of Splatting
 
 Okay let's add some hair shall we?
 
@@ -190,7 +205,7 @@ Action(60:150, (args...)->lip(lower_lip...); subactions=[
 ]),
 ```
 
-Yeah I like those `...` splatting :smile:
+Yeah I like those `...` splatting 😄
 
 We fade them in at the beginning and then they shall move up and down a couple of times.
 
