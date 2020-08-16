@@ -1,3 +1,5 @@
+# **Information about Tutorials - Beginners Start Here!**
+
 ## Why Tutorials?
 
 These tutorials are provided to assist in your adventures in `Javis.jl`!
