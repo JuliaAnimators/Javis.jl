@@ -13,7 +13,8 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
-        "Tutorials" => [
+        "Tutorials" =>  [
+	    "tutorials.md",
             "tutorials/tutorial_1.md",
             "tutorials/tutorial_2.md",
             "tutorials/tutorial_3.md",
