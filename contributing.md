@@ -34,9 +34,9 @@ After your master branch is up to date, we follow the following naming conventio
 
 - For documentation, name it like so:
 
-      git branch [your github username]-documentation
+      git branch [your github username]-documentation-[issue number]
 
-      Example: tcp-documentation
+      Example: tcp-documentation-22
 
 ## 3. Write code and commit
 
@@ -48,15 +48,15 @@ After making the changes you wanted to make, now let's push these changes to Git
 
 3. Finally, let's push these changes to GitHub using `git push --set-upstream origin [name of the branch you made]`
 
-An example would be this: Say if I make a branch called `thecedarprince-documentation` and changed `README.md`. In that file, all I added was how cool I think penguins are. I would do the following:
+An example would be this: Say if I make a branch based upon issue #22 which was a discussion about adding information on penguins to the documentation. I would create a branch called `tcp-documentation-22` and in it, changed `README.md`. In that file, all I added was how cool I think penguins are. I would do the following:
 
 ```
 git add README.md
 git commit -m "Added discussion about penguins"
-git push --set-upstream origin thecedarprince-documentation
+git push --set-upstream origin tcp-documentation-22
 ```
 
-If I have already pushed in the past and set the upstream to origin, then I could do `git push` instead of `git push --set-upstream origin thecedarprince-documentation`.
+If I have already pushed in the past and set the upstream to origin, then I could do `git push` instead of `git push --set-upstream origin tcp-documentation-22`.
 
 ## 4. Submitting your changes to the main project
 
@@ -65,3 +65,12 @@ Almost done! Go to your fork and there should be a section that asks you to make
 Make sure the "base" branch is Javis `master` and the "compare" branch is the branch you just made. To your PR, add an informative title and description, and link your PR to relevant issues or discussions. Finally, click "Create pull request". 
 
 You may get some questions about it, and possibly suggestions of how to make it ready to go into the main project. Then, if all goes according to plan, it gets merged... **Thanks for the contribution!!** :tada: :tada: :tada:
+
+## Important Notes on Contributing
+
+If you add functionality to `Javis.jl` that is to be exported to a user, we require each export to be fully documented according to the standards set forth by [BlueStyle](https://github.com/invenia/BlueStyle). 
+For internally used constructs, these need not be as heavily documented but must describe what the function does in a general sense.
+
+We use [`Documenter.jl`](https://juliadocs.github.io/Documenter.jl/stable/) to create a comprehensive documentation reference website.
+We strongly encourage you add the proper [`Documenter.jl` syntax](https://juliadocs.github.io/Documenter.jl/stable/man/syntax) to your references.
+If you have any questions about what we expect for documentation, please refer to our [codebase](https://github.com/Wikunia/Javis.jl/blob/master/src/Javis.jl) for plenty of examples on exports and internal constructs.

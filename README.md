@@ -11,10 +11,12 @@
 ## Introduction 
 
 **Javis:** makes generating simple animations a breeze.
+Want to learn more?
+Check out our documentation for tutorials, our contributing guidelines, and the mission of `Javis.jl`!
 
-![Jarvis](assets/jarvis.gif)
+## Gallery
 
-![EEG](assets/eeg.gif)
+![](assets/showcase.gif)
 
 ## Installation
 
