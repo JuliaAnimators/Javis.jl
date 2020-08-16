@@ -14,7 +14,7 @@ That being said, we decided to make this mission statement to clearly explain th
 
 - **Javis is not neccesarilly geared towards data analytics.** Admittedly, there are ways to use Javis to visualize data while creating animations. However, the intent of Javis is not focused on creating functionality to analyze datasets _as of this moment_. This may change in the future.
 
-- **We love documentation and tutorials! :nerd_face:** One of the things we prioritize in each release of Javis is to document functionalities of the tools we add. Furthermore, we like to make tutorials to also show what is possible in Javis. Do you have a cool animation or blog that you have written using Javis? Let us know by making an issue to let us know!
+- **We love documentation and tutorials! 🤓** One of the things we prioritize in each release of Javis is to document functionalities of the tools we add. Furthermore, we like to make tutorials to also show what is possible in Javis. Do you have a cool animation or blog that you have written using Javis? Let us know by making an issue to let us know!
 
 ## Summary
 
@@ -22,4 +22,4 @@ In summary, `Javis.jl` focuses on creating an easy to use interface written in J
 
 ## Acknowledgements
 
-Our project mission was inspired by the mission, philosophy, and interface of projects such as Fedora, Zotero, Spaceship ZSH, and rclone.
+Our project mission was inspired by the mission, philosophy, and interface of projects such as manim, Fedora, Zotero, Spaceship ZSH, and rclone.
