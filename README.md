@@ -1,6 +1,6 @@
 # Javis
 
-[![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
+<!--[![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)-->
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://Wikunia.github.io/Javis.jl/stable)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://Wikunia.github.io/Javis.jl/dev)
 [![Build Status](https://github.com/Wikunia/Javis.jl/workflows/CI/badge.svg)](https://github.com/Wikunia/Javis.jl/actions)
@@ -12,7 +12,7 @@
 
 `Javis` makes generating simple animations a breeze!
 Want to learn more?
-Check out our [documentation](https://Wikunia.github.io/Javis.jl/stable) for tutorials, our contributing guidelines, and the mission of `Javis.jl`!
+Check out our [documentation](https://wikunia.github.io/Javis.jl/dev/) for tutorials, our contributing guidelines, and the mission of `Javis.jl`!
 
 ## Gallery
 
