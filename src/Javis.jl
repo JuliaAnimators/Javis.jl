@@ -541,13 +541,15 @@ latex(text::LaTeXString, action::Symbol) = latex(text, 10, action)
     latex(text::LaTeXString, font_size::Real, action::Symbol)
 
 Add the latex string `text` to the top left corner of the LaTeX path.
-Can be added to `Luxor.jl` graphics such as `Video` or `Drawing`.
+Can be added to `Luxor.jl` graphics such as [`Video`](@ref) or [`Drawing`](@ref).
 
-**NOTE: This only works if `tex2svg` is installed.**
-**It can be installed using the following command
-    (you may have to prefix this command with `sudo` depending on your installation):**
+**NOTES:**
+- **This only works if `tex2svg` is installed.**
+    It can be installed using the following command (you may have to prefix this command with `sudo` depending on your installation):
 
-> `npm install -g mathjax-node-cli`
+        npm install -g mathjax-node-cli
+
+- **The `latex` method must be called from within a [`Action`](@ref).**
 
 # Arguments
 - `text::LaTeXString`: a LaTeX string to render.
@@ -566,11 +568,21 @@ Available actions:
 using Javis
 using LaTeXStrings
 
-my_drawing = Drawing(400, 200, "test.png")
-background("white")
-sethue("black")
-latex(L"\\sum \\phi", 100)
-finish()
+function ground(args...)
+    background("white")
+    sethue("black")
+end
+
+function draw_latex(video, action, frame)
+    latex(
+	L"\\sqrt{5}",
+        50,
+    )
+end
+
+demo = Video(500, 500)
+javis(demo, [BackgroundAction(1:2, ground), Action(draw_latex)], 
+      pathname = "latex.gif")
 ```
 
 """
