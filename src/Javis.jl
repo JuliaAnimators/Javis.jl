@@ -541,7 +541,7 @@ latex(text::LaTeXString, action::Symbol) = latex(text, 10, action)
     latex(text::LaTeXString, font_size::Real, action::Symbol)
 
 Add the latex string `text` to the top left corner of the LaTeX path.
-Can be added to `Luxor.jl` graphics such as [`Video`](@ref) or [`Drawing`](@ref).
+Can be added to `Luxor.jl` graphics via [`Video`](@ref).
 
 **NOTES:**
 - **This only works if `tex2svg` is installed.**
@@ -549,14 +549,14 @@ Can be added to `Luxor.jl` graphics such as [`Video`](@ref) or [`Drawing`](@ref)
 
         npm install -g mathjax-node-cli
 
-- **The `latex` method must be called from within a [`Action`](@ref).**
+- **The `latex` method must be called from within an [`Action`](@ref).**
 
 # Arguments
 - `text::LaTeXString`: a LaTeX string to render.
 - `font_size::Real`: font size of LaTeX string. Default `10`.
 - `action::Symbol`: graphics actions defined by `Luxor.jl`. Default `:stroke`.
 Available actions:
-  - `:stroke` -  Draws the latex string on the canvas. For more info check `Luxor.strokepath`
+  - `:stroke` - Draws the latex string on the canvas. For more info check `Luxor.strokepath`
   - `:path` - Creates the path of the latex string but does not render it to the canvas.
 
 # Throws
@@ -576,7 +576,7 @@ end
 function draw_latex(video, action, frame)
     latex(
 	L"\\sqrt{5}",
-        50,
+        50, # Adjusts the font size of the rendered LaTeX
     )
 end
 
