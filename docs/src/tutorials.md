@@ -5,7 +5,7 @@
 These tutorials are provided to assist in your adventures in `Javis.jl`!
 Each one was made with care, quality, and a good sense of humor to facilitate a fun and educational experience.
 If you want to make a tutorial, we encourage you to read some of these tutorials to get a feel for how they are structured and written.
-After that, check out our [contributing guidelines](contributing.html) and open up an issue about what tutorial you want to add!
+After that, check out our [contributing guidelines](contributing) and open up an issue about what tutorial you want to add!
 
 ## List of Available Tutorials 📚 
 

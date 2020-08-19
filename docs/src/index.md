@@ -5,10 +5,10 @@
 This documentation is designed to provide greater detail into what `Javis.jl` is, its mission, and how to use it.
 These are its main components:
 
-- [**The Mission and Vision of `Javis.jl`**](mission.html) - this encapsulates our goals and vision for what this project is and what it could be. **If you want to contribute to this project, please read this.** 
-- [**Tutorials**](tutorials.html) - these tutorials are designed to help you learn how to use `Javis`.
-- [**Contributing**](contributing.html) - these are our guidelines for contributing. **If you want to contribute to this project, please read this.** 
-- [**References**](references.html) - this is an index of all available functions in the `Javis.jl` package. A great resource for working with `Javis`.
+- [**The Mission and Vision of `Javis.jl`**](mission) - this encapsulates our goals and vision for what this project is and what it could be. **If you want to contribute to this project, please read this.** 
+- [**Tutorials**](tutorials) - these tutorials are designed to help you learn how to use `Javis`.
+- [**Contributing**](contributing) - these are our guidelines for contributing. **If you want to contribute to this project, please read this.** 
+- [**References**](references) - this is an index of all available functions in the `Javis.jl` package. A great resource for working with `Javis`.
 
 For releases, we follow the semantic versioning protocol and enforce the [BlueStyle code style format](https://github.com/invenia/BlueStyle).
 
