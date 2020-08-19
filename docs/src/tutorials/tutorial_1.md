@@ -72,7 +72,7 @@ myvideo = Video(500,500) # 500 x 500 // width x height
 ### `actions`
 
 Core to not only the `javis` function but the entire `Javis.jl` library are `Action` objects. 
-`Action` objects will be better explained in [Tutorial 2](tutorial_2.html).
+`Action` objects will be better explained in [Tutorial 2](tutorial_2).
 For now, just know that an `Action` object is what draws shapes or moves shapes on a `Video`.
 In the `javis` function, `actions` is a vector of `Action` objects.
 

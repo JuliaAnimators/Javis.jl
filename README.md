@@ -12,7 +12,7 @@
 
 `Javis` makes generating simple animations a breeze!
 Want to learn more?
-Check out our [documentation](https://Wikunia.github.io/Javis.jl/stable) for tutorials, our contributing guidelines, and the mission of `Javis.jl`!
+Check out our [documentation](https://wikunia.github.io/Javis.jl/dev/) for tutorials, our contributing guidelines, and the mission of `Javis.jl`!
 
 ## Gallery
 
