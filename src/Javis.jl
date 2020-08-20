@@ -170,7 +170,7 @@ The current settings of an [`Action`](@ref) which are saved in `action.current_s
 - `opacity::Float64`: the current opacity
 - `mul_opacity::Float64`: the current multiplier for opacity.
     The actual opacity is then: `mul_opacity * opacity`
-- `fontsize::Float64` a
+- `fontsize::Float64` the current font size
 """
 mutable struct ActionSetting
     line_width     :: Float64
