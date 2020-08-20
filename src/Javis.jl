@@ -539,6 +539,10 @@ include("subaction_animations.jl")
 latex(text::LaTeXString) = latex(text, O)
 latex(text::LaTeXString, pos::Point) = latex(text, pos, :stroke)
 latex(text::LaTeXString, x, y) = latex(text, Point(x,y), :stroke)
+@deprecate latex(text::LaTeXString, fsize::Real) begin
+    fontsize(fsize)
+    latex(text)
+end
 
 """
     latex(text::LaTeXString, pos::Point, action::Symbol)
