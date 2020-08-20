@@ -11,8 +11,8 @@ function ground_color(color_bg, color_pen, framenumber)
 end
 
 function latex_title(args...)
-    translate(0, -200)
-    latex(L"E=mc^2", 20)
+    fontsize(20)
+    latex(L"E=mc^2", 0, -200)
 end
 
 function circ(p=O, color="black")
