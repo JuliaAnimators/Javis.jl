@@ -219,15 +219,17 @@ The current settings of an [`Action`](@ref) which are saved in `action.current_s
 - `opacity::Float64`: the current opacity
 - `mul_opacity::Float64`: the current multiplier for opacity.
     The actual opacity is then: `mul_opacity * opacity`
+- `fontsize::Float64` the current font size
 """
 mutable struct ActionSetting
     line_width     :: Float64
     mul_line_width :: Float64 # the multiplier of line width is between 0 and 1
-    opacity     :: Float64
-    mul_opacity :: Float64 # the multiplier of opacity is between 0 and 1
+    opacity        :: Float64
+    mul_opacity    :: Float64 # the multiplier of opacity is between 0 and 1
+    fontsize       :: Float64
 end
 
-ActionSetting() = ActionSetting(1.0, 1.0, 1.0, 1.0)
+ActionSetting() = ActionSetting(1.0, 1.0, 1.0, 1.0, 10.0)
 
 """
     update_ActionSetting!(as::ActionSetting, by::ActionSetting)
@@ -239,6 +241,7 @@ function update_ActionSetting!(as::ActionSetting, by::ActionSetting)
     as.mul_line_width = by.mul_line_width
     as.opacity = by.opacity
     as.mul_opacity = by.mul_opacity
+    as.fontsize = by.fontsize
 end
 
 """
@@ -531,13 +534,16 @@ include("svg2luxor.jl")
 include("morphs.jl")
 include("subaction_animations.jl")
 
-latex(text::LaTeXString) = latex(text, 10, :stroke)
-latex(text::LaTeXString, font_size::Real) = latex(text, font_size, :stroke)
-latex(text::LaTeXString, action::Symbol) = latex(text, 10, action)
+latex(text::LaTeXString) = latex(text, O)
+latex(text::LaTeXString, pos::Point) = latex(text, pos, :stroke)
+latex(text::LaTeXString, x, y) = latex(text, Point(x,y), :stroke)
+@deprecate latex(text::LaTeXString, fsize::Real) begin
+    fontsize(fsize)
+    latex(text)
+end
 
 """
-
-    latex(text::LaTeXString, font_size::Real, action::Symbol)
+    latex(text::LaTeXString, pos::Point, action::Symbol)
 
 Add the latex string `text` to the top left corner of the LaTeX path.
 Can be added to `Luxor.jl` graphics via [`Video`](@ref).
@@ -552,7 +558,8 @@ Can be added to `Luxor.jl` graphics via [`Video`](@ref).
 
 # Arguments
 - `text::LaTeXString`: a LaTeX string to render.
-- `font_size::Real`: font size of LaTeX string. Default `10`.
+- `pos::Point`: position of the upper left corner of the latex text. Default: `O`
+    - can be written as `x, y` instead of `Point(x, y)`
 - `action::Symbol`: graphics actions defined by `Luxor.jl`. Default `:stroke`.
 Available actions:
   - `:stroke` - Draws the latex string on the canvas. For more info check `Luxor.strokepath`
@@ -573,10 +580,9 @@ function ground(args...)
 end
 
 function draw_latex(video, action, frame)
-    latex(
-	L"\\sqrt{5}",
-        50, # Adjusts the font size of the rendered LaTeX
-    )
+    x = 100
+    y = 120
+    latex(L"\\sqrt{5}", x, y)
 end
 
 demo = Video(500, 500)
@@ -585,7 +591,8 @@ javis(demo, [BackgroundAction(1:2, ground), Action(draw_latex)],
 ```
 
 """
-function latex(text::LaTeXString, font_size::Real, action::Symbol)
+function latex(text::LaTeXString, pos::Point, action::Symbol)
+    translate(pos)
     # check if it's cached
     if haskey(LaTeXSVG, text)
         svg = LaTeXSVG[text]
@@ -602,11 +609,12 @@ function latex(text::LaTeXString, font_size::Real, action::Symbol)
         end
         LaTeXSVG[text] = svg
     end
-    Javis.pathsvg(svg, font_size)
+    pathsvg(svg)
     if action != :path
         # stroke is also fill for letters
         do_action(:fill)
     end
+    translate(-pos)
 end
 
 """
@@ -1020,7 +1028,7 @@ function set_action_defaults!(action)
 end
 
 const LUXOR_DONT_EXPORT = [:boundingbox, :Boxmaptile, :Sequence,
-                           :setline, :setopacity]
+                           :setline, :setopacity, :fontsize, :get_fontsize]
 
 # Export each function from Luxor
 for func in names(Luxor; imported=true)
@@ -1038,6 +1046,6 @@ export projection, morph
 export appear, disappear
 
 # custom override of luxor extensions
-export setline, setopacity
+export setline, setopacity, fontsize, get_fontsize
 
 end

@@ -16,3 +16,13 @@ function compute_frames!(actions::Vector{AA}) where AA <: AbstractAction
         last_frames = get_frames(action)
     end
 end
+
+"""
+    get_current_setting()
+
+Return the current setting of the current action
+"""
+function get_current_setting()
+    action = CURRENT_ACTION[1]
+    return action.current_setting
+end

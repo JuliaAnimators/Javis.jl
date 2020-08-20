@@ -81,25 +81,26 @@ Here is the code:
 
 ```julia
 function draw_latex(video, action, frame)
-    translate(video.width / -2, video.height / -2)
+    fontsize(50)
     latex(
-	L"""\begin{equation}
-	\left[\begin{array}{cc} 
-	2 & 3 \\  4 & \sqrt{5} \\  
-	\end{array} \right] 
-	\end{equation}""",
-        50,
+        L"""\begin{equation}
+        \left[\begin{array}{cc} 
+        2 & 3 \\  4 & \sqrt{5} \\  
+        \end{array} \right] 
+        \end{equation}""",
+        video.width / -2,
+        video.height / -2
     )
 end
 ```
 
 Here is what this function does:
 
-1. `translate` positions the `LaTeX` string we want to render.
-   Here, it is being positioned in the top left corner of the frame.
+The `latex` function is called to render a `LaTeXString` object.
+This particular string makes a matrix! The last two arguments position the latex string 
+in the top left corner. 
 
-2. The `latex` function is called to render a `LaTeXString` object.
-   This particular string makes a matrix!
+> **Note:** The default position is the origin (default: the center of the canvas)
 
 We can run this code block to render the `LaTeX`:
 
@@ -128,13 +129,13 @@ function draw_latex(video, action, frame)
     translate(video.width / -2, video.height / -2)
     black_red = blend(O, Point(0, 150), "black", "red")
     setblend(black_red)
+    fontsize(50)
     latex(
-	L"""\begin{equation}
-	\left[\begin{array}{cc} 
-	2 & 3 \\  4 & \sqrt{5} \\  
-	\end{array} \right] 
-	\end{equation}""",
-        50,
+        L"""\begin{equation}
+        \left[\begin{array}{cc} 
+        2 & 3 \\  4 & \sqrt{5} \\  
+        \end{array} \right] 
+        \end{equation}"""
     )
 end
 ```
@@ -142,6 +143,7 @@ end
 The biggest change is that we added the `blend` and `setblend` functions.
 The `blend` function creates a linear blend between two points using two given colors - in this case, black and red.
 The `setblend` function applies the blend to the drawn object. 
+We also use the `translate` function this time as it makes writing the `blend` function easier.
 
 Can you guess what happens when we execute the code with this newly updated `draw_latex` function?
 Here is what the output looks like:
@@ -176,13 +178,13 @@ function draw_latex(video, action, frame)
     translate(video.width / -2, video.height / -2)
     black_red = blend(O, Point(0, 150), "black", "red")
     setblend(black_red)
+    fontsize(50)
     latex(
-	L"""\begin{equation}
-	\left[\begin{array}{cc} 
-	2 & 3 \\  4 & \sqrt{5} \\  
-	\end{array} \right] 
-	\end{equation}""",
-        50,
+        L"""\begin{equation}
+        \left[\begin{array}{cc} 
+        2 & 3 \\  4 & \sqrt{5} \\  
+        \end{array} \right] 
+        \end{equation}"""
     )
 end
 
@@ -196,4 +198,3 @@ javis(demo, [BackgroundAction(1:2, ground), Action(draw_latex)], pathname = "lat
 > **Author(s):** Jacob Zelko \
 > **Date:** August 16th, 2020 \
 > **Tag(s):** latex, blend, LaTeXStrings, node
-
