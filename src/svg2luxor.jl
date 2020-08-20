@@ -209,12 +209,13 @@ set_attr(::Val{:id}, args...) = nothing
 set_attr(t, args...) = @warn "No attr match for $t"
 
 """
-    pathsvg(svg, fontsize=10)
+    pathsvg(svg)
 
 Convert an svg to a path using Luxor. Normally called via the `latex` command.
 It handles only a subset of the full power of svg.
 """
-function pathsvg(svg, fontsize=10)
+function pathsvg(svg)
+    fsize = get_current_setting().fontsize
     xdoc = parse_string(svg)
     xroot = root(xdoc)
     def_element =  get_elements_by_tagname(xroot, "defs")[1]
@@ -233,7 +234,7 @@ function pathsvg(svg, fontsize=10)
         # such that we can scale half of a font size (size of a lower letter)
         # with the corresponding height of the svg canvas
         # and the ex_height given in it's description
-        scale((fontsize/2)/(height/ex_height))
+        scale((fsize/2)/(height/ex_height))
         translate(-x, -y)
 
         for child in collect(child_elements(xroot))
