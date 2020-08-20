@@ -24,10 +24,14 @@ end
 
 @testset "Relative frames" begin
     video = Video(500, 500)
+    action = Action(Rel(10), (args...)->1, Translation(Point(1,1), Point(100, 100)))
     # dummy action doesn't need a real function
-    Action(1:100, ()->1, Translation(Point(1,1), Point(100, 100)))
-    action = Action(Rel(10), ()->1, Translation(Point(1,1), Point(100, 100)))
-    @test action.frames == 101:110
+    test_file = javis(video, [
+        Action(1:100, (args...)->1, Translation(Point(1,1), Point(100, 100))),
+        action
+    ])
+    @test Javis.get_frames(action) == 101:110
+    rm(test_file)
 end
 
 @testset "translation from origin" begin
@@ -87,12 +91,14 @@ end
 @testset "Frames errors" begin
     video = Video(500, 500)
     # throws because the frames of the first action need to be defined explicitly
-    @test_throws ArgumentError Action((args...)->1, Translation(Point(1,1), Point(100, 100)))
+    @test_throws ArgumentError javis(video, [Action((args...)->1, Translation(Point(1,1), Point(100, 100)))])
     # throws because the frames of the first action need to be defined explicitly
-    @test_throws ArgumentError Action(Rel(10), (args...)->1, Translation(Point(1,1), Point(100, 100)))
-    Action(1:100, (args...)->1, Translation(Point(1,1), Point(100, 100)))
+    @test_throws ArgumentError javis(video, [Action(Rel(10), (args...)->1, Translation(Point(1,1), Point(100, 100)))])
     # throws because :some is not supported as Symbol for `frames`
-    @test_throws ArgumentError Action(:some, :id, (args...)->1, Translation(Point(1,1), Point(100, 100)))    
+    @test_throws ArgumentError javis(video, [
+        Action(1:100, (args...)->1, Translation(Point(1,1), Point(100, 100))),
+        Action(:some, :id, (args...)->1, Translation(Point(1,1), Point(100, 100)))
+    ])
 end
 
 @testset "Unspecified symbol error" begin
