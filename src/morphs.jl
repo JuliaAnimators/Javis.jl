@@ -165,7 +165,7 @@ Internal version of [`morph`](@ref) but described there.
 function _morph(video::Video, action::Action, frame,
                         from_func::Function, to_func::Function)
     # computation of the polygons and the best way to morph in the first frame
-    if frame == first(action.frames)
+    if frame == first(get_frames(action))
         save_morph_polygons!(action, from_func, to_func)
     end
 
@@ -175,7 +175,7 @@ function _morph(video::Video, action::Action, frame,
     points = action.opts[:points]
 
     # compute the interpolation variable `t` for the current frame
-    t = (frame-first(action.frames))/(length(action.frames)-1)
+    t = (frame-first(get_frames(action)))/(length(get_frames(action))-1)
 
     for (i, p1, p2) in zip(1:length(from_poly), from_poly, to_poly)
         new_point = p1+t*(p2-p1)

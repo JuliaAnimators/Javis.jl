@@ -45,7 +45,7 @@ function _draw_grid(
     max_height = div(video.height, 2, RoundUp)
 
     # This determines how quickly the animation is drawn
-    step = (frame - first(action.frames)) / (length(action.frames) - 1)
+    step = (frame - first(get_frames(action))) / (length(get_frames(action)) - 1)
 
     if direction[1] == 'T'
         # Bottom to top for vertical grid lines
@@ -144,7 +144,7 @@ function _zero_lines(
     setline(line_thickness)
 
     # This determines how quickly the animation is drawn
-    step = (frame - first(action.frames)) / (length(action.frames) - 1)
+    step = (frame - first(get_frames(action))) / (length(get_frames(action)) - 1)
 
     if direction[1] == 'B'
 	# Top to bottom motion for vertical line

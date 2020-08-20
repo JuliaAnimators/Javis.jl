@@ -216,7 +216,7 @@ end
         BackgroundAction(1:50, ground_nicholas),
         Action((args...)->house_of_nicholas(); subactions = [
             SubAction(1:25, appear(:fade_line_width)),
-            SubAction(26:50, disappear(:fade_line_width))
+            SubAction(Rel(25), disappear(:fade_line_width))
         ])
     ], tempdirectory="images", pathname="")
 
@@ -250,8 +250,8 @@ end
         ]),
         Action(5:50, (args...)->square_opacity(Point(-100, 0), 60); subactions = [
             SubAction(1:15, appear(:fade)),
-            SubAction(16:35, Translation(100, 50)),
-            SubAction(36:40, disappear(:fade))
+            SubAction(Rel(20), Translation(100, 50)),
+            SubAction(Rel(5), disappear(:fade))
             # for global frames 46-50 it should still be disappeared
         ])
     ], tempdirectory="images", pathname="")

@@ -52,6 +52,55 @@ function Video(width, height)
 end
 
 """
+    Rel
+
+Ability to define frames in a relative fashion.
+
+# Example
+```
+ Action(1:100, ground; in_global_layer=true),
+ Action(1:90, :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
+ Action(Rel(10), :blue_ball, (args...)->circ(p2, "blue"), Rotation(2π, from_rot, :red_ball)),
+ Action((video, args...)->path!(path_of_red, pos(:red_ball), "red"))
+```
+is the same as
+```
+Action(1:100, ground; in_global_layer=true),
+Action(1:90, :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
+Action(91:100, :blue_ball, (args...)->circ(p2, "blue"), Rotation(2π, from_rot, :red_ball)),
+Action(91:100, (video, args...)->path!(path_of_red, pos(:red_ball), "red"))
+```
+
+# Fields
+- rel::UnitRange defines the frames in a relative fashion.
+"""
+struct Rel
+    rel :: UnitRange
+end
+
+"""
+    Rel(i::Int)
+
+Shorthand for Rel(1:i)
+"""
+Rel(i::Int) = Rel(1:i)
+
+"""
+    Frames
+
+Stores the actual computed frames and the user input
+which can be i.e. `:same` or `Rel(10)`.
+The `frames` are computed in `javis`.
+"""
+mutable struct Frames{T}
+    frames::Union{Nothing,UnitRange}
+    user::T
+end
+
+Base.convert(::Type{Frames}, x::Union{Symbol, Rel}) = Frames(nothing, x)
+Base.convert(::Type{Frames}, x::UnitRange) = Frames(x, x)
+
+"""
     Transformation
 
 Defines a transformation which can be returned by an action to be accessible later.
@@ -83,7 +132,7 @@ sub actions on the action function, such as [`appear`](@ref).
 A SubAction should not be created by hand but instead by using one of the constructors.
 
 # Fields
-- `frames::UnitRange{Int}`: the frames relative to the parent [`Action`](@ref)
+- `frames::Frames`: the frames relative to the parent [`Action`](@ref)
 - `func::Function`: the function that gets called in each of those frames.
     Takes the following arguments: `video, action, subaction, rel_frame`
 - `transitions::Vector{Transition}`: A list of transitions like [`Translation`](@ref)
@@ -91,7 +140,7 @@ A SubAction should not be created by hand but instead by using one of the constr
     A list of internal transitions which store the current transition for a specific frame.
 """
 mutable struct SubAction <: AbstractAction
-    frames                  :: UnitRange{Int}
+    frames                  :: Frames
     func                    :: Function
     transitions             :: Vector{Transition}
     internal_transitions    :: Vector{InternalTransition}
@@ -116,17 +165,17 @@ javis(demo, [
 ])
 
 # Arguments
-- `frames::UnitRange`: A list of frames for which the function should be called.
+- `frames`: A list of frames for which the function should be called.
     - The frame numbers are relative to the parent [`Action`](@ref).
 - `func::Function`: The function that gets called for the frames.
     - Needs to have four arguments: `video, action, subaction, rel_frame`
     - For [`appear`](@ref) and [`disappear`](@ref) a closure exists,
       such that `appear(:fade)` works.
 """
-SubAction(frames::UnitRange, func::Function) = SubAction(frames, func, [], [])
+SubAction(frames, func::Function) = SubAction(frames, func, [], [])
 
 """
-    SubAction(frames::UnitRange, trans::Transition...)
+    SubAction(frames, trans::Transition...)
 
 A `SubAction` can also be defined this way with having a list of transitions.
 This is similar to defining transitions inside [`Action`](@ref)
@@ -151,11 +200,11 @@ javis(demo, [
 ```
 
 # Arguments
-- `frames::UnitRange`: A list of frames for which the function should be called.
+- `frames`: A list of frames for which the function should be called.
     - The frame numbers are relative to the parent [`Action`](@ref).
 - `trans::Transition...`: A list of transitions that shall be performed.
 """
-SubAction(frames::UnitRange, trans::Transition...) =
+SubAction(frames, trans::Transition...) =
     SubAction(frames, (args...)->1, collect(trans), [])
 
 """
@@ -201,7 +250,7 @@ end
 Defines what is drawn in a defined frame range.
 
 # Fields
-- `frames`: A range of frames for which the `Action` is called
+- `frames::Frames`: A range of frames for which the `Action` is called
 - `id::Union{Nothing, Symbol}`: An id which can be used to save the result of `func`
 - `func::Function`: The drawing function which draws something on the canvas.
     It gets called with the arguments `video, action, frame`
@@ -214,7 +263,7 @@ Defines what is drawn in a defined frame range.
 - `opts::Any` can hold any options defined by the user
 """
 mutable struct Action <: AbstractAction
-    frames                  :: UnitRange{Int}
+    frames                  :: Frames
     id                      :: Union{Nothing, Symbol}
     func                    :: Function
     transitions             :: Vector{Transition}
@@ -225,47 +274,55 @@ mutable struct Action <: AbstractAction
 end
 
 """
+    set_frames!(a::AbstractAction, last_frames::UnitRange)
+
+Compute the frames based on a.frames and `last_frames`.
+Save the result in `a.frames.frames` which can be accessed via [`get_frames`](@ref).
+"""
+function set_frames!(a::AbstractAction, last_frames::UnitRange)
+    frames = a.frames.user
+    a.frames.frames = get_frames(frames, last_frames)
+end
+
+"""
+    get_frames(a::AbstractAction)
+
+Return `a.frames.frames` which holds the computed frames for the AbstractAction `a`.
+"""
+get_frames(a::AbstractAction) = a.frames.frames
+
+"""
+    get_frames(frames::Symbol, last_frames::UnitRange)
+
+Get the frames based on a symbol (currently only `same`) and the `last_frames`.
+Throw `ArgumentError` if symbol is unknown
+"""
+function get_frames(frames::Symbol, last_frames::UnitRange)
+    if frames === :same
+        return last_frames
+    else
+        throw(ArgumentError("Currently the only symbol supported for defining frames is `:same`"))
+    end
+end
+
+"""
+    get_frames(frames::Rel, last_frames::UnitRange)
+
+Return the frames based on a relative frames [`Rel`](@ref) object and the `last_frames`.
+"""
+function get_frames(frames::Rel, last_frames::UnitRange)
+    start_frame = last(last_frames)+first(frames.rel)
+    last_frame  = last(last_frames)+last(frames.rel)
+    return start_frame:last_frame
+end
+
+"""
     CURRENT_ACTION
 
 holds the current action in an array to be declared as a constant
 The current action can be accessed using CURRENT_ACTION[1]
 """
 const CURRENT_ACTION = Array{Action, 1}()
-
-
-"""
-    Rel
-
-Ability to define frames in a relative fashion.
-
-# Example
-```
- Action(1:100, ground; in_global_layer=true),
- Action(1:90, :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
- Action(Rel(10), :blue_ball, (args...)->circ(p2, "blue"), Rotation(2π, from_rot, :red_ball)),
- Action((video, args...)->path!(path_of_red, pos(:red_ball), "red"))
-```
-is the same as
-```
-Action(1:100, ground; in_global_layer=true),
-Action(1:90, :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
-Action(91:100, :blue_ball, (args...)->circ(p2, "blue"), Rotation(2π, from_rot, :red_ball)),
-Action(91:100, (video, args...)->path!(path_of_red, pos(:red_ball), "red"))
-```
-
-# Fields
-- rel::UnitRange defines the frames in a relative fashion.
-"""
-struct Rel
-    rel :: UnitRange
-end
-
-"""
-    Rel(i::Int)
-
-Shorthand for Rel(1:i)
-"""
-Rel(i::Int) = Rel(1:i)
 
 
 """
@@ -303,11 +360,11 @@ Action(func::Function, args...; kwargs...) =
     Action(:same, nothing, func, args...; kwargs...)
 
 """
-    Action(frames::UnitRange, id::Union{Nothing,Symbol}, func::Function,
+    Action(frames, id::Union{Nothing,Symbol}, func::Function,
            transitions::Transition...; kwargs...)
 
 # Arguments
-- `frames::UnitRange`: defines for which frames this action is called
+- `frames`: defines for which frames this action is called
 - `id::Symbol`: Is used if the `func` returns something which
     shall be accessible by other actions later
 - `func::Function` the function that is called after the `transitions` are performed
@@ -316,7 +373,7 @@ Action(func::Function, args...; kwargs...) =
 
 The keywords arguments will be saved inside `.opts` as a `Dict{Symbol, Any}`
 """
-function Action(frames::UnitRange, id::Union{Nothing,Symbol}, func::Function,
+function Action(frames, id::Union{Nothing,Symbol}, func::Function,
                 transitions::Transition...; kwargs...)
     CURRENT_VIDEO[1].defs[:last_frames] = frames
     opts = Dict(kwargs...)
@@ -326,65 +383,6 @@ function Action(frames::UnitRange, id::Union{Nothing,Symbol}, func::Function,
         delete!(opts, :subactions)
     end
     Action(frames, id, func, collect(transitions), [], subactions, ActionSetting(), opts)
-end
-
-"""
-    Action(frames::Symbol, id::Union{Nothing,Symbol}, func::Function,
-           transitions::Transition...; kwargs...)
-
-# Arguments
-- `frames::Symbol`: defines for which frames this action is called by using a symbol.
-    Currently only `:same` is supported. This uses the same frames as the action before.
-- `id::Symbol`: Is used if the `func` returns something which shall be accessible by
-    other actions later
-- `func::Function` the function that is called after the `transitions` are performed
-- `transitions::Transition...` a list of transitions that are performed
-    before the function `func` itself is called
-
-The keywords arguments will be saved inside `.opts` as a `Dict{Symbol, Any}`
-"""
-function Action(frames::Symbol, id::Union{Nothing,Symbol}, func::Function,
-         transitions::Transition...; kwargs...)
-    if !haskey(CURRENT_VIDEO[1].defs, :last_frames)
-        throw(ArgumentError("Frames need to be defined explicitly, at least for the first frame."))
-    end
-    last_frames = CURRENT_VIDEO[1].defs[:last_frames]
-    comp_frames = 1:1
-    if frames == :same
-        comp_frames = last_frames
-    else
-        throw(ArgumentError("Currently the only symbol supported for defining frames is `:same`"))
-    end
-    CURRENT_VIDEO[1].defs[:last_frames] = comp_frames
-    Action(comp_frames, id, func, transitions...; kwargs...)
-end
-
-"""
-    Action(frames::Rel, id::Union{Nothing,Symbol}, func::Function,
-           transitions::Transition...; kwargs...)
-
-# Arguments
-- `frames::Rel`: defines for which frames this action is by using relative frames.
-    i.e Rel(10) will be using the 10 frames after the last action.
-- `id::Symbol`: Is used if the `func` returns something which shall be accessible
-    by other actions later
-- `func::Function` the function that is called after the `transitions` are performed
-- `transitions::Transition...` a list of transitions that are performed
-    before the function `func` itself is called
-
-The keywords arguments will be saved inside `.opts` as a `Dict{Symbol, Any}`
-"""
-function Action(frames::Rel, id::Union{Nothing,Symbol}, func::Function,
-                transitions::Transition...; kwargs...)
-    if !haskey(CURRENT_VIDEO[1].defs, :last_frames)
-        throw(ArgumentError("Frames need to be defined explicitly, at least for the first frame."))
-    end
-    last_frames = CURRENT_VIDEO[1].defs[:last_frames]
-    start_frame = last(last_frames)+first(frames.rel)
-    last_frame  = last(last_frames)+last(frames.rel)
-    comp_frames = start_frame:last_frame
-    CURRENT_VIDEO[1].defs[:last_frames] = comp_frames
-    Action(comp_frames, id, func, transitions...; kwargs...)
 end
 
 """
@@ -640,7 +638,7 @@ If `rotation` includes symbols the current definition of that look up is used fo
 """
 function compute_transition!(internal_rotation::InternalRotation, rotation::Rotation,
                              video, action::AbstractAction, frame)
-    t = (frame-first(action.frames))/(length(action.frames)-1)
+    t = (frame-first(get_frames(action)))/(length(get_frames(action))-1)
     # makes sense to only allow 0 ≤ t ≤ 1
     t = min(1.0, t)
     from, to, center = rotation.from, rotation.to, rotation.center
@@ -664,7 +662,7 @@ and used for computation.
 """
 function compute_transition!(internal_translation::InternalTranslation,
                              translation::Translation, video, action::AbstractAction, frame)
-    t = (frame-first(action.frames))/(length(action.frames)-1)
+    t = (frame-first(get_frames(action)))/(length(get_frames(action))-1)
     # makes sense to only allow 0 ≤ t ≤ 1
     t = min(1.0, t)
     from, to = translation.from, translation.to
@@ -861,15 +859,21 @@ rotation of the next ball.
 """
 function javis(
     video::Video,
-    actions::Vector{AT};
+    actions::Vector{AA};
     framerate=30,
     pathname="javis_$(randstring(7)).gif",
     tempdirectory=mktempdir(),
-) where AT <: AbstractAction
+) where AA <: AbstractAction
+    compute_frames!(actions)
+
+    for action in actions
+        compute_frames!(action.subactions)
+    end
+
     # get all frames
     frames = Int[]
     for action in actions
-        append!(frames, collect(action.frames))
+        append!(frames, collect(get_frames(action)))
     end
     frames = unique(frames)
 
@@ -906,7 +910,7 @@ function javis(
             # from the parent background action
             update_action_settings!(action, background_settings)
             CURRENT_ACTION[1] = action
-            if frame in action.frames
+            if frame in get_frames(action)
                 # check if the action should be part of the global layer (i.e BackgroundAction)
                 # or in its own layer (default)
                 in_global_layer = get(action.opts, :in_global_layer, false)
@@ -970,18 +974,18 @@ function perform_action(action, video, frame, origin_matrix)
     perform_transformation(action)
 
     # relative frame number for subactions
-    rel_frame = frame-first(action.frames) + 1
+    rel_frame = frame-first(get_frames(action)) + 1
     # call currently active subactions and their transformations
     for subaction in action.subactions
-        if rel_frame in subaction.frames
+        if rel_frame in get_frames(subaction)
             subaction.func(video, action, subaction, rel_frame)
             compute_transformation!(subaction, video, rel_frame)
             perform_transformation(subaction)
-        elseif rel_frame > last(subaction.frames)
+        elseif rel_frame > last(get_frames(subaction))
             # call the subaction on the last frame i.e. disappeared things stay disappeared
-            subaction.func(video, action, subaction, last(subaction.frames))
+            subaction.func(video, action, subaction, last(get_frames(subaction)))
             # have the transformation from the last active frame
-            compute_transformation!(subaction, video, last(subaction.frames))
+            compute_transformation!(subaction, video, last(get_frames(subaction)))
             perform_transformation(subaction)
         end
     end
