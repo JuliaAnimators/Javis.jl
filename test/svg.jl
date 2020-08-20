@@ -53,7 +53,8 @@ end
 
     function foreground(latex_string)
         translate(50, 40)
-        latex(latex_string, 30) # is automatically changed to fontsize(30); latex(latex_string)
+        fsize = get_fontsize()
+        latex(latex_string, fsize) # is automatically changed to fontsize(30); latex(latex_string)
         translate(-50, -40)
         circle(O, 20, :fill) # should be in the center and not affected by latex
     end
