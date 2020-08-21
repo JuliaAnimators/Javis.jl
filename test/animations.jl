@@ -86,7 +86,7 @@ end
     ], tempdirectory="images", pathname="dancing.mp4")
 
     @test VideoIO.get_duration("dancing.mp4") == VideoIO.get_duration("refs/dancing_circles.mp4")
-    rm("dancing.gif")
+    rm("dancing.mp4")
 end
 
 @testset "Dancing circles layered" begin
