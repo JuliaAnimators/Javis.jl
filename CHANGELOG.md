@@ -1,6 +1,6 @@
 # Javis.jl - Changelog
 
-## 0.1.1 (20th of August 2020)
+## 0.1.1 (21st of August 2020)
 - Define frames in `SubAction` with `Rel` and `Symbol`
 - `latex` now uses font size specified with `fontsize`
 - Ability to access font size with `get_fontsize`
