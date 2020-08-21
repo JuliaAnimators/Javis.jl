@@ -23,6 +23,7 @@ ImageMagick = "6218d12a-5da1-5696-b52f-db25d2ecc6d1"
 Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
 ReferenceTests = "324d217c-45ce-50fc-942e-d289b448e8cf"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+VideoIO = "d6d074c3-1acf-5d4c-9a43-ef38773959a2"
 
 [targets]
-test = ["Images", "ImageIO", "ImageMagick", "ReferenceTests", "Test"]
+test = ["Images", "ImageIO", "ImageMagick", "ReferenceTests", "Test", "VideoIO"]
