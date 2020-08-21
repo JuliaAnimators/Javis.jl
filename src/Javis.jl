@@ -942,13 +942,10 @@ function javis(
                     "$(tempdirectory)/palette.bmp" -lavfi
                     "paletteuse=dither=sierra2_4a" -y $pathname`)
     elseif ext == ".mp4"
-        # generate a colorpalette first so ffmpeg does not have to guess it
-        ffmpeg_exe(`-loglevel panic -i $(tempdirectory)/%10d.png -vf
-                    "palettegen=stats_mode=diff" -y "$(tempdirectory)/palette.bmp"`)
-	ffmpeg_exe(`-loglevel panic -i $(tempdirectory)/%10d.png -framerate $framerate -c:v libx264 -r 30 -pix_fmt yuv420p $pathname`)
+	ffmpeg_exe(`-loglevel panic -framerate $framerate -i $(tempdirectory)/%10d.png  -c:v libx264 -pix_fmt yuv420p $pathname`)
 
     else
-        @error "Currently, only gif creation is supported and not a $ext."
+        @error "Currently, only gif and mp4 creation is supported. Not a $ext."
     end
     return pathname
 end
