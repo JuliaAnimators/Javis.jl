@@ -76,16 +76,16 @@ end
 
     video = Video(500, 500)
     javis(video, [
-        BackgroundAction(1:25, ground, Rotation(0.0), Translation(Point(25, 25), Point(25, 25))),
+        BackgroundAction(1:5, ground, Rotation(0.0), Translation(Point(25, 25), Point(25, 25))),
         Action(latex_title),
-        Action(Rel(-24:0), :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
-        Action(1:25, :blue_ball, (args...)->circ(p2, "blue"), Rotation(to_rot, from_rot, :red_ball)),
-        Action(1:25, (video, args...)->path!(path_of_red, get_position(:red_ball), "red")),
+        Action(Rel(-4:0), :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
+        Action(1:5, :blue_ball, (args...)->circ(p2, "blue"), Rotation(to_rot, from_rot, :red_ball)),
+        Action(1:5, (video, args...)->path!(path_of_red, get_position(:red_ball), "red")),
         Action(:same, (video, args...)->path!(path_of_blue, pos(:blue_ball), "blue")),
-        Action(1:25, (args...)->rad(pos(:red_ball), pos(:blue_ball), "black"))
+        Action(1:5, (args...)->rad(pos(:red_ball), pos(:blue_ball), "black"))
     ], tempdirectory="images", pathname="dancing.mp4")
 
-    @test VideoIO.get_duration("dancing.mp4") == VideoIO.get_duration("refs/dancing_circles.mp4")
+    @test VideoIO.get_duration("dancing.mp4") == 0.167
     rm("dancing.mp4")
 end
 
