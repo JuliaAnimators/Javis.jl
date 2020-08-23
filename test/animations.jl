@@ -15,13 +15,13 @@ function latex_title(args...)
     latex(L"E=mc^2", 0, -200)
 end
 
-function circ(p=O, color="black")
+function circ(p = O, color = "black")
     sethue(color)
     circle(p, 25, :fill)
     return p
 end
 
-function circ_ret_trans(p=O, color="black")
+function circ_ret_trans(p = O, color = "black")
     sethue(color)
     circle(p, 25, :fill)
     return Transformation(p, 0.0)
@@ -35,31 +35,54 @@ end
 
 function rad(p1, p2, color)
     sethue(color)
-    line(p1,p2, :stroke)
+    line(p1, p2, :stroke)
 end
 
 @testset "Dancing circles (gif)" begin
-    p1 = Point(100,0)
-    p2 = Point(100,80)
+    p1 = Point(100, 0)
+    p2 = Point(100, 80)
     from_rot = 0.0
     to_rot = 2π
     path_of_blue = Point[]
     path_of_red = Point[]
 
     video = Video(500, 500)
-    javis(video, [
-        BackgroundAction(1:25, ground, Rotation(0.0), Translation(Point(25, 25), Point(25, 25))),
-        Action(latex_title),
-        Action(Rel(-24:0), :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
-        Action(1:25, :blue_ball, (args...)->circ(p2, "blue"), Rotation(to_rot, from_rot, :red_ball)),
-        Action(1:25, (video, args...)->path!(path_of_red, get_position(:red_ball), "red")),
-        Action(:same, (video, args...)->path!(path_of_blue, pos(:blue_ball), "blue")),
-        Action(1:25, (args...)->rad(pos(:red_ball), pos(:blue_ball), "black"))
-    ], tempdirectory="images", pathname="dancing.gif")
+    javis(
+        video,
+        [
+            BackgroundAction(
+                1:25,
+                ground,
+                Rotation(0.0),
+                Translation(Point(25, 25), Point(25, 25)),
+            ),
+            Action(latex_title),
+            Action(
+                Rel(-24:0),
+                :red_ball,
+                (args...) -> circ(p1, "red"),
+                Rotation(from_rot, to_rot),
+            ),
+            Action(
+                1:25,
+                :blue_ball,
+                (args...) -> circ(p2, "blue"),
+                Rotation(to_rot, from_rot, :red_ball),
+            ),
+            Action(
+                1:25,
+                (video, args...) -> path!(path_of_red, get_position(:red_ball), "red"),
+            ),
+            Action(:same, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue")),
+            Action(1:25, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
+        ],
+        tempdirectory = "images",
+        pathname = "dancing.gif",
+    )
 
     @test_reference "refs/dancing_circles_16.png" load("images/0000000016.png")
     @test isfile("dancing.gif")
-    for i=1:25
+    for i = 1:25
         rm("images/$(lpad(i, 10, "0")).png")
     end
     rm("images/palette.bmp")
@@ -67,74 +90,137 @@ end
 end
 
 @testset "Dancing circles (mp4)" begin
-    p1 = Point(100,0)
-    p2 = Point(100,80)
+    p1 = Point(100, 0)
+    p2 = Point(100, 80)
     from_rot = 0.0
     to_rot = 2π
     path_of_blue = Point[]
     path_of_red = Point[]
 
     video = Video(500, 500)
-    javis(video, [
-        BackgroundAction(1:5, ground, Rotation(0.0), Translation(Point(25, 25), Point(25, 25))),
-        Action(latex_title),
-        Action(Rel(-4:0), :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
-        Action(1:5, :blue_ball, (args...)->circ(p2, "blue"), Rotation(to_rot, from_rot, :red_ball)),
-        Action(1:5, (video, args...)->path!(path_of_red, get_position(:red_ball), "red")),
-        Action(:same, (video, args...)->path!(path_of_blue, pos(:blue_ball), "blue")),
-        Action(1:5, (args...)->rad(pos(:red_ball), pos(:blue_ball), "black"))
-    ], tempdirectory="images", pathname="dancing.mp4")
+    javis(
+        video,
+        [
+            BackgroundAction(
+                1:5,
+                ground,
+                Rotation(0.0),
+                Translation(Point(25, 25), Point(25, 25)),
+            ),
+            Action(latex_title),
+            Action(
+                Rel(-4:0),
+                :red_ball,
+                (args...) -> circ(p1, "red"),
+                Rotation(from_rot, to_rot),
+            ),
+            Action(
+                1:5,
+                :blue_ball,
+                (args...) -> circ(p2, "blue"),
+                Rotation(to_rot, from_rot, :red_ball),
+            ),
+            Action(
+                1:5,
+                (video, args...) -> path!(path_of_red, get_position(:red_ball), "red"),
+            ),
+            Action(:same, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue")),
+            Action(1:5, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
+        ],
+        tempdirectory = "images",
+        pathname = "dancing.mp4",
+    )
 
     @test VideoIO.get_duration("dancing.mp4") == 0.167
     rm("dancing.mp4")
 end
 
 @testset "Dancing circles layered" begin
-    p1 = Point(100,0)
-    p2 = Point(100,80)
+    p1 = Point(100, 0)
+    p2 = Point(100, 80)
     from_rot = 0.0
     to_rot = 2π
     path_of_blue = Point[]
     path_of_red = Point[]
 
     video = Video(500, 500)
-    javis(video, [
-        Action(1:25, ground, Rotation(π/2, π/2, O), Translation(Point(25,25), Point(25,25)); in_global_layer=true),
-        Action(1:25, latex_title),
-        Action(1:25, :red_ball, (args...)->circ(p1, "red"), Rotation(to_rot)),
-        Action(1:25, :blue_ball, (args...)->circ(p2, "blue"), Rotation(to_rot, from_rot, :red_ball)),
-        Action(1:25, (video, args...)->path!(path_of_red, get_position(:red_ball), "red")),
-        Action(1:25, (video, args...)->path!(path_of_blue, pos(:blue_ball), "blue")),
-        Action(1:25, (args...)->rad(pos(:red_ball), pos(:blue_ball), "black"))
-    ], tempdirectory="images", pathname="")
+    javis(
+        video,
+        [
+            Action(
+                1:25,
+                ground,
+                Rotation(π / 2, π / 2, O),
+                Translation(Point(25, 25), Point(25, 25));
+                in_global_layer = true,
+            ),
+            Action(1:25, latex_title),
+            Action(1:25, :red_ball, (args...) -> circ(p1, "red"), Rotation(to_rot)),
+            Action(
+                1:25,
+                :blue_ball,
+                (args...) -> circ(p2, "blue"),
+                Rotation(to_rot, from_rot, :red_ball),
+            ),
+            Action(
+                1:25,
+                (video, args...) -> path!(path_of_red, get_position(:red_ball), "red"),
+            ),
+            Action(1:25, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue")),
+            Action(1:25, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
+        ],
+        tempdirectory = "images",
+        pathname = "",
+    )
 
     @test_reference "refs/dancing_circles_16_rot_trans.png" load("images/0000000016.png")
-    for i=1:25
+    for i = 1:25
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
 
 @testset "Dancing circles layered return Transformation" begin
-    p1 = Point(100,0)
-    p2 = Point(100,80)
+    p1 = Point(100, 0)
+    p2 = Point(100, 80)
     from_rot = 0.0
     to_rot = 2π
     path_of_blue = Point[]
     path_of_red = Point[]
 
     video = Video(500, 500)
-    javis(video, [
-        Action(1:25, ground, Rotation(π/2, π/2, O), Translation(Point(25,25), Point(25,25)); in_global_layer=true),
-        Action(1:25, latex_title),
-        Action(1:25, :red_ball, (args...)->circ_ret_trans(p1, "red"), Rotation(to_rot)),
-        Action(1:25, :blue_ball, (args...)->circ_ret_trans(p2, "blue"), Rotation(to_rot, from_rot, :red_ball)),
-        Action(1:25, (video, args...)->path!(path_of_red, pos(:red_ball), "red")),
-        Action(1:25, (video, args...)->path!(path_of_blue, pos(:blue_ball), "blue")),
-        Action(1:25, (args...)->rad(pos(:red_ball), pos(:blue_ball), "black"))
-    ], tempdirectory="images", pathname="")
+    javis(
+        video,
+        [
+            Action(
+                1:25,
+                ground,
+                Rotation(π / 2, π / 2, O),
+                Translation(Point(25, 25), Point(25, 25));
+                in_global_layer = true,
+            ),
+            Action(1:25, latex_title),
+            Action(
+                1:25,
+                :red_ball,
+                (args...) -> circ_ret_trans(p1, "red"),
+                Rotation(to_rot),
+            ),
+            Action(
+                1:25,
+                :blue_ball,
+                (args...) -> circ_ret_trans(p2, "blue"),
+                Rotation(to_rot, from_rot, :red_ball),
+            ),
+            Action(1:25, (video, args...) -> path!(path_of_red, pos(:red_ball), "red")),
+            Action(1:25, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue")),
+            Action(1:25, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
+        ],
+        tempdirectory = "images",
+        pathname = "",
+    )
 
     @test_reference "refs/dancing_circles_16_rot_trans.png" load("images/0000000016.png")
-    for i=1:25
+    for i = 1:25
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
@@ -145,62 +231,74 @@ end
         video,
         [
             Action(1:40, ground),
-
             Action(1:10, draw_grid(direction = "BL", line_gap = 25)),
             Action(zero_lines(direction = "BL", line_thickness = 10)),
-
             Action(Rel(10), draw_grid(direction = "BR", line_gap = 25)),
             Action(zero_lines(direction = "BR", line_thickness = 10)),
-
             Action(Rel(10), draw_grid(direction = "TL", line_gap = 25)),
             Action(zero_lines(direction = "TL", line_thickness = 10)),
-
             Action(Rel(10), draw_grid(direction = "TR", line_gap = 25)),
             Action(zero_lines(direction = "TR", line_thickness = 10)),
-
         ],
-        tempdirectory = "images", pathname=""
+        tempdirectory = "images",
+        pathname = "",
     )
 
     @test_reference "refs/grid_drawing_bl.png" load("images/0000000008.png")
     @test_reference "refs/grid_drawing_br.png" load("images/0000000018.png")
     @test_reference "refs/grid_drawing_tl.png" load("images/0000000028.png")
     @test_reference "refs/grid_drawing_tr.png" load("images/0000000038.png")
-    for i=1:40
-	    rm("images/$(lpad(i, 10, "0")).png")
+    for i = 1:40
+        rm("images/$(lpad(i, 10, "0")).png")
     end
 end
 
 @testset "Use returned angle" begin
     video = Video(500, 500)
     p = Point(100, 0)
-    javis(video, [
-        Action(1:10, ground),
-        Action(:circ, (args...)->circ_ret_trans(p), Rotation(2π)),
-        Action((args...)->line(Point(-200, 0), Point(-200, -10*ang(:circ)), :stroke))
-    ], tempdirectory="images", pathname="")
+    javis(
+        video,
+        [
+            Action(1:10, ground),
+            Action(:circ, (args...) -> circ_ret_trans(p), Rotation(2π)),
+            Action(
+                (args...) -> line(Point(-200, 0), Point(-200, -10 * ang(:circ)), :stroke),
+            ),
+        ],
+        tempdirectory = "images",
+        pathname = "",
+    )
 
     @test_reference "refs/circle_angle.png" load("images/0000000008.png")
-    for i=1:10
-	    rm("images/$(lpad(i, 10, "0")).png")
+    for i = 1:10
+        rm("images/$(lpad(i, 10, "0")).png")
     end
 end
 
-astar(args...) = star(Point(-100,-100), 30)
-acirc(args...) = circle(Point(100,100), 30)
+astar(args...) = star(Point(-100, -100), 30)
+acirc(args...) = circle(Point(100, 100), 30)
 
 @testset "morphing star2circle and back" begin
     video = Video(500, 500)
-    javis(video, [
-        BackgroundAction(1:20, :framenumber, (args...)->ground_color("white", "black", args[3])),
-        Action(1:10, (args...)->circle(Point(-100, 0), val(:framenumber), :fill)),
-        Action(1:10, morph(astar, acirc)),
-        Action(11:20, morph(acirc, astar))
-    ], tempdirectory="images", pathname="")
+    javis(
+        video,
+        [
+            BackgroundAction(
+                1:20,
+                :framenumber,
+                (args...) -> ground_color("white", "black", args[3]),
+            ),
+            Action(1:10, (args...) -> circle(Point(-100, 0), val(:framenumber), :fill)),
+            Action(1:10, morph(astar, acirc)),
+            Action(11:20, morph(acirc, astar)),
+        ],
+        tempdirectory = "images",
+        pathname = "",
+    )
 
     @test_reference "refs/star2circle5.png" load("images/0000000005.png")
     @test_reference "refs/star2circle15.png" load("images/0000000015.png")
-    for i=1:20
+    for i = 1:20
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
@@ -211,7 +309,7 @@ function ground_nicholas(args...)
     setline(3)
 end
 
-function house_of_nicholas(;p1=O, width=100, color="black")
+function house_of_nicholas(; p1 = O, width = 100, color = "black")
     # sethue(color)
     #     .p1
     # .p2   .p3
@@ -235,18 +333,26 @@ end
 
 @testset "House of Nicholas line_width" begin
     demo = Video(500, 500)
-    javis(demo, [
-        BackgroundAction(1:50, ground_nicholas),
-        Action((args...)->house_of_nicholas(); subactions = [
-            SubAction(1:25, appear(:fade_line_width)),
-            SubAction(Rel(25), disappear(:fade_line_width))
-        ])
-    ], tempdirectory="images", pathname="")
+    javis(
+        demo,
+        [
+            BackgroundAction(1:50, ground_nicholas),
+            Action(
+                (args...) -> house_of_nicholas();
+                subactions = [
+                    SubAction(1:25, appear(:fade_line_width)),
+                    SubAction(Rel(25), disappear(:fade_line_width)),
+                ],
+            ),
+        ],
+        tempdirectory = "images",
+        pathname = "",
+    )
 
     @test_reference "refs/nicholas15.png" load("images/0000000015.png")
     @test_reference "refs/nicholas25.png" load("images/0000000025.png")
     @test_reference "refs/nicholas35.png" load("images/0000000035.png")
-    for i=1:50
+    for i = 1:50
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
@@ -265,36 +371,46 @@ end
 
 @testset "Circle/square appear opacity" begin
     demo = Video(500, 500)
-    javis(demo, [
-        BackgroundAction(1:50, ground_opacity),
-        Action((args...)->circ(); subactions = [
-            SubAction(1:25, appear(:fade)),
-            SubAction(26:50, disappear(:fade))
-        ]),
-        Action(5:50, (args...)->square_opacity(Point(-100, 0), 60); subactions = [
-            SubAction(1:15, appear(:fade)),
-            SubAction(Rel(20), Translation(100, 50)),
-            SubAction(Rel(5), disappear(:fade))
-            # for global frames 46-50 it should still be disappeared
-        ])
-    ], tempdirectory="images", pathname="")
+    javis(
+        demo,
+        [
+            BackgroundAction(1:50, ground_opacity),
+            Action(
+                (args...) -> circ();
+                subactions = [
+                    SubAction(1:25, appear(:fade)),
+                    SubAction(26:50, disappear(:fade)),
+                ],
+            ),
+            Action(
+                5:50,
+                (args...) -> square_opacity(Point(-100, 0), 60);
+                subactions = [
+                    SubAction(1:15, appear(:fade)),
+                    SubAction(Rel(20), Translation(100, 50)),
+                    SubAction(Rel(5), disappear(:fade)),
+                    # for global frames 46-50 it should still be disappeared
+                ],
+            ),
+        ],
+        tempdirectory = "images",
+        pathname = "",
+    )
 
     @test_reference "refs/circlerSquare07opacity.png" load("images/0000000007.png")
     @test_reference "refs/circlerSquare25opacity.png" load("images/0000000025.png")
     @test_reference "refs/circlerSquare42opacity.png" load("images/0000000042.png")
     # test that the last frame is completely white
-    @test sum(load("images/0000000050.png")) == RGB{Float64}(500*500, 500*500, 500*500)
-    for i=1:50
+    @test sum(load("images/0000000050.png")) ==
+          RGB{Float64}(500 * 500, 500 * 500, 500 * 500)
+    for i = 1:50
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
 
 @testset "test default kwargs" begin
     video = Video(500, 500)
-    pathname = javis(video, [
-        Action(1:10, ground),
-        Action(1:10, morph(astar, acirc))
-    ])
+    pathname = javis(video, [Action(1:10, ground), Action(1:10, morph(astar, acirc))])
     path, ext = splitext(pathname)
     @test ext == ".gif"
     @test isfile(pathname)
@@ -303,8 +419,9 @@ end
 
 @testset "test @error .mp3" begin
     video = Video(500, 500)
-    @test_logs (:error,) javis(video, [
-        Action(1:10, ground),
-        Action(1:10, morph(astar, acirc))
-    ]; pathname="test.mp3")
+    @test_logs (:error,) javis(
+        video,
+        [Action(1:10, ground), Action(1:10, morph(astar, acirc))];
+        pathname = "test.mp3",
+    )
 end
