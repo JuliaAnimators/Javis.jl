@@ -233,8 +233,17 @@ Action(120:150, (args...)->speak("How are you?"); subactions=[
 
 This time we also use the [`disappear`](@ref) function to fade out the text.
 
+Now, with everything properly defined using the `javis` function within the `face` function one can simply execute the following from your Julia REPL:
+
+```
+julia> face()
+```
+
+To produce the following:
 
 ![Jarvis](./assets/jarvis.gif)
+
+Jarvis is alive! 
 
 ## Conclusion
 
