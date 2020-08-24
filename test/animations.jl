@@ -102,36 +102,40 @@ end
         video,
         [
             BackgroundAction(
-                1:5,
+                1:2,
                 ground,
                 Rotation(0.0),
                 Translation(Point(25, 25), Point(25, 25)),
             ),
             Action(latex_title),
             Action(
-                Rel(-4:0),
+                Rel(-1:0),
                 :red_ball,
                 (args...) -> circ(p1, "red"),
                 Rotation(from_rot, to_rot),
             ),
             Action(
-                1:5,
+                1:2,
                 :blue_ball,
                 (args...) -> circ(p2, "blue"),
                 Rotation(to_rot, from_rot, :red_ball),
             ),
             Action(
-                1:5,
+                1:2,
                 (video, args...) -> path!(path_of_red, get_position(:red_ball), "red"),
             ),
             Action(:same, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue")),
-            Action(1:5, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
+            Action(1:2, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
         ],
         tempdirectory = "images",
         pathname = "dancing.mp4",
     )
 
-    @test VideoIO.get_duration("dancing.mp4") == 0.167
+    # The `y` for isapprox was determined experimentally on a Fedora 32 OS.
+    # On that machine, the time duration was found to be `0.067` seconds.
+    # The `atol` was also experimentally determined based upon VideoIO's
+    # `get_duration` function.
+    @test isapprox(VideoIO.get_duration("dancing.mp4"), 0.07, atol = 0.01)
     rm("dancing.mp4")
 end
 
