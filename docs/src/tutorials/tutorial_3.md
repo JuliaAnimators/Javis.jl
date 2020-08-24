@@ -20,7 +20,8 @@ From this project tutorial you will:
 
 ## Set Up
 
-As demonstrated in prior tutorials, we will use `Javis` to create a `Video` object. However, we also have one more package included this time - `LaTeXStrings.jl`! 
+As demonstrated in prior tutorials, we will use `Javis` to create a `Video` object. 
+However, we also have one more package included this time - `LaTeXStrings.jl`! 
 
 ```julia
 using Javis
@@ -72,7 +73,7 @@ Currently, Julia does not have the ability (yet) to render `LaTeX` natively.
 Therefore, we must install an additional node package.
 Sadly. 😭
 
-Furthermore, we do need to install an additional Julia package called `LaTeXStrings`.
+Furthermore, we do need to install an additional Julia package called [`LaTeXStrings`](https://github.com/stevengj/LaTeXStrings.jl).
 It is a great package that can be installed via the following command:
 
 ```
