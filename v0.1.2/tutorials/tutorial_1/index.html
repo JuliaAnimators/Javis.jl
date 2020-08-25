@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Tutorial 1: Making Your First Javis Animation! · Javis.jl</title><link rel="canonical" href="https://Wikunia.github.io/Javis.jl/tutorials/tutorial_1/"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">Javis.jl</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../"><strong>Information about Tutorials - Beginners Start Here!</strong></a></li><li class="is-active"><a class="tocitem" href><strong>Tutorial 1:</strong> Making Your First Javis Animation!</a><ul class="internal"><li><a class="tocitem" href="#Introduction"><span>Introduction</span></a></li><li><a class="tocitem" href="#Learning-Outcomes"><span>Learning Outcomes</span></a></li><li><a class="tocitem" href="#So...-What-Is-Javis.jl?"><span>So... What Is <code>Javis.jl</code>?</span></a></li><li><a class="tocitem" href="#The-javis-Function-the-Heart-of-Javis.jl"><span>The <code>javis</code> Function - the Heart of <code>Javis.jl</code></span></a></li><li><a class="tocitem" href="#Making-Our-Animation"><span>Making Our Animation</span></a></li><li><a class="tocitem" href="#Let&#39;s-Draw-a-Circle!"><span>Let&#39;s Draw a Circle!</span></a></li><li><a class="tocitem" href="#It-Takes-Two-to-Tango"><span>It Takes Two to Tango 💃</span></a></li><li><a class="tocitem" href="#Mapping-an-Orbit"><span>Mapping an Orbit 🚀</span></a></li><li><a class="tocitem" href="#Conclusion"><span>Conclusion</span></a></li></ul></li><li><a class="tocitem" href="../tutorial_2/"><strong>Tutorial 2:</strong> What Are Actions?</a></li><li><a class="tocitem" href="../tutorial_3/"><strong>Tutorial 3:</strong> Rendering LaTeX with Javis!</a></li><li><a class="tocitem" href="../tutorial_4/"><strong>Tutorial 4:</strong> Do You Know Our Mascot? - Learn About Transitions And Subactions!</a></li></ul></li><li><a class="tocitem" href="../../mission/">Mission</a></li><li><a class="tocitem" href="../../references/">References</a></li><li><a class="tocitem" href="../../contributing/">Contributing</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href><strong>Tutorial 1:</strong> Making Your First Javis Animation!</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href><strong>Tutorial 1:</strong> Making Your First Javis Animation!</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/Wikunia/Javis.jl/blob/master/docs/src/tutorials/tutorial_1.md#L" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="**Tutorial-1:**-Making-Your-First-Javis-Animation!"><a class="docs-heading-anchor" href="#**Tutorial-1:**-Making-Your-First-Javis-Animation!"><strong>Tutorial 1:</strong> Making Your First Javis Animation!</a><a id="**Tutorial-1:**-Making-Your-First-Javis-Animation!-1"></a><a class="docs-heading-anchor-permalink" href="#**Tutorial-1:**-Making-Your-First-Javis-Animation!" title="Permalink"></a></h1><h2 id="Introduction"><a class="docs-heading-anchor" href="#Introduction">Introduction</a><a id="Introduction-1"></a><a class="docs-heading-anchor-permalink" href="#Introduction" title="Permalink"></a></h2><p>If you are reading this tutorial, I am going to assume this is the first time you are using <code>Javis</code> to create an animation.  In that case, welcome to <code>Javis</code>! 😃  By following this tutorial, we are going to make you a director of your very own animations written in pure Julia! 🎬 🎥</p><p>If you have not installed <code>Javis</code> yet, please visit the homepage to <a href="../../index.html#Installation">read the installation instructions</a>.</p><h2 id="Learning-Outcomes"><a class="docs-heading-anchor" href="#Learning-Outcomes">Learning Outcomes</a><a id="Learning-Outcomes-1"></a><a class="docs-heading-anchor-permalink" href="#Learning-Outcomes" title="Permalink"></a></h2><p>In this tutorial you&#39;ll learn:</p><ul><li>What <code>Javis.jl</code> is.</li><li>How to make a basic animation using <code>Action</code> objects.</li><li>Move objects created by <code>Javis</code>.</li><li>Elements of <code>Luxor.jl</code>.</li></ul><p>By the end of this tutorial, you will have made the following animation:</p><p><img src="../assets/dancing_circles.gif" alt/></p><p>With all that said, let&#39;s dive in to this tutorial! ✨</p><h2 id="So...-What-Is-Javis.jl?"><a class="docs-heading-anchor" href="#So...-What-Is-Javis.jl?">So... What Is <code>Javis.jl</code>?</a><a id="So...-What-Is-Javis.jl?-1"></a><a class="docs-heading-anchor-permalink" href="#So...-What-Is-Javis.jl?" title="Permalink"></a></h2><p><code>Javis.jl</code> is an abstraction on top of powerful graphics tools to make animations and visualizations easy to create. It is built on top of the fantastic Julia drawing packages, <a href="https://github.com/JuliaGraphics/Luxor.jl"><code>Luxor.jl</code></a> and <a href="https://github.com/JuliaGraphics/Cairo.jl"><code>Cairo.jl</code></a>. <code>Cairo.jl</code> is much too complex to explain here, but <code>Luxor.jl</code> gives one the ability to define and draw on a canvas. <code>Luxor.jl</code> provides simple functions like <code>line</code>, <code>circle</code> and <code>Draw</code> by which one can make animations. </p><blockquote><p><strong>NOTE:</strong> If you&#39;re interested in 2D graphics, you should definitely check out the awesome <code>Luxor.jl</code> package. It has a <a href="https://juliagraphics.github.io/Luxor.jl/stable/tutorial/">great tutorial</a> that will give you an even greater understanding of how <code>Javis.jl</code> works.</p></blockquote><h2 id="The-javis-Function-the-Heart-of-Javis.jl"><a class="docs-heading-anchor" href="#The-javis-Function-the-Heart-of-Javis.jl">The <code>javis</code> Function - the Heart of <code>Javis.jl</code></a><a id="The-javis-Function-the-Heart-of-Javis.jl-1"></a><a class="docs-heading-anchor-permalink" href="#The-javis-Function-the-Heart-of-Javis.jl" title="Permalink"></a></h2><p>In order to use <code>Javis</code>, we will start with the following import:</p><pre><code class="language-julia">using Javis</code></pre><p>Then, we will introduce our first and most import function from <code>Javis</code> - the <code>javis</code> function:</p><pre><code class="language-none">javis(
+    video = [[video]], 
+    actions = [[actions]], 
+    pathname = [[pathname]]
+)</code></pre><p>The <code>javis</code> function has three key word parameters that the user must define in order to create an animation:</p><ul><li><code>video</code> - a <code>Video</code> struct</li><li><code>actions</code> - a vector of <code>Action</code> objects</li><li><code>pathname</code> - a <code>String</code> </li></ul><p>These kwargs are further explained in the following sections. </p><h3 id="video"><a class="docs-heading-anchor" href="#video"><code>video</code></a><a id="video-1"></a><a class="docs-heading-anchor-permalink" href="#video" title="Permalink"></a></h3><p>The <code>video</code> argument requires a <code>Video</code> struct. This <code>Video</code> struct creates the canvas upon which we will draw. 🎨  To create a <code>Video</code> object, one defines the constructor with a width and height:</p><pre><code class="language-julia">myvideo = Video(500,500) # 500 x 500 // width x height</code></pre><h3 id="actions"><a class="docs-heading-anchor" href="#actions"><code>actions</code></a><a id="actions-1"></a><a class="docs-heading-anchor-permalink" href="#actions" title="Permalink"></a></h3><p>Core to not only the <code>javis</code> function but the entire <code>Javis.jl</code> library are <code>Action</code> objects.  <code>Action</code> objects will be better explained in <a href="tutorials/tutorial_2">Tutorial 2</a>. For now, just know that an <code>Action</code> object is what draws shapes or moves shapes on a <code>Video</code>. In the <code>javis</code> function, <code>actions</code> is a vector of <code>Action</code> objects.</p><h3 id="pathname"><a class="docs-heading-anchor" href="#pathname"><code>pathname</code></a><a id="pathname-1"></a><a class="docs-heading-anchor-permalink" href="#pathname" title="Permalink"></a></h3><p>The <code>pathname</code> is a <code>String</code> that defines where to put the output animation on your computer. In the <code>pathname</code>, you must end the path with the name of the animation and its associated filetype extension. Here is an example invocation of the <code>javis</code> function with a provided path name:</p><pre><code class="language-julia">javis(
+    myvideo, 
+    myactions, 
+    pathname = &quot;/home/myanimation.gif&quot;
+)</code></pre><h2 id="Making-Our-Animation"><a class="docs-heading-anchor" href="#Making-Our-Animation">Making Our Animation</a><a id="Making-Our-Animation-1"></a><a class="docs-heading-anchor-permalink" href="#Making-Our-Animation" title="Permalink"></a></h2><p>We need to set-up a few functions that will be able to make our animation! </p><p>Our first function is the <code>ground</code> function. The <code>ground</code> function sets the background to white and the &quot;pen&quot; color to black:</p><pre><code class="language-julia">function ground(args...) 
+    background(&quot;white&quot;) # canvas background
+    sethue(&quot;black&quot;) # pen color
+end</code></pre><blockquote><p><strong>NOTE:</strong> One may wonder, &quot;why is <code>args...</code> needed in the <code>ground</code> function?&quot; To explain, each user-defined function gets three arguments <code>video</code>, <code>action</code>, and <code>frame</code> provided by <code>javis</code> These arguments are defined below:</p><ul><li><code>video</code>: Video struct</li><li><code>action</code>: Action struct</li><li><code>frame</code>: the current frame number</li></ul><p>Although these arguments are irrelevant for the <code>ground</code> function, we need to write <code>args...</code> such that Julia actually knows that we have a method that accepts those three arguments. The <code>...</code> basically stands for as many arguments as you want.</p></blockquote><p>Although <code>Luxor.jl</code> provides the functionality to draw circles,  <code>Javis</code> does not.  We use <code>Luxor.jl</code> to create a function that defines a color for circles and draws the circles accordingly. Here is how that code looks:</p><pre><code class="language-julia">function object(p=O, color=&quot;black&quot;)
+    sethue(color)
+    circle(p, 25, :fill)
+    return p
+end</code></pre><h2 id="Let&#39;s-Draw-a-Circle!"><a class="docs-heading-anchor" href="#Let&#39;s-Draw-a-Circle!">Let&#39;s Draw a Circle!</a><a id="Let&#39;s-Draw-a-Circle!-1"></a><a class="docs-heading-anchor-permalink" href="#Let&#39;s-Draw-a-Circle!" title="Permalink"></a></h2><p>Using our newly found <code>Javis</code> knowledge, we can now draw a circle! We do the following after importing the <code>Javis.jl</code> package and defining our own functions (don&#39;t worry if you don&#39;t understand the syntax here - it is too advanced for this tutorial but will be explained in future tutorials):</p><pre><code class="language-julia">myvideo = Video(500, 500)
+javis(
+    myvideo,  
+    [
+        BackgroundAction(1:70, ground),
+        Action(1:70, :red_ball, (args...) -&gt; object(Point(100,0), &quot;red&quot;)),
+    ],
+    pathname=&quot;circle.gif&quot;
+)</code></pre><p><img src="../assets/circle.gif" alt/></p><p>You did it! 🎉 You created your first drawing with <code>Javis</code>! 🔴</p><p>Let&#39;s go crazy and draw another one:</p><pre><code class="language-julia">javis(
+    myvideo,  
+    [
+        BackgroundAction(1:70, ground),
+        Action(1:70,:red_ball, (args...)-&gt;object(Point(100,0), &quot;red&quot;)),
+        Action(1:70, :blue_ball, (args...)-&gt;object(Point(100,80), &quot;blue&quot;)
+    ],
+    pathname=&quot;multiple_circles.gif&quot;
+)</code></pre><p><img src="../assets/multiple_circles.gif" alt/></p><p>So, this drawing - it&#39;s all nice and all, but perhaps a little... Dull?  This is supposed to be an animation! Let&#39;s make these balls dance. 💃</p><h2 id="It-Takes-Two-to-Tango"><a class="docs-heading-anchor" href="#It-Takes-Two-to-Tango">It Takes Two to Tango 💃</a><a id="It-Takes-Two-to-Tango-1"></a><a class="docs-heading-anchor-permalink" href="#It-Takes-Two-to-Tango" title="Permalink"></a></h2><p>Let&#39;s use the special modifier, <code>Rotation</code>, to produce a ball that rotates in a circle:</p><pre><code class="language-julia">javis(
+    myvideo,  
+    [
+        BackgroundAction(1:70, ground),
+        Action(1:70,:red_ball, (args...)-&gt;object(Point(100,0), &quot;red&quot;), Rotation(0.0, 2π)),
+    ],
+    pathname=&quot;rotation.gif&quot;
+)</code></pre><p><img src="../assets/rotation.gif" alt/></p><p>Now that&#39;s what I call dancing! However, I think our red ball is a bit lonely, don&#39;t you think? It needs a partner!</p><p>To make another ball appear, execute the following code snippet:</p><pre><code class="language-julia">javis(
+    video,  
+    [
+        BackgroundAction(1:70, ground),
+        Action(1:70,:red_ball, (args...)-&gt;object(Point(100,0), &quot;red&quot;), Rotation(0.0, 2π)),
+        Action(1:70, :blue_ball, (args...)-&gt; object(Point(100,80), &quot;blue&quot;), Rotation(2π, 0.0, :red_ball))
+    ],
+    pathname=&quot;dynamic_rotation.gif&quot;
+)</code></pre><p><img src="../assets/dynamic_rotation.gif" alt/></p><p>There we go! </p><h2 id="Mapping-an-Orbit"><a class="docs-heading-anchor" href="#Mapping-an-Orbit">Mapping an Orbit 🚀</a><a id="Mapping-an-Orbit-1"></a><a class="docs-heading-anchor-permalink" href="#Mapping-an-Orbit" title="Permalink"></a></h2><p>Now, imagine we are astronomers and we model these balls as planets. It would be important to know their orbital trajectories! To do so, let&#39;s draw the path that both of the balls take with this new function:</p><pre><code class="language-julia">function path!(points, pos, color)
+    sethue(color)
+    push!(points, pos) # add pos to points
+    circle.(points, 2, :fill) # draws a circle for each point using broadcasting
+end</code></pre><blockquote><p><strong>NOTE:</strong> The <a href="../../references/#Javis.pos-Tuple{Any}"><code>pos</code></a> takes the <strong>pos</strong>ition of the <code>:red_ball</code> and passes it as an argument into the <code>path!</code> function. </p></blockquote><p>Then, using this function, we can execute the following block:</p><pre><code class="language-julia">path_of_red = Point[]
+
+javis(
+    video,  
+    [
+        BackgroundAction(1:70, ground), 
+        Action(1:70,:red_ball, (args...)-&gt;object(Point(100,0), &quot;red&quot;), Rotation(0.0, 2π)), 
+        Action(1:70, (args...)-&gt;path!(path_of_red, pos(:red_ball), &quot;red&quot;))
+    ],
+    pathname=&quot;dotted_points.gif&quot; # path with output file name
+)</code></pre><p><img src="../assets/dotted_points.gif" alt/></p><p>Fantastic! That&#39;s a pretty regular orbit I must say!</p><p>Now, to easily visualize our two &quot;planets&quot; (the red and blue balls), let&#39;s connect them together.  We can do so by drawing a line that connects both balls:</p><pre><code class="language-julia">function connector(p1, p2, color)
+    sethue(color)
+    line(p1,p2, :stroke)
+end</code></pre><p>And to show this link:</p><pre><code class="language-julia">javis(
+    video,  
+    [
+        BackgroundAction(1:70, ground),
+        Action(1:70,:red_ball, (args...)-&gt;object(Point(100,0), &quot;red&quot;), Rotation(0.0, 2π)), 
+        Action(1:70, :blue_ball, (args...)-&gt;object(Point(100,80), &quot;blue&quot;), Rotation(2π, 0.0, :red_ball)), 
+        Action(1:70, (args...)-&gt;connector(pos(:red_ball), pos(:blue_ball), &quot;black&quot;))
+    ],
+    pathname=&quot;connect_two_points.gif&quot; # path with output file name
+)</code></pre><p><img src="../assets/connect_two_points.gif" alt/></p><p>Perfect! Now, let&#39;s put everything together to see our orbiting planets&#39; trajectories:</p><pre><code class="language-julia">using Javis
+
+# applied on every frame
+function ground(args...)
+    background(&quot;white&quot;) # canvas background
+    sethue(&quot;black&quot;) # pen color
+end
+
+# draw a circle
+function object(p=O, color=&quot;black&quot;)
+    sethue(color)
+    circle(p, 25, :fill)
+    return p
+end
+
+# draw dotted points
+function path!(points, pos, color)
+    sethue(color)
+    push!(points, pos)
+    circle.(points, 2, :fill)
+end
+
+# draw a line to connect two points
+function connector(p1, p2, color)
+    sethue(color)
+    line(p1,p2, :stroke)
+end
+
+# center for the two objects
+p1 = Point(100,0)
+p2 = Point(100,80)
+
+# dotted points vectors
+path_of_blue = Point[]
+path_of_red = Point[]
+
+# video struct (width, height)
+video = Video(500, 500)
+
+javis(
+    video,  
+    [
+        BackgroundAction(1:70, ground), # set background color and pen color
+        Action(1:70,:red_ball, (args...)-&gt;object(p1, &quot;red&quot;), Rotation(0.0, 2π)), # draw the red ball with rotation
+        Action(1:70, :blue_ball, (args...)-&gt; object(p2, &quot;blue&quot;), Rotation(2π, 0.0, :red_ball)), # draw the blue ball with dynamic rotation
+        Action(1:70, (args...)-&gt;path!(path_of_red, pos(:red_ball), &quot;red&quot;)), # draw tracks for red ball
+        Action(1:70, (args...)-&gt;path!(path_of_blue, pos(:blue_ball), &quot;blue&quot;)), # draw track for blue ball
+        Action(1:70, (args...)-&gt;connector(pos(:red_ball), pos(:blue_ball), &quot;black&quot;)) # draw a line that connects both balls
+    ],
+    pathname=&quot;dancing_circles.gif&quot; # path with output file name
+)</code></pre><p><img src="../assets/dancing_circles.gif" alt/></p><p>Do you see any little green men on these planets? 👽 </p><h2 id="Conclusion"><a class="docs-heading-anchor" href="#Conclusion">Conclusion</a><a id="Conclusion-1"></a><a class="docs-heading-anchor-permalink" href="#Conclusion" title="Permalink"></a></h2><p>Amazing!!! You have just made your first animation using <code>Javis.jl</code> and we are so proud! I hope you feel like you accomplished something!</p><p>To recap, by working through this animation you should now:</p><ol><li>Know how to make a simple animation in Javis</li><li>Understand the difference between <code>Action</code> and <code>BackgroundAction</code></li><li>Be able to connect actions together using variable syntax</li></ol><p>If you want to know more and experiment with <code>Javis</code>, go onto the following tutorials! We wish you best on your <code>Javis</code> journey!</p><blockquote><p><strong>Author(s):</strong> @sudomaze, Ole Kröger, Jacob Zelko <br/><strong>Date:</strong> August 14th, 2020 <br/><strong>Tag(s):</strong> action, rotation</p></blockquote></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« <strong>Information about Tutorials - Beginners Start Here!</strong></a><a class="docs-footer-nextpage" href="../tutorial_2/"><strong>Tutorial 2:</strong> What Are Actions? »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 25 August 2020 19:42">Tuesday 25 August 2020</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
