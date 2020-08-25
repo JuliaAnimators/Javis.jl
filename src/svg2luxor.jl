@@ -81,7 +81,7 @@ function draw_obj(::Val{:path}, o, defs)
     # needs to keep track of the current point `c_pt` and the last point `l_pt`
     l_pt = O
     c_pt = O
-    for pi = 1:length(data_parts)
+    for pi in 1:length(data_parts)
         p = data_parts[pi]
         command, args = p[1], p[2:end]
         # using if else statements instead of dispatching here. Maybe it's faster :D
@@ -230,8 +230,8 @@ function pathsvg(svg)
     end
     x, y, width, height = parse.(Float64, split(attribute(xroot, "viewBox")))
     # remove ex in the end
-    ex_width = parse(Float64, attribute(xroot, "width")[1:end-2])
-    ex_height = parse(Float64, attribute(xroot, "height")[1:end-2])
+    ex_width = parse(Float64, attribute(xroot, "width")[1:(end - 2)])
+    ex_height = parse(Float64, attribute(xroot, "height")[1:(end - 2)])
     # everything capsulated in a layer
     @layer begin
         # unit ex: half of font size

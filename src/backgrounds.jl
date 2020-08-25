@@ -45,7 +45,7 @@ function _draw_grid(
 
     if direction[1] == 'T'
         # Bottom to top for vertical grid lines
-        for x_point = min_width:line_gap:max_width
+        for x_point in min_width:line_gap:max_width
             start_point = Point(x_point, max_height)
             finish_point = Point(x_point, min_height)
             end_point = start_point + step * (finish_point - start_point)
@@ -53,7 +53,7 @@ function _draw_grid(
         end
     else
         # Top to bottom motion for vertical grid lines
-        for x_point = min_width:line_gap:max_width
+        for x_point in min_width:line_gap:max_width
             start_point = Point(x_point, min_height)
             finish_point = Point(x_point, max_height)
             end_point = start_point + step * (finish_point - start_point)
@@ -63,7 +63,7 @@ function _draw_grid(
 
     if direction[2] == 'R'
         # Left to right motion for horizontal grid lines
-        for y_point = min_height:line_gap:max_height
+        for y_point in min_height:line_gap:max_height
             start_point = Point(min_width, y_point)
             finish_point = Point(max_width, y_point)
             end_point = start_point + step * (finish_point - start_point)
@@ -71,7 +71,7 @@ function _draw_grid(
         end
     else
         # Right to left motion for horizontal grid lines
-        for y_point = min_height:line_gap:max_height
+        for y_point in min_height:line_gap:max_height
             start_point = Point(max_width, y_point)
             finish_point = Point(min_width, y_point)
             end_point = start_point + step * (finish_point - start_point)

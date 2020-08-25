@@ -602,7 +602,7 @@ function latex(text::LaTeXString, pos::Point, action::Symbol)
         svg = LaTeXSVG[text]
     else
         # remove the $
-        ts = text.s[2:(end-1)]
+        ts = text.s[2:(end - 1)]
         command = `tex2svg $ts`
         try
             svg = read(command, String)
