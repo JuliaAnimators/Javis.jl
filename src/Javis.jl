@@ -949,6 +949,8 @@ function javis(
         filecounter += 1
     end
 
+    # compatability with AbstractPaths see https://github.com/Wikunia/Javis.jl/issues/116
+    pathname = string(pathname)
     isempty(pathname) && return
     path, ext = splitext(pathname)
     if ext == ".gif"
