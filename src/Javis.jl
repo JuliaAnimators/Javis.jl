@@ -806,11 +806,10 @@ end
     javis(
         video::Video,
         actions::Vector{AbstractAction};
-        creategif=false,
         framerate=30,
+        liveview=false,
         pathname="",
         tempdirectory="",
-        usenewffmpeg=true
     )
 
 Similar to `animate` in Luxor with a slightly different structure.
@@ -861,6 +860,7 @@ function javis(
     video::Video,
     actions::Vector{AA};
     framerate=30,
+    liveview=false,
     pathname="javis_$(randstring(7)).gif",
     tempdirectory=mktempdir(),
 ) where AA <: AbstractAction
@@ -899,36 +899,73 @@ function javis(
     end
     background_settings = ActionSetting()
 
-    filecounter = 1
-    for frame in frames
-        Drawing(video.width, video.height, "$(tempdirectory)/$(lpad(filecounter, 10, "0")).png")
-        origin()
-        origin_matrix = cairotojuliamatrix(getmatrix())
-        # this frame needs doing, see if each of the scenes defines it
-        for action in actions
-            # if action is not in global layer this sets the background_settings
-            # from the parent background action
-            update_action_settings!(action, background_settings)
-            CURRENT_ACTION[1] = action
-            if frame in get_frames(action)
-                # check if the action should be part of the global layer (i.e BackgroundAction)
-                # or in its own layer (default)
-                in_global_layer = get(action.opts, :in_global_layer, false)
-                if !in_global_layer
-                    @layer begin
+    if liveview
+
+        filecounter = 1
+        for frame in frames
+            Drawing(video.width, video.height, :image) 
+            origin()
+            origin_matrix = cairotojuliamatrix(getmatrix())
+            # this frame needs doing, see if each of the scenes defines it
+            for action in actions
+                # if action is not in global layer this sets the background_settings
+                # from the parent background action
+                update_action_settings!(action, background_settings)
+                CURRENT_ACTION[1] = action
+                if frame in get_frames(action)
+                    # check if the action should be part of the global layer (i.e BackgroundAction)
+                    # or in its own layer (default)
+                    in_global_layer = get(action.opts, :in_global_layer, false)
+                    if !in_global_layer
+                        @layer begin
+                            perform_action(action, video, frame, origin_matrix)
+                        end
+                    else
                         perform_action(action, video, frame, origin_matrix)
+                        # update origin_matrix as it's inside the global layer
+                        origin_matrix = cairotojuliamatrix(getmatrix())
                     end
-                else
-                    perform_action(action, video, frame, origin_matrix)
-                    # update origin_matrix as it's inside the global layer
-                    origin_matrix = cairotojuliamatrix(getmatrix())
                 end
+                # if action is in global layer this changes the background settings
+                update_background_settings!(background_settings, action)
             end
-            # if action is in global layer this changes the background settings
-            update_background_settings!(background_settings, action)
+            finish()
+            filecounter += 1
         end
-        finish()
-        filecounter += 1
+
+    else
+
+        filecounter = 1
+        for frame in frames
+            Drawing(video.width, video.height, "$(tempdirectory)/$(lpad(filecounter, 10, "0")).png")
+            origin()
+            origin_matrix = cairotojuliamatrix(getmatrix())
+            # this frame needs doing, see if each of the scenes defines it
+            for action in actions
+                # if action is not in global layer this sets the background_settings
+                # from the parent background action
+                update_action_settings!(action, background_settings)
+                CURRENT_ACTION[1] = action
+                if frame in get_frames(action)
+                    # check if the action should be part of the global layer (i.e BackgroundAction)
+                    # or in its own layer (default)
+                    in_global_layer = get(action.opts, :in_global_layer, false)
+                    if !in_global_layer
+                        @layer begin
+                            perform_action(action, video, frame, origin_matrix)
+                        end
+                    else
+                        perform_action(action, video, frame, origin_matrix)
+                        # update origin_matrix as it's inside the global layer
+                        origin_matrix = cairotojuliamatrix(getmatrix())
+                    end
+                end
+                # if action is in global layer this changes the background settings
+                update_background_settings!(background_settings, action)
+            end
+            finish()
+            filecounter += 1
+        end
     end
 
     isempty(pathname) && return
