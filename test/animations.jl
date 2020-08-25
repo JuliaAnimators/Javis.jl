@@ -412,6 +412,29 @@ end
     end
 end
 
+@testset "Scaling circle" begin
+    video = Video(500, 500)
+    javis(video, [
+        BackgroundAction(1:50, ground),
+        Action(:scale, (args...)->1),
+        Action((args...)->circ(), subactions=[
+            SubAction(1:15, Scaling(:scale)),
+            SubAction(36:50, Scaling(:scale, 0)),
+        ])
+    ], tempdirectory="images", pathname=""
+    )
+
+    @test_reference "refs/scalingCircle07.png" load("images/0000000007.png")
+    @test_reference "refs/scalingCircle25.png" load("images/0000000025.png")
+    @test_reference "refs/scalingCircle42.png" load("images/0000000042.png")
+    # test that the last frame is completely white
+    @test sum(load("images/0000000050.png")) ==
+          RGB{Float64}(500 * 500, 500 * 500, 500 * 500)
+    for i = 1:50
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
 @testset "test default kwargs" begin
     video = Video(500, 500)
     pathname = javis(video, [Action(1:10, ground), Action(1:10, morph(astar, acirc))])

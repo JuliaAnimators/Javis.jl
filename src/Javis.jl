@@ -417,6 +417,10 @@ mutable struct InternalRotation <: InternalTransition
     center::Point
 end
 
+mutable struct InternalScaling <: InternalTransition
+    factor::Float64
+end
+
 """
     Translation <: Transition
 
@@ -486,6 +490,27 @@ Rotation(r::Union{Float64,Symbol}, center::Union{Point,Symbol}) = Rotation(0.0, 
 Rotation as a transition from `from` to `to` (in radians) around the origin.
 """
 Rotation(from, to) = Rotation(from, to, O)
+
+"""
+    Scaling <: Transition
+
+Stores the scaling similar to [`Translation`](@ref) with `from` and `to`.
+
+# Fields
+- `from::Union{Float64, Symbol}`: The start scaling or a link to it
+- `to::Union{Float64, Symbol}`: The end scaling or a link to it
+"""
+struct Scaling{T <: Real} <: Transition
+    from::Union{T, Symbol}
+    to::Union{T, Symbol}
+end
+
+"""
+    Scaling(s::Union{Real, Symbol})
+
+Create a `Scaling(0, s)` such that a scaling is starting at `0`.
+"""
+Scaling(s::Union{Real,Symbol}) = Scaling(0, s)
 
 """
     Line
@@ -688,6 +713,33 @@ function compute_transition!(
 end
 
 """
+    compute_transition!(internal_translation::InternalScaling, translation::Scaling,
+                        video, action::AbstractAction, frame)
+
+Computes the scaling transformation for the `action`.
+If the `scaling` is given directly it uses the frame number for interpolation.
+If `scaling` includes symbols, the current definition of that symbol is looked up
+and used for computation.
+"""
+function compute_transition!(
+    internal_scale::InternalScaling,
+    scale::Scaling,
+    video,
+    action::AbstractAction,
+    frame,
+)
+    t = (frame - first(get_frames(action))) / (length(get_frames(action)) - 1)
+    # makes sense to only allow 0 ≤ t ≤ 1
+    t = min(1.0, t)
+    from, to = scale.from, scale.to
+
+    from isa Symbol && (from = scl(from))
+    to isa Symbol && (to = scl(to))
+
+    internal_scale.factor = from + t * (to - from)
+end
+
+"""
     perform_transformation(action::AbstractAction)
 
 Perform the transformations as described in action.internal_transitions
@@ -715,6 +767,15 @@ Translate and rotate as described in `trans`.
 function perform_transformation(trans::InternalRotation)
     translate(trans.center)
     rotate(trans.angle)
+end
+
+"""
+    perform_transformation(trans::InternalScaling)
+
+Scale as described in `trans`.
+"""
+function perform_transformation(trans::InternalScaling)
+    scale(trans.factor)
 end
 
 """
@@ -762,6 +823,26 @@ get_position(s::Symbol) = get_position(val(s))
 `pos` is just a short-hand for [`get_position`](@ref)
 """
 pos(x) = get_position(x)
+
+# As it is just a number we can return it
+get_scale(x::Number) = x
+
+"""
+    get_scale(s::Symbol)
+
+Get access to the sclaing that got saved in `s` by a previous action.
+
+# Returns
+- `Scaling`: the scale stored by a previous action.
+"""
+get_scale(s::Symbol) = get_scale(val(s))
+
+"""
+    scl(x)
+
+`scl` is just a short-hand for [`get_scale`](@ref)
+"""
+scl(x) = get_scale(x)
 
 get_angle(t::Transformation) = t.angle
 
@@ -812,6 +893,8 @@ function create_internal_transitions!(action::AbstractAction)
             push!(action.internal_transitions, InternalTranslation(O))
         elseif trans isa Rotation
             push!(action.internal_transitions, InternalRotation(0.0, O))
+        elseif trans isa Scaling
+            push!(action.internal_transitions, InternalScaling(0.0))
         end
     end
 end
@@ -1061,7 +1144,7 @@ end
 
 export javis, latex
 export Video, Action, BackgroundAction, SubAction, Rel
-export Line, Translation, Rotation, Transformation
+export Line, Translation, Rotation, Transformation, Scaling
 export val, pos, ang, get_value, get_position, get_angle
 export projection, morph
 export appear, disappear
