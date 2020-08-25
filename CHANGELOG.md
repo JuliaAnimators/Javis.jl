@@ -1,5 +1,9 @@
 # Javis.jl - Changelog
 
+## 0.1.2 (24th of August 2020)
+- Added capabilities for generating `.mp4` files
+- Updated testing scheme for `Javis.jl`
+
 ## 0.1.1 (21st of August 2020)
 - Define frames in `SubAction` with `Rel` and `Symbol`
 - `latex` now uses font size specified with `fontsize`
