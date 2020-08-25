@@ -35,21 +35,21 @@ function match_num_point!(poly_1::Vector{Point}, poly_2::Vector{Point})
     # index is the index where the next point is added
     index = 2
     poly_1_orig = copy(poly_1)
-    for i = 1:l1
+    for i in 1:l1
         # p1 is the current point in the original polygon
         p1 = poly_1_orig[i]
         # p2 is the next point (which is the first of the polygon in the last iteration)
         if i + 1 > l1
             p2 = poly_1_orig[1]
         else
-            p2 = poly_1_orig[i+1]
+            p2 = poly_1_orig[i + 1]
         end
         # if we need 5 points and have only 4 edges we add 2 points for the first edge
         rem = 0
         if i <= points_per_edge_extra
             rem = 1
         end
-        for j = 1:points_per_edge+rem
+        for j in 1:(points_per_edge + rem)
             # create the interpolated point between p1 and p2
             t = j / (points_per_edge + rem + 1)
             new_point = p1 + t * (p2 - p1)
@@ -135,10 +135,10 @@ function save_morph_polygons!(action::Action, from_func::Function, to_func::Func
     smallest_i = 1
     smallest_distance = typemax(Float64)
 
-    for i = 1:length(from_poly)
+    for i in 1:length(from_poly)
         overall_distance = 0.0
-        for j = 1:length(from_poly)
-            p1 = from_poly[(j+i-1)%length(from_poly)+1]
+        for j in 1:length(from_poly)
+            p1 = from_poly[(j + i - 1) % length(from_poly) + 1]
             p2 = to_poly[j]
             overall_distance += distance(p1, p2)
         end
@@ -148,8 +148,8 @@ function save_morph_polygons!(action::Action, from_func::Function, to_func::Func
         end
     end
     new_from_poly = copy(from_poly)
-    for i = 1:length(from_poly)
-        new_from_poly[i] = from_poly[(i+smallest_i-1)%length(from_poly)+1]
+    for i in 1:length(from_poly)
+        new_from_poly[i] = from_poly[(i + smallest_i - 1) % length(from_poly) + 1]
     end
 
     action.opts[:from_poly] = new_from_poly
