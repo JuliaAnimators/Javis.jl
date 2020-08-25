@@ -506,13 +506,6 @@ struct Scaling{T <: Real} <: Transition
 end
 
 """
-    Scaling(s::Union{Real, Symbol})
-
-Create a `Scaling(0, s)` such that a scaling is starting at `0`.
-"""
-Scaling(s::Union{Real,Symbol}) = Scaling(0, s)
-
-"""
     Line
 
 A type to define a line by two points. Can be used i.e. in [`projection`](@ref)

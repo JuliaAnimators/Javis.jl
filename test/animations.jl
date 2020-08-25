@@ -418,7 +418,7 @@ end
         BackgroundAction(1:50, ground),
         Action(:scale, (args...)->1),
         Action((args...)->circ(), subactions=[
-            SubAction(1:15, Scaling(:scale)),
+            SubAction(1:15, Scaling(0, :scale)),
             SubAction(36:50, Scaling(:scale, 0)),
         ])
     ], tempdirectory="images", pathname=""
