@@ -81,7 +81,7 @@ function draw_obj(::Val{:path}, o, defs)
     # needs to keep track of the current point `c_pt` and the last point `l_pt`
     l_pt = O
     c_pt = O
-    for pi in 1:length(data_parts)
+    for pi = 1:length(data_parts)
         p = data_parts[pi]
         command, args = p[1], p[2:end]
         # using if else statements instead of dispatching here. Maybe it's faster :D
@@ -91,8 +91,9 @@ function draw_obj(::Val{:path}, o, defs)
             l_pt, c_pt = path_quadratic(c_pt, parse.(Float64, split(args))...)
         elseif command == 'T'
             # the control point is a reflection based on the current and last point
-            control_pt = l_pt+2*(c_pt-l_pt)
-            l_pt, c_pt = path_quadratic(c_pt, control_pt..., parse.(Float64, split(args))...)
+            control_pt = l_pt + 2 * (c_pt - l_pt)
+            l_pt, c_pt =
+                path_quadratic(c_pt, control_pt..., parse.(Float64, split(args))...)
         elseif command == 'L'
             new_pt = Point(parse.(Float64, split(args))...)
             line(new_pt)
@@ -124,8 +125,8 @@ end
 
 Moving to the specified point
 """
-function path_move(x,y)
-    p = Point(x,y)
+function path_move(x, y)
+    p = Point(x, y)
     move(p)
     p
 end
@@ -135,12 +136,12 @@ end
 
 Drawing a quadratic bezier curve by computing a cubic one as that is supported by Luxor
 """
-function path_quadratic(c_pt::Point, x,y, xe, ye)
-    e_pt = Point(xe,ye)
-    qc = Point(x,y)
+function path_quadratic(c_pt::Point, x, y, xe, ye)
+    e_pt = Point(xe, ye)
+    qc = Point(x, y)
     # compute the control points of a cubic bezier curve
-    c1 = c_pt+2/3*(qc-c_pt)
-    c2 = e_pt+2/3*(qc-e_pt)
+    c1 = c_pt + 2 / 3 * (qc - c_pt)
+    c2 = e_pt + 2 / 3 * (qc - e_pt)
     curve(c1, c2, e_pt)
     return qc, e_pt
 end
@@ -170,16 +171,19 @@ function set_attr(::Val{:transform}, transform_str)
     if transform_str !== nothing
         m = match(r"(.+)\((.+)\)", transform_str)
         type = Symbol(m.captures[1])
-        set_transform(Val{type}(), parse.(Float64, strip.(split(m.captures[2],r"[, ]")))...)
+        set_transform(
+            Val{type}(),
+            parse.(Float64, strip.(split(m.captures[2], r"[, ]")))...,
+        )
     end
 end
 
-set_attr(::Val{:x}, x) = translate(parse(Float64,x),0)
-set_attr(::Val{:y}, y) = translate(0,parse(Float64,y))
+set_attr(::Val{:x}, x) = translate(parse(Float64, x), 0)
+set_attr(::Val{:y}, y) = translate(0, parse(Float64, y))
 set_attr(::Val{Symbol("stroke-width")}, sw) = setline(parse(Float64, sw))
 
-set_transform(::Val{:translate}, x,y) = translate(x,y)
-set_transform(::Val{:scale}, x,y=x) = scale(x,y)
+set_transform(::Val{:translate}, x, y) = translate(x, y)
+set_transform(::Val{:scale}, x, y = x) = scale(x, y)
 
 """
     set_transform(::Val{:matrix}, args...)
@@ -189,17 +193,17 @@ Multiply the new matrix with the current matrix and set it.
 function set_transform(::Val{:matrix}, args...)
     old = cairotojuliamatrix(getmatrix())
     update = cairotojuliamatrix(collect(args))
-    new = old*update
+    new = old * update
     # only the first two rows are considered
-    setmatrix(vec(new[1:2,:]))
+    setmatrix(vec(new[1:2, :]))
 end
 
 #=
     General fallbacks
 =#
-draw_obj(::Union{Val{:title}, Val{:defs}}, o, defs) = nothing
+draw_obj(::Union{Val{:title},Val{:defs}}, o, defs) = nothing
 # no support for colors at this point
-set_attr(t::Union{Val{:stroke}, Val{:fill}, Val{Symbol("aria-hidden")}}, args...) = nothing
+set_attr(t::Union{Val{:stroke},Val{:fill},Val{Symbol("aria-hidden")}}, args...) = nothing
 
 draw_obj(t, o, defs) = @warn "Can't draw $t"
 set_transform(t, args...) = @warn "Can't transform $t"
@@ -218,9 +222,9 @@ function pathsvg(svg)
     fsize = get_current_setting().fontsize
     xdoc = parse_string(svg)
     xroot = root(xdoc)
-    def_element =  get_elements_by_tagname(xroot, "defs")[1]
+    def_element = get_elements_by_tagname(xroot, "defs")[1]
     # create a dict for all the definitions
-    defs = Dict{String, Any}()
+    defs = Dict{String,Any}()
     for def in collect(child_elements(def_element))
         defs[attribute(def, "id")] = def
     end
@@ -234,7 +238,7 @@ function pathsvg(svg)
         # such that we can scale half of a font size (size of a lower letter)
         # with the corresponding height of the svg canvas
         # and the ex_height given in it's description
-        scale((fsize/2)/(height/ex_height))
+        scale((fsize / 2) / (height / ex_height))
         translate(-x, -y)
 
         for child in collect(child_elements(xroot))

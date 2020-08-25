@@ -25,7 +25,7 @@ function match_num_point!(poly_1::Vector{Point}, poly_2::Vector{Point})
     end
 
     # the difference of the length of points
-    diff = l2-l1
+    diff = l2 - l1
 
     points_per_edge = div(diff, l1)
     # how many extra points do we need
@@ -35,11 +35,11 @@ function match_num_point!(poly_1::Vector{Point}, poly_2::Vector{Point})
     # index is the index where the next point is added
     index = 2
     poly_1_orig = copy(poly_1)
-    for i in 1:l1
+    for i = 1:l1
         # p1 is the current point in the original polygon
         p1 = poly_1_orig[i]
         # p2 is the next point (which is the first of the polygon in the last iteration)
-        if i+1 > l1
+        if i + 1 > l1
             p2 = poly_1_orig[1]
         else
             p2 = poly_1_orig[i+1]
@@ -49,10 +49,10 @@ function match_num_point!(poly_1::Vector{Point}, poly_2::Vector{Point})
         if i <= points_per_edge_extra
             rem = 1
         end
-        for j in 1:points_per_edge+rem
+        for j = 1:points_per_edge+rem
             # create the interpolated point between p1 and p2
-            t = j/(points_per_edge+rem+1)
-            new_point = p1+t*(p2-p1)
+            t = j / (points_per_edge + rem + 1)
+            new_point = p1 + t * (p2 - p1)
             insert!(poly_1, index, new_point)
             index += 1
         end
@@ -135,10 +135,10 @@ function save_morph_polygons!(action::Action, from_func::Function, to_func::Func
     smallest_i = 1
     smallest_distance = typemax(Float64)
 
-    for i in 1:length(from_poly)
+    for i = 1:length(from_poly)
         overall_distance = 0.0
         for j = 1:length(from_poly)
-            p1 = from_poly[(j+i-1) % length(from_poly) + 1]
+            p1 = from_poly[(j+i-1)%length(from_poly)+1]
             p2 = to_poly[j]
             overall_distance += distance(p1, p2)
         end
@@ -148,8 +148,8 @@ function save_morph_polygons!(action::Action, from_func::Function, to_func::Func
         end
     end
     new_from_poly = copy(from_poly)
-    for i in 1:length(from_poly)
-        new_from_poly[i] = from_poly[(i+smallest_i-1) % length(from_poly) + 1]
+    for i = 1:length(from_poly)
+        new_from_poly[i] = from_poly[(i+smallest_i-1)%length(from_poly)+1]
     end
 
     action.opts[:from_poly] = new_from_poly
@@ -162,8 +162,7 @@ end
 
 Internal version of [`morph`](@ref) but described there.
 """
-function _morph(video::Video, action::Action, frame,
-                        from_func::Function, to_func::Function)
+function _morph(video::Video, action::Action, frame, from_func::Function, to_func::Function)
     # computation of the polygons and the best way to morph in the first frame
     if frame == first(get_frames(action))
         save_morph_polygons!(action, from_func, to_func)
@@ -175,12 +174,12 @@ function _morph(video::Video, action::Action, frame,
     points = action.opts[:points]
 
     # compute the interpolation variable `t` for the current frame
-    t = (frame-first(get_frames(action)))/(length(get_frames(action))-1)
+    t = (frame - first(get_frames(action))) / (length(get_frames(action)) - 1)
 
     for (i, p1, p2) in zip(1:length(from_poly), from_poly, to_poly)
-        new_point = p1+t*(p2-p1)
+        new_point = p1 + t * (p2 - p1)
         points[i] = new_point
     end
 
-    poly(points, :stroke; close=true)
+    poly(points, :stroke; close = true)
 end
