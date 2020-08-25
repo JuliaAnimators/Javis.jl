@@ -1,5 +1,8 @@
 # Javis.jl - Changelog
 
+## Unreleased
+- Ability to scale an object with `Scaling`. Works similar to `Translation` and `Rotation` 
+
 ## 0.1.1 (21st of August 2020)
 - Define frames in `SubAction` with `Rel` and `Symbol`
 - `latex` now uses font size specified with `fontsize`
