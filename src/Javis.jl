@@ -822,14 +822,6 @@ and [`get_angle`](@ref).
 - `Any`: the value stored by a previous action.
 """
 function get_value(s::Symbol)
-    is_internal = first(string(s)) == '_'
-    if is_internal
-        internal_sym = Symbol(string(s)[2:end])
-        if hasfield(ActionSetting, internal_sym)
-            return getfield(get_current_setting(), internal_sym)
-        end
-    end
-
     defs = CURRENT_VIDEO[1].defs
     if haskey(defs, s)
         return defs[s]
