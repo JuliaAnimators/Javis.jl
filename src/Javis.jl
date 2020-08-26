@@ -1033,7 +1033,6 @@ function javis(
 
     filecounter = 1
     for frame in frames
-        # println("-------------> Frame: $frame")
         background_settings = ActionSetting()
         Drawing(
             video.width,
@@ -1044,7 +1043,6 @@ function javis(
         origin_matrix = cairotojuliamatrix(getmatrix())
         # this frame needs doing, see if each of the scenes defines it
         for action in actions
-            # println("New action")
             # if action is not in global layer this sets the background_settings
             # from the parent background action
             update_action_settings!(action, background_settings)
