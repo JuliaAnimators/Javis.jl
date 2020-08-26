@@ -33,7 +33,7 @@ end</code></pre><p>Now, we can add in some grid lines for our electrode array.  
             :same,
             :horiz_line,
             (args...) -&gt;
-                draw_line(Point(-170, 0), Point(170, 0), &quot;black&quot;, :stroke, &quot;longdashed&quot;),
+		draw_line(Point(-170, 0), Point(170, 0), &quot;black&quot;, :stroke, &quot;longdashed&quot;)),
 ...</code></pre><p><img src="../assets/head_gridlines.gif" alt/></p><p>Great! Now that we have the gridlines, let&#39;s add in our electrode!</p><blockquote><p><strong>NOTE:</strong> If you noticed, we used Symbols to mark each <code>Action</code>. <code>id</code>&#39;s can actually be used to store the returns of a function called via an <code>Action</code>. This functionality was introduced in <a href="tutorials/tutorial_1">Tutorial 1</a> and will be further explored in future tutorials. An alternative syntax that is valid is to leave out the <code>id</code> and instead use a comment to mark what <code>Action</code> does what. </p></blockquote><p>We have to define our own function to create an electrode. The following code accomplishes this goal:</p><pre><code class="language-julia">function electrode(
     p = O,
     fill_color = &quot;white&quot;,
@@ -94,8 +94,9 @@ electrode_names = [
     &quot;A2&quot;,
     &quot;O1&quot;,
     &quot;O2&quot;,
-]</code></pre><p>Finally, we can broadcast these points and names to our previously defined <code>electrode</code> function:</p><pre><code class="language-julia">...
-        Action(
+]</code></pre><p>Finally, we can broadcast these points and names to our previously defined <code>electrode</code> function. Also, we need to define the radius of our electrodes; we will set that to 15:</p><pre><code class="language-julia">...
+        radius = 15
+	Action(
             :electrodes,
             (args...) -&gt;
                 electrode.(
@@ -121,13 +122,13 @@ using Random</code></pre><p>From there, we need to define colors to represent no
                     electrode_names,
                 ),
         ),
-...</code></pre><p>However, what we now need to change is <code>&quot;white&quot;</code> to <code>rand(indicators)</code> for each electrode. An example resulting electrode would look like this:</p><pre><code class="language-julia">...
+...</code></pre><p>However, what we now need to change is <code>&quot;white&quot;</code> to <code>rand(indicators, length(electrode_locations))</code> for each electrode. The <code>rand</code> function allows proper broadcasting such that a new color is chosen for each electrode between frames. Without having the <code>length(electrode_locations)</code> random colors would be generated but only for the first frame. The next frame would then keep these colors for the rest of the animation.</p><p>An example resulting electrode configuration with random colors looks like this:</p><pre><code class="language-julia">...
         Action(
             :electrodes,
             (args...) -&gt;
                 electrode.(
                     electrode_locations,
-		    rand(indicators),
+                    rand(indicators, length(electrode_locations)),
                     &quot;black&quot;,
                     :fill,
                     radius,
@@ -270,4 +271,4 @@ javis(
     pathname = &quot;eeg.gif&quot;,
     framerate = 1,
 )
-</code></pre><hr/><hr/><blockquote><p><strong>Author(s):</strong> Jacob Zelko, Ole Kröger <br/><strong>Date:</strong> August 11th, 2020 <br/><strong>Tag(s):</strong> brain, EEG, project, tutorial, electrodes, Action, BackgroundAction</p></blockquote></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tutorial_1/">« <strong>Tutorial 1:</strong> Making Your First Javis Animation!</a><a class="docs-footer-nextpage" href="../tutorial_3/"><strong>Tutorial 3:</strong> Rendering LaTeX with Javis! »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 25 August 2020 18:49">Tuesday 25 August 2020</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</code></pre><hr/><hr/><blockquote><p><strong>Author(s):</strong> Jacob Zelko, Ole Kröger <br/><strong>Date:</strong> August 11th, 2020 <br/><strong>Tag(s):</strong> brain, EEG, project, tutorial, electrodes, Action, BackgroundAction</p></blockquote></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tutorial_1/">« <strong>Tutorial 1:</strong> Making Your First Javis Animation!</a><a class="docs-footer-nextpage" href="../tutorial_3/"><strong>Tutorial 3:</strong> Rendering LaTeX with Javis! »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Wednesday 26 August 2020 16:32">Wednesday 26 August 2020</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
