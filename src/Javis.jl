@@ -874,7 +874,7 @@ get_scale(x::Number) = (x,x)
 """
     get_scale(s::Symbol)
 
-Get access to the sclaing that got saved in `s` by a previous action.
+Get access to the scaling that got saved in `s` by a previous action.
 
 # Returns
 - `Scaling`: the scale stored by a previous action.
