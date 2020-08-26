@@ -419,7 +419,7 @@ end
         Action(:set_scale, (args...)->2),
         Action((args...)->circ(), subactions=[
             SubAction(1:15, Scaling(0.0, :set_scale)),
-            SubAction(36:50, Scaling(:set_scale, 0.0)),
+            SubAction(36:50, Scaling(2.0, 0.0)),
         ])
     ], tempdirectory="images", pathname=""
     )
