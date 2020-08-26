@@ -129,7 +129,7 @@ The following code places a vertical and horizontal axis as well as an inscribed
             :same,
             :horiz_line,
             (args...) ->
-                draw_line(Point(-170, 0), Point(170, 0), "black", :stroke, "longdashed"),
+		draw_line(Point(-170, 0), Point(170, 0), "black", :stroke, "longdashed")),
 ...
 ```
 
@@ -225,11 +225,13 @@ electrode_names = [
 ]
 ```
 
-Finally, we can broadcast these points and names to our previously defined `electrode` function:
+Finally, we can broadcast these points and names to our previously defined `electrode` function.
+Also, we need to define the radius of our electrodes; we will set that to 15:
 
 ```julia
 ...
-        Action(
+        radius = 15
+	Action(
             :electrodes,
             (args...) ->
                 electrode.(
@@ -290,8 +292,12 @@ The previous electrode code looked like this
 ...
 ```
 
-However, what we now need to change is `"white"` to `rand(indicators)` for each electrode.
-An example resulting electrode would look like this:
+However, what we now need to change is `"white"` to `rand(indicators, length(electrode_locations))` for each electrode.
+The `rand` function allows proper broadcasting such that a new color is chosen for each electrode between frames.
+Without having the `length(electrode_locations)` random colors would be generated but only for the first frame.
+The next frame would then keep these colors for the rest of the animation.
+
+An example resulting electrode configuration with random colors looks like this:
 
 ```julia
 ...
@@ -300,7 +306,7 @@ An example resulting electrode would look like this:
             (args...) ->
                 electrode.(
                     electrode_locations,
-		    rand(indicators),
+                    rand(indicators, length(electrode_locations)),
                     "black",
                     :fill,
                     radius,

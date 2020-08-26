@@ -31,4 +31,11 @@ npm install -g mathjax-node-cli
 ```
 
 As of this moment, we do not have native `LaTeX` rendering in Julia.
-We look forward to the day when we can remove this from our documentation! 
+We look forward to the day when we can remove this from our documentation!
+
+What is also required is the great package, [`LaTeXStrings`](https://github.com/stevengj/LaTeXStrings.jl).
+Add that via your Julia REPL with the following commands:
+
+```
+julia> ] add LaTeXStrings
+```
