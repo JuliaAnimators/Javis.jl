@@ -416,10 +416,26 @@ end
     video = Video(500, 500)
     javis(video, [
         BackgroundAction(1:50, ground),
-        Action(:scale, (args...)->1),
+        Action(:set_scale, (args...)->2),
         Action((args...)->circ(), subactions=[
-            SubAction(1:15, Scaling(0, :scale)),
-            SubAction(36:50, Scaling(:scale, 0)),
+            SubAction(1:15, Scaling(0.0, :set_scale)),
+            SubAction(36:50, Scaling(:set_scale, 0.0)),
+        ])
+    ], tempdirectory="images", pathname=""
+    )
+
+    @test_reference "refs/scalingCircle07.png" load("images/0000000007.png")
+    @test_reference "refs/scalingCircle25.png" load("images/0000000025.png")
+    @test_reference "refs/scalingCircle42.png" load("images/0000000042.png")
+
+    # test using appear and disappear
+    video = Video(500, 500)
+    javis(video, [
+        BackgroundAction(1:50, ground),
+        BackgroundAction(1:50, (args...)->scale(2)),
+        Action((args...)->circ(), subactions=[
+            SubAction(1:15, appear(:scale)),
+            SubAction(36:50, disappear(:scale)),
         ])
     ], tempdirectory="images", pathname=""
     )

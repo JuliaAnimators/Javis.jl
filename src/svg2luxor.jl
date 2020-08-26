@@ -178,8 +178,8 @@ set_attr(::Val{:x}, x) = translate(parse(Float64,x),0)
 set_attr(::Val{:y}, y) = translate(0,parse(Float64,y))
 set_attr(::Val{Symbol("stroke-width")}, sw) = setline(parse(Float64, sw))
 
-set_transform(::Val{:translate}, x,y) = translate(x,y)
-set_transform(::Val{:scale}, x,y=x) = scale(x,y)
+set_transform(::Val{:translate}, x, y) = translate(x,y)
+set_transform(::Val{:scale}, x, y=x) = scale(x,y)
 
 """
     set_transform(::Val{:matrix}, args...)
