@@ -767,8 +767,8 @@ function compute_transition!(
     t = min(1.0, t)
     from, to = scale.from, scale.to
 
-    from isa Symbol && (from = scl(from))
-    to isa Symbol && (to = scl(to))
+    from isa Symbol && (from = get_scale(from))
+    to isa Symbol && (to = get_scale(to))
 
     internal_scale.scale = from .+ t .* (to .- from)
 end

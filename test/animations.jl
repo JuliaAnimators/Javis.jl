@@ -366,13 +366,19 @@ end
     javis(
         demo,
         [
-            BackgroundAction(1:50, ground),
+            BackgroundAction(1:100, ground),
+            Action(:start_scale, (args...)->(1.0, 1.0)),
             Action(
                 (args...) -> circ();
                 subactions = [
                     SubAction(1:25, Scaling((1.0, 1.5))),
                     SubAction(Rel(25), Scaling((1.0, 1.5), (2.0, 1.0))),
+                    SubAction(Rel(25), Scaling((2.0, 1.0), :start_scale)),
+                    SubAction(Rel(25), Scaling(:start_scale, 2.0)),
                 ],
+            ),
+            Action(
+                (args...) -> circ(Point(-100, 0))
             ),
         ],
         tempdirectory = "images",
@@ -382,7 +388,9 @@ end
     @test_reference "refs/squeeze15.png" load("images/0000000015.png")
     @test_reference "refs/squeeze25.png" load("images/0000000025.png")
     @test_reference "refs/squeeze35.png" load("images/0000000035.png")
-    for i = 1:50
+    @test_reference "refs/squeeze65.png" load("images/0000000065.png")
+    @test_reference "refs/squeeze85.png" load("images/0000000085.png")
+    for i = 1:100
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
