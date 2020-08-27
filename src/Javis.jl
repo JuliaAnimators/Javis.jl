@@ -1,5 +1,6 @@
 module Javis
 
+using Animations
 using FFMPEG
 using LaTeXStrings
 using LightXML
@@ -132,6 +133,7 @@ A SubAction should not be created by hand but instead by using one of the constr
 
 # Fields
 - `frames::Frames`: the frames relative to the parent [`Action`](@ref)
+- `anim::Animation`: defines the interpolation function for the transitions
 - `func::Function`: the function that gets called in each of those frames.
     Takes the following arguments: `video, action, subaction, rel_frame`
 - `transitions::Vector{Transition}`: A list of transitions like [`Translation`](@ref)
@@ -140,13 +142,47 @@ A SubAction should not be created by hand but instead by using one of the constr
 """
 mutable struct SubAction <: AbstractAction
     frames::Frames
+    anim::Animation
     func::Function
     transitions::Vector{Transition}
     internal_transitions::Vector{InternalTransition}
 end
 
 """
-    SubAction(frames::UnitRange, func::Function)
+    SubAction(frames, easing::Easing, args...)
+
+A `SubAction` can be defined with frames an easing function and either a function or
+transformations.
+In the following example a filled circle with radius 50 appears in the first 20 frames,
+which means the opacity is increased from 0 to 1.0. The interpolation function used here is
+sineio from [`Animations.jl`](https://github.com/jkrumbiegel/Animations.jl).
+Then it stays at full opacity and disappears the same way in the last 20 frames using a
+linear decay.
+
+# Example
+javis(demo, [
+    BackgroundAction(1:100, ground),
+    Action((args...)->circle(O, 50, :fill); subactions = [
+        SubAction(1:20, sineio(), appear(:fade)),
+        SubAction(81:100, disappear(:fade))
+    ])
+])
+
+# Arguments
+- `frames`: A list of frames for which the function should be called.
+    - The frame numbers are relative to the parent [`Action`](@ref).
+- `easing::Easing`: The easing function for `args...`
+- `args...`: Either a function like [`appear`](@ref) or a Transformation
+    like [`Translation`](@ref)
+"""
+SubAction(frames, easing::Easing, args...) =
+    SubAction(frames, easing_to_animation(easing), args...)
+
+SubAction(frames, anim::Animation, transition::Transition...) =
+    SubAction(frames, anim, (args...)->1, transition...)
+
+"""
+    SubAction(frames, func::Function)
 
 A `SubAction` can be defined with frames and a function
 inside the `subactions` kwarg of an [`Action`](@ref).
@@ -171,7 +207,7 @@ javis(demo, [
     - For [`appear`](@ref) and [`disappear`](@ref) a closure exists,
       such that `appear(:fade)` works.
 """
-SubAction(frames, func::Function) = SubAction(frames, func, [], [])
+SubAction(frames, func::Function) = SubAction(frames, easing_to_animation(linear()), func)
 
 """
     SubAction(frames, trans::Transition...)
@@ -204,7 +240,11 @@ javis(demo, [
 - `trans::Transition...`: A list of transitions that shall be performed.
 """
 SubAction(frames, trans::Transition...) =
-    SubAction(frames, (args...) -> 1, collect(trans), [])
+    SubAction(frames, easing_to_animation(linear()), (args...) -> 1, trans...)
+
+
+SubAction(frames, anim::Animation, func::Function, transitions::Transition...) =
+    SubAction(frames, anim, func::Function, collect(transitions), [])
 
 """
     ActionSetting
@@ -253,6 +293,7 @@ Defines what is drawn in a defined frame range.
 - `id::Union{Nothing, Symbol}`: An id which can be used to save the result of `func`
 - `func::Function`: The drawing function which draws something on the canvas.
     It gets called with the arguments `video, action, frame`
+- `anim::Animation`: defines the interpolation function for the transitions
 - `transitions::Vector{Transition}` a list of transitions
     which can be performed before the function gets called.
 - `internal_transitions::Vector{InternalTransition}`:
@@ -265,6 +306,7 @@ mutable struct Action <: AbstractAction
     frames::Frames
     id::Union{Nothing,Symbol}
     func::Function
+    anim::Animation
     transitions::Vector{Transition}
     internal_transitions::Vector{InternalTransition}
     subactions::Vector{SubAction}
@@ -323,6 +365,7 @@ The current action can be accessed using CURRENT_ACTION[1]
 """
 const CURRENT_ACTION = Array{Action,1}()
 
+easing_to_animation(easing) = Animation(0.0, 0.0, easing, 1.0, 1.0)
 
 """
     Action(frames, func::Function, args...)
@@ -362,6 +405,41 @@ Action(func::Function, args...; kwargs...) =
     Action(frames, id::Union{Nothing,Symbol}, func::Function,
            transitions::Transition...; kwargs...)
 
+Fallback constructor for an Action which doesn't define an animation.
+A linear animation is assumed.
+"""
+function Action(frames, id::Union{Nothing,Symbol}, func::Function,
+        transitions::Transition...; kwargs...)
+
+    Action(frames, id, func, easing_to_animation(linear()), transitions...; kwargs...)
+end
+
+"""
+    Action(frames, id::Union{Nothing,Symbol}, func::Function, easing::Easing,
+           args...; kwargs...)
+
+Fallback constructor for an Action which does define an animation using an easing function.
+
+# Example
+```
+javis(
+    video, [
+        BackgroundAction(1:100, ground),
+        Action((args...)->t(), sineio(), Translation(250, 0))
+    ]
+)
+```
+"""
+function Action(frames, id::Union{Nothing,Symbol}, func::Function, easing::Easing,
+    args...; kwargs...)
+
+    Action(frames, id, func, easing_to_animation(easing), args...; kwargs...)
+end
+
+"""
+    Action(frames, id::Union{Nothing,Symbol}, func::Function,
+           transitions::Transition...; kwargs...)
+
 # Arguments
 - `frames`: defines for which frames this action is called
 - `id::Symbol`: Is used if the `func` returns something which
@@ -376,6 +454,7 @@ function Action(
     frames,
     id::Union{Nothing,Symbol},
     func::Function,
+    anim::Animation,
     transitions::Transition...;
     kwargs...,
 )
@@ -386,7 +465,7 @@ function Action(
         subactions = opts[:subactions]
         delete!(opts, :subactions)
     end
-    Action(frames, id, func, collect(transitions), [], subactions, ActionSetting(), opts)
+    Action(frames, id, func, anim, collect(transitions), [], subactions, ActionSetting(), opts)
 end
 
 """
@@ -647,9 +726,7 @@ function compute_transition!(
     action::AbstractAction,
     frame,
 )
-    t = (frame - first(get_frames(action))) / (length(get_frames(action)) - 1)
-    # makes sense to only allow 0 ≤ t ≤ 1
-    t = min(1.0, t)
+    t = get_interpolation(action, frame)
     from, to, center = rotation.from, rotation.to, rotation.center
 
     center isa Symbol && (center = pos(center))
@@ -676,9 +753,7 @@ function compute_transition!(
     action::AbstractAction,
     frame,
 )
-    t = (frame - first(get_frames(action))) / (length(get_frames(action)) - 1)
-    # makes sense to only allow 0 ≤ t ≤ 1
-    t = min(1.0, t)
+    t = get_interpolation(action, frame)
     from, to = translation.from, translation.to
 
     from isa Symbol && (from = pos(from))

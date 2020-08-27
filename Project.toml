@@ -4,6 +4,7 @@ authors = ["Ole Kröger <o.kroeger@opensourc.es> and Jacob Zelko <jacobszelko@gm
 version = "0.1.2"
 
 [deps]
+Animations = "27a7e980-b3e6-11e9-2bcd-0b925532e340"
 FFMPEG = "c87230d0-a227-11e9-1b43-d7ebe4e7570a"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 LightXML = "9c8b4983-aa76-5018-a973-4c85ecc9e179"

@@ -390,8 +390,8 @@ end
                 5:50,
                 (args...) -> square_opacity(Point(-100, 0), 60);
                 subactions = [
-                    SubAction(1:15, appear(:fade)),
-                    SubAction(Rel(20), Translation(100, 50)),
+                    SubAction(1:15, linear(), appear(:fade)),
+                    SubAction(Rel(20), linear(), Translation(100, 50)),
                     SubAction(Rel(5), disappear(:fade)),
                     # for global frames 46-50 it should still be disappeared
                 ],
@@ -401,9 +401,9 @@ end
         pathname = "",
     )
 
-    @test_reference "refs/circlerSquare07opacity.png" load("images/0000000007.png")
-    @test_reference "refs/circlerSquare25opacity.png" load("images/0000000025.png")
-    @test_reference "refs/circlerSquare42opacity.png" load("images/0000000042.png")
+    @test_reference "refs/circleSquare07opacity.png" load("images/0000000007.png")
+    @test_reference "refs/circleSquare25opacity.png" load("images/0000000025.png")
+    @test_reference "refs/circleSquare42opacity.png" load("images/0000000042.png")
     # test that the last frame is completely white
     @test sum(load("images/0000000050.png")) ==
           RGB{Float64}(500 * 500, 500 * 500, 500 * 500)

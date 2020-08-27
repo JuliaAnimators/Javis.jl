@@ -26,3 +26,21 @@ function get_current_setting()
     action = CURRENT_ACTION[1]
     return action.current_setting
 end
+
+function get_interpolation(frames::UnitRange, frame)
+    t = (frame - first(frames)) / (length(frames) - 1)
+    # makes sense to only allow 0 ≤ t ≤ 1
+    t = min(1.0, t)
+end
+
+function get_interpolation(action::AbstractAction, frame)
+    return get_interpolation(get_frames(action), frame)
+end
+
+function get_interpolation(action::Union{SubAction, Action}, frame)
+    t = get_interpolation(get_frames(action), frame)
+    if !(action.anim.frames[end].t ≈ 1)
+        @warn "Animations should be defined from 0.0 to 1.0"
+    end
+    return at(action.anim, t)
+end
