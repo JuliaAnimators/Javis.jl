@@ -526,6 +526,7 @@ struct Scaling <: Transition
     to::Union{Tuple{Float64, Float64}, Symbol}
 end
 
+Scaling(to::Tuple) = Scaling(1.0, to)
 Scaling(to::Real) = Scaling(1.0, convert(Float64, to))
 Scaling(to::Symbol) = Scaling(1.0, to)
 

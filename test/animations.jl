@@ -361,6 +361,32 @@ end
     end
 end
 
+@testset "Squeezing a circle using scale" begin
+    demo = Video(500, 500)
+    javis(
+        demo,
+        [
+            BackgroundAction(1:50, ground),
+            Action(
+                (args...) -> circ();
+                subactions = [
+                    SubAction(1:25, Scaling((1.0, 1.5))),
+                    SubAction(Rel(25), Scaling((1.0, 1.5), (2.0, 1.0))),
+                ],
+            ),
+        ],
+        tempdirectory = "images",
+        pathname = "",
+    )
+
+    @test_reference "refs/squeeze15.png" load("images/0000000015.png")
+    @test_reference "refs/squeeze25.png" load("images/0000000025.png")
+    @test_reference "refs/squeeze35.png" load("images/0000000035.png")
+    for i = 1:50
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
 function ground_opacity(args...)
     background("white")
     sethue("black")
