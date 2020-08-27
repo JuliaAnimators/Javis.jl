@@ -78,7 +78,7 @@ graph TD
 
 - [ ] 56	OPEN	ProgressMeter	enhancement	2020-08-09 22:21:42 +0000 UTC
 
-- [ ] 42	OPEN	Using Animations.jl	enhancement, question	2020-08-05 13:42:17 +0000 UTC
+- [x] 42	OPEN	Using Animations.jl	enhancement, question	2020-08-05 13:42:17 +0000 UTC
 
 - [x] 23	OPEN	fontsize and color in Javis instead of Luxor	enhancement, question	2020-08-18 14:59:14 +0000 UTC
 

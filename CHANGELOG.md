@@ -1,5 +1,10 @@
 # Javis.jl - Changelog
 
+## Unreleased v0.2
+- Ability to use [Animations.jl](https://github.com/jkrumbiegel/Animations.jl) 
+  - for Transformations and `appear` and `disappear`
+  
+
 ## 0.1.2 (24th of August 2020)
 - Added capabilities for generating `.mp4` files
 - Updated testing scheme for `Javis.jl`
