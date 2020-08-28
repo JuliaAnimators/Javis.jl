@@ -20,6 +20,37 @@ end
     @test action.internal_transitions[1].by == Point(50,50)
     Javis.compute_transformation!(action, video, 100)
     @test action.internal_transitions[1].by == Point(100,100)
+
+    # with easing function
+    video = Video(500, 500)
+    # dummy action doesn't need a real function
+    action = Action(1:100, ()->1, sineio(), Translation(Point(1,1), Point(100, 100)))
+    anim = Animation([0.0, 1.0], [1.0, 100.0], [sineio()])
+    m = 49/99
+    # needs internal translation as well
+    push!(action.internal_transitions, Javis.InternalTranslation(O))
+    Javis.compute_transformation!(action, video, 1)
+    @test action.internal_transitions[1].by == Point(1,1)
+    Javis.compute_transformation!(action, video, 50)
+    @test action.internal_transitions[1].by == Point(at(anim, m), at(anim, m))
+    Javis.compute_transformation!(action, video, 100)
+    @test action.internal_transitions[1].by == Point(100,100)
+
+    # with animation function
+    anim_01 = Animation([0.0, 1.0], [0.0, 1.0], [sineio()])
+    video = Video(500, 500)
+    # dummy action doesn't need a real function
+    action = Action(1:100, ()->1, anim_01, Translation(Point(1,1), Point(100, 100)))
+    anim = Animation([0.0, 1.0], [1.0, 100.0], [sineio()])
+    m = 49/99
+    # needs internal translation as well
+    push!(action.internal_transitions, Javis.InternalTranslation(O))
+    Javis.compute_transformation!(action, video, 1)
+    @test action.internal_transitions[1].by == Point(1,1)
+    Javis.compute_transformation!(action, video, 50)
+    @test action.internal_transitions[1].by == Point(at(anim, m), at(anim, m))
+    Javis.compute_transformation!(action, video, 100)
+    @test action.internal_transitions[1].by == Point(100,100)
 end
 
 @testset "translation subaction" begin
