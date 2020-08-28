@@ -1,5 +1,8 @@
 # Javis.jl - Changelog
 
+## Unreleased
+- Added JuliaFormatter GitHub Action
+
 ## 0.1.2 (24th of August 2020)
 - Added capabilities for generating `.mp4` files
 - Updated testing scheme for `Javis.jl`
