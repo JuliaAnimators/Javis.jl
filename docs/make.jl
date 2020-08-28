@@ -2,30 +2,28 @@ using Javis
 using Documenter
 
 makedocs(;
-    modules=[Javis],
-    authors="Ole Kröger <o.kroeger@opensourc.es> and contributors",
-    repo="https://github.com/Wikunia/Javis.jl/blob/{commit}{path}#L{line}",
-    sitename="Javis.jl",
-    format=Documenter.HTML(;
-        prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://Wikunia.github.io/Javis.jl",
-        assets=String[],
+    modules = [Javis],
+    authors = "Ole Kröger <o.kroeger@opensourc.es> and contributors",
+    repo = "https://github.com/Wikunia/Javis.jl/blob/{commit}{path}#L{line}",
+    sitename = "Javis.jl",
+    format = Documenter.HTML(;
+        prettyurls = get(ENV, "CI", "false") == "true",
+        canonical = "https://Wikunia.github.io/Javis.jl",
+        assets = String[],
     ),
-    pages=[
+    pages = [
         "Home" => "index.md",
-        "Tutorials" =>  [
-	    "tutorials.md",
+        "Tutorials" => [
+            "tutorials.md",
             "tutorials/tutorial_1.md",
             "tutorials/tutorial_2.md",
             "tutorials/tutorial_3.md",
             "tutorials/tutorial_4.md",
-            ],
+        ],
         "Mission" => "mission.md",
         "References" => "references.md",
         "Contributing" => "contributing.md",
     ],
 )
 
-deploydocs(;
-    repo="github.com/Wikunia/Javis.jl",
-)
+deploydocs(; repo = "github.com/Wikunia/Javis.jl")

@@ -184,7 +184,7 @@ SubAction(frames, easing::Easing, args...) =
     SubAction(frames, easing_to_animation(easing), args...)
 
 SubAction(frames, anim::Animation, transition::Transition...) =
-    SubAction(frames, anim, (args...)->1, transition...)
+    SubAction(frames, anim, (args...) -> 1, transition...)
 
 """
     SubAction(frames, func::Function)
@@ -413,8 +413,13 @@ Action(func::Function, args...; kwargs...) =
 Fallback constructor for an Action which doesn't define an animation.
 A linear animation is assumed.
 """
-function Action(frames, id::Union{Nothing,Symbol}, func::Function,
-        transitions::Transition...; kwargs...)
+function Action(
+    frames,
+    id::Union{Nothing,Symbol},
+    func::Function,
+    transitions::Transition...;
+    kwargs...,
+)
 
     Action(frames, id, func, easing_to_animation(linear()), transitions...; kwargs...)
 end
@@ -435,8 +440,14 @@ javis(
 )
 ```
 """
-function Action(frames, id::Union{Nothing,Symbol}, func::Function, easing::Easing,
-    args...; kwargs...)
+function Action(
+    frames,
+    id::Union{Nothing,Symbol},
+    func::Function,
+    easing::Easing,
+    args...;
+    kwargs...,
+)
 
     Action(frames, id, func, easing_to_animation(easing), args...; kwargs...)
 end
@@ -470,7 +481,17 @@ function Action(
         subactions = opts[:subactions]
         delete!(opts, :subactions)
     end
-    Action(frames, id, func, anim, collect(transitions), [], subactions, ActionSetting(), opts)
+    Action(
+        frames,
+        id,
+        func,
+        anim,
+        collect(transitions),
+        [],
+        subactions,
+        ActionSetting(),
+        opts,
+    )
 end
 
 """

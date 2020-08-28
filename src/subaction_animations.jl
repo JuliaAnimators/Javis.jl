@@ -66,12 +66,12 @@ end
 
 function _disappear(video, action, subaction, rel_frame, symbol::Val{:fade_line_width})
     t = get_interpolation(subaction, rel_frame)
-    action.current_setting.mul_line_width = 1-t
+    action.current_setting.mul_line_width = 1 - t
 end
 
 function _disappear(video, action, subaction, rel_frame, symbol::Val{:fade})
     t = get_interpolation(subaction, rel_frame)
-    action.current_setting.mul_opacity = 1-t
+    action.current_setting.mul_opacity = 1 - t
 end
 
 """
@@ -136,8 +136,7 @@ Here `circle_anim` defines the movement of the circle. The most important part i
 time in animations has to be from `0.0` to `1.0`.
 """
 function Luxor.translate()
-    (video, action, subaction, rel_frame) ->
-        _translate(video, action, subaction, rel_frame)
+    (video, action, subaction, rel_frame) -> _translate(video, action, subaction, rel_frame)
 end
 
 function _translate(video, action, subaction, rel_frame)
