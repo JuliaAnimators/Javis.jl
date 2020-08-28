@@ -157,7 +157,7 @@ javis(
     [
         BackgroundAction(1:70, ground),
         Action(1:70,:red_ball, (args...)->object(Point(100,0), "red")),
-        Action(1:70, :blue_ball, (args...)->object(Point(100,80), "blue")
+	Action(1:70, :blue_ball, (args...)->object(Point(100,80), "blue"))
     ],
     pathname="multiple_circles.gif"
 )
@@ -195,7 +195,7 @@ To make another ball appear, execute the following code snippet:
 
 ```julia
 javis(
-    video,  
+    myvideo,  
     [
         BackgroundAction(1:70, ground),
         Action(1:70,:red_ball, (args...)->object(Point(100,0), "red"), Rotation(0.0, 2π)),
@@ -231,7 +231,7 @@ Then, using this function, we can execute the following block:
 path_of_red = Point[]
 
 javis(
-    video,  
+    myvideo,  
     [
         BackgroundAction(1:70, ground), 
         Action(1:70,:red_ball, (args...)->object(Point(100,0), "red"), Rotation(0.0, 2π)), 
@@ -260,7 +260,7 @@ And to show this link:
 
 ```julia
 javis(
-    video,  
+    myvideo,  
     [
         BackgroundAction(1:70, ground),
         Action(1:70,:red_ball, (args...)->object(Point(100,0), "red"), Rotation(0.0, 2π)), 
@@ -313,10 +313,10 @@ path_of_blue = Point[]
 path_of_red = Point[]
 
 # video struct (width, height)
-video = Video(500, 500)
+myvideo = Video(500, 500)
 
 javis(
-    video,  
+    myvideo,  
     [
         BackgroundAction(1:70, ground), # set background color and pen color
         Action(1:70,:red_ball, (args...)->object(p1, "red"), Rotation(0.0, 2π)), # draw the red ball with rotation

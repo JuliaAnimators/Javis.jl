@@ -3,6 +3,7 @@ using Javis
 using LaTeXStrings
 using ReferenceTests
 using Test
+using VideoIO
 
 @testset "Unit" begin
     include("unit.jl")
