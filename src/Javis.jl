@@ -151,15 +151,19 @@ end
 """
     SubAction(frames, easing::Easing, args...)
 
-A `SubAction` can be defined with frames an easing function and either a function or
-transformations.
+A `SubAction` can be defined with frames an
+[easing function](https://jkrumbiegel.github.io/Animations.jl/stable/#Easings-1) and either
+a function or transformation(s).
+
+
+# Example
 In the following example a filled circle with radius 50 appears in the first 20 frames,
 which means the opacity is increased from 0 to 1.0. The interpolation function used here is
 sineio from [`Animations.jl`](https://github.com/jkrumbiegel/Animations.jl).
 Then it stays at full opacity and disappears the same way in the last 20 frames using a
 linear decay.
 
-# Example
+```julia
 javis(demo, [
     BackgroundAction(1:100, ground),
     Action((args...)->circle(O, 50, :fill); subactions = [
@@ -167,6 +171,7 @@ javis(demo, [
         SubAction(81:100, disappear(:fade))
     ])
 ])
+```
 
 # Arguments
 - `frames`: A list of frames for which the function should be called.
