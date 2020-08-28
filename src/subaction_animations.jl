@@ -111,6 +111,27 @@ javis(
 )
 ```
 
+This notation uses the Animations.jl library very explicitly. It's also possibble to do the
+same with:
+
+```
+javis(
+    video,
+    [
+        BackgroundAction(1:150, ground),
+        Action((args...)->circle(O, 25, :fill); subactions = [
+            SubAction(1:50, sineio(), Translation(150, 0)),
+            SubAction(51:100, polyin(2), Translation(0, 150)),
+            SubAction(101:150, expin(8), Translation(-150, -150))
+        ])
+    ],
+    pathname = "moving_a_circle_javis.gif",
+)
+```
+
+which uses the `SubAction` syntax three times and only uses easing functions instead of
+specifying the `Animation` directly.
+
 Here `circle_anim` defines the movement of the circle. The most important part is that the
 time in animations has to be from `0.0` to `1.0`.
 """
