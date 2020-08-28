@@ -412,6 +412,30 @@ end
     end
 end
 
+@testset "Animations.jl translate()" begin
+    video = Video(500, 500)
+    circle_anim = Animation(
+        [0, 0.3, 0.6, 1], # must go from 0 to 1
+        [O, Point(150, 0), Point(150, 150), O],
+        [sineio(), polyin(5), expin(8)],
+    )
+    javis(
+        video, [
+            BackgroundAction(1:150, ground),
+            Action((args...)->circle(O, 25, :fill); subactions=[
+                SubAction(1:150, circle_anim, translate())
+            ])
+        ], tempdirectory="images", pathname=""
+    )
+
+    @test_reference "refs/anim_circle020.png" load("images/0000000020.png")
+    @test_reference "refs/anim_circle075.png" load("images/0000000075.png")
+    @test_reference "refs/anim_circle142.png" load("images/0000000142.png")
+    for i = 1:150
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
 @testset "test default kwargs" begin
     video = Video(500, 500)
     pathname = javis(video, [Action(1:10, ground), Action(1:10, morph(astar, acirc))])

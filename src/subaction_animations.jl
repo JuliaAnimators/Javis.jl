@@ -73,3 +73,53 @@ function _disappear(video, action, subaction, rel_frame, symbol::Val{:fade})
     t = get_interpolation(subaction, rel_frame)
     action.current_setting.mul_opacity = 1-t
 end
+
+"""
+    translate()
+
+Translate an the function defined inside an [`Action`](@ref) using an Animation defined
+with Animations.jl.
+
+If you're used to working with Animations.jl this should feel quite natural.
+Instead of defining each movement in its own subaction it's possible to define it in one
+by using an Animation.
+
+# Example
+```
+using Javis, Animations
+
+function ground(args...)
+    background("black")
+    sethue("white")
+end
+
+video = Video(500, 500)
+circle_anim = Animation(
+    [0.0, 0.3, 0.6, 1.0], # must go from 0 to 1
+    # the circle will move from the origin to `Point(150, 0)` then `Point(150, 150)`
+    # and back to the origin `O`.
+    [O, Point(150, 0), Point(150, 150), O],
+    [sineio(), polyin(5), expin(8)],
+)
+javis(
+    video, [
+        BackgroundAction(1:150, ground),
+        Action((args...)->circle(O, 25, :fill); subactions=[
+            SubAction(1:150, circle_anim, translate())
+        ])
+    ], pathname="moving_a_circle.gif"
+)
+```
+
+Here `circle_anim` defines the movement of the circle. The most important part is that the
+time in animations has to be from `0.0` to `1.0`.
+"""
+function Luxor.translate()
+    (video, action, subaction, rel_frame) ->
+        _translate(video, action, subaction, rel_frame)
+end
+
+function _translate(video, action, subaction, rel_frame)
+    p = get_interpolation(subaction, rel_frame)
+    Luxor.translate(p)
+end
