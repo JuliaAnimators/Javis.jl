@@ -27,12 +27,23 @@ function get_current_setting()
     return action.current_setting
 end
 
+"""
+    get_interpolation(frames::UnitRange, frame)
+
+Return a value between 0 and 1 which represents the relative `frame` inside `frames`.
+"""
 function get_interpolation(frames::UnitRange, frame)
     t = (frame - first(frames)) / (length(frames) - 1)
     # makes sense to only allow 0 ≤ t ≤ 1
     t = min(1.0, t)
 end
 
+"""
+    get_interpolation(action::AbstractAction, frame)
+
+Return the value of the `action.anim` Animation based on the relative frame given by
+`get_interpolation(get_frames(action), frame)`
+"""
 function get_interpolation(action::AbstractAction, frame)
     t = get_interpolation(get_frames(action), frame)
     if !(action.anim.frames[end].t ≈ 1)
