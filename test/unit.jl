@@ -22,6 +22,38 @@ end
     @test action.internal_transitions[1].by == Point(100,100)
 end
 
+@testset "translation subaction" begin
+    video = Video(500, 500)
+    # dummy action doesn't need a real function
+    action = Action(1:100, ()->1; subactions=[
+        SubAction(1:100, Translation(Point(1,1), Point(100, 100)))
+    ])
+    # needs internal translation as well
+    push!(action.subactions[1].internal_transitions, Javis.InternalTranslation(O))
+    Javis.compute_transformation!(action.subactions[1], video, 1)
+    @test action.subactions[1].internal_transitions[1].by == Point(1,1)
+    Javis.compute_transformation!(action.subactions[1], video, 50)
+    @test action.subactions[1].internal_transitions[1].by == Point(50,50)
+    Javis.compute_transformation!(action.subactions[1], video, 100)
+    @test action.subactions[1].internal_transitions[1].by == Point(100,100)
+
+    video = Video(500, 500)
+    # dummy action doesn't need a real function
+    action = Action(1:100, ()->1; subactions=[
+        SubAction(1:100, polyout(10), Translation(Point(1,1), Point(100, 100)))
+    ])
+    anim = Animation([0.0, 1.0], [1.0, 100.0], [polyout(10)])
+    m = 49/99
+    # needs internal translation as well
+    push!(action.subactions[1].internal_transitions, Javis.InternalTranslation(O))
+    Javis.compute_transformation!(action.subactions[1], video, 1)
+    @test action.subactions[1].internal_transitions[1].by == Point(1,1)
+    Javis.compute_transformation!(action.subactions[1], video, 50)
+    @test action.subactions[1].internal_transitions[1].by == Point(at(anim, m),at(anim, m))
+    Javis.compute_transformation!(action.subactions[1], video, 100)
+    @test action.subactions[1].internal_transitions[1].by == Point(100,100)
+end
+
 @testset "Relative frames" begin
     video = Video(500, 500)
     action = Action(Rel(10), (args...)->1, Translation(Point(1,1), Point(100, 100)))

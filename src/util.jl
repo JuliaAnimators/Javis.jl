@@ -34,10 +34,6 @@ function get_interpolation(frames::UnitRange, frame)
 end
 
 function get_interpolation(action::AbstractAction, frame)
-    return get_interpolation(get_frames(action), frame)
-end
-
-function get_interpolation(action::Union{SubAction, Action}, frame)
     t = get_interpolation(get_frames(action), frame)
     if !(action.anim.frames[end].t ≈ 1)
         @warn "Animations should be defined from 0.0 to 1.0"
