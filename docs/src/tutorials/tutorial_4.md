@@ -26,6 +26,7 @@ From this tutorial, you will learn how to:
 ## Starting with the Basics of SubAction
 
 The `ground` function should be familiar to you as well as the general structure of the `javis` function if you have seen the first [tutorial](tutorial_1.md).
+In this tutorial, rather than calling the `javis` function by itself, we are going to be calling it from the function we are creating to create our mascot, `face`: 
 
 ```julia
 using Javis
@@ -232,8 +233,17 @@ Action(120:150, (args...)->speak("How are you?"); subactions=[
 
 This time we also use the [`disappear`](@ref) function to fade out the text.
 
+Now, with everything properly defined using the `javis` function within the `face` function one can simply execute the following from your Julia REPL:
+
+```
+julia> face()
+```
+
+To produce the following:
 
 ![Jarvis](./assets/jarvis.gif)
+
+Jarvis is alive! 
 
 ## Conclusion
 

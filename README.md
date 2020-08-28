@@ -68,12 +68,17 @@ Make sure to add a feature request if you think we miss something fundamental or
 
 ## Acknowledgements
 
-I want to thank a couple of people who helped make this possible.
+We want to thank a couple of people who helped make this possible.
+
+### Core Inspirations
 
 - First of all the over thousand contributors of Julia itself
+- [Grant Sanderson of 3blue1brown](https://www.youtube.com/c/3blue1brown/featured) - thanks for inspiring us to create something like this in Julia! 
 - [Cormullion](https://github.com/cormullion) the inventor of [Luxor.jl](https://github.com/JuliaGraphics/Luxor.jl)
 - [JuliaGraphics in general](https://github.com/cormullion) who provide the wrapper [Cairo.jl](https://github.com/JuliaGraphics/Cairo.jl) for the [Cairo graphics library](https://www.cairographics.org/)
-- [Grant Sanderson of 3blue1brown](https://www.youtube.com/c/3blue1brown/featured) - thanks for inspiring us to create something like this in Julia! 
-- [Sudomaze](https://github.com/sudomaze) for helping out with tutorials and feedback
 
+### Contributors 
+
+- [sudomaze](https://github.com/sudomaze) for helping out with tutorials and feedback for v0.1.0.
+- [mythreyiramesh](https://github.com/mythreyiramesh) cleaning up tutorials 
 

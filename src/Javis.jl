@@ -232,8 +232,8 @@ mutable struct ActionSetting
     # scale has current scale, scale and scale multiplier
     # such that scale*mul_scale is the desired scale
     # the scale change needs to be computed using current_scale
-    current_scale::Tuple{Float64, Float64}
-    scale::Tuple{Float64, Float64}
+    current_scale::Tuple{Float64,Float64}
+    scale::Tuple{Float64,Float64}
     mul_scale::Float64 # the multiplier of scale is between 0 and 1
 end
 
@@ -430,7 +430,7 @@ mutable struct InternalRotation <: InternalTransition
 end
 
 mutable struct InternalScaling <: InternalTransition
-    scale::Tuple{Float64, Float64}
+    scale::Tuple{Float64,Float64}
 end
 
 """
@@ -522,8 +522,8 @@ Scaling(10, (1,2)) -> Scaling((10.0, 10.0), (1.0, 2.0))
 - `to::Union{Tuple{Float64, Float64}, Symbol}`: The end scaling or a link to it
 """
 struct Scaling <: Transition
-    from::Union{Tuple{Float64, Float64}, Symbol}
-    to::Union{Tuple{Float64, Float64}, Symbol}
+    from::Union{Tuple{Float64,Float64},Symbol}
+    to::Union{Tuple{Float64,Float64},Symbol}
 end
 
 Scaling(to::Tuple) = Scaling(1.0, to)
@@ -859,10 +859,10 @@ get_position(s::Symbol) = get_position(val(s))
 pos(x) = get_position(x)
 
 # As it is just the number tuple -> return it
-get_scale(x::Tuple{<:Number, <:Number}) = x
+get_scale(x::Tuple{<:Number,<:Number}) = x
 
 # If just the number -> return it as a tuple
-get_scale(x::Number) = (x,x)
+get_scale(x::Number) = (x, x)
 
 """
     get_scale(s::Symbol)
@@ -1182,9 +1182,16 @@ function set_action_defaults!(action)
     cs.current_scale = desired_scale
 end
 
-const LUXOR_DONT_EXPORT =
-    [:boundingbox, :Boxmaptile, :Sequence, :setline, :setopacity, :fontsize, :get_fontsize,
-    :scale]
+const LUXOR_DONT_EXPORT = [
+    :boundingbox,
+    :Boxmaptile,
+    :Sequence,
+    :setline,
+    :setopacity,
+    :fontsize,
+    :get_fontsize,
+    :scale,
+]
 
 # Export each function from Luxor
 for func in names(Luxor; imported = true)
