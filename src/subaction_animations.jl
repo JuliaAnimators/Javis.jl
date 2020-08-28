@@ -77,7 +77,7 @@ end
 """
     translate()
 
-Translate an the function defined inside an [`Action`](@ref) using an Animation defined
+Translate a function defined inside an [`Action`](@ref) using an Animation defined
 with Animations.jl.
 
 If you're used to working with Animations.jl this should feel quite natural.
