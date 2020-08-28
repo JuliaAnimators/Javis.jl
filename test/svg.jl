@@ -14,18 +14,11 @@
     end
 
     video = Video(400, 200)
-    javis(
-        video,
-        [
-            BackgroundAction(1:1, latex_ground),
-            Action((args...) -> latex(L"\mathcal{O}(\log{n})")), # default fontsize 50
-            Action(
-                (args...) -> latex_blend(L"\mathcal{O}\left(\frac{\log{x}}{2}\right)", 20),
-            ),
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
+    javis(video, [
+        BackgroundAction(1:1, latex_ground),
+        Action((args...)->latex(L"\mathcal{O}(\log{n})")), # default fontsize 50
+        Action((args...)->latex_blend(L"\mathcal{O}\left(\frac{\log{x}}{2}\right)", 20)),
+    ], tempdirectory="images", pathname="")
     @test_reference "refs/ologn.png" load("images/0000000001.png")
     rm("images/0000000001.png")
 end
@@ -43,15 +36,10 @@ end
     end
 
     video = Video(400, 200)
-    javis(
-        video,
-        [
-            BackgroundAction(1:1, latex_ground),
-            Action((args...) -> foreground(L"\mathcal{O}(\log{n})")),
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
+    javis(video, [
+        BackgroundAction(1:1, latex_ground),
+        Action((args...)->foreground(L"\mathcal{O}(\log{n})")),
+    ], tempdirectory="images", pathname="")
     @test_reference "refs/ologn_circ.png" load("images/0000000001.png")
     rm("images/0000000001.png")
 end
@@ -72,15 +60,10 @@ end
     end
 
     video = Video(400, 200)
-    javis(
-        video,
-        [
-            BackgroundAction(1:1, latex_ground),
-            Action((args...) -> foreground(L"\mathcal{O}(\log{n})")),
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
+    javis(video, [
+        BackgroundAction(1:1, latex_ground),
+        Action((args...)->foreground(L"\mathcal{O}(\log{n})")),
+    ], tempdirectory="images", pathname="")
     @test_reference "refs/ologn_circ.png" load("images/0000000001.png")
     rm("images/0000000001.png")
 end

@@ -16,8 +16,8 @@ line(O, Point(10, 10))
 - `linewidth`: the line width in pixel
 """
 function setline(linewidth)
-    cs = get_current_setting()
-    cs.line_width = linewidth
+    cs  = get_current_setting()
+    cs.line_width  = linewidth
     current_line_width = cs.line_width * cs.mul_line_width
     Luxor.setline(current_line_width)
 end
@@ -40,19 +40,19 @@ circle(O, 20, :fill)
 - `opacity`: the opacity between 0.0 and 1.0
 """
 function setopacity(opacity)
-    cs = get_current_setting()
-    cs.opacity = opacity
+    cs  = get_current_setting()
+    cs.opacity  = opacity
     current_opacity = cs.opacity * cs.mul_opacity
     Luxor.setopacity(current_opacity)
 end
 
 function fontsize(fsize)
-    cs = get_current_setting()
-    cs.fontsize = fsize
+    cs  = get_current_setting()
+    cs.fontsize  = fsize
     Luxor.fontsize(fsize)
 end
 
 function get_fontsize()
-    cs = get_current_setting()
+    cs  = get_current_setting()
     return cs.fontsize
 end
