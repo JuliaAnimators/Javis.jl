@@ -37,12 +37,31 @@ end
     Javis.compute_transformation!(action.subactions[1], video, 100)
     @test action.subactions[1].internal_transitions[1].by == Point(100,100)
 
+    ######## testing with easing function ##############
     video = Video(500, 500)
     # dummy action doesn't need a real function
     action = Action(1:100, ()->1; subactions=[
         SubAction(1:100, polyout(10), Translation(Point(1,1), Point(100, 100)))
     ])
     anim = Animation([0.0, 1.0], [1.0, 100.0], [polyout(10)])
+    m = 49/99
+    # needs internal translation as well
+    push!(action.subactions[1].internal_transitions, Javis.InternalTranslation(O))
+    Javis.compute_transformation!(action.subactions[1], video, 1)
+    @test action.subactions[1].internal_transitions[1].by == Point(1,1)
+    Javis.compute_transformation!(action.subactions[1], video, 50)
+    @test action.subactions[1].internal_transitions[1].by == Point(at(anim, m),at(anim, m))
+    Javis.compute_transformation!(action.subactions[1], video, 100)
+    @test action.subactions[1].internal_transitions[1].by == Point(100,100)
+
+    ######## testing with animation ##############
+    video = Video(500, 500)
+    anim_01 = Animation([0.0, 1.0], [0.0, 1.0], [polyin(10)])
+    # dummy action doesn't need a real function
+    action = Action(1:100, ()->1; subactions=[
+        SubAction(1:100, anim_01, Translation(Point(1,1), Point(100, 100)))
+    ])
+    anim = Animation([0.0, 1.0], [1.0, 100.0], [polyin(10)])
     m = 49/99
     # needs internal translation as well
     push!(action.subactions[1].internal_transitions, Javis.InternalTranslation(O))
