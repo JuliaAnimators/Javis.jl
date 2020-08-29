@@ -1,14 +1,25 @@
 using Gtk
+using GtkReactive
+using GtkUtilities
 
 function on_button_clicked(w)
     println("The Button has been clicked!")
 end
 
-win = GtkWindow("My First GTK.jl Program", 400, 200)
+mycanvas = @GtkCanvas()
+sl = slider(1:11)
+win = GtkWindow("Javis Viewer", 400, 400)
+bx = GtkBox(:v)
+push!(win, bx)
 
-b = GtkButton("Click Me!")
-push!(win, b)
+push!(bx, sl)
+tb = textbox(Int; signal = signal(sl))
 
-signal_connect(on_button_clicked, b, "clicked")
+@guarded Gtk.draw(mycanvas) do widget
+    ctx = Gtk.getgc(mycanvas)
+    GtkUtilities.copy!(ctx, "/home/src/Projects/javis/src/hug_emoji.jpg")
+end
 
-showall(win)
+push!(bx, tb);
+
+Gtk.showall(win)
