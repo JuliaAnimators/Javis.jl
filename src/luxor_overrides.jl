@@ -118,8 +118,31 @@ Same as [`scale`](@ref) but the x scale and y scale can be changed independently
 """
 function scale(scl_x, scl_y)
     cs = get_current_setting()
-    cs.scale = (scl_x, scl_y)
-    current_scale = cs.scale .* cs.mul_scale
+    cs.desired_scale = (scl_x, scl_y)
+    current_scale = cs.desired_scale .* cs.mul_scale
     Luxor.scale(current_scale...)
     cs.current_scale = cs.current_scale .* current_scale
+    # println("cs.current_scale: $(cs.current_scale)")
+end
+
+"""
+    scaleto(x, y)
+
+Scale to a specific scaling instead of multiplying it with the current scale.
+For scaling on top of the current scale have a look at [`scale`](@ref).
+"""
+function scaleto(x, y)
+    cs = get_current_setting()
+    cs.desired_scale = (x, y)
+    scaling = (x, y) ./ cs.current_scale
+    # we divided by 0 but clearly we want to scale to 0
+    # -> we want scaling to be 0 not Inf
+    if x ≈ 0
+        scaling = (0.0, scaling[2])
+    end
+    if y ≈ 0
+        scaling = (scaling[1], 0.0)
+    end
+    Luxor.scale(scaling...)
+    cs.current_scale = (x, y)
 end

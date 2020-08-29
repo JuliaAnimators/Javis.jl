@@ -219,9 +219,10 @@ The current settings of an [`Action`](@ref) which are saved in `action.current_s
 - `mul_opacity::Float64`: the current multiplier for opacity.
     The actual opacity is then: `mul_opacity * opacity`
 - `fontsize::Float64` the current font size
-- `scale::Tuple{Float64, Float64}`: the current scale
-- `mul_scale::Float64`: the current multiplier for scale.
-    The actual scale is then: `mul_scale * scale`
+- `current_scale::Tuple{Float64, Float64}`: the current scale
+- `desired_scale::Tuple{Float64, Float64}`: the new desired scale
+- `mul_scale::Float64`: the multiplier for the new desired scale.
+    The actual new scale is then: `mul_scale * desired_scale`
 """
 mutable struct ActionSetting
     line_width::Float64
@@ -229,11 +230,12 @@ mutable struct ActionSetting
     opacity::Float64
     mul_opacity::Float64 # the multiplier of opacity is between 0 and 1
     fontsize::Float64
-    # scale has current scale, scale and scale multiplier
-    # such that scale*mul_scale is the desired scale
-    # the scale change needs to be computed using current_scale
+    # scale has three fields instead of just the normal two
+    # current scale
+    # scale and scale multiplier => scale*mul_scale is the new desired scale
+    # the scale change needs to be computed using `current_scale` and the desired scale
     current_scale::Tuple{Float64,Float64}
-    scale::Tuple{Float64,Float64}
+    desired_scale::Tuple{Float64,Float64}
     mul_scale::Float64 # the multiplier of scale is between 0 and 1
 end
 
@@ -251,7 +253,7 @@ function update_ActionSetting!(as::ActionSetting, by::ActionSetting)
     as.mul_opacity = by.mul_opacity
     as.fontsize = by.fontsize
     as.current_scale = by.current_scale
-    as.scale = by.scale
+    as.desired_scale = by.desired_scale
     as.mul_scale = by.mul_scale
 end
 
@@ -511,7 +513,7 @@ Stores the scaling similar to [`Translation`](@ref) with `from` and `to`.
 # Example
 - Can be called with different constructors like:
 ```
-Scaling(10) -> Scaling(1.0, (10.0, 10.0))
+Scaling(10) -> Scaling(CURRENT_SCALING, (10.0, 10.0))
 Scaling(10, :my-scale) -> Scaling((10.0, 10.0), :my_scale)
 Scaling(10, 2) -> Scaling((10.0, 10.0), (2.0, 2.0))
 Scaling(10, (1,2)) -> Scaling((10.0, 10.0), (1.0, 2.0))
@@ -520,30 +522,33 @@ Scaling(10, (1,2)) -> Scaling((10.0, 10.0), (1.0, 2.0))
 # Fields
 - `from::Union{Tuple{Float64, Float64}, Symbol}`: The start scaling or a link to it
 - `to::Union{Tuple{Float64, Float64}, Symbol}`: The end scaling or a link to it
+- `compute_from_once::Bool`: Saves whether the from is computed for the first frame or
+    every frame. Is true if from is `:_current_scale`.
 """
-struct Scaling <: Transition
+mutable struct Scaling <: Transition
     from::Union{Tuple{Float64,Float64},Symbol}
     to::Union{Tuple{Float64,Float64},Symbol}
+    compute_from_once::Bool
 end
 
-Scaling(to::Tuple) = Scaling(1.0, to)
-Scaling(to::Real) = Scaling(1.0, convert(Float64, to))
-Scaling(to::Symbol) = Scaling(1.0, to)
+Scaling(to::Tuple) = Scaling(:_current_scale, to, true)
+Scaling(to::Real) = Scaling(:_current_scale, convert(Float64, to), true)
+Scaling(to::Symbol) = Scaling(:_current_scale, to, true)
 
-function Scaling(from::Real, to::Real)
+function Scaling(from::Real, to::Real, compute_from_once = false)
     from_flt = convert(Float64, from)
     to_flt = convert(Float64, to)
-    Scaling((from_flt, from_flt), (to_flt, to_flt))
+    Scaling((from_flt, from_flt), (to_flt, to_flt), compute_from_once)
 end
 
-function Scaling(from::Real, to)
+function Scaling(from::Real, to, compute_from_once = false)
     flt = convert(Float64, from)
-    Scaling((flt, flt), to)
+    Scaling((flt, flt), to, compute_from_once)
 end
 
-function Scaling(from, to::Real)
+function Scaling(from, to::Real, compute_from_once = false)
     flt = convert(Float64, to)
-    Scaling(from, (flt, flt))
+    Scaling(from, (flt, flt), compute_from_once)
 end
 
 """
@@ -767,9 +772,13 @@ function compute_transition!(
     t = min(1.0, t)
     from, to = scale.from, scale.to
 
-    from isa Symbol && (from = get_scale(from))
+    if !scale.compute_from_once || frame == first(get_frames(action))
+        from isa Symbol && (from = get_scale(from))
+        if scale.compute_from_once
+            scale.from = from
+        end
+    end
     to isa Symbol && (to = get_scale(to))
-
     internal_scale.scale = from .+ t .* (to .- from)
 end
 
@@ -809,7 +818,7 @@ end
 Scale as described in `trans`.
 """
 function perform_transformation(trans::InternalScaling)
-    scale(trans.scale...)
+    scaleto(trans.scale...)
 end
 
 """
@@ -823,6 +832,14 @@ and [`get_angle`](@ref).
 - `Any`: the value stored by a previous action.
 """
 function get_value(s::Symbol)
+    is_internal = first(string(s)) == '_'
+    if is_internal
+        internal_sym = Symbol(string(s)[2:end])
+        if hasfield(ActionSetting, internal_sym)
+            return getfield(get_current_setting(), internal_sym)
+        end
+    end
+
     defs = CURRENT_VIDEO[1].defs
     if haskey(defs, s)
         return defs[s]
@@ -1168,18 +1185,8 @@ function set_action_defaults!(action)
     current_opacity = cs.opacity * cs.mul_opacity
     Luxor.setopacity(current_opacity)
 
-    desired_scale = cs.scale .* cs.mul_scale
-    scaling = desired_scale ./ cs.current_scale
-    # we divided by 0 but clearly we want to scale to 0
-    # -> we want scaling to be 0 not Inf
-    if desired_scale[1] ≈ 0
-        scaling = (0.0, scaling[2])
-    end
-    if desired_scale[2] ≈ 0
-        scaling = (scaling[1], 0.0)
-    end
-    Luxor.scale(scaling...)
-    cs.current_scale = desired_scale
+    desired_scale = cs.desired_scale .* cs.mul_scale
+    scaleto(desired_scale...)
 end
 
 const LUXOR_DONT_EXPORT = [

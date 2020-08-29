@@ -372,9 +372,9 @@ end
                 (args...) -> circ();
                 subactions = [
                     SubAction(1:25, Scaling((1.0, 1.5))),
-                    SubAction(Rel(25), Scaling((1.0, 1.5), (2.0, 1.0))),
-                    SubAction(Rel(25), Scaling((2.0, 1.0), :start_scale)),
-                    SubAction(Rel(25), Scaling(:start_scale, 2.0)),
+                    SubAction(Rel(25), Scaling((2.0, 1.0))),
+                    SubAction(Rel(25), Scaling(:start_scale)),
+                    SubAction(Rel(25), Scaling(2.0)),
                 ],
             ),
             Action((args...) -> circ(Point(-100, 0))),
@@ -455,7 +455,7 @@ end
                 (args...) -> circ(),
                 subactions = [
                     SubAction(1:15, Scaling(0.0, :set_scale)),
-                    SubAction(36:50, Scaling(2.0, 0.0)),
+                    SubAction(36:50, Scaling(0.0)),
                 ],
             ),
         ],
