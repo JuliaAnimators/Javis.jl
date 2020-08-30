@@ -232,7 +232,7 @@ mutable struct ActionSetting
     fontsize::Float64
     # scale has three fields instead of just the normal two
     # current scale
-    # scale and scale multiplier => scale*mul_scale is the new desired scale
+    # desired scale and scale multiplier => `desired_scale*mul_scale` is the new desired scale
     # the scale change needs to be computed using `current_scale` and the desired scale
     current_scale::Tuple{Float64,Float64}
     desired_scale::Tuple{Float64,Float64}
