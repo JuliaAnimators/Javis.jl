@@ -1,5 +1,8 @@
 # Javis.jl - Changelog
 
+## Unreleased v0.2
+- Show progress of rendering using [ProgressMeter.jl](https://github.com/timholy/ProgressMeter.jl)
+
 ## Unreleased
 - Added JuliaFormatter GitHub Action
 
