@@ -264,6 +264,10 @@ The current settings of an [`Action`](@ref) which are saved in `action.current_s
 - `mul_opacity::Float64`: the current multiplier for opacity.
     The actual opacity is then: `mul_opacity * opacity`
 - `fontsize::Float64` the current font size
+- `current_scale::Tuple{Float64, Float64}`: the current scale
+- `desired_scale::Tuple{Float64, Float64}`: the new desired scale
+- `mul_scale::Float64`: the multiplier for the new desired scale.
+    The actual new scale is then: `mul_scale * desired_scale`
 """
 mutable struct ActionSetting
     line_width::Float64
@@ -271,9 +275,16 @@ mutable struct ActionSetting
     opacity::Float64
     mul_opacity::Float64 # the multiplier of opacity is between 0 and 1
     fontsize::Float64
+    # scale has three fields instead of just the normal two
+    # current scale
+    # desired scale and scale multiplier => `desired_scale*mul_scale` is the new desired scale
+    # the scale change needs to be computed using `current_scale` and the desired scale
+    current_scale::Tuple{Float64,Float64}
+    desired_scale::Tuple{Float64,Float64}
+    mul_scale::Float64 # the multiplier of scale is between 0 and 1
 end
 
-ActionSetting() = ActionSetting(1.0, 1.0, 1.0, 1.0, 10.0)
+ActionSetting() = ActionSetting(1.0, 1.0, 1.0, 1.0, 10.0, (1.0, 1.0), (1.0, 1.0), 1.0)
 
 """
     update_ActionSetting!(as::ActionSetting, by::ActionSetting)
@@ -286,6 +297,9 @@ function update_ActionSetting!(as::ActionSetting, by::ActionSetting)
     as.opacity = by.opacity
     as.mul_opacity = by.mul_opacity
     as.fontsize = by.fontsize
+    as.current_scale = by.current_scale
+    as.desired_scale = by.desired_scale
+    as.mul_scale = by.mul_scale
 end
 
 """
@@ -522,6 +536,10 @@ mutable struct InternalRotation <: InternalTransition
     center::Point
 end
 
+mutable struct InternalScaling <: InternalTransition
+    scale::Tuple{Float64,Float64}
+end
+
 """
     Translation <: Transition
 
@@ -591,6 +609,52 @@ Rotation(r::Union{Float64,Symbol}, center::Union{Point,Symbol}) = Rotation(0.0, 
 Rotation as a transition from `from` to `to` (in radians) around the origin.
 """
 Rotation(from, to) = Rotation(from, to, O)
+
+"""
+    Scaling <: Transition
+
+Stores the scaling similar to [`Translation`](@ref) with `from` and `to`.
+
+# Example
+- Can be called with different constructors like:
+```
+Scaling(10) -> Scaling(CURRENT_SCALING, (10.0, 10.0))
+Scaling(10, :my-scale) -> Scaling((10.0, 10.0), :my_scale)
+Scaling(10, 2) -> Scaling((10.0, 10.0), (2.0, 2.0))
+Scaling(10, (1,2)) -> Scaling((10.0, 10.0), (1.0, 2.0))
+```
+
+# Fields
+- `from::Union{Tuple{Float64, Float64}, Symbol}`: The start scaling or a link to it
+- `to::Union{Tuple{Float64, Float64}, Symbol}`: The end scaling or a link to it
+- `compute_from_once::Bool`: Saves whether the from is computed for the first frame or
+    every frame. Is true if from is `:_current_scale`.
+"""
+mutable struct Scaling <: Transition
+    from::Union{Tuple{Float64,Float64},Symbol}
+    to::Union{Tuple{Float64,Float64},Symbol}
+    compute_from_once::Bool
+end
+
+Scaling(to::Tuple) = Scaling(:_current_scale, to, true)
+Scaling(to::Real) = Scaling(:_current_scale, convert(Float64, to), true)
+Scaling(to::Symbol) = Scaling(:_current_scale, to, true)
+
+function Scaling(from::Real, to::Real, compute_from_once = false)
+    from_flt = convert(Float64, from)
+    to_flt = convert(Float64, to)
+    Scaling((from_flt, from_flt), (to_flt, to_flt), compute_from_once)
+end
+
+function Scaling(from::Real, to, compute_from_once = false)
+    flt = convert(Float64, from)
+    Scaling((flt, flt), to, compute_from_once)
+end
+
+function Scaling(from, to::Real, compute_from_once = false)
+    flt = convert(Float64, to)
+    Scaling(from, (flt, flt), compute_from_once)
+end
 
 """
     Line
@@ -789,6 +853,37 @@ function compute_transition!(
 end
 
 """
+    compute_transition!(internal_translation::InternalScaling, translation::Scaling,
+                        video, action::AbstractAction, frame)
+
+Computes the scaling transformation for the `action`.
+If the `scaling` is given directly it uses the frame number for interpolation.
+If `scaling` includes symbols, the current definition of that symbol is looked up
+and used for computation.
+"""
+function compute_transition!(
+    internal_scale::InternalScaling,
+    scale::Scaling,
+    video,
+    action::AbstractAction,
+    frame,
+)
+    t = (frame - first(get_frames(action))) / (length(get_frames(action)) - 1)
+    # makes sense to only allow 0 ≤ t ≤ 1
+    t = min(1.0, t)
+    from, to = scale.from, scale.to
+
+    if !scale.compute_from_once || frame == first(get_frames(action))
+        from isa Symbol && (from = get_scale(from))
+        if scale.compute_from_once
+            scale.from = from
+        end
+    end
+    to isa Symbol && (to = get_scale(to))
+    internal_scale.scale = from .+ t .* (to .- from)
+end
+
+"""
     perform_transformation(action::AbstractAction)
 
 Perform the transformations as described in action.internal_transitions
@@ -819,6 +914,15 @@ function perform_transformation(trans::InternalRotation)
 end
 
 """
+    perform_transformation(trans::InternalScaling)
+
+Scale as described in `trans`.
+"""
+function perform_transformation(trans::InternalScaling)
+    scaleto(trans.scale...)
+end
+
+"""
     get_value(s::Symbol)
 
 Get access to the value that got saved in `s` by a previous action.
@@ -829,6 +933,14 @@ and [`get_angle`](@ref).
 - `Any`: the value stored by a previous action.
 """
 function get_value(s::Symbol)
+    is_internal = first(string(s)) == '_'
+    if is_internal
+        internal_sym = Symbol(string(s)[2:end])
+        if hasfield(ActionSetting, internal_sym)
+            return getfield(get_current_setting(), internal_sym)
+        end
+    end
+
     defs = CURRENT_VIDEO[1].defs
     if haskey(defs, s)
         return defs[s]
@@ -863,6 +975,29 @@ get_position(s::Symbol) = get_position(val(s))
 `pos` is just a short-hand for [`get_position`](@ref)
 """
 pos(x) = get_position(x)
+
+# As it is just the number tuple -> return it
+get_scale(x::Tuple{<:Number,<:Number}) = x
+
+# If just the number -> return it as a tuple
+get_scale(x::Number) = (x, x)
+
+"""
+    get_scale(s::Symbol)
+
+Get access to the scaling that got saved in `s` by a previous action.
+
+# Returns
+- `Scaling`: the scale stored by a previous action.
+"""
+get_scale(s::Symbol) = get_scale(val(s))
+
+"""
+    scl(x)
+
+`scl` is just a short-hand for [`get_scale`](@ref)
+"""
+scl(x) = get_scale(x)
 
 get_angle(t::Transformation) = t.angle
 
@@ -913,6 +1048,8 @@ function create_internal_transitions!(action::AbstractAction)
             push!(action.internal_transitions, InternalTranslation(O))
         elseif trans isa Rotation
             push!(action.internal_transitions, InternalRotation(0.0, O))
+        elseif trans isa Scaling
+            push!(action.internal_transitions, InternalScaling((1.0, 1.0)))
         end
     end
 end
@@ -1012,10 +1149,10 @@ function javis(
     else
         CURRENT_ACTION[1] = actions[1]
     end
-    background_settings = ActionSetting()
 
     filecounter = 1
     for frame in frames
+        background_settings = ActionSetting()
         Drawing(
             video.width,
             video.height,
@@ -1140,6 +1277,7 @@ end
 Set the default action values
 - line_width and calls `Luxor.setline`.
 - opacity and calls `Luxor.opacity`.
+- scale and calls `Luxor.scale`.
 """
 function set_action_defaults!(action)
     cs = action.current_setting
@@ -1147,10 +1285,21 @@ function set_action_defaults!(action)
     Luxor.setline(current_line_width)
     current_opacity = cs.opacity * cs.mul_opacity
     Luxor.setopacity(current_opacity)
+
+    desired_scale = cs.desired_scale .* cs.mul_scale
+    scaleto(desired_scale...)
 end
 
-const LUXOR_DONT_EXPORT =
-    [:boundingbox, :Boxmaptile, :Sequence, :setline, :setopacity, :fontsize, :get_fontsize]
+const LUXOR_DONT_EXPORT = [
+    :boundingbox,
+    :Boxmaptile,
+    :Sequence,
+    :setline,
+    :setopacity,
+    :fontsize,
+    :get_fontsize,
+    :scale,
+]
 
 # Export each function from Luxor
 for func in names(Luxor; imported = true)
@@ -1162,12 +1311,12 @@ end
 
 export javis, latex
 export Video, Action, BackgroundAction, SubAction, Rel
-export Line, Translation, Rotation, Transformation
+export Line, Translation, Rotation, Transformation, Scaling
 export val, pos, ang, get_value, get_position, get_angle
 export projection, morph
 export appear, disappear
 
 # custom override of luxor extensions
-export setline, setopacity, fontsize, get_fontsize
+export setline, setopacity, fontsize, get_fontsize, scale
 
 end

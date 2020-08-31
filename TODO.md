@@ -8,8 +8,6 @@ graph TD
     B(#102)
     C(#55)
 
-    B --> A
-    C --> A
 ```
 
 - [ ] 102	OPEN	Ability to see animation live without creating pngs	enhancement	2020-08-18 16:46:49 +0000 UTC
@@ -37,7 +35,7 @@ B-->A
 
 ---
 
-- [ ] 103	OPEN	Transformation: Scale	enhancement	2020-08-18 16:54:28 +0000 UTC
+- [X] 103	OPEN	Transformation: Scale	enhancement	2020-08-18 16:54:28 +0000 UTC
 
 - [ ] 98	OPEN	Hijack Plotting Library for Object Positioning	enhancement, question	2020-08-17 19:32:37 +0000 UTC
 

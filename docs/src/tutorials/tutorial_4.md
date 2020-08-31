@@ -63,7 +63,7 @@ Although one could use standard an `Action` to achieve the same functionality, `
 
 The `subactions` keyword uses a list of [`SubAction`](@ref) structs which are defined in a similar fashion as `Action` with `frames` and a `function` but are in some sense simpler than the `Action`. 
 
-A function of a `SubAction` is normally either [`appear`](@ref) or [`disappear`](@ref) at the moment or one of two transformations: [`Translation`](@ref) and [`Rotation`](@ref).
+A function of a `SubAction` is normally either [`appear`](@ref) or [`disappear`](@ref) at the moment or one of these transformations: [`Translation`](@ref), [`Rotation`](@ref) and [`Scaling`](@ref).
 
 In theory you can define your own but that is way outside of this tutorial.
 
