@@ -957,11 +957,9 @@ end
     javis(
         video::Video,
         actions::Vector{AbstractAction};
-        creategif=false,
         framerate=30,
         pathname="",
-        tempdirectory="",
-        usenewffmpeg=true
+        tempdirectory=""
     )
 
 Similar to `animate` in Luxor with a slightly different structure.
@@ -973,8 +971,9 @@ Instead of using actions and a video instead of scenes in a movie.
 
 # Keywords
 - `framerate::Int`: The frame rate of the video
-- `pathname::String`: The path for the gif if `creategif = true`
+- `pathname::String`: The path for the rendered gif or mp4 (i.e `output.gif` or `output.mp4`)
 - `tempdirectory::String`: The folder where each frame is stored
+    Defaults to a temporary directory when not set
 
 # Example
 ```
@@ -1001,7 +1000,7 @@ javis(demo, [
     Action(1:100, ground),
     Action(1:100, :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
     Action(1:100, (args...)->circ(p2, "blue"), Rotation(to_rot, from_rot, :red_ball))
-], tempdirectory="images", creategif=true, pathname="rotating.gif")
+], tempdirectory="images", pathname="rotating.gif")
 ```
 
 This structure makes it possible to refer to positions of previous actions
