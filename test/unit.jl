@@ -22,6 +22,20 @@
         @test action.internal_transitions[1].by == Point(100, 100)
     end
 
+    @testset "scaling" begin
+        video = Video(500, 500)
+        # dummy action doesn't need a real function
+        action = Action(0:100, () -> 1, Scaling(0.0, 1.0))
+        # needs internal scaling as well
+        push!(action.internal_transitions, Javis.InternalScaling((0, 0)))
+        Javis.compute_transformation!(action, video, 0)
+        @test action.internal_transitions[1].scale == (0.0, 0.0)
+        Javis.compute_transformation!(action, video, 50)
+        @test action.internal_transitions[1].scale == (0.5, 0.5)
+        Javis.compute_transformation!(action, video, 100)
+        @test action.internal_transitions[1].scale == (1.0, 1.0)
+    end
+
     @testset "Relative frames" begin
         video = Video(500, 500)
         action = Action(Rel(10), (args...) -> 1, Translation(Point(1, 1), Point(100, 100)))
