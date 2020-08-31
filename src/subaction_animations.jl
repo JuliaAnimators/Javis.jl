@@ -28,14 +28,20 @@ end
 
 function _appear(video, action, subaction, rel_frame, symbol::Val{:fade_line_width})
     # t is between 0 and 1
-    t = (rel_frame - first(get_frames(subaction)) + 1) / length(get_frames(subaction))
+    t = (rel_frame - first(get_frames(subaction))) / (length(get_frames(subaction)) - 1)
     action.current_setting.mul_line_width = t
 end
 
 function _appear(video, action, subaction, rel_frame, symbol::Val{:fade})
     # t is between 0 and 1
-    t = (rel_frame - first(get_frames(subaction)) + 1) / length(get_frames(subaction))
+    t = (rel_frame - first(get_frames(subaction))) / (length(get_frames(subaction)) - 1)
     action.current_setting.mul_opacity = t
+end
+
+function _appear(video, action, subaction, rel_frame, symbol::Val{:scale})
+    # t is between 0 and 1
+    t = (rel_frame - first(get_frames(subaction))) / (length(get_frames(subaction)) - 1)
+    action.current_setting.mul_scale = t
 end
 
 """
@@ -68,12 +74,18 @@ end
 
 function _disappear(video, action, subaction, rel_frame, symbol::Val{:fade_line_width})
     # t is between 0 and 1
-    t = (rel_frame - first(get_frames(subaction)) + 1) / length(get_frames(subaction))
+    t = (rel_frame - first(get_frames(subaction))) / (length(get_frames(subaction)) - 1)
     action.current_setting.mul_line_width = 1 - t
 end
 
 function _disappear(video, action, subaction, rel_frame, symbol::Val{:fade})
     # t is between 0 and 1
-    t = (rel_frame - first(get_frames(subaction)) + 1) / length(get_frames(subaction))
+    t = (rel_frame - first(get_frames(subaction))) / (length(get_frames(subaction)) - 1)
     action.current_setting.mul_opacity = 1 - t
+end
+
+function _disappear(video, action, subaction, rel_frame, symbol::Val{:scale})
+    # t is between 0 and 1
+    t = (rel_frame - first(get_frames(subaction))) / (length(get_frames(subaction)) - 1)
+    action.current_setting.mul_scale = 1 - t
 end
