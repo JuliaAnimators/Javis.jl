@@ -1,5 +1,9 @@
 # Javis.jl - Changelog
 
+## Unreleased v0.2
+- Show progress of rendering using [ProgressMeter.jl](https://github.com/timholy/ProgressMeter.jl)
+- Use [VideoIO](https://github.com/JuliaIO/VideoIO.jl) for faster rendering without temporary images
+
 ## Unreleased
 - Ability to scale an object with `Scaling`. Works similar to `Translation` and `Rotation` 
 - Added JuliaFormatter GitHub Action

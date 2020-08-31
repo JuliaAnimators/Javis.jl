@@ -6,6 +6,7 @@ using LaTeXStrings
 using LightXML
 import Luxor
 import Luxor: Point, @layer
+using ProgressMeter
 using Random
 using VideoIO
 
@@ -1066,7 +1067,7 @@ function javis(
     end
 
     filecounter = 1
-    for frame in frames
+    @showprogress 1 "Rendering frames..." for frame in frames
         frame_image = convert.(RGB, get_javis_frame(video, actions, frame))
         if !isempty(tempdirectory)
             save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
@@ -1096,7 +1097,6 @@ function javis(
     elseif ext == ".mp4"
         finishencode!(video_encoder, video_io)
         close(video_io)
-        # ffmpeg_exe(`-loglevel panic -framerate $framerate -i $(tempdirectory)/%10d.png  -c:v libx264 -pix_fmt yuv420p $pathname`)
         mux("temp.stream", pathname, framerate)
     else
         @error "Currently, only gif and mp4 creation is supported. Not a $ext."
