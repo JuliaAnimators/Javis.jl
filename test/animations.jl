@@ -471,6 +471,27 @@ end
     end
 end
 
+@testset "Animations.jl @warn" begin
+    video = Video(500, 500)
+    circle_anim = Animation(
+        [0, 0.3, 0.6, 1.2], # must go from 0 to 1
+        [O, Point(150, 0), Point(150, 150), O],
+        [sineio(), polyin(5), expin(8)],
+    )
+    # warning as animation goes to 1.2 but should go to 1.0
+    @test_logs (:warn,) (:warn,) javis(
+        video,
+        [
+            BackgroundAction(1:2, ground),
+            Action(
+                (args...) -> circle(O, 25, :fill);
+                subactions = [SubAction(1:2, circle_anim, translate())],
+            ),
+        ],
+        pathname = "",
+    )
+end
+
 @testset "Scaling circle" begin
     video = Video(500, 500)
     javis(
