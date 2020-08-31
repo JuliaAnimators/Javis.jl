@@ -5,6 +5,7 @@ using LaTeXStrings
 using LightXML
 import Luxor
 import Luxor: Point, @layer
+using ProgressMeter
 using Random
 
 const FRAMES_SYMBOL = [:same]
@@ -914,7 +915,7 @@ function javis(
     background_settings = ActionSetting()
 
     filecounter = 1
-    for frame in frames
+    @showprogress 1 "Rendering frames..." for frame in frames
         Drawing(
             video.width,
             video.height,
