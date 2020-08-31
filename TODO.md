@@ -8,8 +8,6 @@ graph TD
     B(#102)
     C(#55)
 
-    B --> A
-    C --> A
 ```
 
 - [ ] 102	OPEN	Ability to see animation live without creating pngs	enhancement	2020-08-18 16:46:49 +0000 UTC
