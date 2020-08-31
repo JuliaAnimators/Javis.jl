@@ -23,11 +23,7 @@ Example call of this function within an `Action`.
 """
 function draw_grid(; direction::AbstractString = "TR", line_gap = 25)
     return (video, action, frame) ->
-        _draw_grid(video,
-		   action,
-		   frame;
-		   direction = direction,
-		   line_gap = line_gap)
+        _draw_grid(video, action, frame; direction = direction, line_gap = line_gap)
 end
 
 function _draw_grid(
@@ -49,7 +45,7 @@ function _draw_grid(
 
     if direction[1] == 'T'
         # Bottom to top for vertical grid lines
-        for x_point = min_width:line_gap:max_width
+        for x_point in min_width:line_gap:max_width
             start_point = Point(x_point, max_height)
             finish_point = Point(x_point, min_height)
             end_point = start_point + step * (finish_point - start_point)
@@ -57,7 +53,7 @@ function _draw_grid(
         end
     else
         # Top to bottom motion for vertical grid lines
-        for x_point = min_width:line_gap:max_width
+        for x_point in min_width:line_gap:max_width
             start_point = Point(x_point, min_height)
             finish_point = Point(x_point, max_height)
             end_point = start_point + step * (finish_point - start_point)
@@ -67,7 +63,7 @@ function _draw_grid(
 
     if direction[2] == 'R'
         # Left to right motion for horizontal grid lines
-        for y_point = min_height:line_gap:max_height
+        for y_point in min_height:line_gap:max_height
             start_point = Point(min_width, y_point)
             finish_point = Point(max_width, y_point)
             end_point = start_point + step * (finish_point - start_point)
@@ -75,7 +71,7 @@ function _draw_grid(
         end
     else
         # Right to left motion for horizontal grid lines
-        for y_point = min_height:line_gap:max_height
+        for y_point in min_height:line_gap:max_height
             start_point = Point(max_width, y_point)
             finish_point = Point(min_width, y_point)
             end_point = start_point + step * (finish_point - start_point)
@@ -118,12 +114,12 @@ One will need to define their own path for `tempdirectory` and `pathname`.
 
 """
 function zero_lines(; direction::AbstractString = "TR", line_thickness = 10)
-    return (video, action, frame) ->
-       _zero_lines(video,
-        	   action,
-        	   frame;
-        	   direction = direction,
-        	   line_thickness = line_thickness,
+    return (video, action, frame) -> _zero_lines(
+        video,
+        action,
+        frame;
+        direction = direction,
+        line_thickness = line_thickness,
     )
 end
 
@@ -147,21 +143,21 @@ function _zero_lines(
     step = (frame - first(get_frames(action))) / (length(get_frames(action)) - 1)
 
     if direction[1] == 'B'
-	# Top to bottom motion for vertical line
+        # Top to bottom motion for vertical line
         start_point_y = Point(0, min_height)
         end_point_y = start_point_y + step * (Point(0, max_height) - start_point_y)
     else
-	# Bottom to top motion for vertical line
+        # Bottom to top motion for vertical line
         start_point_y = Point(0, max_height)
         end_point_y = start_point_y + step * (Point(0, min_height) - start_point_y)
     end
 
     if direction[2] == 'R'
-	# Left to right motion for horizontal line
+        # Left to right motion for horizontal line
         start_point_x = Point(min_width, 0)
         end_point_x = start_point_x + step * (Point(max_width, 0) - start_point_x)
     else
-	# Right to left motion for horizontal line
+        # Right to left motion for horizontal line
         start_point_x = Point(max_width, 0)
         end_point_x = start_point_x + step * (Point(min_width, 0) - start_point_x)
     end

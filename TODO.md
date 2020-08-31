@@ -8,8 +8,6 @@ graph TD
     B(#102)
     C(#55)
 
-    B --> A
-    C --> A
 ```
 
 - [ ] 102	OPEN	Ability to see animation live without creating pngs	enhancement	2020-08-18 16:46:49 +0000 UTC
@@ -37,7 +35,7 @@ B-->A
 
 ---
 
-- [ ] 103	OPEN	Transformation: Scale	enhancement	2020-08-18 16:54:28 +0000 UTC
+- [X] 103	OPEN	Transformation: Scale	enhancement	2020-08-18 16:54:28 +0000 UTC
 
 - [ ] 98	OPEN	Hijack Plotting Library for Object Positioning	enhancement, question	2020-08-17 19:32:37 +0000 UTC
 
@@ -76,7 +74,7 @@ graph TD
 
 - [ ] 64	OPEN	Javis Templates	Low Priority, To the Moon!, documentation, …	2020-08-09 18:31:06 +0000 UTC
 
-- [ ] 56	OPEN	ProgressMeter	enhancement	2020-08-09 22:21:42 +0000 UTC
+- [x] 56	OPEN	ProgressMeter	enhancement	2020-08-09 22:21:42 +0000 UTC
 
 - [ ] 42	OPEN	Using Animations.jl	enhancement, question	2020-08-05 13:42:17 +0000 UTC
 

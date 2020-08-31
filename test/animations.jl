@@ -82,7 +82,7 @@ end
 
     @test_reference "refs/dancing_circles_16.png" load("images/0000000016.png")
     @test isfile("dancing.gif")
-    for i = 1:25
+    for i in 1:25
         rm("images/$(lpad(i, 10, "0")).png")
     end
     rm("images/palette.bmp")
@@ -178,7 +178,7 @@ end
     )
 
     @test_reference "refs/dancing_circles_16_rot_trans.png" load("images/0000000016.png")
-    for i = 1:25
+    for i in 1:25
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
@@ -224,7 +224,7 @@ end
     )
 
     @test_reference "refs/dancing_circles_16_rot_trans.png" load("images/0000000016.png")
-    for i = 1:25
+    for i in 1:25
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
@@ -252,7 +252,7 @@ end
     @test_reference "refs/grid_drawing_br.png" load("images/0000000018.png")
     @test_reference "refs/grid_drawing_tl.png" load("images/0000000028.png")
     @test_reference "refs/grid_drawing_tr.png" load("images/0000000038.png")
-    for i = 1:40
+    for i in 1:40
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
@@ -274,7 +274,7 @@ end
     )
 
     @test_reference "refs/circle_angle.png" load("images/0000000008.png")
-    for i = 1:10
+    for i in 1:10
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
@@ -302,7 +302,7 @@ acirc(args...) = circle(Point(100, 100), 30)
 
     @test_reference "refs/star2circle5.png" load("images/0000000005.png")
     @test_reference "refs/star2circle15.png" load("images/0000000015.png")
-    for i = 1:20
+    for i in 1:20
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
@@ -356,7 +356,39 @@ end
     @test_reference "refs/nicholas15.png" load("images/0000000015.png")
     @test_reference "refs/nicholas25.png" load("images/0000000025.png")
     @test_reference "refs/nicholas35.png" load("images/0000000035.png")
-    for i = 1:50
+    for i in 1:50
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
+@testset "Squeezing a circle using scale" begin
+    demo = Video(500, 500)
+    javis(
+        demo,
+        [
+            BackgroundAction(1:100, ground),
+            Action(:start_scale, (args...) -> (1.0, 1.0)),
+            Action(
+                (args...) -> circ();
+                subactions = [
+                    SubAction(1:25, Scaling((1.0, 1.5))),
+                    SubAction(Rel(25), Scaling((2.0, 1.0))),
+                    SubAction(Rel(25), Scaling(:start_scale)),
+                    SubAction(Rel(25), Scaling(2.0)),
+                ],
+            ),
+            Action((args...) -> circ(Point(-100, 0))),
+        ],
+        tempdirectory = "images",
+        pathname = "",
+    )
+
+    @test_reference "refs/squeeze15.png" load("images/0000000015.png")
+    @test_reference "refs/squeeze25.png" load("images/0000000025.png")
+    @test_reference "refs/squeeze35.png" load("images/0000000035.png")
+    @test_reference "refs/squeeze65.png" load("images/0000000065.png")
+    @test_reference "refs/squeeze85.png" load("images/0000000085.png")
+    for i in 1:100
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
@@ -407,7 +439,60 @@ end
     # test that the last frame is completely white
     @test sum(load("images/0000000050.png")) ==
           RGB{Float64}(500 * 500, 500 * 500, 500 * 500)
-    for i = 1:50
+    for i in 1:50
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
+@testset "Scaling circle" begin
+    video = Video(500, 500)
+    javis(
+        video,
+        [
+            BackgroundAction(1:50, ground),
+            Action(:set_scale, (args...) -> 2),
+            Action(
+                (args...) -> circ(),
+                subactions = [
+                    SubAction(1:15, Scaling(0.0, :set_scale)),
+                    SubAction(36:50, Scaling(0.0)),
+                ],
+            ),
+        ],
+        tempdirectory = "images",
+        pathname = "",
+    )
+
+    @test_reference "refs/scalingCircle07.png" load("images/0000000007.png")
+    @test_reference "refs/scalingCircle25.png" load("images/0000000025.png")
+    @test_reference "refs/scalingCircle42.png" load("images/0000000042.png")
+
+    # test using appear and disappear
+    video = Video(500, 500)
+    javis(
+        video,
+        [
+            BackgroundAction(1:50, ground),
+            BackgroundAction(1:50, (args...) -> scale(2)),
+            Action(
+                (args...) -> circ(),
+                subactions = [
+                    SubAction(1:15, appear(:scale)),
+                    SubAction(36:50, disappear(:scale)),
+                ],
+            ),
+        ],
+        tempdirectory = "images",
+        pathname = "",
+    )
+
+    @test_reference "refs/scalingCircle07.png" load("images/0000000007.png")
+    @test_reference "refs/scalingCircle25.png" load("images/0000000025.png")
+    @test_reference "refs/scalingCircle42.png" load("images/0000000042.png")
+    # test that the last frame is completely white
+    @test sum(load("images/0000000050.png")) ==
+          RGB{Float64}(500 * 500, 500 * 500, 500 * 500)
+    for i in 1:50
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
