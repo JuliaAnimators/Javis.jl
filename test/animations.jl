@@ -102,40 +102,33 @@ end
         video,
         [
             BackgroundAction(
-                1:2,
+                1:30,
                 ground,
                 Rotation(0.0),
                 Translation(Point(25, 25), Point(25, 25)),
             ),
             Action(latex_title),
+            Action(:red_ball, (args...) -> circ(p1, "red"), Rotation(from_rot, to_rot)),
             Action(
-                Rel(-1:0),
-                :red_ball,
-                (args...) -> circ(p1, "red"),
-                Rotation(from_rot, to_rot),
-            ),
-            Action(
-                1:2,
+                1:30,
                 :blue_ball,
                 (args...) -> circ(p2, "blue"),
                 Rotation(to_rot, from_rot, :red_ball),
             ),
             Action(
-                1:2,
+                1:30,
                 (video, args...) -> path!(path_of_red, get_position(:red_ball), "red"),
             ),
             Action(:same, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue")),
-            Action(1:2, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
+            Action(1:30, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
         ],
         tempdirectory = "images",
         pathname = "dancing.mp4",
+        framerate = 1,
     )
 
-    # The `y` for isapprox was determined experimentally on a Fedora 32 OS.
-    # On that machine, the time duration was found to be `0.067` seconds.
-    # The `atol` was also experimentally determined based upon VideoIO's
-    # `get_duration` function.
-    @test isapprox(VideoIO.get_duration("dancing.mp4"), 0.07, atol = 0.01)
+    # 30 frames with a framerate of 1 should take about 30 seconds ;)
+    @test isapprox(VideoIO.get_duration("dancing.mp4"), 30.0, atol = 0.1)
     rm("dancing.mp4")
 end
 

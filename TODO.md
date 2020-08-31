@@ -14,7 +14,7 @@ graph TD
 
 - [x] 101	OPEN	Generate mp4	enhancement	2020-08-18 16:46:14 +0000 UTC
 
-- [ ] 55	OPEN	Usage of VideoIO		2020-08-12 16:50:28 +0000 UTC
+- [x] 55	OPEN	Usage of VideoIO		2020-08-12 16:50:28 +0000 UTC
 
 
 
