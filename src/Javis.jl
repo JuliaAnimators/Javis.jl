@@ -971,7 +971,7 @@ Instead of using actions and a video instead of scenes in a movie.
 
 # Keywords
 - `framerate::Int`: The frame rate of the video
-- `pathname::String`: The path for the rendered gif or mp4 i.e `output.gif`
+- `pathname::String`: The path for the rendered gif or mp4 (i.e `output.gif` or `output.mp4`)
 - `tempdirectory::String`: The folder where each frame is stored
     Defaults to a temporary directory when not set
 
