@@ -5,6 +5,7 @@ version = "0.1.2"
 
 [deps]
 FFMPEG = "c87230d0-a227-11e9-1b43-d7ebe4e7570a"
+Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 LightXML = "9c8b4983-aa76-5018-a973-4c85ecc9e179"
 Luxor = "ae8d54c2-7ccd-5906-9d76-62fc9837b5bc"

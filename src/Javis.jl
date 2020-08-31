@@ -1,6 +1,7 @@
 module Javis
 
 using FFMPEG
+using Images
 using LaTeXStrings
 using LightXML
 import Luxor
@@ -1050,38 +1051,11 @@ function javis(
 
     filecounter = 1
     for frame in frames
-        background_settings = ActionSetting()
-        Drawing(
-            video.width,
-            video.height,
+        frame_image = get_javis_frame(video, actions, frame)
+        save(
             "$(tempdirectory)/$(lpad(filecounter, 10, "0")).png",
+            convert.(RGB, frame_image),
         )
-        origin()
-        origin_matrix = cairotojuliamatrix(getmatrix())
-        # this frame needs doing, see if each of the scenes defines it
-        for action in actions
-            # if action is not in global layer this sets the background_settings
-            # from the parent background action
-            update_action_settings!(action, background_settings)
-            CURRENT_ACTION[1] = action
-            if frame in get_frames(action)
-                # check if the action should be part of the global layer (i.e BackgroundAction)
-                # or in its own layer (default)
-                in_global_layer = get(action.opts, :in_global_layer, false)
-                if !in_global_layer
-                    @layer begin
-                        perform_action(action, video, frame, origin_matrix)
-                    end
-                else
-                    perform_action(action, video, frame, origin_matrix)
-                    # update origin_matrix as it's inside the global layer
-                    origin_matrix = cairotojuliamatrix(getmatrix())
-                end
-            end
-            # if action is in global layer this changes the background settings
-            update_background_settings!(background_settings, action)
-        end
-        finish()
         filecounter += 1
     end
 
@@ -1102,6 +1076,47 @@ function javis(
         @error "Currently, only gif and mp4 creation is supported. Not a $ext."
     end
     return pathname
+end
+
+"""
+    get_javis_frame(video, actions, frame)
+
+Get one specific frame of a video with actions.
+
+# Returns
+- `ARGB Matrix` the frame image as a matrix
+"""
+function get_javis_frame(video, actions, frame)
+    background_settings = ActionSetting()
+    Drawing(video.width, video.height, :image)
+    origin()
+    origin_matrix = cairotojuliamatrix(getmatrix())
+    # this frame needs doing, see if each of the scenes defines it
+    for action in actions
+        # if action is not in global layer this sets the background_settings
+        # from the parent background action
+        update_action_settings!(action, background_settings)
+        CURRENT_ACTION[1] = action
+        if frame in get_frames(action)
+            # check if the action should be part of the global layer (i.e BackgroundAction)
+            # or in its own layer (default)
+            in_global_layer = get(action.opts, :in_global_layer, false)
+            if !in_global_layer
+                @layer begin
+                    perform_action(action, video, frame, origin_matrix)
+                end
+            else
+                perform_action(action, video, frame, origin_matrix)
+                # update origin_matrix as it's inside the global layer
+                origin_matrix = cairotojuliamatrix(getmatrix())
+            end
+        end
+        # if action is in global layer this changes the background settings
+        update_background_settings!(background_settings, action)
+    end
+    img = image_as_matrix()
+    finish()
+    return img
 end
 
 function update_background_settings!(setting::ActionSetting, action::Action)
