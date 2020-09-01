@@ -6,8 +6,6 @@ using Cairo
 # TODO: Finely label each code chunk
 # TODO: Modularize code into functions
 # TODO: Explore `hexpand` and `vexpand` and `expand` key words
-# TODO: Paint received matrix in GTK canvas/frame
-# TODO: Program forward and backward playthrough buttons
 # TODO: Intelligent way of handling slider
 
 function ground(args...)
@@ -143,18 +141,12 @@ signal_connect(backward, "clicked") do widget
     end
 end
 
-box = GtkButtonBox(:h)
-
 # Allocate the widgets in the grid.
 g1[1:3, 1] = fimg
 g1[1:3, 2] = sl
 g1[1, 3] = backward
 g1[2, 3] = tb
 g1[3, 3] = forward
-g1[1, 4] = rewind
-g1[2, 4] = GtkLabel("Javis Viewer")
-g1[3, 4] = fast_forward
-
 
 set_gtk_property!(g1, :valign, 4) # center all elements in vertical
 set_gtk_property!(g1, :halign, 4) # center all elements in horizontal
