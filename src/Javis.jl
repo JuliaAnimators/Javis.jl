@@ -15,6 +15,12 @@ struct ReversedEasing
     easing::Easing
 end
 
+"""
+    rev(e::Easing)
+
+Reverse an easing function such that `easing_to_animation` maps it to `[1.0, 0.0]` instead of `[0.0, 1.0]`.
+An example can be seen in [`rotate`](@ref)
+"""
 rev(e::Easing) = ReversedEasing(e)
 
 """
