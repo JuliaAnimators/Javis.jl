@@ -6,7 +6,7 @@ using Javis
 # TODO: Modularize code into functions
 # TODO: Explore `hexpand` and `vexpand` and `expand` key words
 # TODO: Paint received matrix in GTK canvas/frame
-# TODO: Program forward and backward playthrough buttons 
+# TODO: Program forward and backward playthrough buttons
 # TODO: Intelligent way of handling slider
 
 function ground(args...)
@@ -28,7 +28,7 @@ from_rot = 0.0
 to_rot = 2π
 
 #=
-FIXME: 
+FIXME:
 Fascinating bug I found.
 Apparently to create a list of actions anywhere, you must first define a Video object.
 Else, you get an error like this:
@@ -60,7 +60,7 @@ javis(demo, action_list, pathname = "rotating.gif")
 
 frame_dims = size(Javis.get_javis_frame(demo, action_list, 1))
 
-#= 
+#=
 
 TODO:
 Discuss with Ole about reasonable defaults for generating the dimensions of a image viewer.
@@ -70,8 +70,8 @@ Discuss with Ole about reasonable defaults for generating the dimensions of a im
 win = GtkWindow("Javis Viewer", frame_dims[1] + 100, frame_dims[2] + 100)
 
 fimg = Gtk.Frame()
-set_gtk_property!(fimg, :width_request, frame_dims[1]) 
-set_gtk_property!(fimg, :height_request, frame_dims[2]) 
+set_gtk_property!(fimg, :width_request, frame_dims[1])
+set_gtk_property!(fimg, :height_request, frame_dims[2])
 
 signal_connect(win, "key-press-event") do widget, event
     mystring = get_gtk_property(tb, :text, String)
@@ -80,14 +80,27 @@ signal_connect(win, "key-press-event") do widget, event
     end
 end
 
+
 # NOTE: To put an image into a frame, `push!()` it into it!
 
 g1 = Gtk.Grid() # Grid to allocate widgets
 
 sl = slider(1:11)
 tb = GtkReactive.textbox(Int; signal = signal(sl))
-forward = GtkButton("-->")
-backward = GtkButton("<--") 
+forward = GtkButton(">>>")
+backward = GtkButton("<<<")
+
+signal_connect(forward, "clicked") do widget
+    curr_frame = parse(Int, get_gtk_property(tb, :text, String))
+    push!(sl, curr_frame + 1)
+    frame_mat = Javis.get_javis_frame(demo, action_list, num)
+end
+
+signal_connect(backward, "clicked") do widget
+    curr_frame = parse(Int, get_gtk_property(tb, :text, String))
+    push!(sl, curr_frame - 1)
+    frame_mat = Javis.get_javis_frame(demo, action_list, num)
+end
 
 # Allocate the widgets in the grid.
 g1[1:3, 1] = fimg
