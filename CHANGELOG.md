@@ -3,7 +3,8 @@
 ## Unreleased v0.2
 - Ability to use [Animations.jl](https://github.com/jkrumbiegel/Animations.jl) 
   - for Transformations and `appear` and `disappear`
-  
+- Show progress of rendering using [ProgressMeter.jl](https://github.com/timholy/ProgressMeter.jl)
+
 ## Unreleased
 - Ability to scale an object with `Scaling`. Works similar to `Translation` and `Rotation` 
 - Added JuliaFormatter GitHub Action
