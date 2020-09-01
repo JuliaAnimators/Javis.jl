@@ -2,6 +2,8 @@
 
 ## Unreleased v0.2
 - Show progress of rendering using [ProgressMeter.jl](https://github.com/timholy/ProgressMeter.jl)
+
+## Unreleased
 - Ability to scale an object with `Scaling`. Works similar to `Translation` and `Rotation` 
 - Added JuliaFormatter GitHub Action
 
