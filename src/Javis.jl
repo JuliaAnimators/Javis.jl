@@ -1097,7 +1097,7 @@ function javis(
     elseif ext == ".mp4"
         finishencode!(video_encoder, video_io)
         close(video_io)
-        mux("temp.stream", pathname, framerate)
+        mux("temp.stream", pathname, framerate; silent=true)
     else
         @error "Currently, only gif and mp4 creation is supported. Not a $ext."
     end
