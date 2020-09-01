@@ -492,6 +492,56 @@ end
     )
 end
 
+@testset "Animations.jl rotate, scale, translate" begin
+    video = Video(500, 500)
+    translate_anim = Animation(
+        [0, 1], # must go from 0 to 1
+        [O, Point(150, 0)],
+        [sineio()],
+    )
+
+    translate_back_anim = Animation(
+        [0, 1], # must go from 0 to 1
+        [O, Point(-150, 0)],
+        [sineio()],
+    )
+
+    rotate_anim = Animation(
+        [0, 1], # must go from 0 to 1
+        [0, 2π],
+        [linear()],
+    )
+
+    javis(
+        video,
+        [
+            BackgroundAction(1:150, ground),
+            Action(
+                (args...) -> circle(O, 25, :fill);
+                subactions = [
+                    SubAction(1:10, sineio(), scale()),
+                    SubAction(11:50, translate_anim, translate()),
+                    SubAction(51:100, rotate_anim, rotate_around(Point(-150, 0))),
+                    SubAction(101:140, translate_back_anim, translate()),
+                    SubAction(141:150, rev(sineio()), scale()),
+                ],
+            ),
+        ],
+        tempdirectory = "images",
+        pathname = "",
+    )
+
+    @test_reference "refs/animations_all_05.png" load("images/0000000005.png")
+    @test_reference "refs/animations_all_25.png" load("images/0000000025.png")
+    @test_reference "refs/animations_all_65.png" load("images/0000000065.png")
+    @test_reference "refs/animations_all_125.png" load("images/0000000125.png")
+    @test_reference "refs/animations_all_145.png" load("images/0000000145.png")
+
+    for i in 1:150
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
 @testset "Scaling circle" begin
     video = Video(500, 500)
     javis(

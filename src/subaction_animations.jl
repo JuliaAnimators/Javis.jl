@@ -87,7 +87,7 @@ end
 """
     translate()
 
-Translate a function defined inside an [`Action`](@ref) using an Animation defined
+Translate a function defined inside a [`SubAction`](@ref) using an Animation defined
 with Animations.jl.
 
 If you're used to working with Animations.jl this should feel quite natural.
@@ -152,4 +152,108 @@ end
 function _translate(video, action, subaction, rel_frame)
     p = get_interpolation(subaction, rel_frame)
     Luxor.translate(p)
+end
+
+"""
+    rotate()
+
+Rotate a function defined inside a [`SubAction`](@ref) using an Animation defined
+with Animations.jl.
+
+If you're used to working with Animations.jl this should feel quite natural.
+Instead of defining each movement in its own subaction it's possible to define it in one
+by using an Animation.
+
+# Example
+```
+using Javis, Animations
+
+video = Video(500, 500)
+translate_anim = Animation(
+    [0, 1], # must go from 0 to 1
+    [O, Point(150, 0)],
+    [sineio()],
+)
+
+translate_back_anim = Animation(
+    [0, 1], # must go from 0 to 1
+    [O, Point(-150, 0)],
+    [sineio()],
+)
+
+rotate_anim = Animation(
+    [0, 1], # must go from 0 to 1
+    [0, 2π],
+    [linear()],
+)
+
+javis(
+    video,
+    [
+        BackgroundAction(1:150, ground),
+        Action(
+            (args...) -> circle(O, 25, :fill);
+            subactions = [
+                SubAction(1:10, sineio(), scale()),
+                SubAction(11:50, translate_anim, translate()),
+                SubAction(51:100, rotate_anim, rotate_around(Point(-150, 0))),
+                SubAction(101:140, translate_back_anim, translate()),
+                SubAction(141:150, rev(sineio()), scale())
+            ],
+        ),
+    ],
+    pathname = "animation.gif",
+)
+```
+
+which uses the `SubAction` syntax five times with both easing functions directly and animation objects.
+The `rev(sineio())` creates an `Animation` which goes from `1.0` to `0.0`.
+"""
+function Luxor.rotate()
+    (video, action, subaction, rel_frame) -> _rotate(video, action, subaction, rel_frame)
+end
+
+function _rotate(video, action, subaction, rel_frame)
+    p = get_interpolation(subaction, rel_frame)
+    Luxor.rotate(p)
+end
+
+"""
+    rotate_around(p::Point)
+
+Rotate a function defined inside a [`SubAction`](@ref) using an Animation defined
+with Animations.jl around the point `p`.
+
+An example can be seen in [`rotate`](@ref).
+
+# Arguments
+- `p::Point`: the point to rotate around
+"""
+function rotate_around(p::Point)
+    (video, action, subaction, rel_frame) ->
+        _rotate_around(video, action, subaction, rel_frame, p)
+end
+
+function _rotate_around(video, action, subaction, rel_frame, p)
+    i = get_interpolation(subaction, rel_frame)
+    Luxor.translate(p)
+    Luxor.rotate(i)
+    Luxor.translate(-p)
+end
+
+"""
+    scale()
+
+Scale a function defined inside a [`SubAction`](@ref) using an Animation defined
+with Animations.jl around the point `p`.
+
+An example can be seen in [`rotate`](@ref).
+"""
+function scale()
+    (video, action, subaction, rel_frame) -> _scale(video, action, subaction, rel_frame)
+end
+
+function _scale(video, action, subaction, rel_frame)
+    p = get_interpolation(subaction, rel_frame)
+    scale(p)
 end

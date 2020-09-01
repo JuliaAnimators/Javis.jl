@@ -11,6 +11,12 @@ using Random
 
 const FRAMES_SYMBOL = [:same]
 
+struct ReversedEasing
+    easing::Easing
+end
+
+rev(e::Easing) = ReversedEasing(e)
+
 """
     Video
 
@@ -150,7 +156,7 @@ mutable struct SubAction <: AbstractAction
 end
 
 """
-    SubAction(frames, easing::Easing, args...)
+    SubAction(frames, easing::Union{ReversedEasing, Easing}, args...)
 
 A `SubAction` can be defined with frames an
 [easing function](https://jkrumbiegel.github.io/Animations.jl/stable/#Easings-1) and either
@@ -177,11 +183,11 @@ javis(demo, [
 # Arguments
 - `frames`: A list of frames for which the function should be called.
     - The frame numbers are relative to the parent [`Action`](@ref).
-- `easing::Easing`: The easing function for `args...`
+- `easing::Union{ReversedEasing, Easing}`: The easing function for `args...`
 - `args...`: Either a function like [`appear`](@ref) or a Transformation
     like [`Translation`](@ref)
 """
-SubAction(frames, easing::Easing, args...) =
+SubAction(frames, easing::Union{ReversedEasing,Easing}, args...) =
     SubAction(frames, easing_to_animation(easing), args...)
 
 SubAction(frames, anim::Animation, transition::Transition...) =
@@ -386,6 +392,8 @@ The current action can be accessed using CURRENT_ACTION[1]
 const CURRENT_ACTION = Array{Action,1}()
 
 easing_to_animation(easing) = Animation(0.0, 0.0, easing, 1.0, 1.0)
+easing_to_animation(rev_easing::ReversedEasing) =
+    Animation(0.0, 1.0, rev_easing.easing, 1.0, 0.0)
 
 """
     Action(frames, func::Function, args...)
@@ -440,7 +448,7 @@ function Action(
 end
 
 """
-    Action(frames, id::Union{Nothing,Symbol}, func::Function, easing::Easing,
+    Action(frames, id::Union{Nothing,Symbol}, func::Function, easing::Union{ReversedEasing, Easing},
            args...; kwargs...)
 
 Fallback constructor for an Action which does define an animation using an easing function.
@@ -459,7 +467,7 @@ function Action(
     frames,
     id::Union{Nothing,Symbol},
     func::Function,
-    easing::Easing,
+    easing::Union{ReversedEasing,Easing},
     args...;
     kwargs...,
 )
@@ -1314,7 +1322,8 @@ export Video, Action, BackgroundAction, SubAction, Rel
 export Line, Translation, Rotation, Transformation, Scaling
 export val, pos, ang, get_value, get_position, get_angle
 export projection, morph
-export appear, disappear
+export appear, disappear, rotate_around
+export rev
 
 # custom override of luxor extensions
 export setline, setopacity, fontsize, get_fontsize, scale
