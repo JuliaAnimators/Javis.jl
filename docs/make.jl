@@ -19,7 +19,6 @@ makedocs(;
             "tutorials/tutorial_2.md",
             "tutorials/tutorial_3.md",
             "tutorials/tutorial_4.md",
-            "tutorials/tutorial_5.md",
         ],
         "Mission" => "mission.md",
         "References" => "references.md",
