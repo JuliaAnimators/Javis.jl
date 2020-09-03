@@ -140,7 +140,7 @@ Now that we have the gridlines, let's add in our electrode!
 
 > **NOTE:** If you noticed, we used Symbols to mark each `Action`.
 > `id`'s can actually be used to store the returns of a function called via an `Action`.
-> This functionality was introduced in [Tutorial 1](tutorial_1) and will be further explored in future tutorials.
+> This functionality was introduced in [Tutorial 1](tutorial_1.md) and will be further explored in future tutorials.
 > An alternative syntax that is valid is to leave out the `id` and instead use a comment to mark what `Action` does what. 
 
 We have to define our own function to create an electrode.
