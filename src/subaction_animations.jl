@@ -121,7 +121,7 @@ javis(
 )
 ```
 
-This notation uses the Animations.jl library very explicitly. It's also possibble to do the
+This notation uses the Animations.jl library very explicitly. It's also possible to do the
 same with:
 
 ```
