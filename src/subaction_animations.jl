@@ -62,7 +62,7 @@ of the [`Action`](@ref) so `181-200`.
 # Arguments
 - `s::Symbol`: the symbol defines the animation of disappearance
     The only symbols that are currently supported are:
-    - `:fade_line_width` which descreases the line width up to the default value
+    - `:fade_line_width` which decreases the line width up to the default value
         or the value specified by [`setline`](@ref)
     - `:fade` which decreases the opcacity up to the default value
         or the value specified by [`setopacity`](@ref)
