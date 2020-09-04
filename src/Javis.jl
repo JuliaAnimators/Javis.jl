@@ -1,5 +1,6 @@
 module Javis
 
+using ColorTypes: ARGB32
 using FFMPEG
 using Images
 using LaTeXStrings
@@ -1142,7 +1143,7 @@ function get_javis_frame(video, actions, frame)
         # if action is in global layer this changes the background settings
         update_background_settings!(background_settings, action)
     end
-    img = image_as_matrix()
+    img = convert.(ARGB32, image_as_matrix())
     finish()
     return img
 end
