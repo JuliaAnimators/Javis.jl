@@ -4,6 +4,7 @@ authors = ["Ole Kröger <o.kroeger@opensourc.es>", "Jacob Zelko <jacobszelko@gma
 version = "0.1.2"
 
 [deps]
+ColorTypes = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
 FFMPEG = "c87230d0-a227-11e9-1b43-d7ebe4e7570a"
 Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
