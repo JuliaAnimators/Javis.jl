@@ -6,7 +6,7 @@ If you are reading this tutorial, I am going to assume this is the first time yo
 In that case, welcome to `Javis`! 😃 
 By following this tutorial, we are going to make you a director of your very own animations written in pure Julia! 🎬 🎥
 
-If you have not installed `Javis` yet, please visit the homepage to [read the installation instructions](../index.html#Installation).
+If you have not installed `Javis` yet, please visit the homepage to [read the installation instructions](../index.md#Installing-Javis.jl).
 
 ## Learning Outcomes
 
@@ -72,7 +72,7 @@ myvideo = Video(500,500) # 500 x 500 // width x height
 ### `actions`
 
 Core to not only the `javis` function but the entire `Javis.jl` library are `Action` objects. 
-`Action` objects will be better explained in [Tutorial 2](tutorial_2).
+`Action` objects will be better explained in [Tutorial 2](tutorial_2.md).
 For now, just know that an `Action` object is what draws shapes or moves shapes on a `Video`.
 In the `javis` function, `actions` is a vector of `Action` objects.
 
