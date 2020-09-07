@@ -1,7 +1,10 @@
 module Javis
 
+using Cairo: CairoImageSurface, image
 using ColorTypes: ARGB32
 using FFMPEG
+using Gtk
+using GtkReactive
 using Images
 using LaTeXStrings
 using LightXML
@@ -605,6 +608,7 @@ include("backgrounds.jl")
 include("svg2luxor.jl")
 include("morphs.jl")
 include("subaction_animations.jl")
+include("javis_viewer.jl")
 
 latex(text::LaTeXString) = latex(text, O)
 latex(text::LaTeXString, pos::Point) = latex(text, pos, :stroke)
@@ -1016,6 +1020,7 @@ function javis(
     actions::Vector{AA};
     framerate = 30,
     pathname = "javis_$(randstring(7)).gif",
+    liveview = false,
     tempdirectory = "",
 ) where {AA<:AbstractAction}
     compute_frames!(actions)
@@ -1071,7 +1076,7 @@ function javis(
     @showprogress 1 "Rendering frames..." for frame in frames
         frame_image = convert.(RGB, get_javis_frame(video, actions, frame))
         if !isempty(tempdirectory)
-            save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
+            Images.save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
         end
         if render_mp4
             if frame == first(frames)
@@ -1084,6 +1089,10 @@ function javis(
             appendencode!(video_encoder, video_io, frame_image, filecounter)
         end
         filecounter += 1
+    end
+    
+    if liveview == true
+        javis_viewer(video = video, frames = length(frames), action_list = actions)
     end
 
     isempty(pathname) && return
