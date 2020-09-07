@@ -168,6 +168,16 @@
 
         actions = [
             BackgroundAction(1:50, (args...) -> 1),
+            Action(:atom, (args...) -> 1, subactions = [SubAction((args...) -> 1)]),
+        ]
+        demo = Video(500, 500)
+        javis(demo, actions; pathname = "")
+        @test Javis.get_frames(actions[1]) == 1:50
+        @test Javis.get_frames(actions[2]) == 1:50
+        @test Javis.get_frames(actions[2].subactions[1]) == 1:50
+
+        actions = [
+            BackgroundAction(1:50, (args...) -> 1),
             Action(
                 Rel(-19:0),
                 :atom,
