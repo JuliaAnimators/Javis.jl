@@ -125,6 +125,8 @@ function scale(scl_x, scl_y)
     # println("cs.current_scale: $(cs.current_scale)")
 end
 
+scaleto(xy) = scaleto(xy, xy)
+
 """
     scaleto(x, y)
 
