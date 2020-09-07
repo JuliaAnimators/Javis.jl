@@ -1113,7 +1113,7 @@ end
 Get one specific frame of a video with actions.
 
 # Returns
-- `ARGB Matrix` the frame image as a matrix
+- `ARGB Matrix` - the frame image as a matrix
 """
 function get_javis_frame(video, actions, frame)
     background_settings = ActionSetting()
@@ -1147,6 +1147,23 @@ function get_javis_frame(video, actions, frame)
     finish()
     return img
 end
+
+```
+
+```
+function javis_frame_count(video, actions, frame)
+    compute_frames!(actions)
+
+    for action in actions
+        compute_frames!(action.subactions)
+    end
+
+    # get all frames
+    frames = Int[]
+    for action in actions
+        append!(frames, collect(get_frames(action)))
+    end
+    frames = unique(frames)
 
 function update_background_settings!(setting::ActionSetting, action::Action)
     in_global_layer = get(action.opts, :in_global_layer, false)
@@ -1255,6 +1272,7 @@ export javis, latex
 export Video, Action, BackgroundAction, SubAction, Rel
 export Line, Translation, Rotation, Transformation, Scaling
 export val, pos, ang, get_value, get_position, get_angle
+export get_javis_frame
 export projection, morph
 export appear, disappear
 
