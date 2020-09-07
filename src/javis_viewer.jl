@@ -3,9 +3,6 @@ using Gtk
 using GtkReactive
 using Javis
 
-# TODO: Finely label each code chunk
-# TODO: Better way of getting the get_javis_frame
-# TODO: How to send video to Javis viewer from main code
 # TODO: Intelligent way of handling slider
 
 ###############################################################################
@@ -61,21 +58,25 @@ in expression starting at /home/src/Projects/javis/src/javis_viewer.jl:34
 
 =#
 
-# Get dimensions of frame size corresponding to a javis animation
-frame_dims = size(Javis.get_javis_frame(demo, action_list, 1))
+#####################################################################
+# VIEWER WINDOW AND CONFIGURATION
+#####################################################################
 
-# Create GtkWindow for making Javis Viewer based on `frame_dims`
+frame_dims = size(get_javis_frame(demo, action_list, 1))
 win = GtkWindow("Javis Viewer", frame_dims[1], frame_dims[2])
 
-# Create widgets for Javis Viewer
-slide = slider(1:20) # Creates a slider
-tbox = GtkReactive.textbox(Int; signal = signal(slide)) # Creates a textbox
-forward = GtkButton("==>") # Button for going forward through animation
-backward = GtkButton("<==") # Button for going backward through animation
-
-# Setting various properties of the Javis Viewer
 set_gtk_property!(win, :title, "Javis Viewer") # Sets title of window
 set_gtk_property!(win, :border_width, 20) # Sets border size of window
+
+#####################################################################
+# DISPLAY WIDGETS
+#####################################################################
+
+slide = slider(1:20) # Creates a slider
+tbox = GtkReactive.textbox(Int; signal = signal(slide)) # Creates a textbox
+
+forward = GtkButton("==>") # Button for going forward through animation
+backward = GtkButton("<==") # Button for going backward through animation
 
 #=
 
@@ -85,24 +86,26 @@ I think I can use the `configure-event` signal in GTK3 documentation (link: http
 
 =#
 
-# Sets the dimensions of the frame to be displayed.
-can = Gtk.Canvas(frame_dims[1], frame_dims[2])
+#####################################################################
+# VIEWER CANVAS AND GRID CONFIGURATION
+#####################################################################
 
-g1 = Gtk.Grid() # Grid to allocate widgets
+can = Gtk.Canvas(frame_dims[1], frame_dims[2]) # Frame size to be displayed.
+grid = Gtk.Grid() # Grid to allocate widgets
 
 # Allocate the widgets in the grid.
-g1[1:3, 1] = can
-g1[1:3, 2] = slide
-g1[1, 3] = backward
-g1[2, 3] = tbox
-g1[3, 3] = forward
+grid[1:3, 1] = can
+grid[1:3, 2] = slide
+grid[1, 3] = backward
+grid[2, 3] = tbox
+grid[3, 3] = forward
 
 # Set properties of the grid
-set_gtk_property!(g1, :valign, 4) # center all elements in vertical
-set_gtk_property!(g1, :halign, 4) # center all elements in horizontal
-set_gtk_property!(g1, :column_homogeneous, true) # center all elements in vertical
+set_gtk_property!(grid, :valign, 4) # center all elements in vertical
+set_gtk_property!(grid, :halign, 4) # center all elements in horizontal
+set_gtk_property!(grid, :column_homogeneous, true) # center all elements in vertical
 
-push!(win, g1)
+push!(win, grid) # Adds grid to current window
 
 #####################################################################
 # SIGNAL CONNECTION FUNCTIONS
@@ -117,14 +120,7 @@ signal_connect(win, "key-press-event") do widget, event
             frame_mat = Javis.get_javis_frame(demo, action_list, parse(Int, mystring))
             # Gets the correct Canvas context to draw on
             context = getgc(can)
-            image(
-                context,
-                CairoImageSurface(frame_mat),
-                0,
-                0,
-                frame_dims[1],
-                frame_dims[2],
-            )
+            image(context, CairoImageSurface(frame_mat), 0, 0, frame_dims[1], frame_dims[2])
         end
     end
 end
@@ -134,16 +130,11 @@ signal_connect(forward, "clicked") do widget
     curr_frame = parse(Int, get_gtk_property(tbox, :text, String))
     push!(slide, curr_frame + 1)
     @guarded draw(can) do widget
+        # Gets the next Javis frame based on textbox entry
         frame_mat = Javis.get_javis_frame(demo, action_list, curr_frame + 1)
+        # Gets the correct Canvas context to draw on
         context = getgc(can)
-        image(
-            context,
-            CairoImageSurface(frame_mat),
-            0,
-            0,
-            frame_dims[1],
-            frame_dims[2],
-        )
+        image(context, CairoImageSurface(frame_mat), 0, 0, frame_dims[1], frame_dims[2])
     end
 end
 
@@ -152,19 +143,15 @@ signal_connect(backward, "clicked") do widget
     curr_frame = parse(Int, get_gtk_property(tbox, :text, String))
     push!(slide, curr_frame - 1)
     @guarded draw(can) do widget
+        # Gets the previous Javis frame based on textbox entry
         frame_mat = Javis.get_javis_frame(demo, action_list, curr_frame - 1)
+        # Gets the correct Canvas context to draw on
         context = getgc(can)
-        image(
-            context,
-            CairoImageSurface(frame_mat),
-            0,
-            0,
-            frame_dims[1],
-            frame_dims[2],
-        )
+        image(context, CairoImageSurface(frame_mat), 0, 0, frame_dims[1], frame_dims[2])
     end
 end
 
 #####################################################################
 
+# Display image viewer
 Gtk.showall(win)
