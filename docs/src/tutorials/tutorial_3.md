@@ -107,7 +107,7 @@ The `latex` function is called to render a `LaTeXString` object.
 This particular string makes a matrix! The last two arguments position the latex string 
 in the top left corner. 
 
-> **Note:** The default position is the origin (default: the center of the canvas)
+> **NOTE:** The default position is the origin (default: the center of the canvas)
 
 We can run this code block to render the `LaTeX`:
 
