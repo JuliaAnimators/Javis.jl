@@ -1,3 +1,4 @@
+using Animations
 using Images
 using Javis
 using LaTeXStrings

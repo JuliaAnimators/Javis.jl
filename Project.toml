@@ -4,6 +4,7 @@ authors = ["Ole Kröger <o.kroeger@opensourc.es>", "Jacob Zelko <jacobszelko@gma
 version = "0.1.2"
 
 [deps]
+Animations = "27a7e980-b3e6-11e9-2bcd-0b925532e340"
 Cairo = "159f3aea-2a34-519c-b102-8c37f9878175"
 ColorTypes = "3da002f7-5984-5a60-b8a6-cbb66c0b333f"
 FFMPEG = "c87230d0-a227-11e9-1b43-d7ebe4e7570a"
@@ -18,6 +19,7 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 VideoIO = "d6d074c3-1acf-5d4c-9a43-ef38773959a2"
 
 [compat]
+Animations = "0.4"
 Cairo = "1.0.4, 1.0.5"
 ColorTypes = "0.10.9"
 FFMPEG = "0.3, 0.4"
@@ -26,7 +28,7 @@ GtkReactive = "1.0.3, 1.0.4"
 Images = "0.20, 0.21, 0.22"
 LaTeXStrings = "1.1"
 LightXML = "0.9"
-Luxor = "2"
+Luxor = "~2.0, ~2.1, ~2.2, ~2.3, ~2.4"
 ProgressMeter = "1"
 VideoIO = "0.6, 0.7, 0.8"
 julia = "1.4"

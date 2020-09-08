@@ -16,11 +16,11 @@ video = Video(500, 500)
 
 javis(video, [
     BackgroundAction(1:100, ground),
-    SNIPPETS_GO_HERE
+    SNIPPETS_GO_HERE # Replace this line with the provided snippet!
 ]; pathname="how_to.gif")
 ```
 
-Each of the code snippets should be part of `SNIPPETS_GO_HERE`.
+Each of the code snippets should replace the variable `SNIPPETS_GO_HERE`.
 
 ## How can I move a circle from A to B?
 
@@ -46,7 +46,7 @@ The simplest one is to define the `UnitRange` like `1:100` as above such that th
 **Examples:**
 ```julia
 Action(1:100, (args...)->circle(O, 50, :fill)),
-Action(1:50, (args...)->circle(O, 20, :stroke))
+Action(1:50, (args...)->circle(O, 70, :stroke))
 ```
 
 It is relatively often the case that the following action should work with the same frames as the previous action this can be done with.
@@ -60,7 +60,7 @@ Action((args...)->circle(Point(-100, 100), 20, :stroke))
 
 so either use the symbol `:same` or just don't mention frames.
 
-The last option is to define frames relative to the previous frame. More preciously the end of the last frame.
+The last option is to define frames relative to the previous frame. More precisely the end of the last frame.
 
 **Examples:**
 ```julia
@@ -74,7 +74,7 @@ Action(1:50, (args...)->circle(O, 50, :fill)),
 Action(51:100, (args...)->circle(Point(100, 100), 20, :stroke)),
 ```
 
-## How can I make an object appearing from the background?
+## How can I make an object fade in from the background?
 
 Let's make the standard circle we used before appear from the background.
 
