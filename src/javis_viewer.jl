@@ -1,27 +1,5 @@
 # TODO: Intelligent way of handling slider
 
-#=
-FIXME:
-Fascinating bug I found.
-Apparently to create a list of actions anywhere, you must first define a Video object.
-Else, you get an error like this:
-
-```
-ERROR: LoadError: BoundsError: attempt to access 0-element Array{Video,1} at index [1]
-Stacktrace:
- [1] getindex at ./array.jl:809 [inlined]
- [2] Action(::UnitRange{Int64}, ::Nothing, ::Function; kwargs::Base.Iterators.Pairs{Union{},Union{},Tuple{},NamedTuple{(),Tuple{}}}) at /home/src/Projects/javis/src/Javis.jl:397
- [3] Action at /home/src/Projects/javis/src/Javis.jl:397 [inlined]
- [4] #Action#3 at /home/src/Projects/javis/src/Javis.jl:350 [inlined]
- [5] Action(::UnitRange{Int64}, ::Function) at /home/src/Projects/javis/src/Javis.jl:350
- [6] top-level scope at /home/src/Projects/javis/src/javis_viewer.jl:34
- [7] include(::String) at ./client.jl:457
- [8] top-level scope at REPL[1]:1
-in expression starting at /home/src/Projects/javis/src/javis_viewer.jl:34
-```
-
-=#
-
 function javis_viewer(; video::Video, frames::Int, action_list::Vector)
 
     #####################################################################
@@ -40,6 +18,7 @@ function javis_viewer(; video::Video, frames::Int, action_list::Vector)
 
     slide = slider(1:frames) # Creates a slider
     tbox = GtkReactive.textbox(Int; signal = signal(slide)) # Creates a textbox
+    push!(tbox, 1) # Sets the first frame shown to one
 
     forward = GtkButton("==>") # Button for going forward through animation
     backward = GtkButton("<==") # Button for going backward through animation
@@ -56,11 +35,11 @@ function javis_viewer(; video::Video, frames::Int, action_list::Vector)
     # VIEWER CANVAS AND GRID CONFIGURATION
     #####################################################################
 
-    can = Gtk.Canvas(frame_dims[1], frame_dims[2]) # Frame size to be displayed.
+    canvas = Gtk.Canvas(frame_dims[1], frame_dims[2]) # Frame size to be displayed.
     grid = Gtk.Grid() # Grid to allocate widgets
 
     # Allocate the widgets in the grid.
-    grid[1:3, 1] = can
+    grid[1:3, 1] = canvas
     grid[1:3, 2] = slide
     grid[1, 3] = backward
     grid[2, 3] = tbox
@@ -78,11 +57,11 @@ function javis_viewer(; video::Video, frames::Int, action_list::Vector)
     #####################################################################
 
     mystring = get_gtk_property(tbox, :text, String)
-    @guarded draw(can) do widget
-        # Gets a Javis frame to display based on textbox entry
-        frame_mat = transpose(get_javis_frame(video, action_list, parse(Int, mystring)))
+    @guarded draw(canvas) do widget
+        # Gets the first Javis frame
+        frame_mat = transpose(get_javis_frame(video, action_list, 1))
         # Gets the correct Canvas context to draw on
-        context = getgc(can)
+        context = getgc(canvas)
         image(context, CairoImageSurface(frame_mat), 0, 0, frame_dims[1], frame_dims[2])
     end
 
@@ -92,14 +71,37 @@ function javis_viewer(; video::Video, frames::Int, action_list::Vector)
 
     # When the `Enter` key is pressed, update the frame
     signal_connect(win, "key-press-event") do widget, event
-        mystring = get_gtk_property(tbox, :text, String)
-        if event.keyval == 65293
-            @guarded draw(can) do widget
-                # Gets a Javis frame to display based on textbox entry
-                frame_mat =
-                    transpose(get_javis_frame(video, action_list, parse(Int, mystring)))
+        curr_frame = parse(Int, get_gtk_property(tbox, :text, String))
+        if curr_frame > frames && curr_frames < 1
+            if event.keyval == 65293
+                @guarded draw(canvas) do widget
+                    # Gets a Javis frame to display based on textbox entry
+                    frame_mat = transpose(get_javis_frame(video, action_list, curr_frame))
+                    # Gets the correct Canvas context to draw on
+                    context = getgc(canvas)
+                    image(
+                        context,
+                        CairoImageSurface(frame_mat),
+                        0,
+                        0,
+                        frame_dims[1],
+                        frame_dims[2],
+                    )
+                end
+            end
+        end
+    end
+
+    # When the `forward` button is clicked, increment current frame number
+    signal_connect(forward, "clicked") do widget
+        curr_frame = parse(Int, get_gtk_property(tbox, :text, String))
+        if frames > curr_frame
+            push!(slide, curr_frame + 1)
+            @guarded draw(canvas) do widget
+                # Gets the next Javis frame based on textbox entry
+                frame_mat = transpose(get_javis_frame(video, action_list, curr_frame + 1))
                 # Gets the correct Canvas context to draw on
-                context = getgc(can)
+                context = getgc(canvas)
                 image(
                     context,
                     CairoImageSurface(frame_mat),
@@ -112,29 +114,75 @@ function javis_viewer(; video::Video, frames::Int, action_list::Vector)
         end
     end
 
-    # When the `forward` button is clicked, increment the current frame number
-    signal_connect(forward, "clicked") do widget
+    # When the `Right Arrow` key is pressed, increment current frame number
+    signal_connect(win, "key-press-event") do widget, event
         curr_frame = parse(Int, get_gtk_property(tbox, :text, String))
-        push!(slide, curr_frame + 1)
-        @guarded draw(can) do widget
-            # Gets the next Javis frame based on textbox entry
-            frame_mat = transpose(get_javis_frame(video, action_list, curr_frame + 1))
-            # Gets the correct Canvas context to draw on
-            context = getgc(can)
-            image(context, CairoImageSurface(frame_mat), 0, 0, frame_dims[1], frame_dims[2])
+        if frames > curr_frame
+            if event.keyval == 65363
+                push!(slide, curr_frame + 1)
+                @guarded draw(canvas) do widget
+                    # Gets the next Javis frame based on textbox entry
+                    frame_mat =
+                        transpose(get_javis_frame(video, action_list, curr_frame + 1))
+                    # Gets the correct Canvas context to draw on
+                    context = getgc(canvas)
+                    image(
+                        context,
+                        CairoImageSurface(frame_mat),
+                        0,
+                        0,
+                        frame_dims[1],
+                        frame_dims[2],
+                    )
+                end
+            end
         end
     end
 
-    # When the `forward` button is clicked, decrement the current frame number
+    # When the `backward` button is clicked, decrement the current frame number
     signal_connect(backward, "clicked") do widget
         curr_frame = parse(Int, get_gtk_property(tbox, :text, String))
-        push!(slide, curr_frame - 1)
-        @guarded draw(can) do widget
-            # Gets the previous Javis frame based on textbox entry
-            frame_mat = transpose(get_javis_frame(video, action_list, curr_frame - 1))
-            # Gets the correct Canvas context to draw on
-            context = getgc(can)
-            image(context, CairoImageSurface(frame_mat), 0, 0, frame_dims[1], frame_dims[2])
+        if curr_frame > 1
+            push!(slide, curr_frame - 1)
+            @guarded draw(canvas) do widget
+                # Gets the previous Javis frame based on textbox entry
+                frame_mat = transpose(get_javis_frame(video, action_list, curr_frame - 1))
+                # Gets the correct Canvas context to draw on
+                context = getgc(canvas)
+                image(
+                    context,
+                    CairoImageSurface(frame_mat),
+                    0,
+                    0,
+                    frame_dims[1],
+                    frame_dims[2],
+                )
+            end
+        end
+    end
+
+    # When the `Left Arrow` key is pressed, decrement current frame number
+    signal_connect(win, "key-press-event") do widget, event
+        curr_frame = parse(Int, get_gtk_property(tbox, :text, String))
+        if curr_frame > 1
+            if event.keyval == 65361
+                push!(slide, curr_frame - 1)
+                @guarded draw(canvas) do widget
+                    # Gets the next Javis frame based on textbox entry
+                    frame_mat =
+                        transpose(get_javis_frame(video, action_list, curr_frame - 1))
+                    # Gets the correct Canvas context to draw on
+                    context = getgc(canvas)
+                    image(
+                        context,
+                        CairoImageSurface(frame_mat),
+                        0,
+                        0,
+                        frame_dims[1],
+                        frame_dims[2],
+                    )
+                end
+            end
         end
     end
 
