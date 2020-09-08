@@ -1207,7 +1207,7 @@ function javis(
         end
         filecounter += 1
     end
-    
+
     if liveview == true
         javis_viewer(video = video, frames = length(frames), action_list = actions)
     end
