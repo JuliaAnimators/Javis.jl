@@ -967,7 +967,8 @@ end
         actions::Vector{AbstractAction};
         framerate=30,
         pathname="",
-        tempdirectory=""
+        tempdirectory="",
+        liveview=false
     )
 
 Similar to `animate` in Luxor with a slightly different structure.
@@ -982,6 +983,7 @@ Instead of using actions and a video instead of scenes in a movie.
 - `pathname::String`: The path for the rendered gif or mp4 (i.e `output.gif` or `output.mp4`)
 - `tempdirectory::String`: The folder where each frame is stored
     Defaults to a temporary directory when not set
+- `liveview::Bool`: Causes a live image viewer to appear to assist with animation development
 
 # Example
 ```
