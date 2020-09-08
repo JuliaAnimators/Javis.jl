@@ -1330,6 +1330,7 @@ export val, pos, ang, get_value, get_position, get_angle
 export projection, morph
 export appear, disappear, rotate_around
 export rev
+export scaleto
 
 # custom override of luxor extensions
 export setline, setopacity, fontsize, get_fontsize, scale

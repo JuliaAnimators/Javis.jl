@@ -542,6 +542,32 @@ end
     end
 end
 
+@testset "Rotate around center animation" begin
+    rotate_anim = Animation([0.0, 1.0], [0.0, 2π], [sineio()])
+
+    video = Video(500, 500)
+    javis(
+        video,
+        [
+            BackgroundAction(1:50, ground),
+            BackgroundAction(1:50, (args...) -> scaleto(2)),
+            Action(
+                (args...) -> circ(Point(75, 0)),
+                subactions = [SubAction(1:50, rotate_anim, rotate())],
+            ),
+        ],
+        tempdirectory = "images",
+        pathname = "",
+    )
+
+    @test_reference "refs/rotate_center25.png" load("images/0000000025.png")
+    @test_reference "refs/rotate_center45.png" load("images/0000000045.png")
+
+    for i in 1:50
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
 @testset "Scaling circle" begin
     video = Video(500, 500)
     javis(
