@@ -6,7 +6,7 @@ function javis_viewer(; video::Video, frames::Int, action_list::Vector)
     # VIEWER WINDOW AND CONFIGURATION
     #####################################################################
 
-    frame_dims = size(get_javis_frame(video, action_list, 1))
+    frame_dims = [video.width, video.height]
     win = GtkWindow("Javis Viewer", frame_dims[1], frame_dims[2])
 
     set_gtk_property!(win, :title, "Javis Viewer") # Sets title of window
@@ -89,6 +89,40 @@ function javis_viewer(; video::Video, frames::Int, action_list::Vector)
                     )
                 end
             end
+        elseif curr_frame > frames
+            if event.keyval == 65293
+                @guarded draw(canvas) do widget
+                    # Gets a Javis frame to display based on textbox entry
+                    frame_mat = transpose(get_javis_frame(video, action_list, frames))
+                    # Gets the correct Canvas context to draw on
+                    context = getgc(canvas)
+                    image(
+                        context,
+                        CairoImageSurface(frame_mat),
+                        0,
+                        0,
+                        frame_dims[1],
+                        frame_dims[2],
+                    )
+                end
+            end
+        elseif curr_frame < frames
+            if event.keyval == 65293
+                @guarded draw(canvas) do widget
+                    # Gets a Javis frame to display based on textbox entry
+                    frame_mat = transpose(get_javis_frame(video, action_list, 1))
+                    # Gets the correct Canvas context to draw on
+                    context = getgc(canvas)
+                    image(
+                        context,
+                        CairoImageSurface(frame_mat),
+                        0,
+                        0,
+                        frame_dims[1],
+                        frame_dims[2],
+                    )
+                end
+            end
         end
     end
 
@@ -111,19 +145,51 @@ function javis_viewer(; video::Video, frames::Int, action_list::Vector)
                     frame_dims[2],
                 )
             end
+        else
+            push!(tbox, 1) # Sets the first frame shown to one
+            @guarded draw(canvas) do widget
+                # Gets the next Javis frame based on textbox entry
+                frame_mat = transpose(get_javis_frame(video, action_list, 1))
+                # Gets the correct Canvas context to draw on
+                context = getgc(canvas)
+                image(
+                    context,
+                    CairoImageSurface(frame_mat),
+                    0,
+                    0,
+                    frame_dims[1],
+                    frame_dims[2],
+                )
+            end
         end
     end
 
     # When the `Right Arrow` key is pressed, increment current frame number
     signal_connect(win, "key-press-event") do widget, event
-        curr_frame = parse(Int, get_gtk_property(tbox, :text, String))
-        if frames > curr_frame
-            if event.keyval == 65363
+        if event.keyval == 65363
+            curr_frame = parse(Int, get_gtk_property(tbox, :text, String))
+            if frames > curr_frame
                 push!(slide, curr_frame + 1)
                 @guarded draw(canvas) do widget
                     # Gets the next Javis frame based on textbox entry
                     frame_mat =
                         transpose(get_javis_frame(video, action_list, curr_frame + 1))
+                    # Gets the correct Canvas context to draw on
+                    context = getgc(canvas)
+                    image(
+                        context,
+                        CairoImageSurface(frame_mat),
+                        0,
+                        0,
+                        frame_dims[1],
+                        frame_dims[2],
+                    )
+                end
+            else
+                push!(tbox, 1) # Sets the first frame shown to one
+                @guarded draw(canvas) do widget
+                    # Gets the next Javis frame based on textbox entry
+                    frame_mat = transpose(get_javis_frame(video, action_list, 1))
                     # Gets the correct Canvas context to draw on
                     context = getgc(canvas)
                     image(
@@ -158,19 +224,51 @@ function javis_viewer(; video::Video, frames::Int, action_list::Vector)
                     frame_dims[2],
                 )
             end
+        else
+            push!(tbox, frames) # Sets the end frame to the max number of frames
+            @guarded draw(canvas) do widget
+                # Gets the max frame to draw on
+                frame_mat = transpose(get_javis_frame(video, action_list, frames))
+                # Gets the correct Canvas context to draw on
+                context = getgc(canvas)
+                image(
+                    context,
+                    CairoImageSurface(frame_mat),
+                    0,
+                    0,
+                    frame_dims[1],
+                    frame_dims[2],
+                )
+            end
         end
     end
 
     # When the `Left Arrow` key is pressed, decrement current frame number
     signal_connect(win, "key-press-event") do widget, event
-        curr_frame = parse(Int, get_gtk_property(tbox, :text, String))
-        if curr_frame > 1
-            if event.keyval == 65361
+        if event.keyval == 65361
+            curr_frame = parse(Int, get_gtk_property(tbox, :text, String))
+            if curr_frame > 1
                 push!(slide, curr_frame - 1)
                 @guarded draw(canvas) do widget
                     # Gets the next Javis frame based on textbox entry
                     frame_mat =
                         transpose(get_javis_frame(video, action_list, curr_frame - 1))
+                    # Gets the correct Canvas context to draw on
+                    context = getgc(canvas)
+                    image(
+                        context,
+                        CairoImageSurface(frame_mat),
+                        0,
+                        0,
+                        frame_dims[1],
+                        frame_dims[2],
+                    )
+                end
+            else
+                push!(tbox, frames) # Sets the first frame shown to one
+                @guarded draw(canvas) do widget
+                    # Gets the next Javis frame based on textbox entry
+                    frame_mat = transpose(get_javis_frame(video, action_list, frames))
                     # Gets the correct Canvas context to draw on
                     context = getgc(canvas)
                     image(
