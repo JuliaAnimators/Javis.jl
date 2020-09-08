@@ -18,7 +18,11 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 VideoIO = "d6d074c3-1acf-5d4c-9a43-ef38773959a2"
 
 [compat]
+Cairo = "1.0.4, 1.0.5"
+ColorTypes = "0.10.9"
 FFMPEG = "0.3, 0.4"
+Gtk = "1.1.4"
+GtkReactive = "1.0.3, 1.0.4"
 Images = "0.20, 0.21, 0.22"
 LaTeXStrings = "1.1"
 LightXML = "0.9"
