@@ -145,8 +145,11 @@ mutable struct SubAction <: AbstractAction
     internal_transitions::Vector{InternalTransition}
 end
 
+SubAction(transitions::Transition...) = SubAction(:same, transitions...)
+SubAction(func::Function) = SubAction(:same, func)
+
 """
-    SubAction(frames::UnitRange, func::Function)
+    SubAction(frames, func::Function)
 
 A `SubAction` can be defined with frames and a function
 inside the `subactions` kwarg of an [`Action`](@ref).
@@ -1017,7 +1020,7 @@ function javis(
     compute_frames!(actions)
 
     for action in actions
-        compute_frames!(action.subactions)
+        compute_frames!(action.subactions; last_frames = get_frames(action))
     end
 
     # get all frames
