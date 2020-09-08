@@ -5,6 +5,7 @@
   - for Transformations and `appear` and `disappear`
 - Show progress of rendering using [ProgressMeter.jl](https://github.com/timholy/ProgressMeter.jl)
 - Use [VideoIO](https://github.com/JuliaIO/VideoIO.jl) for faster rendering without temporary images
+- Ability to morph with `fill` or `stroke` and using `SubAction` to specify changes in color
 
 ## Unreleased
 - Ability to scale an object with `Scaling`. Works similar to `Translation` and `Rotation` 
