@@ -66,7 +66,7 @@ function match_num_point!(poly_1::Vector{Point}, poly_2::Vector{Point})
 end
 
 """
-    morph(from_func::Function, to_func::Function)
+    morph(from_func::Function, to_func::Function; action=:stroke)
 
 A closure for the [`_morph`](@ref) function.
 This makes it easier to write the function inside an `Action`.
@@ -83,6 +83,9 @@ i.e. use `circle(Point(100,100), 50)` instead of `circle(Point(100,100), 50, :st
 - `from_func::Function`: The function that creates the path for the first polygon.
 - `to_func::Function`: Same as `from_func` but it defines the "result" polygon,
                        which will be displayed at the end of the Action
+
+# Keywords
+- `action::Symbol` defines whether the object has a fill or just a stroke. Defaults to stroke.
 
 # Example
 
@@ -103,8 +106,9 @@ javis(video, [
     pathname="star2circle.gif", deletetemp=true)
 ```
 """
-function morph(from_func::Function, to_func::Function)
-    return (video, action, frame) -> _morph(video, action, frame, from_func, to_func)
+function morph(from_func::Function, to_func::Function; action = :stroke)
+    return (video, scene_action, frame) ->
+        _morph(video, scene_action, frame, from_func, to_func; draw_action = action)
 end
 
 """
@@ -158,11 +162,18 @@ function save_morph_polygons!(action::Action, from_func::Function, to_func::Func
 end
 
 """
-    _morph(video::Video, action::Action, frame, from_func::Function, to_func::Function)
+    _morph(video::Video, action::Action, frame, from_func::Function, to_func::Function; draw_action=:stroke)
 
 Internal version of [`morph`](@ref) but described there.
 """
-function _morph(video::Video, action::Action, frame, from_func::Function, to_func::Function)
+function _morph(
+    video::Video,
+    action::Action,
+    frame,
+    from_func::Function,
+    to_func::Function;
+    draw_action = :stroke,
+)
     # computation of the polygons and the best way to morph in the first frame
     if frame == first(get_frames(action))
         save_morph_polygons!(action, from_func, to_func)
@@ -174,12 +185,12 @@ function _morph(video::Video, action::Action, frame, from_func::Function, to_fun
     points = action.opts[:points]
 
     # compute the interpolation variable `t` for the current frame
-    t = (frame - first(get_frames(action))) / (length(get_frames(action)) - 1)
+    t = get_interpolation(action, frame)
 
     for (i, p1, p2) in zip(1:length(from_poly), from_poly, to_poly)
         new_point = p1 + t * (p2 - p1)
         points[i] = new_point
     end
 
-    poly(points, :stroke; close = true)
+    poly(points, draw_action; close = true)
 end
