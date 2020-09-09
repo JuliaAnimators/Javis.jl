@@ -1153,11 +1153,6 @@ function javis(
     end
     frames = unique(frames)
 
-    if liveview == true
-        _javis_viewer(video, length(frames), actions)
-        return "Live preview of $pathname"
-    end
-
     # create internal transition objects
     for action in actions
         create_internal_transitions!(action)
@@ -1213,23 +1208,28 @@ function javis(
         filecounter += 1
     end
 
-    isempty(pathname) && return
-    if ext == ".gif"
-        # generate a colorpalette first so ffmpeg does not have to guess it
-        ffmpeg_exe(`-loglevel panic -i $(tempdirectory)/%10d.png -vf
-                    "palettegen=stats_mode=diff" -y "$(tempdirectory)/palette.bmp"`)
-        # then apply the palette to get better results
-        ffmpeg_exe(`-loglevel panic -framerate $framerate -i $(tempdirectory)/%10d.png -i
-                    "$(tempdirectory)/palette.bmp" -lavfi
-                    "paletteuse=dither=sierra2_4a" -y $pathname`)
-    elseif ext == ".mp4"
-        finishencode!(video_encoder, video_io)
-        close(video_io)
-        mux("temp.stream", pathname, framerate; silent = true)
+    if liveview == true
+        _javis_viewer(video, length(frames), actions)
+        return "Live preview of $pathname"
     else
-        @error "Currently, only gif and mp4 creation is supported. Not a $ext."
+        isempty(pathname) && return
+        if ext == ".gif"
+            # generate a colorpalette first so ffmpeg does not have to guess it
+            ffmpeg_exe(`-loglevel panic -i $(tempdirectory)/%10d.png -vf
+                        "palettegen=stats_mode=diff" -y "$(tempdirectory)/palette.bmp"`)
+            # then apply the palette to get better results
+            ffmpeg_exe(`-loglevel panic -framerate $framerate -i $(tempdirectory)/%10d.png -i
+                        "$(tempdirectory)/palette.bmp" -lavfi
+                        "paletteuse=dither=sierra2_4a" -y $pathname`)
+        elseif ext == ".mp4"
+            finishencode!(video_encoder, video_io)
+            close(video_io)
+            mux("temp.stream", pathname, framerate; silent = true)
+        else
+            @error "Currently, only gif and mp4 creation is supported. Not a $ext."
+        end
+        return pathname
     end
-    return pathname
 end
 
 """
@@ -1238,7 +1238,7 @@ end
 Get one specific frame of a video with actions.
 
 # Returns
-- `Array{ColorTypes.ARGB32,2}` - an ARGB32 array representation of a specific frame
+- `ARGB Matrix` - the frame image as a matrix
 """
 function get_javis_frame(video, actions, frame)
     background_settings = ActionSetting()
