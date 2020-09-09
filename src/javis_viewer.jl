@@ -30,9 +30,9 @@ function _javis_viewer(video::Video, frames::Int, action_list::Vector)
     # DISPLAY WIDGETS
     #####################################################################
 
-    slide = slider(1:frames) # Creates a slider
+    _slide = GtkScale(false, 1:frames)
+    slide = slider(1:frames, value = 1, widget = _slide) # Creates a slider
     tbox = GtkReactive.textbox(Int; signal = signal(slide)) # Creates a textbox
-    push!(tbox, 1) # Sets the first frame shown to one
 
     forward = GtkButton("==>") # Button for going forward through animation
     backward = GtkButton("<==") # Button for going backward through animation
@@ -79,12 +79,22 @@ function _javis_viewer(video::Video, frames::Int, action_list::Vector)
     # SIGNAL CONNECTION FUNCTIONS
     #####################################################################
 
+    # When the slider is changed, update currently viewed frame
+    signal_connect(_slide, "value-changed") do widget
+        @guarded draw(canvas) do widget
+            # Collects GtkScale as an adjustable bounded value object
+            bound_slide = Gtk.GAccessor.adjustment(_slide)
+            slide_val = Gtk.get_gtk_property(bound_slide, "value", Int)
+            _draw_image(video, action_list, slide_val, canvas, frame_dims)
+        end
+    end
+
     # When the `Enter` key is pressed, update the frame
     signal_connect(win, "key-press-event") do widget, event
         if event.keyval == 65293
             curr_frame = parse(Int, get_gtk_property(tbox, :text, String))
             if 1 <= curr_frame && curr_frame <= frames
-            push!(tbox, curr_frame)
+                push!(tbox, curr_frame)
                 @guarded draw(canvas) do widget
                     _draw_image(video, action_list, curr_frame, canvas, frame_dims)
                 end
@@ -93,7 +103,7 @@ function _javis_viewer(video::Video, frames::Int, action_list::Vector)
                     _draw_image(video, action_list, frames, canvas, frame_dims)
                 end
             elseif curr_frame < frames
-            push!(tbox, 1)
+                push!(tbox, 1)
                 @guarded draw(canvas) do widget
                     _draw_image(video, action_list, 1, canvas, frame_dims)
                 end
@@ -168,7 +178,6 @@ function _javis_viewer(video::Video, frames::Int, action_list::Vector)
             end
         end
     end
-    
 
     #####################################################################
 
