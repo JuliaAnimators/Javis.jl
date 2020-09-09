@@ -72,11 +72,7 @@ function _javis_viewer(video::Video, frames::Int, action_list::Vector)
 
     mystring = get_gtk_property(tbox, :text, String)
     @guarded draw(canvas) do widget
-        # Gets the first Javis frame
-        frame_mat = transpose(get_javis_frame(video, action_list, 1))
-        # Gets the correct Canvas context to draw on
-        context = getgc(canvas)
-        image(context, CairoImageSurface(frame_mat), 0, 0, frame_dims[1], frame_dims[2])
+        _draw_image(video, action_list, 1, canvas, frame_dims)
     end
 
     #####################################################################
@@ -85,21 +81,19 @@ function _javis_viewer(video::Video, frames::Int, action_list::Vector)
 
     # When the `Enter` key is pressed, update the frame
     signal_connect(win, "key-press-event") do widget, event
-        curr_frame = parse(Int, get_gtk_property(tbox, :text, String))
-        if curr_frame > frames && curr_frames < 1
-            if event.keyval == 65293
+        if event.keyval == 65293
+            curr_frame = parse(Int, get_gtk_property(tbox, :text, String))
+            if 1 <= curr_frame && curr_frame <= frames
+            push!(tbox, curr_frame)
                 @guarded draw(canvas) do widget
                     _draw_image(video, action_list, curr_frame, canvas, frame_dims)
                 end
-            end
-        elseif curr_frame > frames
-            if event.keyval == 65293
+            elseif curr_frame > frames
                 @guarded draw(canvas) do widget
                     _draw_image(video, action_list, frames, canvas, frame_dims)
                 end
-            end
-        elseif curr_frame < frames
-            if event.keyval == 65293
+            elseif curr_frame < frames
+            push!(tbox, 1)
                 @guarded draw(canvas) do widget
                     _draw_image(video, action_list, 1, canvas, frame_dims)
                 end
@@ -122,7 +116,6 @@ function _javis_viewer(video::Video, frames::Int, action_list::Vector)
             end
         end
     end
-
 
     # When the `Right Arrow` key is pressed, increment current frame number
     signal_connect(win, "key-press-event") do widget, event
@@ -175,6 +168,7 @@ function _javis_viewer(video::Video, frames::Int, action_list::Vector)
             end
         end
     end
+    
 
     #####################################################################
 
