@@ -21,6 +21,7 @@ makedocs(;
             "tutorials/tutorial_4.md",
             "tutorials/tutorial_5.md",
         ],
+        "HowTo" => "howto.md",
         "Mission" => "mission.md",
         "References" => "references.md",
         "Contributing" => "contributing.md",

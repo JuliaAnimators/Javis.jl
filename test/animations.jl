@@ -102,40 +102,33 @@ end
         video,
         [
             BackgroundAction(
-                1:2,
+                1:30,
                 ground,
                 Rotation(0.0),
                 Translation(Point(25, 25), Point(25, 25)),
             ),
             Action(latex_title),
+            Action(:red_ball, (args...) -> circ(p1, "red"), Rotation(from_rot, to_rot)),
             Action(
-                Rel(-1:0),
-                :red_ball,
-                (args...) -> circ(p1, "red"),
-                Rotation(from_rot, to_rot),
-            ),
-            Action(
-                1:2,
+                1:30,
                 :blue_ball,
                 (args...) -> circ(p2, "blue"),
                 Rotation(to_rot, from_rot, :red_ball),
             ),
             Action(
-                1:2,
+                1:30,
                 (video, args...) -> path!(path_of_red, get_position(:red_ball), "red"),
             ),
             Action(:same, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue")),
-            Action(1:2, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
+            Action(1:30, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
         ],
         tempdirectory = "images",
         pathname = "dancing.mp4",
+        framerate = 1,
     )
 
-    # The `y` for isapprox was determined experimentally on a Fedora 32 OS.
-    # On that machine, the time duration was found to be `0.067` seconds.
-    # The `atol` was also experimentally determined based upon VideoIO's
-    # `get_duration` function.
-    @test isapprox(VideoIO.get_duration("dancing.mp4"), 0.07, atol = 0.01)
+    # 30 frames with a framerate of 1 should take about 30 seconds ;)
+    @test isapprox(VideoIO.get_duration("dancing.mp4"), 30.0, atol = 0.1)
     rm("dancing.mp4")
 end
 
@@ -422,8 +415,8 @@ end
                 5:50,
                 (args...) -> square_opacity(Point(-100, 0), 60);
                 subactions = [
-                    SubAction(1:15, appear(:fade)),
-                    SubAction(Rel(20), Translation(100, 50)),
+                    SubAction(1:15, linear(), appear(:fade)),
+                    SubAction(Rel(20), linear(), Translation(100, 50)),
                     SubAction(Rel(5), disappear(:fade)),
                     # for global frames 46-50 it should still be disappeared
                 ],
@@ -433,12 +426,136 @@ end
         pathname = "",
     )
 
-    @test_reference "refs/circlerSquare07opacity.png" load("images/0000000007.png")
-    @test_reference "refs/circlerSquare25opacity.png" load("images/0000000025.png")
-    @test_reference "refs/circlerSquare42opacity.png" load("images/0000000042.png")
+    @test_reference "refs/circleSquare07opacity.png" load("images/0000000007.png")
+    @test_reference "refs/circleSquare25opacity.png" load("images/0000000025.png")
+    @test_reference "refs/circleSquare42opacity.png" load("images/0000000042.png")
     # test that the last frame is completely white
     @test sum(load("images/0000000050.png")) ==
           RGB{Float64}(500 * 500, 500 * 500, 500 * 500)
+    for i in 1:50
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
+@testset "Animations.jl translate()" begin
+    video = Video(500, 500)
+    circle_anim = Animation(
+        [0, 0.3, 0.6, 1], # must go from 0 to 1
+        [O, Point(150, 0), Point(150, 150), O],
+        [sineio(), polyin(5), expin(8)],
+    )
+    javis(
+        video,
+        [
+            BackgroundAction(1:150, ground),
+            Action(
+                (args...) -> circle(O, 25, :fill);
+                subactions = [SubAction(1:150, circle_anim, translate())],
+            ),
+        ],
+        tempdirectory = "images",
+        pathname = "",
+    )
+    @test_reference "refs/anim_circle020.png" load("images/0000000020.png")
+    @test_reference "refs/anim_circle075.png" load("images/0000000075.png")
+    @test_reference "refs/anim_circle142.png" load("images/0000000142.png")
+    for i in 1:150
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
+@testset "Animations.jl @warn" begin
+    video = Video(500, 500)
+    circle_anim = Animation(
+        [0, 0.3, 0.6, 1.2], # must go from 0 to 1
+        [O, Point(150, 0), Point(150, 150), O],
+        [sineio(), polyin(5), expin(8)],
+    )
+    # warning as animation goes to 1.2 but should go to 1.0
+    @test_logs (:warn,) (:warn,) javis(
+        video,
+        [
+            BackgroundAction(1:2, ground),
+            Action(
+                (args...) -> circle(O, 25, :fill);
+                subactions = [SubAction(1:2, circle_anim, translate())],
+            ),
+        ],
+        pathname = "",
+    )
+end
+
+@testset "Animations.jl rotate, scale, translate" begin
+    video = Video(500, 500)
+    translate_anim = Animation(
+        [0, 1], # must go from 0 to 1
+        [O, Point(150, 0)],
+        [sineio()],
+    )
+
+    translate_back_anim = Animation(
+        [0, 1], # must go from 0 to 1
+        [O, Point(-150, 0)],
+        [sineio()],
+    )
+
+    rotate_anim = Animation(
+        [0, 1], # must go from 0 to 1
+        [0, 2π],
+        [linear()],
+    )
+
+    javis(
+        video,
+        [
+            BackgroundAction(1:150, ground),
+            Action(
+                (args...) -> circle(O, 25, :fill);
+                subactions = [
+                    SubAction(1:10, sineio(), scale()),
+                    SubAction(11:50, translate_anim, translate()),
+                    SubAction(51:100, rotate_anim, rotate_around(Point(-150, 0))),
+                    SubAction(101:140, translate_back_anim, translate()),
+                    SubAction(141:150, rev(sineio()), scale()),
+                ],
+            ),
+        ],
+        tempdirectory = "images",
+        pathname = "",
+    )
+
+    @test_reference "refs/animations_all_05.png" load("images/0000000005.png")
+    @test_reference "refs/animations_all_25.png" load("images/0000000025.png")
+    @test_reference "refs/animations_all_65.png" load("images/0000000065.png")
+    @test_reference "refs/animations_all_125.png" load("images/0000000125.png")
+    @test_reference "refs/animations_all_145.png" load("images/0000000145.png")
+
+    for i in 1:150
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
+@testset "Rotate around center animation" begin
+    rotate_anim = Animation([0.0, 1.0], [0.0, 2π], [sineio()])
+
+    video = Video(500, 500)
+    javis(
+        video,
+        [
+            BackgroundAction(1:50, ground),
+            BackgroundAction(1:50, (args...) -> scaleto(2)),
+            Action(
+                (args...) -> circ(Point(75, 0)),
+                subactions = [SubAction(1:50, rotate_anim, rotate())],
+            ),
+        ],
+        tempdirectory = "images",
+        pathname = "",
+    )
+
+    @test_reference "refs/rotate_center25.png" load("images/0000000025.png")
+    @test_reference "refs/rotate_center45.png" load("images/0000000045.png")
+
     for i in 1:50
         rm("images/$(lpad(i, 10, "0")).png")
     end

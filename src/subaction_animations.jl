@@ -27,20 +27,17 @@ function appear(s::Symbol)
 end
 
 function _appear(video, action, subaction, rel_frame, symbol::Val{:fade_line_width})
-    # t is between 0 and 1
-    t = (rel_frame - first(get_frames(subaction))) / (length(get_frames(subaction)) - 1)
+    t = get_interpolation(subaction, rel_frame)
     action.current_setting.mul_line_width = t
 end
 
 function _appear(video, action, subaction, rel_frame, symbol::Val{:fade})
-    # t is between 0 and 1
-    t = (rel_frame - first(get_frames(subaction))) / (length(get_frames(subaction)) - 1)
+    t = get_interpolation(subaction, rel_frame)
     action.current_setting.mul_opacity = t
 end
 
 function _appear(video, action, subaction, rel_frame, symbol::Val{:scale})
-    # t is between 0 and 1
-    t = (rel_frame - first(get_frames(subaction))) / (length(get_frames(subaction)) - 1)
+    t = get_interpolation(subaction, rel_frame)
     action.current_setting.mul_scale = t
 end
 
@@ -62,7 +59,7 @@ of the [`Action`](@ref) so `181-200`.
 # Arguments
 - `s::Symbol`: the symbol defines the animation of disappearance
     The only symbols that are currently supported are:
-    - `:fade_line_width` which descreases the line width up to the default value
+    - `:fade_line_width` which decreases the line width up to the default value
         or the value specified by [`setline`](@ref)
     - `:fade` which decreases the opcacity up to the default value
         or the value specified by [`setopacity`](@ref)
@@ -73,19 +70,190 @@ function disappear(s::Symbol)
 end
 
 function _disappear(video, action, subaction, rel_frame, symbol::Val{:fade_line_width})
-    # t is between 0 and 1
-    t = (rel_frame - first(get_frames(subaction))) / (length(get_frames(subaction)) - 1)
+    t = get_interpolation(subaction, rel_frame)
     action.current_setting.mul_line_width = 1 - t
 end
 
 function _disappear(video, action, subaction, rel_frame, symbol::Val{:fade})
-    # t is between 0 and 1
-    t = (rel_frame - first(get_frames(subaction))) / (length(get_frames(subaction)) - 1)
+    t = get_interpolation(subaction, rel_frame)
     action.current_setting.mul_opacity = 1 - t
 end
 
 function _disappear(video, action, subaction, rel_frame, symbol::Val{:scale})
-    # t is between 0 and 1
-    t = (rel_frame - first(get_frames(subaction))) / (length(get_frames(subaction)) - 1)
+    t = get_interpolation(subaction, rel_frame)
     action.current_setting.mul_scale = 1 - t
+end
+
+"""
+    translate()
+
+Translate a function defined inside a [`SubAction`](@ref) using an Animation defined
+with Animations.jl.
+
+If you're used to working with Animations.jl this should feel quite natural.
+Instead of defining each movement in its own subaction it's possible to define it in one
+by using an Animation.
+
+# Example
+```
+using Javis, Animations
+
+function ground(args...)
+    background("black")
+    sethue("white")
+end
+
+video = Video(500, 500)
+circle_anim = Animation(
+    [0.0, 0.3, 0.6, 1.0], # must go from 0 to 1
+    # the circle will move from the origin to `Point(150, 0)` then `Point(150, 150)`
+    # and back to the origin `O`.
+    [O, Point(150, 0), Point(150, 150), O],
+    [sineio(), polyin(5), expin(8)],
+)
+javis(
+    video, [
+        BackgroundAction(1:150, ground),
+        Action((args...)->circle(O, 25, :fill); subactions=[
+            SubAction(1:150, circle_anim, translate())
+        ])
+    ], pathname="moving_a_circle.gif"
+)
+```
+
+This notation uses the Animations.jl library very explicitly. It's also possible to do the
+same with:
+
+```
+javis(
+    video,
+    [
+        BackgroundAction(1:150, ground),
+        Action((args...)->circle(O, 25, :fill); subactions = [
+            SubAction(1:50, sineio(), Translation(150, 0)),
+            SubAction(51:100, polyin(2), Translation(0, 150)),
+            SubAction(101:150, expin(8), Translation(-150, -150))
+        ])
+    ],
+    pathname = "moving_a_circle_javis.gif",
+)
+```
+
+which uses the `SubAction` syntax three times and only uses easing functions instead of
+specifying the `Animation` directly.
+
+Here `circle_anim` defines the movement of the circle. The most important part is that the
+time in animations has to be from `0.0` to `1.0`.
+"""
+function Luxor.translate()
+    (video, action, subaction, rel_frame) -> _translate(video, action, subaction, rel_frame)
+end
+
+function _translate(video, action, subaction, rel_frame)
+    p = get_interpolation(subaction, rel_frame)
+    Luxor.translate(p)
+end
+
+"""
+    rotate()
+
+Rotate a function defined inside a [`SubAction`](@ref) using an Animation defined
+with Animations.jl.
+
+If you're used to working with Animations.jl this should feel quite natural.
+Instead of defining each movement in its own subaction it's possible to define it in one
+by using an Animation.
+
+# Example
+```
+using Javis, Animations
+
+video = Video(500, 500)
+translate_anim = Animation(
+    [0, 1], # must go from 0 to 1
+    [O, Point(150, 0)],
+    [sineio()],
+)
+
+translate_back_anim = Animation(
+    [0, 1], # must go from 0 to 1
+    [O, Point(-150, 0)],
+    [sineio()],
+)
+
+rotate_anim = Animation(
+    [0, 1], # must go from 0 to 1
+    [0, 2π],
+    [linear()],
+)
+
+javis(
+    video,
+    [
+        BackgroundAction(1:150, ground),
+        Action(
+            (args...) -> circle(O, 25, :fill);
+            subactions = [
+                SubAction(1:10, sineio(), scale()),
+                SubAction(11:50, translate_anim, translate()),
+                SubAction(51:100, rotate_anim, rotate_around(Point(-150, 0))),
+                SubAction(101:140, translate_back_anim, translate()),
+                SubAction(141:150, rev(sineio()), scale())
+            ],
+        ),
+    ],
+    pathname = "animation.gif",
+)
+```
+
+which uses the `SubAction` syntax five times with both easing functions directly and animation objects.
+The `rev(sineio())` creates an `Animation` which goes from `1.0` to `0.0`.
+"""
+function Luxor.rotate()
+    (video, action, subaction, rel_frame) -> _rotate(video, action, subaction, rel_frame)
+end
+
+function _rotate(video, action, subaction, rel_frame)
+    p = get_interpolation(subaction, rel_frame)
+    Luxor.rotate(p)
+end
+
+"""
+    rotate_around(p::Point)
+
+Rotate a function defined inside a [`SubAction`](@ref) using an Animation defined
+with Animations.jl around the point `p`.
+
+An example can be seen in [`rotate`](@ref).
+
+# Arguments
+- `p::Point`: the point to rotate around
+"""
+function rotate_around(p::Point)
+    (video, action, subaction, rel_frame) ->
+        _rotate_around(video, action, subaction, rel_frame, p)
+end
+
+function _rotate_around(video, action, subaction, rel_frame, p)
+    i = get_interpolation(subaction, rel_frame)
+    Luxor.translate(p)
+    Luxor.rotate(i)
+    Luxor.translate(-p)
+end
+
+"""
+    scale()
+
+Scale a function defined inside a [`SubAction`](@ref) using an Animation defined
+with Animations.jl around the point `p`.
+
+An example can be seen in [`rotate`](@ref).
+"""
+function scale()
+    (video, action, subaction, rel_frame) -> _scale(video, action, subaction, rel_frame)
+end
+
+function _scale(video, action, subaction, rel_frame)
+    p = get_interpolation(subaction, rel_frame)
+    scale(p)
 end
