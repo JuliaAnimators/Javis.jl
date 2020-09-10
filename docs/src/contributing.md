@@ -28,15 +28,15 @@ After your master branch is up to date, we follow the following naming conventio
 
 - For features, name it like so:
 
-      git branch [your github username]-feature-[issue number]
+      git branch [your github username]-feature-[name of feature]
 
-      Example: tcp-feature-4
+      Example: tcp-feature-scaling
 
 - For documentation, name it like so:
 
-      git branch [your github username]-documentation-[issue number]
+      git branch [your github username]-documentation-[where improvement is made]
 
-      Example: tcp-documentation-22
+      Example: tcp-documentation-contributing-guidelines
 
 ## 3. Test, code, format, and commit
 
