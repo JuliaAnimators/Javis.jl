@@ -257,3 +257,35 @@ function _scale(video, action, subaction, rel_frame)
     p = get_interpolation(subaction, rel_frame)
     scale(p)
 end
+
+"""
+    sethue()
+
+Set the color of a function defined inside a [`SubAction`](@ref) using an Animation defined
+with Animations.jl.
+
+# Example
+A possible animation would look like this:
+```julia
+color_anim = Animation(
+    [0, 0.5, 1], # must go from 0 to 1
+    [
+        Lab(colorant"red"),
+        Lab(colorant"cyan"),
+        Lab(colorant"black"),
+    ],
+    [sineio(), sineio()],
+)
+```
+
+An example on how to integrate this into a SubAction can be seen in [`rotate`](@ref).
+Where this would be a valid SubAction: `SubAction(1:150, color_anim, sethue())`.
+"""
+function Luxor.sethue()
+    (video, action, subaction, rel_frame) -> _sethue(video, action, subaction, rel_frame)
+end
+
+function _sethue(video, action, subaction, rel_frame)
+    color = get_interpolation(subaction, rel_frame)
+    Luxor.sethue(color)
+end

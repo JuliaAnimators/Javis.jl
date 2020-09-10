@@ -909,9 +909,7 @@ function compute_transition!(
     action::AbstractAction,
     frame,
 )
-    t = (frame - first(get_frames(action))) / (length(get_frames(action)) - 1)
-    # makes sense to only allow 0 ≤ t ≤ 1
-    t = min(1.0, t)
+    t = get_interpolation(action, frame)
     from, to = scale.from, scale.to
 
     if !scale.compute_from_once || frame == first(get_frames(action))
