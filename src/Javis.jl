@@ -1,35 +1,13 @@
 module Javis
 
-using Animations
 using FFMPEG
-using Images
 using LaTeXStrings
 using LightXML
 import Luxor
 import Luxor: Point, @layer
-using ProgressMeter
 using Random
-using VideoIO
 
 const FRAMES_SYMBOL = [:same]
-
-"""
-    ReversedEasing
-
-Will be used to reverse an easing inside [`easing_to_animation`](@ref).
-Can be constructed from an easing function using [`rev`](@ref).
-"""
-struct ReversedEasing
-    easing::Easing
-end
-
-"""
-    rev(e::Easing)
-
-Reverse an easing function such that `easing_to_animation` maps it to `[1.0, 0.0]` instead of `[0.0, 1.0]`.
-An example can be seen in [`rotate`](@ref)
-"""
-rev(e::Easing) = ReversedEasing(e)
 
 """
     Video
@@ -154,7 +132,6 @@ A SubAction should not be created by hand but instead by using one of the constr
 
 # Fields
 - `frames::Frames`: the frames relative to the parent [`Action`](@ref)
-- `anim::Animation`: defines the interpolation function for the transitions
 - `func::Function`: the function that gets called in each of those frames.
     Takes the following arguments: `video, action, subaction, rel_frame`
 - `transitions::Vector{Transition}`: A list of transitions like [`Translation`](@ref)
@@ -163,49 +140,13 @@ A SubAction should not be created by hand but instead by using one of the constr
 """
 mutable struct SubAction <: AbstractAction
     frames::Frames
-    anim::Animation
     func::Function
     transitions::Vector{Transition}
     internal_transitions::Vector{InternalTransition}
 end
 
-"""
-    SubAction(frames, easing::Union{ReversedEasing, Easing}, args...)
-
-A `SubAction` can be defined with frames an
-[easing function](https://jkrumbiegel.github.io/Animations.jl/stable/#Easings-1) and either
-a function or transformation(s).
-
-
-# Example
-In the following example a filled circle with radius 50 appears in the first 20 frames,
-which means the opacity is increased from 0 to 1.0. The interpolation function used here is
-sineio from [`Animations.jl`](https://github.com/jkrumbiegel/Animations.jl).
-Then it stays at full opacity and disappears the same way in the last 20 frames using a
-linear decay.
-
-```julia
-javis(demo, [
-    BackgroundAction(1:100, ground),
-    Action((args...)->circle(O, 50, :fill); subactions = [
-        SubAction(1:20, sineio(), appear(:fade)),
-        SubAction(81:100, disappear(:fade))
-    ])
-])
-```
-
-# Arguments
-- `frames`: A list of frames for which the function should be called.
-    - The frame numbers are relative to the parent [`Action`](@ref).
-- `easing::Union{ReversedEasing, Easing}`: The easing function for `args...`
-- `args...`: Either a function like [`appear`](@ref) or a Transformation
-    like [`Translation`](@ref)
-"""
-SubAction(frames, easing::Union{ReversedEasing,Easing}, args...) =
-    SubAction(frames, easing_to_animation(easing), args...)
-
-SubAction(frames, anim::Animation, transition::Transition...) =
-    SubAction(frames, anim, (args...) -> 1, transition...)
+SubAction(transitions::Transition...) = SubAction(:same, transitions...)
+SubAction(func::Function) = SubAction(:same, func)
 
 """
     SubAction(frames, func::Function)
@@ -233,7 +174,7 @@ javis(demo, [
     - For [`appear`](@ref) and [`disappear`](@ref) a closure exists,
       such that `appear(:fade)` works.
 """
-SubAction(frames, func::Function) = SubAction(frames, easing_to_animation(linear()), func)
+SubAction(frames, func::Function) = SubAction(frames, func, [], [])
 
 """
     SubAction(frames, trans::Transition...)
@@ -266,11 +207,7 @@ javis(demo, [
 - `trans::Transition...`: A list of transitions that shall be performed.
 """
 SubAction(frames, trans::Transition...) =
-    SubAction(frames, easing_to_animation(linear()), (args...) -> 1, trans...)
-
-
-SubAction(frames, anim::Animation, func::Function, transitions::Transition...) =
-    SubAction(frames, anim, func::Function, collect(transitions), [])
+    SubAction(frames, (args...) -> 1, collect(trans), [])
 
 """
     ActionSetting
@@ -333,7 +270,6 @@ Defines what is drawn in a defined frame range.
 - `id::Union{Nothing, Symbol}`: An id which can be used to save the result of `func`
 - `func::Function`: The drawing function which draws something on the canvas.
     It gets called with the arguments `video, action, frame`
-- `anim::Animation`: defines the interpolation function for the transitions
 - `transitions::Vector{Transition}` a list of transitions
     which can be performed before the function gets called.
 - `internal_transitions::Vector{InternalTransition}`:
@@ -346,7 +282,6 @@ mutable struct Action <: AbstractAction
     frames::Frames
     id::Union{Nothing,Symbol}
     func::Function
-    anim::Animation
     transitions::Vector{Transition}
     internal_transitions::Vector{InternalTransition}
     subactions::Vector{SubAction}
@@ -405,9 +340,6 @@ The current action can be accessed using CURRENT_ACTION[1]
 """
 const CURRENT_ACTION = Array{Action,1}()
 
-easing_to_animation(easing) = Animation(0.0, 0.0, easing, 1.0, 1.0)
-easing_to_animation(rev_easing::ReversedEasing) =
-    Animation(0.0, 1.0, rev_easing.easing, 1.0, 0.0)
 
 """
     Action(frames, func::Function, args...)
@@ -447,52 +379,6 @@ Action(func::Function, args...; kwargs...) =
     Action(frames, id::Union{Nothing,Symbol}, func::Function,
            transitions::Transition...; kwargs...)
 
-Fallback constructor for an Action which doesn't define an animation.
-A linear animation is assumed.
-"""
-function Action(
-    frames,
-    id::Union{Nothing,Symbol},
-    func::Function,
-    transitions::Transition...;
-    kwargs...,
-)
-
-    Action(frames, id, func, easing_to_animation(linear()), transitions...; kwargs...)
-end
-
-"""
-    Action(frames, id::Union{Nothing,Symbol}, func::Function, easing::Union{ReversedEasing, Easing},
-           args...; kwargs...)
-
-Fallback constructor for an Action which does define an animation using an easing function.
-
-# Example
-```
-javis(
-    video, [
-        BackgroundAction(1:100, ground),
-        Action((args...)->t(), sineio(), Translation(250, 0))
-    ]
-)
-```
-"""
-function Action(
-    frames,
-    id::Union{Nothing,Symbol},
-    func::Function,
-    easing::Union{ReversedEasing,Easing},
-    args...;
-    kwargs...,
-)
-
-    Action(frames, id, func, easing_to_animation(easing), args...; kwargs...)
-end
-
-"""
-    Action(frames, id::Union{Nothing,Symbol}, func::Function,
-           transitions::Transition...; kwargs...)
-
 # Arguments
 - `frames`: defines for which frames this action is called
 - `id::Symbol`: Is used if the `func` returns something which
@@ -507,7 +393,6 @@ function Action(
     frames,
     id::Union{Nothing,Symbol},
     func::Function,
-    anim::Animation,
     transitions::Transition...;
     kwargs...,
 )
@@ -518,17 +403,7 @@ function Action(
         subactions = opts[:subactions]
         delete!(opts, :subactions)
     end
-    Action(
-        frames,
-        id,
-        func,
-        anim,
-        collect(transitions),
-        [],
-        subactions,
-        ActionSetting(),
-        opts,
-    )
+    Action(frames, id, func, collect(transitions), [], subactions, ActionSetting(), opts)
 end
 
 """
@@ -550,33 +425,15 @@ function BackgroundAction(frames, id::Symbol, func::Function, args...; kwargs...
     Action(frames, id, func, args...; in_global_layer = true, kwargs...)
 end
 
-"""
-    InternalTranslation <: InternalTransition
-
-Saves a translation as described by [`Translation`](@ref) for the current frame.
-Is part of the [`Action`](@ref) struct.
-"""
 mutable struct InternalTranslation <: InternalTransition
     by::Point
 end
 
-"""
-    InternalRotation <: InternalTransition
-
-Saves a rotation as described by [`Rotation`](@ref) for the current frame.
-Is part of the [`Action`](@ref) struct.
-"""
 mutable struct InternalRotation <: InternalTransition
     angle::Float64
     center::Point
 end
 
-"""
-    InternalScaling <: InternalTransition
-
-Saves a scaling as described by [`Scaling`](@ref) for the current frame.
-Is part of the [`Action`](@ref) struct.
-"""
 mutable struct InternalScaling <: InternalTransition
     scale::Tuple{Float64,Float64}
 end
@@ -857,7 +714,9 @@ function compute_transition!(
     action::AbstractAction,
     frame,
 )
-    t = get_interpolation(action, frame)
+    t = (frame - first(get_frames(action))) / (length(get_frames(action)) - 1)
+    # makes sense to only allow 0 ≤ t ≤ 1
+    t = min(1.0, t)
     from, to, center = rotation.from, rotation.to, rotation.center
 
     center isa Symbol && (center = pos(center))
@@ -884,7 +743,9 @@ function compute_transition!(
     action::AbstractAction,
     frame,
 )
-    t = get_interpolation(action, frame)
+    t = (frame - first(get_frames(action))) / (length(get_frames(action)) - 1)
+    # makes sense to only allow 0 ≤ t ≤ 1
+    t = min(1.0, t)
     from, to = translation.from, translation.to
 
     from isa Symbol && (from = pos(from))
@@ -1154,12 +1015,12 @@ function javis(
     actions::Vector{AA};
     framerate = 30,
     pathname = "javis_$(randstring(7)).gif",
-    tempdirectory = "",
+    tempdirectory = mktempdir(),
 ) where {AA<:AbstractAction}
     compute_frames!(actions)
 
     for action in actions
-        compute_frames!(action.subactions)
+        compute_frames!(action.subactions; last_frames = get_frames(action))
     end
 
     # get all frames
@@ -1190,41 +1051,45 @@ function javis(
         CURRENT_ACTION[1] = actions[1]
     end
 
-    path, ext = "", ""
-    if !isempty(pathname)
-        path, ext = splitext(pathname)
-    end
-    render_mp4 = ext == ".mp4"
-    codec_props = [:priv_data => ("crf" => "22", "preset" => "medium")]
-    if render_mp4
-        video_io = Base.open("temp.stream", "w")
-    end
-    video_encoder = nothing
-    # if we render a gif and the user hasn't set a tempdirectory
-    if !render_mp4 && isempty(tempdirectory)
-        tempdirectory = mktempdir()
-    end
-
     filecounter = 1
-    @showprogress 1 "Rendering frames..." for frame in frames
-        frame_image = convert.(RGB, get_javis_frame(video, actions, frame))
-        if !isempty(tempdirectory)
-            save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
-        end
-        if render_mp4
-            if frame == first(frames)
-                video_encoder = prepareencoder(
-                    frame_image,
-                    framerate = framerate,
-                    AVCodecContextProperties = codec_props,
-                )
+    for frame in frames
+        background_settings = ActionSetting()
+        Drawing(
+            video.width,
+            video.height,
+            "$(tempdirectory)/$(lpad(filecounter, 10, "0")).png",
+        )
+        origin()
+        origin_matrix = cairotojuliamatrix(getmatrix())
+        # this frame needs doing, see if each of the scenes defines it
+        for action in actions
+            # if action is not in global layer this sets the background_settings
+            # from the parent background action
+            update_action_settings!(action, background_settings)
+            CURRENT_ACTION[1] = action
+            if frame in get_frames(action)
+                # check if the action should be part of the global layer (i.e BackgroundAction)
+                # or in its own layer (default)
+                in_global_layer = get(action.opts, :in_global_layer, false)
+                if !in_global_layer
+                    @layer begin
+                        perform_action(action, video, frame, origin_matrix)
+                    end
+                else
+                    perform_action(action, video, frame, origin_matrix)
+                    # update origin_matrix as it's inside the global layer
+                    origin_matrix = cairotojuliamatrix(getmatrix())
+                end
             end
-            appendencode!(video_encoder, video_io, frame_image, filecounter)
+            # if action is in global layer this changes the background settings
+            update_background_settings!(background_settings, action)
         end
+        finish()
         filecounter += 1
     end
 
     isempty(pathname) && return
+    path, ext = splitext(pathname)
     if ext == ".gif"
         # generate a colorpalette first so ffmpeg does not have to guess it
         ffmpeg_exe(`-loglevel panic -i $(tempdirectory)/%10d.png -vf
@@ -1234,54 +1099,12 @@ function javis(
                     "$(tempdirectory)/palette.bmp" -lavfi
                     "paletteuse=dither=sierra2_4a" -y $pathname`)
     elseif ext == ".mp4"
-        finishencode!(video_encoder, video_io)
-        close(video_io)
-        mux("temp.stream", pathname, framerate; silent = true)
+        ffmpeg_exe(`-loglevel panic -framerate $framerate -i $(tempdirectory)/%10d.png  -c:v libx264 -pix_fmt yuv420p $pathname`)
+
     else
         @error "Currently, only gif and mp4 creation is supported. Not a $ext."
     end
     return pathname
-end
-
-"""
-    get_javis_frame(video, actions, frame)
-
-Get one specific frame of a video with actions.
-
-# Returns
-- `ARGB Matrix` the frame image as a matrix
-"""
-function get_javis_frame(video, actions, frame)
-    background_settings = ActionSetting()
-    Drawing(video.width, video.height, :image)
-    origin()
-    origin_matrix = cairotojuliamatrix(getmatrix())
-    # this frame needs doing, see if each of the scenes defines it
-    for action in actions
-        # if action is not in global layer this sets the background_settings
-        # from the parent background action
-        update_action_settings!(action, background_settings)
-        CURRENT_ACTION[1] = action
-        if frame in get_frames(action)
-            # check if the action should be part of the global layer (i.e BackgroundAction)
-            # or in its own layer (default)
-            in_global_layer = get(action.opts, :in_global_layer, false)
-            if !in_global_layer
-                @layer begin
-                    perform_action(action, video, frame, origin_matrix)
-                end
-            else
-                perform_action(action, video, frame, origin_matrix)
-                # update origin_matrix as it's inside the global layer
-                origin_matrix = cairotojuliamatrix(getmatrix())
-            end
-        end
-        # if action is in global layer this changes the background settings
-        update_background_settings!(background_settings, action)
-    end
-    img = image_as_matrix()
-    finish()
-    return img
 end
 
 function update_background_settings!(setting::ActionSetting, action::Action)
@@ -1392,9 +1215,7 @@ export Video, Action, BackgroundAction, SubAction, Rel
 export Line, Translation, Rotation, Transformation, Scaling
 export val, pos, ang, get_value, get_position, get_angle
 export projection, morph
-export appear, disappear, rotate_around
-export rev
-export scaleto
+export appear, disappear
 
 # custom override of luxor extensions
 export setline, setopacity, fontsize, get_fontsize, scale
