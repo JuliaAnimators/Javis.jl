@@ -7,6 +7,7 @@
 - Use [VideoIO](https://github.com/JuliaIO/VideoIO.jl) for faster rendering without temporary images
 
 ## Unreleased
+- Ability to not define frames for the first `SubAction` -> all frames of the `Action` will be used
 - Ability to scale an object with `Scaling`. Works similar to `Translation` and `Rotation` 
 - Added JuliaFormatter GitHub Action
 

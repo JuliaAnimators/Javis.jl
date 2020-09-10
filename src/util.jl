@@ -1,13 +1,15 @@
 """
-    compute_frames!(actions::Vector{AA}) where AA <: AbstractAction
+    compute_frames!(actions::Vector{AA}; last_frames=nothing) where AA <: AbstractAction
 
 Set action.frames.frames to the computed frames for each action in actions.
 """
-function compute_frames!(actions::Vector{AA}) where {AA<:AbstractAction}
-    last_frames = nothing
+function compute_frames!(
+    actions::Vector{AA};
+    last_frames = nothing,
+) where {AA<:AbstractAction}
     for action in actions
         if last_frames === nothing && get_frames(action) === nothing
-            throw(ArgumentError("Frames need to be defined explicitly in the inital
+            throw(ArgumentError("Frames need to be defined explicitly in the initial
             AbstractAction like Action/BackgroundAction or SubAction."))
         end
         if get_frames(action) === nothing
