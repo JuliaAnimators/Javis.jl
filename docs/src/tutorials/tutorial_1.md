@@ -21,7 +21,7 @@ By the end of this tutorial, you will have made the following animation:
 
 ![](assets/dancing_circles.gif)
 
-With all that said, let's dive into this tutorial! ✨
+With all that said, let's dive in to this tutorial! ✨
 
 ## So... What Is `Javis.jl`?
 
@@ -41,7 +41,7 @@ In order to use `Javis`, we will start with the following import:
 using Javis
 ```
 
-Then, we will introduce our first and most important function from `Javis` - the `javis` function:
+Then, we will introduce our first and most import function from `Javis` - the `javis` function:
 
 ```
 javis(
@@ -51,7 +51,7 @@ javis(
 )
 ```
 
-The `javis` function has three keyword arguments (kwargs) that the user must define in order to create an animation:
+The `javis` function has three key word parameters that the user must define in order to create an animation:
 
 - `video` - a `Video` struct
 - `actions` - a vector of `Action` objects
@@ -346,7 +346,7 @@ To recap, by working through this animation you should now:
 3. Be able to connect actions together using variable syntax
 
 If you want to know more and experiment with `Javis`, go onto the following tutorials!
-We wish you the best on your `Javis` journey!
+We wish you best on your `Javis` journey!
 
 > **Author(s):** @sudomaze, Ole Kröger, Jacob Zelko \
 > **Date:** August 14th, 2020 \
