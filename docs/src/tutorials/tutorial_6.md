@@ -4,14 +4,14 @@ In the last couple of tutorials you've learned the basics of Javis and some of t
 
 ## Our goal
 
-The goal of this tutorial is to explain a new feature we have added in v0.2 of Javis. Before this every animation as basically linear.
+The goal of this tutorial is to explain a new feature we have added in v0.2 of Javis. Before this every animation was basically linear.
 What I mean by this is: If you move an object from `A` to `B` using [`Translation`](@ref) it would do so in a linear and therefore boring fashion.
 
 We'll create an interesting loading animation for this. It consists of five circles which move from the center to the outside rotate around the center and back to the origin. During this process they appear and disappear as well as changing color.
 
 ## Learning Outcomes
 
-This tutorial shows some more power of subactions that we introduced in v0.2. Combined with the power of the awesome library [Animations.jl](https://github.com/jkrumbiegel/Animations.jl) you have very fine grained control over the objects you animate and can benefit from the easiness of easing functions. 😄
+This tutorial shows some more power of subactions that we introduced in v0.2. Combined with the power of the awesome library [Animations.jl](https://github.com/jkrumbiegel/Animations.jl) you have very fine grained control over the objects you animate and understand the ease of its easing functions. 😄
 
 Today you'll learn how to
 - use easing functions to have animations with pep
@@ -54,8 +54,12 @@ javis(
 
 I would say that this looks a bit dull. Let us rotate it with varying speeds. For this I'll use the `sineio` easing function. You can try another easing function.
 They are all described [here](https://jkrumbiegel.github.io/Animations.jl/stable/#Easings-1).
+Easing functions basically describe how to interpolate between the values. If one goes from `0` to `5` in the time range of `0` to `1`. It can be at `2.5` at `t=0.5` or it can start slowly and speed up until it reaches the final value of `5` such that at `t=0.5` it is only at let say `1.5`. 
+This way one can describe the speed/acceleration of the object.
 
 First of all we need `Animations` for this and I also load `Colors` here for later.
+
+These can be installed via `] add Animations, Colors` inside the REPL.
 
 ```julia
 using Javis, Animations, Colors
@@ -92,6 +96,42 @@ javis(
 ![Rotation with varying speed](assets/loading_circle_sineio.gif)
 
 I think that looks more interesting. The [Animations.jl](https://jkrumbiegel.github.io/Animations.jl/stable) package is very powerful so you might wanna head over to their documentation and try different things.
+
+Nevertheless, let me explain this part a bit and you can check out the documentation for more details.
+
+```
+rotate_anim = Animation(
+    [0, 1], # must go from 0 to 1
+    [0, 2π],
+    [sineio()],
+)
+```
+
+The `Animation` function takes in three arguments which are all vectors. 
+1. Describe the time stamps. They should always go from `0` to `1` inside Javis.
+2. The values at the different time stamps. Here we start at 0 radians and end with 2π radians.
+3. The easing functions describe how to move from one value to the next. It must be always one less than the number of time stamps/values
+
+We can actually have a look at this in a graphical plot:
+
+```julia
+using Animations
+using Plots
+
+rotate_anim = Animations.Animation(
+    [0, 1], # must go from 0 to 1
+    [0, 2π],
+    [sineio()],
+)
+
+ts = 0:0.01:1
+ys = at.(rotate_anim, ts)
+
+plot(ts, ys; labels=false, xaxis="t", yaxis="value")
+```
+
+![Sineio plot](assets/sineio_plot.png)
+
 
 ## Precise Movement
 
@@ -167,7 +207,8 @@ actions = [
 ]
 ```
 
-I've basically added four more blobs by using `for frame_start in 1:10:50` inside the array definition.
+I've basically added four more blobs by using `for frame_start in 1:10:50` inside the array definition. It's a basic list comprehension which might be hard to get at first as it's spreading over several lines. 
+
 Then I defined the start of the `Action` with: `frame_start:frame_start+149` such that every blob is there for 150 frames and reduced the number of frames in the subactions a bit to have 150 frames.
 
 ![The loading movement with some friends](assets/loading_with_friends.gif)
