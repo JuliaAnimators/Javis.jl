@@ -505,12 +505,6 @@ end
         [linear()],
     )
 
-    color_anim = Animation(
-        [0, 0.5, 1], # must go from 0 to 1
-        [Lab(colorant"red"), Lab(colorant"cyan"), Lab(colorant"black")],
-        [sineio(), sineio()],
-    )
-
     javis(
         video,
         [
@@ -523,7 +517,6 @@ end
                     SubAction(51:100, rotate_anim, rotate_around(Point(-150, 0))),
                     SubAction(101:140, translate_back_anim, translate()),
                     SubAction(141:150, rev(sineio()), scale()),
-                    SubAction(1:150, color_anim, sethue()),
                 ],
             ),
         ],

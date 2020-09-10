@@ -13,6 +13,12 @@ using VideoIO
 
 const FRAMES_SYMBOL = [:same]
 
+"""
+    ReversedEasing
+
+Will be used to reverse an easing inside [`easing_to_animation`](@ref).
+Can be constructed from an easing function using [`rev`](@ref).
+"""
 struct ReversedEasing
     easing::Easing
 end
@@ -544,15 +550,33 @@ function BackgroundAction(frames, id::Symbol, func::Function, args...; kwargs...
     Action(frames, id, func, args...; in_global_layer = true, kwargs...)
 end
 
+"""
+    InternalTranslation <: InternalTransition
+
+Saves a translation as described by [`Translation`](@ref) for the current frame.
+Is part of the [`Action`](@ref) struct.
+"""
 mutable struct InternalTranslation <: InternalTransition
     by::Point
 end
 
+"""
+    InternalRotation <: InternalTransition
+
+Saves a rotation as described by [`Rotation`](@ref) for the current frame.
+Is part of the [`Action`](@ref) struct.
+"""
 mutable struct InternalRotation <: InternalTransition
     angle::Float64
     center::Point
 end
 
+"""
+    InternalScaling <: InternalTransition
+
+Saves a scaling as described by [`Scaling`](@ref) for the current frame.
+Is part of the [`Action`](@ref) struct.
+"""
 mutable struct InternalScaling <: InternalTransition
     scale::Tuple{Float64,Float64}
 end
@@ -885,7 +909,9 @@ function compute_transition!(
     action::AbstractAction,
     frame,
 )
-    t = get_interpolation(action, frame)
+    t = (frame - first(get_frames(action))) / (length(get_frames(action)) - 1)
+    # makes sense to only allow 0 ≤ t ≤ 1
+    t = min(1.0, t)
     from, to = scale.from, scale.to
 
     if !scale.compute_from_once || frame == first(get_frames(action))
