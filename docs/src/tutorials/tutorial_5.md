@@ -6,11 +6,15 @@ The world is built up of tiny tiny building blocks known as atoms. ⚛️
 These atoms come in many different sizes and each has different properties.
 Let's visualize these atoms and show their uniqueness!
 
-## Learning Outcomes
+## Learning Outcomes 📚
 
 In this tutorial you'll learn:
 
 - How to apply scaling to an arbitrary shape
+- To use `Javis.jl` to interact with the following Julia packages:
+    - [`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl)
+    - [`PeriodicTable.jl`](https://github.com/JuliaPhysics/PeriodicTable.jl)
+
 - Ways of creating educational gifs
 
 By the end of this tutorial, you will have made the following animation:
@@ -164,11 +168,144 @@ But great!
 The only question now is... What are we looking at?
 Let's add some more information to this animation! 📝
 
-## Name That Element! 🔬
+## How Much Does an Atom Weigh? ⚖️
 
+To get the information about an element that we are currently previewing, we need to get information about our element.
+The first thing we need to get is the atomic mass of the element.
+So, how do we do that?
 
+First, we must modify our `javis` function slightly to store information about the circle object we draw by using the symbol `:atom`:
+
+```julia
+...
+        Action(
+	    :atom,
+            (args...) -> element(),
+            subactions = [
+                SubAction(1:300, Scaling(1, 30)),
+                SubAction(301:350, Scaling(30, 16)),
+            ],
+        ),
+	...
+```
+
+Now, we must update the `element` function to return the current scale of the circle being drawn.
+The reason why we want the scale of the object is that the scale of the circle represents its atomic mass.
+At this time, `Javis.jl` does not allow a user to get the current scale of an object directly.
+This will most likely be changed in future versions.
+The following changes need to be made to the `element` function:
+
+```julia
+function element(p = O, color = "black")
+    sethue(color)
+    c = circle(p, 1, :fill)
+    return val(:_current_scale)
+end
+```
+
+Now, whenever the `Action` executes in `javis`, to draw the circle, the current scale of the circle object is stored into the `:atom` symbol.
+Great! But... How do we know what element it is we are looking at?
+
+To answer that question, we need to create another function to display this information!
+
+## What's That Element? 🔍
+
+To identify the element and display its information properly, let's create an info box similar to what we made in [Tutorial 2](tutorial_2.md#As-You-Can-See-Here...)!
+We do this by creating an `info_box` function that takes in a value:
+
+```julia
+function info_box(args...; value = 0)
+    fontsize(12)
+    box(140, -210, 170, 40, :stroke)
+    for element in elements
+        if value == round(ustrip(element.atomic_mass))
+            text(
+                "Element name: $(element.name)",
+                140,
+                -220,
+                valign = :middle,
+                halign = :center,
+            )
+            text(
+                "Atomic Mass: $(round(ustrip(element.atomic_mass)))",
+                140,
+                -200,
+                valign = :middle,
+                halign = :center,
+            )
+        end
+    end
+end
+```
+
+Whenever a mass is measured that corresponds to a known element, the name of that element will now be displayed.
+Of course, we need to further update our `javis` function to this:
+
+```julia
+...
+        Action(
+            :atom,
+            (args...) -> element(),
+            subactions = [
+                SubAction(1:300, Scaling(1, 30)),
+                SubAction(301:350, Scaling(30, 16)),
+            ],
+        ),
+        Action(1:300, (args...) -> info_box(value = round(val(:atom)[1]))),
+        Action(351:500, (args...) -> info_box(value = round(val(:atom)[1]))),
+    ],
+    pathname = "atomic.gif",
+    framerate = 10,
+...
+```
+
+The current scale of the circle object is now passed to the `info_box` function via the `:atom` symbol.
+This produces the following animation:
+
+![](assets/min_atomic_info.gif)
+
+We can now see what element is being viewed!
+Hooray!
+However, it doesn't tell us much about the element - let's change that!
+
+All one needs to do is update the `info_box` function with the following two lines:
+
+```julia
+function info_box(args...; value = 0)
+    fontsize(12)
+    box(140, -210, 170, 40, :stroke)
+    box(0, 175, 450, 100, :stroke) # ADD
+    ...
+    text(
+        "Atomic Mass: $(round(ustrip(element.atomic_mass)))",
+        140,
+        -200,
+        valign = :middle,
+        halign = :center,
+    )
+    textwrap("Description: $(element.summary)", 400, Point(-200, 125)) # ADD
+...
+```
+
+Which now produces this fully comprehensive animation that tells us all about the element at hand:
+
+![](assets/atomic.gif)
+
+Hooray! 🎉🎉🎉
+We now have a very educational gif that tells us all about the elements we are viewing.
+We are basically physicists at this point. 😉
 
 ## Conclusion
+
+Great work getting through this tutorial!
+This tutorial was a little more complicated as you learned the following:
+
+- Using `Javis.jl` to scale objects
+- Having `Javis.jl` interact with other Julia packages
+- Creating extended animations for use in education
+
+Our hope with this tutorial is that it inspires you to create more comprehensive and informative animations with `Javis.jl`
+Good luck and have fun making more animations!
 
 ## Full Code
 
@@ -235,6 +372,6 @@ javis(
 
 ```
 
-> **Author(s):** Ole Kröger, Jacob Zelko \
-> **Date:** September 3rd, 2020 \
-> **Tag(s):** action, rotation
+> **Author(s):** Jacob Zelko \
+> **Date:** September 10, 2020 \
+> **Tag(s):** scaling, atoms, elements, unitful, periodictable
