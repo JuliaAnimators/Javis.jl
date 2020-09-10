@@ -169,15 +169,6 @@ mutable struct SubAction <: AbstractAction
     internal_transitions::Vector{InternalTransition}
 end
 
-SubAction(transitions::Transition...) = SubAction(:same, transitions...)
-SubAction(func::Function) = SubAction(:same, func)
-SubAction(
-    easing_or_animation::Union{ReversedEasing,Easing,Animation},
-    transitions::Transition...,
-) = SubAction(:same, easing_or_animation, transitions...)
-SubAction(easing_or_animation::Union{ReversedEasing,Easing,Animation}, func::Function) =
-    SubAction(:same, easing_or_animation, func)
-
 """
     SubAction(frames, easing::Union{ReversedEasing, Easing}, args...)
 
@@ -1166,7 +1157,7 @@ function javis(
     compute_frames!(actions)
 
     for action in actions
-        compute_frames!(action.subactions; last_frames = get_frames(action))
+        compute_frames!(action.subactions)
     end
 
     # get all frames
