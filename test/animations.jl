@@ -621,6 +621,36 @@ end
     end
 end
 
+@testset "animating text" begin
+    video = Video(400, 300)
+
+    javis(
+        video,
+        [
+            BackgroundAction(1:100, ground),
+            BackgroundAction(1:100, (args...) -> fontsize(30)),
+            Action(
+                1:100,
+                (args...) -> text("Hello Stream!", -50, 50; halign = :center);
+                subactions = [
+                    SubAction(1:15, sineio(), appear(:draw_text)),
+                    SubAction(76:100, sineio(), disappear(:draw_text)),
+                ],
+            ),
+        ],
+        tempdirectory = "images",
+        pathname = "",
+    )
+
+    @test_reference "refs/animate_text07.png" load("images/0000000007.png")
+    @test_reference "refs/animate_text30.png" load("images/0000000030.png")
+    @test_reference "refs/animate_text82.png" load("images/0000000082.png")
+
+    for i in 1:100
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
 @testset "test default kwargs" begin
     video = Video(500, 500)
     pathname = javis(video, [Action(1:10, ground), Action(1:10, morph(astar, acirc))])

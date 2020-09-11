@@ -1375,6 +1375,7 @@ const LUXOR_DONT_EXPORT = [
     :fontsize,
     :get_fontsize,
     :scale,
+    :text,
 ]
 
 # Export each function from Luxor
@@ -1395,6 +1396,6 @@ export rev
 export scaleto
 
 # custom override of luxor extensions
-export setline, setopacity, fontsize, get_fontsize, scale
+export setline, setopacity, fontsize, get_fontsize, scale, text
 
 end

@@ -148,3 +148,62 @@ function scaleto(x, y)
     Luxor.scale(scaling...)
     cs.current_scale = (x, y)
 end
+
+function animate_text(
+    str,
+    pos::Point,
+    valign::Symbol,
+    halign::Symbol,
+    angle::Float64,
+    t::Float64,
+)
+    if t >= 1
+        return Luxor.text(str, pos; valign = valign, halign = halign, angle = angle)
+    end
+
+    # copied from Luxor.text
+    xbearing, ybearing, textwidth, textheight, xadvance, yadvance = textextents(str)
+    halignment = findfirst(isequal(halign), [:left, :center, :right, :centre])
+
+    # if unspecified or wrong, default to left, also treat UK spelling centre as center
+    if halignment == nothing
+        halignment = 1
+    elseif halignment == 4
+        halignment = 2
+    end
+
+    textpointx = pos.x - [0, textwidth / 2, textwidth][halignment]
+
+    valignment = findfirst(isequal(valign), [:top, :middle, :baseline, :bottom])
+
+    # if unspecified or wrong, default to baseline
+    if valignment == nothing
+        valignment = 3
+    end
+
+    textpointy = pos.y - [ybearing, ybearing / 2, 0, textheight + ybearing][valignment]
+
+
+    gsave()
+    translate(Point(textpointx, textpointy))
+    rotate(angle)
+    # clipping region
+    textoutlines(str, O, :clip)
+    w = textwidth
+    r = t * w
+    circle(O, r, :fill)
+    grestore()
+    return Point(textpointx, textpointy)
+end
+
+
+function text(str, pos = O; valign = :baseline, halign = :left, angle = 0.0)
+    action = CURRENT_ACTION[1]
+    opts = action.opts
+    t = get(opts, :draw_text_t, 1.0)
+    return animate_text(str, pos, valign, halign, angle, t)
+end
+
+function text(str, x, y; kwargs...)
+    text(str, Point(x, y); kwargs...)
+end

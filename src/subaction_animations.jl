@@ -41,6 +41,11 @@ function _appear(video, action, subaction, rel_frame, symbol::Val{:scale})
     action.current_setting.mul_scale = t
 end
 
+function _appear(video, action, subaction, rel_frame, symbol::Val{:draw_text})
+    t = get_interpolation(subaction, rel_frame)
+    action.opts[:draw_text_t] = t
+end
+
 """
     disappear(s::Symbol)
 
@@ -82,6 +87,11 @@ end
 function _disappear(video, action, subaction, rel_frame, symbol::Val{:scale})
     t = get_interpolation(subaction, rel_frame)
     action.current_setting.mul_scale = 1 - t
+end
+
+function _disappear(video, action, subaction, rel_frame, symbol::Val{:draw_text})
+    t = get_interpolation(subaction, rel_frame)
+    action.opts[:draw_text_t] = 1 - t
 end
 
 """
