@@ -4,9 +4,14 @@ Javis is currently under heavy development as we push to a primary release versi
 
 We follow a workflow pattern that is directly inspired by the [development workflow guide](http://docs.juliaplots.org/latest/contributing/#Development-Workflow-1) found in [`Plots.jl`](https://github.com/JuliaPlots/Plots.jl). The general workflow we expect contributors to adhere to is as follows:
 
-## 1. Fork the repo to your account
+## 1. Create an Issue about the Problem
 
-## 2. Create a branch based on what you are developing
+If you want to add functionality or to work on a bug you found, open an issue first.
+That'll save you from doing work that we may not support for Javis.
+
+## 2. Fork the repo to your account
+
+## 3. Create a branch based on what you are developing
 
 Before making a branch, make sure to check that you are even with master via the following commands:
 
@@ -38,7 +43,7 @@ After your master branch is up to date, we follow the following naming conventio
 
       Example: tcp-documentation-contributing-guidelines
 
-## 3. Test, code, format, and commit
+## 4. Test, code, format, and commit
 
 Once you have a fork, it is useful to make sure the fork was successful.
 To verify that everything is operational, let's test it.
@@ -108,7 +113,7 @@ git push --set-upstream origin tcp-documentation-22
 
 If I have already pushed in the past and set the upstream to origin, then I could do `git push` instead of `git push --set-upstream origin tcp-documentation-22`.
 
-## 4. Submitting your changes to the main project
+## 5. Submitting your changes to the main project
 
 Almost done! Go to your fork and there should be a section that asks you to make a pull request (PR) from your branch. This allows the maintainers of Javis to see if they can add your changes to the main project. If not, you can click the "New pull request" button.
 
@@ -123,7 +128,7 @@ Then, if all goes according to plan, it gets merged... **Thanks for the contribu
 ## Note on Adding Dependencies
 
 As a rule, we try to avoid having too many dependencies.
-Therefore, we request that if you have a PR that adds a new dependency, please have opened an issue previously and gotten express permission from `Javis.jl` maintainers to work on this.
+Therefore, we request that if you have a PR that adds a new dependency, please have opened an issue previously.
 
 ### Adding Core Dependencies
 
