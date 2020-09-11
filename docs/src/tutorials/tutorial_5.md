@@ -94,12 +94,14 @@ using PeriodicTable
 using Unitful
 ```
 
-And let's define our background function:
+And let's define our background function.
+This background function will also write the current frame being drawn:
 
 ```julia
-function ground(args...)
+function ground(video, action, frame)
     background("white")
     sethue("black")
+    text("$frame / 550", -240, -230)
 end
 ```
 
@@ -209,9 +211,9 @@ function element(;color = "black")
 end
 ```
 
-The `val` method is shorthand for the `get_value` method used inside of `Javis`.
+The `val` method is shorthand for the [`get_value`](@ref) method used inside of `Javis` (which gets the value saved into the `:_current_scale` symbol by the prior action).
 Since we are getting the current scale value, we have to access an internal object called `:_current_scale`.
-Technically, we should not be accessing this object, but right now, we have no other.
+Technically, we should not be accessing this object, but right now, we have no other method.
 Hopefully this will be fixed in future versions!
 
 Now, whenever the `Action` executes in `javis`, to draw the circle, the current scale of the circle object is stored into the `:atom` symbol.
@@ -328,9 +330,10 @@ using Javis
 using PeriodicTable
 using Unitful
 
-function ground(args...)
+function ground(video, action, frame)
     background("white")
     sethue("black")
+    text("$frame / 550", -240, -230)
 end
 
 function element(;color = "black")
