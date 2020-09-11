@@ -6,6 +6,8 @@ The world is built up of tiny tiny building blocks known as atoms. ⚛️
 These atoms come in many different sizes and each has different properties.
 Let's visualize these atoms and show their uniqueness!
 
+> P.S. This tutorial is not 100% representative of real life. If you spot the inaccuracy, feel free to open a PR. 😉
+
 ## Learning Outcomes 📚
 
 In this tutorial you'll learn:
@@ -108,7 +110,7 @@ demo = Video(500, 500)
 javis(
     demo,
     [
-        BackgroundAction(1:500, ground),
+        BackgroundAction(1:550, ground),
 	...
     ],
     pathname = "atomic.gif",
@@ -128,12 +130,12 @@ Each element has a different atomic mass.
 This atomic mass is measured in the unit called a "Dalton" (symbol: u) which is equivalent to 1/12 of the mass of a stationary carbon-12 atom.
 We can use the `Scaling` functionality that `Javis.jl` provides to visualize these different masses!
 
-To accomplish this, we need to make a function the shows our currently viewed element:
+To accomplish this, we need to make a function that shows our currently viewed element:
 
 ```julia
-function element(p = O, color = "black")
+function element(;color = "black")
     sethue(color)
-    c = circle(p, 1, :fill)
+    circle(O, 4, :fill)
 end
 ```
 
@@ -143,12 +145,14 @@ From there, we need to define more `Action` objects for our `javis` function for
 
 ```julia
 ...
-        Action(
+        Action(1:550,
             (args...) -> element(),
-            subactions = [
-                SubAction(1:300, Scaling(1, 30)),
-                SubAction(301:350, Scaling(30, 16)),
-            ],
+            subactions = [ 
+                SubAction(101:140, Scaling(1, 12)),
+                SubAction(241:280, Scaling(12, 20)),
+                SubAction(381:420, Scaling(20, 7)),
+                SubAction(521:550, Scaling(7, 1))
+            ]
         ),
 	...
         pathname = "atomic.gif",
@@ -157,7 +161,7 @@ From there, we need to define more `Action` objects for our `javis` function for
 ...
 ```
 
-This will grow our element from `1` to `30` and then shrink the element from `30` to `16`.
+This will grow our element from `1` to `12`, from `12` to `20`, `20` to `7`, and finally `7` to `1`.
 
 That scaling looks like this:
 
@@ -178,13 +182,15 @@ First, we must modify our `javis` function slightly to store information about t
 
 ```julia
 ...
-        Action(
-	    :atom,
+        Action(1:550,
+            :atom,
             (args...) -> element(),
-            subactions = [
-                SubAction(1:300, Scaling(1, 30)),
-                SubAction(301:350, Scaling(30, 16)),
-            ],
+            subactions = [ 
+                SubAction(101:140, Scaling(1, 12)),
+                SubAction(241:280, Scaling(12, 20)),
+                SubAction(381:420, Scaling(20, 7)),
+                SubAction(521:550, Scaling(7, 1))
+            ]
         ),
 	...
 ```
@@ -196,12 +202,17 @@ This will most likely be changed in future versions.
 The following changes need to be made to the `element` function:
 
 ```julia
-function element(p = O, color = "black")
+function element(;color = "black")
     sethue(color)
-    c = circle(p, 1, :fill)
-    return val(:_current_scale)
+    circle(O, 4, :fill)
+    return val(:_current_scale)[1]
 end
 ```
+
+The `val` method is shorthand for the `get_value` method used inside of `Javis`.
+Since we are getting the current scale value, we have to access an internal object called `:_current_scale`.
+Technically, we should not be accessing this object, but right now, we have no other.
+Hopefully this will be fixed in future versions!
 
 Now, whenever the `Action` executes in `javis`, to draw the circle, the current scale of the circle object is stored into the `:atom` symbol.
 Great! But... How do we know what element it is we are looking at?
@@ -243,19 +254,20 @@ Of course, we need to further update our `javis` function to this:
 
 ```julia
 ...
-        Action(
+        Action(1:550,
             :atom,
             (args...) -> element(),
-            subactions = [
-                SubAction(1:300, Scaling(1, 30)),
-                SubAction(301:350, Scaling(30, 16)),
-            ],
+            subactions = [ 
+                SubAction(101:140, Scaling(1, 12)),
+                SubAction(241:280, Scaling(12, 20)),
+                SubAction(381:420, Scaling(20, 7)),
+                SubAction(521:550, Scaling(7, 1))
+            ]
         ),
-        Action(1:300, (args...) -> info_box(value = round(val(:atom)[1]))),
-        Action(351:500, (args...) -> info_box(value = round(val(:atom)[1]))),
-    ],
-    pathname = "atomic.gif",
-    framerate = 10,
+        Action(1:100, (args...) -> info_box(value = val(:atom))),
+        Action(141:240, (args...) -> info_box(value = val(:atom))),
+        Action(281:380, (args...) -> info_box(value = val(:atom))),
+        Action(421:520, (args...) -> info_box(value = val(:atom))),
 ...
 ```
 
@@ -274,7 +286,8 @@ All one needs to do is update the `info_box` function with the following two lin
 function info_box(args...; value = 0)
     fontsize(12)
     box(140, -210, 170, 40, :stroke)
-    box(0, 175, 450, 100, :stroke) # ADD
+    # Add the following line to your code
+    box(0, 175, 450, 100, :stroke)     
     ...
     text(
         "Atomic Mass: $(round(ustrip(element.atomic_mass)))",
@@ -283,7 +296,8 @@ function info_box(args...; value = 0)
         valign = :middle,
         halign = :center,
     )
-    textwrap("Description: $(element.summary)", 400, Point(-200, 125)) # ADD
+    # Add the following line to your code
+    textwrap("Description: $(element.summary)", 400, Point(-200, 125)) 
 ...
 ```
 
@@ -319,10 +333,10 @@ function ground(args...)
     sethue("black")
 end
 
-function element(p = O, color = "black")
+function element(;color = "black")
     sethue(color)
-    c = circle(p, 1, :fill)
-    return val(:_current_scale)
+    circle(O, 4, :fill)
+    return val(:_current_scale)[1]
 end
 
 function info_box(args...; value = 0)
@@ -339,7 +353,7 @@ function info_box(args...; value = 0)
                 halign = :center,
             )
             text(
-                "Atomic Mass: $(round(ustrip(element.atomic_mass)))",
+                "Atomic Radius: $(round(ustrip(element.atomic_mass)))",
                 140,
                 -200,
                 valign = :middle,
@@ -354,22 +368,25 @@ demo = Video(500, 500)
 javis(
     demo,
     [
-        BackgroundAction(1:500, ground),
-        Action(
+        BackgroundAction(1:550, ground),
+        Action(1:550,
             :atom,
             (args...) -> element(),
-            subactions = [
-                SubAction(1:300, Scaling(1, 30)),
-                SubAction(301:350, Scaling(30, 16)),
-            ],
+            subactions = [ 
+                SubAction(101:140, Scaling(1, 12)),
+                SubAction(241:280, Scaling(12, 20)),
+                SubAction(381:420, Scaling(20, 7)),
+                SubAction(521:550, Scaling(7, 1))
+            ]
         ),
-        Action(1:300, (args...) -> info_box(value = round(val(:atom)[1]))),
-        Action(351:500, (args...) -> info_box(value = round(val(:atom)[1]))),
+        Action(1:100, (args...) -> info_box(value = val(:atom))),
+        Action(141:240, (args...) -> info_box(value = val(:atom))),
+        Action(281:380, (args...) -> info_box(value = val(:atom))),
+        Action(421:520, (args...) -> info_box(value = val(:atom))),
     ],
     pathname = "atomic.gif",
     framerate = 10,
 )
-
 ```
 
 > **Author(s):** Jacob Zelko \
