@@ -1,7 +1,7 @@
 name = "Javis"
 uuid = "78b212ba-a7f9-42d4-b726-60726080707e"
-authors = ["Ole Kröger <o.kroeger@opensourc.es> and Jacob Zelko <jacobszelko@gmail.com>"]
-version = "0.1.2"
+authors = ["Ole Kröger <o.kroeger@opensourc.es>", "Jacob Zelko <jacobszelko@gmail.com>"]
+version = "0.1.3"
 
 [deps]
 FFMPEG = "c87230d0-a227-11e9-1b43-d7ebe4e7570a"
