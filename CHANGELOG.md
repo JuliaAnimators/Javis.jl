@@ -1,7 +1,7 @@
 # Javis.jl - Changelog
 
-## Unreleased
-- Ability to not define frames in `SubAction` -> all frames of the `Action` will be used
+## 0.1.3 (11th of Septemeber 2020)
+- First `SubAction` for an `Action` no longer requires explicit frame range and will default to the frames of the `Action`
 - Ability to scale an object with `Scaling`. Works similar to `Translation` and `Rotation` 
 - Added JuliaFormatter GitHub Action
 - Updated Contributing guidelines
