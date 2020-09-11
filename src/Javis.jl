@@ -63,6 +63,8 @@ Create a video with a certain `width` and `height` in pixel.
 This also sets `CURRENT_VIDEO`.
 """
 function Video(width, height)
+    # some luxor functions need a drawing ;)
+    Drawing()
     video = Video(width, height, Dict{Symbol,Any}())
     if isempty(CURRENT_VIDEO)
         push!(CURRENT_VIDEO, video)
@@ -160,6 +162,7 @@ A SubAction should not be created by hand but instead by using one of the constr
 - `transitions::Vector{Transition}`: A list of transitions like [`Translation`](@ref)
 - `internal_transitions::Vector{InternalTransition}`:
     A list of internal transitions which store the current transition for a specific frame.
+- `defs::Dict{Symbol, Any}` any kind of definitions that are relevant for the subaction.
 """
 mutable struct SubAction <: AbstractAction
     frames::Frames
@@ -167,6 +170,7 @@ mutable struct SubAction <: AbstractAction
     func::Function
     transitions::Vector{Transition}
     internal_transitions::Vector{InternalTransition}
+    defs::Dict{Symbol,Any}
 end
 
 """
@@ -270,7 +274,7 @@ SubAction(frames, trans::Transition...) =
 
 
 SubAction(frames, anim::Animation, func::Function, transitions::Transition...) =
-    SubAction(frames, anim, func::Function, collect(transitions), [])
+    SubAction(frames, anim, func::Function, collect(transitions), [], Dict{Symbol,Any}())
 
 """
     ActionSetting
@@ -1390,7 +1394,7 @@ export Video, Action, BackgroundAction, SubAction, Rel
 export Line, Translation, Rotation, Transformation, Scaling
 export val, pos, ang, get_value, get_position, get_angle
 export projection, morph
-export appear, disappear, rotate_around
+export appear, disappear, rotate_around, follow_path
 export rev
 export scaleto
 

@@ -621,6 +621,45 @@ end
     end
 end
 
+@testset "Following a path" begin
+    video = Video(800, 600)
+
+    anim = Animation([0, 1], [0.0, 2.0], [sineio()])
+
+    color_anim = Animation(
+        [0, 0.5, 1], # must go from 0 to 1
+        [Lab(colorant"red"), Lab(colorant"cyan"), Lab(colorant"red")],
+        [sineio(), sineio()],
+    )
+
+    actions = [
+        Action(
+            frame_start:(frame_start + 149),
+            (args...) -> star(O, 20, 5, 0.5, 0, :fill);
+            subactions = [
+                SubAction(1:150, anim, follow_path(star(O, 100))),
+                SubAction(1:150, color_anim, sethue()),
+            ],
+        ) for frame_start in 1:7:22
+    ]
+
+    javis(
+        video,
+        [BackgroundAction(1:180, ground), actions...],
+        tempdirectory = "images",
+        pathname = "",
+    )
+
+    @test_reference "refs/followPath10.png" load("images/0000000010.png")
+    @test_reference "refs/followPath30.png" load("images/0000000030.png")
+    @test_reference "refs/followPath100.png" load("images/0000000100.png")
+    @test_reference "refs/followPath160.png" load("images/0000000160.png")
+    # test that the last frame is completely white
+    for i in 1:180
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
 @testset "test default kwargs" begin
     video = Video(500, 500)
     pathname = javis(video, [Action(1:10, ground), Action(1:10, morph(astar, acirc))])

@@ -289,3 +289,55 @@ function _sethue(video, action, subaction, rel_frame)
     color = get_interpolation(subaction, rel_frame)
     Luxor.sethue(color)
 end
+
+"""
+    follow_path(points::Vector{Point}; closed=true)
+
+Can be applied inside a subaction such that the object defined in the parent action follows a path.
+It takes a vector of point which can be created as an example by calling `circle(O, 50)` <- notice that the action is set to `:none` the default.
+
+# Example
+```julia
+SubAction(1:150, follow_path(star(O, 300)))
+```
+
+# Arguments
+- `points::Vector{Point}` - the vector of points the object should follow
+
+# Keywords
+- `closed::Bool` default: true, sets whether the path is a closed path as for example in a circle, ellipse or any polygon
+"""
+function follow_path(points::Vector{Point}; closed = true)
+    (video, action, subaction, rel_frame) ->
+        _follow_path(video, action, subaction, rel_frame, points; closed = closed)
+end
+
+function _follow_path(video, action, subaction, rel_frame, points; closed = closed)
+    t = get_interpolation(subaction, rel_frame)
+    t -= floor(t)
+    if isapprox(t, 1.0, atol = 1e-4)
+        if closed
+            translate(points[1])
+        else
+            translate(points[end])
+        end
+        return
+    end
+    if rel_frame == 1
+        subaction.defs[:p_dist] = polydistances(points, closed = closed)
+    end
+    if isapprox(t, 0.0, atol = 1e-4)
+        translate(points[1])
+        return
+    end
+    pdist = subaction.defs[:p_dist]
+    ind, surplus = nearestindex(pdist, t * pdist[end])
+
+    nextind = mod1(ind + 1, length(points))
+    overshootpoint = between(
+        points[ind],
+        points[nextind],
+        surplus / distance(points[ind], points[nextind]),
+    )
+    translate(overshootpoint)
+end
