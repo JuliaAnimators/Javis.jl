@@ -122,6 +122,9 @@ Then, if all goes according to plan, it gets merged... **Thanks for the contribu
 
 ## Note on Adding Dependencies
 
+As a rule, we try to avoid having too many dependencies.
+Therefore, we request that if you have a PR that adds a new dependency, please have opened an issue previously and gotten express permission from `Javis.jl` maintainers to work on this.
+
 ### Adding Core Dependencies
 
 If you are working on introducing a new core dependency, make sure to add that dependency to the main `Project.toml` for `Javis`.
