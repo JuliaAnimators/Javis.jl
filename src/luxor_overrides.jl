@@ -196,7 +196,34 @@ function animate_text(
     return Point(textpointx, textpointy)
 end
 
+"""
+    text(str, pos = O; valign = :baseline, halign = :left, angle = 0.0)
 
+Has bacially the same functionality as Luxor.text but overrides that method to allow to
+animate text with [`appear`](@ref).
+
+# Example
+```julia
+Action(
+    1:100,
+    (args...) -> text("Hello Stream!"; halign = :center);
+    subactions = [
+        SubAction(1:15, sineio(), appear(:draw_text)),
+        SubAction(76:100, sineio(), disappear(:draw_text)),
+    ],
+)
+```
+draws the text from left to right in the first 15 frames and in the last 15 frames it disappears.
+
+# Arguments
+- `str::AbstractString` the string that should be shown
+- `pos::Point` defaults to the origin and can be written as `x,y` as well as `Point(x,y)`.
+
+# Keywords
+- `valign::Symbol` defaults to `:baseline` and takes `(:top, :middle, :bottom, :baseline)`
+- `halign::Symbol` defaults to `:left` and takes `(:left, :center, :centre, :right)`
+- `angle::Float64` defaults to `0.0` and specifies the angle of the text
+"""
 function text(str, pos = O; valign = :baseline, halign = :left, angle = 0.0)
     action = CURRENT_ACTION[1]
     opts = action.opts
