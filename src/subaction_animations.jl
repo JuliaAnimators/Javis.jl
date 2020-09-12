@@ -305,7 +305,8 @@ SubAction(1:150, follow_path(star(O, 300)))
 - `points::Vector{Point}` - the vector of points the object should follow
 
 # Keywords
-- `closed::Bool` default: true, sets whether the path is a closed path as for example in a circle, ellipse or any polygon
+- `closed::Bool` default: true, sets whether the path is a closed path as for example when
+    using a circle, ellipse or any polygon. For a bezier path it should be set to false.
 """
 function follow_path(points::Vector{Point}; closed = true)
     (video, action, subaction, rel_frame) ->
@@ -314,8 +315,12 @@ end
 
 function _follow_path(video, action, subaction, rel_frame, points; closed = closed)
     t = get_interpolation(subaction, rel_frame)
-    t -= floor(t)
-    if isapprox(t, 1.0, atol = 1e-4)
+    # if not closed it should be always between 0 and 1
+    if !closed
+        t = clamp(t, 0.0, 1.0)
+    end
+    # if t is discrete and not 0.0 take the last point or first if closed
+    if rel_frame != 1 && isapprox_discrete(t)
         if closed
             translate(points[1])
         else
@@ -323,7 +328,10 @@ function _follow_path(video, action, subaction, rel_frame, points; closed = clos
         end
         return
     end
+    # get only the fractional part to be between 0 and 1
+    t -= floor(t)
     if rel_frame == 1
+        # compute the distances only once for performance reasons
         subaction.defs[:p_dist] = polydistances(points, closed = closed)
     end
     if isapprox(t, 0.0, atol = 1e-4)

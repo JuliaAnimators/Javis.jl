@@ -654,7 +654,51 @@ end
     @test_reference "refs/followPath30.png" load("images/0000000030.png")
     @test_reference "refs/followPath100.png" load("images/0000000100.png")
     @test_reference "refs/followPath160.png" load("images/0000000160.png")
-    # test that the last frame is completely white
+
+    # Following along a bezier path
+    function simple_bezier()
+        P1 = Point(-300, 0)
+        CP1 = Point(-200, -200)
+        CP2 = Point(200, -200)
+        P2 = Point(300, 0)
+
+        beziersegment = BezierPathSegment(P1, CP1, CP2, P2)
+        beziertopoly(beziersegment)
+    end
+
+    video = Video(800, 600)
+
+    anim = Animation([0, 1], [0.0, 1.0], [sineio()])
+
+    color_anim = Animation(
+        [0, 0.5, 1], # must go from 0 to 1
+        [Lab(colorant"red"), Lab(colorant"cyan"), Lab(colorant"red")],
+        [sineio(), sineio()],
+    )
+
+    actions = [
+        Action(
+            frame_start:(frame_start + 149),
+            (args...) -> star(O, 20, 5, 0.5, 0, :fill);
+            subactions = [
+                SubAction(1:150, anim, follow_path(simple_bezier(); closed = false)),
+                SubAction(1:150, color_anim, sethue()),
+            ],
+        ) for frame_start in 1:7:22
+    ]
+
+    javis(
+        video,
+        [BackgroundAction(1:180, ground), actions...],
+        tempdirectory = "images",
+        pathname = "",
+    )
+
+    @test_reference "refs/followPathBezier10.png" load("images/0000000010.png")
+    @test_reference "refs/followPathBezier30.png" load("images/0000000030.png")
+    @test_reference "refs/followPathBezier100.png" load("images/0000000100.png")
+    @test_reference "refs/followPathBezier160.png" load("images/0000000160.png")
+
     for i in 1:180
         rm("images/$(lpad(i, 10, "0")).png")
     end
