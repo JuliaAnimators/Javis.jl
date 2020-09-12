@@ -628,6 +628,7 @@ end
         video,
         [
             BackgroundAction(1:100, ground),
+            BackgroundAction(1:100, (args...) -> fontface("Georgia")),
             BackgroundAction(1:100, (args...) -> fontsize(30)),
             Action(
                 1:100,
