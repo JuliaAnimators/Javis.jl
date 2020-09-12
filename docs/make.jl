@@ -19,6 +19,7 @@ makedocs(;
             "tutorials/tutorial_2.md",
             "tutorials/tutorial_3.md",
             "tutorials/tutorial_4.md",
+            "tutorials/tutorial_5.md",
         ],
         "HowTo" => "howto.md",
         "Mission" => "mission.md",

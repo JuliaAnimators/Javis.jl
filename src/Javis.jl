@@ -173,6 +173,9 @@ mutable struct SubAction <: AbstractAction
     defs::Dict{Symbol,Any}
 end
 
+SubAction(transitions::Transition...) = SubAction(:same, transitions...)
+SubAction(func::Function) = SubAction(:same, func)
+
 """
     SubAction(frames, easing::Union{ReversedEasing, Easing}, args...)
 
@@ -211,6 +214,10 @@ SubAction(frames, easing::Union{ReversedEasing,Easing}, args...) =
 SubAction(frames, anim::Animation, transition::Transition...) =
     SubAction(frames, anim, (args...) -> 1, transition...)
 
+SubAction(easing::Union{ReversedEasing,Easing}, args...) =
+    SubAction(:same, easing_to_animation(easing), args...)
+
+SubAction(anim::Animation, args...) = SubAction(:same, anim, args...)
 """
     SubAction(frames, func::Function)
 
@@ -1161,7 +1168,7 @@ function javis(
     compute_frames!(actions)
 
     for action in actions
-        compute_frames!(action.subactions)
+        compute_frames!(action.subactions; last_frames = get_frames(action))
     end
 
     # get all frames
