@@ -171,12 +171,6 @@ end
 
 SubAction(transitions::Transition...) = SubAction(:same, transitions...)
 SubAction(func::Function) = SubAction(:same, func)
-SubAction(
-    easing_or_animation::Union{ReversedEasing,Easing,Animation},
-    transitions::Transition...,
-) = SubAction(:same, easing_or_animation, transitions...)
-SubAction(easing_or_animation::Union{ReversedEasing,Easing,Animation}, func::Function) =
-    SubAction(:same, easing_or_animation, func)
 
 """
     SubAction(frames, easing::Union{ReversedEasing, Easing}, args...)
@@ -216,6 +210,10 @@ SubAction(frames, easing::Union{ReversedEasing,Easing}, args...) =
 SubAction(frames, anim::Animation, transition::Transition...) =
     SubAction(frames, anim, (args...) -> 1, transition...)
 
+SubAction(easing::Union{ReversedEasing,Easing}, args...) =
+    SubAction(:same, easing_to_animation(easing), args...)
+
+SubAction(anim::Animation, args...) = SubAction(:same, anim, args...)
 """
     SubAction(frames, func::Function)
 
