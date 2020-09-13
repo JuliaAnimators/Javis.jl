@@ -61,6 +61,9 @@ First of all we need `Animations` for this and I also load `Colors` here for lat
 
 These can be installed via `] add Animations, Colors` inside the REPL.
 
+- **Animations.jl** defines easing functions such that we can have non-linear movement
+- **Colors.jl** defines colors and gives access to different color spaces such that we can transition from a color to another by using Animations.jl.
+
 ```julia
 using Javis, Animations, Colors
 
