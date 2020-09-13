@@ -17,5 +17,6 @@ Currently, these tutorials are available:
 - [**Tutorial 2: What Are Actions?**](tutorials/tutorial_2.md) - an introduction to the most important part of `Javis` - the `Action` object.
 - [**Tutorial 3: Rendering `LaTeX` with `Javis`!**](tutorials/tutorial_3.md) - a simple tutorial on how to render `LaTeX` in `Javis` animations.
 - [**Tutorial 4: Do You Know Our Mascot? Learn about Transitions and SubActions!**](tutorials/tutorial_4.md) - a fun tutorial to make our mascot and learn about the `SubAction` and `Transition` type methods.
+- [**Tutorial 6: Using Animations.jl to Create something with more Pep!**](tutorials/tutorial_6.md) - an advanced tutorial to make your animations more interesting.
 
 If you spot an issue with any of these tutorials, please let us know! Thank you!
