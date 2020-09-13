@@ -98,13 +98,13 @@ Our first function is the `ground` function.
 The `ground` function sets the background to white and the "pen" color to black:
 
 ```julia
-function ground(args...) 
+function ground(_...) 
     background("white") # canvas background
     sethue("black") # pen color
 end
 ```
 
-> **NOTE:** One may wonder, "why is `args...` needed in the `ground` function?"
+> **NOTE:** One may wonder, "why is `_...` needed in the `ground` function?"
 > To explain, each user-defined function gets three arguments `video`, `action`, and `frame` provided by `javis`
 > These arguments are defined below:
 >
@@ -112,8 +112,8 @@ end
 > - `action`: Action struct
 > - `frame`: the current frame number
 >
-> Although these arguments are irrelevant for the `ground` function, we need to write `args...` such that Julia actually knows that we have a method that accepts those three arguments.
-> The `...` basically stands for as many arguments as you want.
+> Although these arguments are irrelevant for the `ground` function, we need to write `_...` such that Julia actually knows that we have a method that accepts those three arguments.
+> The `_` means what it is, I will not use it in the body of the function and the `...` basically stands for as many arguments as you want.
 
 Although `Luxor.jl` provides the functionality to draw circles,  `Javis` does not. 
 We use `Luxor.jl` to create a function that defines a color for circles and draws the circles accordingly.
