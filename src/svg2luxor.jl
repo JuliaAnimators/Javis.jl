@@ -75,18 +75,25 @@ Currently supports only a subset of possible SVG commands.
 function draw_obj(::Val{:path}, o, defs)
     set_attrs(o)
     data = attribute(o, "d")
+    counter = 0
 
     # split without loosing the command
     data_parts = split(data, r"(?=[A-Za-z])")
     # needs to keep track of the current point `c_pt` and the last point `l_pt`
     l_pt = O
     c_pt = O
+    circle_pts = []
     for pi in 1:length(data_parts)
         p = data_parts[pi]
         command, args = p[1], p[2:end]
+        if command != 'T'
+            counter = 0
+        end
         # using if else statements instead of dispatching here. Maybe it's faster :D
         if command == 'M'
             c_pt = path_move(parse.(Float64, split(args))...)
+            # need to set the last control point for 'T'
+            l_pt = c_pt
         elseif command == 'Q'
             l_pt, c_pt = path_quadratic(c_pt, parse.(Float64, split(args))...)
         elseif command == 'T'
@@ -94,6 +101,8 @@ function draw_obj(::Val{:path}, o, defs)
             control_pt = l_pt + 2 * (c_pt - l_pt)
             l_pt, c_pt =
                 path_quadratic(c_pt, control_pt..., parse.(Float64, split(args))...)
+            push!(circle_pts, Point(parse.(Float64, split(args))...))
+            counter += 1
         elseif command == 'L'
             new_pt = Point(parse.(Float64, split(args))...)
             line(new_pt)
@@ -163,18 +172,26 @@ function set_attrs(o)
 end
 
 """
-    set_attr(::Val{:transform}, transform_str)
+    set_attr(::Val{:transform}, transform_strs)
 
 Call the corresponding `set_transform` method i.e `matrix`, `scale` and `translate`
 """
-function set_attr(::Val{:transform}, transform_str)
-    if transform_str !== nothing
-        m = match(r"(.+)\((.+)\)", transform_str)
-        type = Symbol(m.captures[1])
-        set_transform(
-            Val{type}(),
-            parse.(Float64, strip.(split(m.captures[2], r"[, ]")))...,
-        )
+function set_attr(::Val{:transform}, transform_strs)
+    if transform_strs !== nothing
+        # println("strs: $transform_strs")
+        transform_parts = split(transform_strs, ") ")
+        for transform_str in transform_parts
+            if last(transform_str) != ')'
+                transform_str = "$transform_str)"
+            end
+            # println("transform_str: $transform_str")
+            m = match(r"(.+)\((.+)\)", transform_str)
+            type = Symbol(m.captures[1])
+            set_transform(
+                Val{type}(),
+                parse.(Float64, strip.(split(m.captures[2], r"[, ]")))...,
+            )
+        end
     end
 end
 

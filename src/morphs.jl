@@ -125,15 +125,53 @@ function save_morph_polygons!(action::Action, from_func::Function, to_func::Func
     newpath()
     from_func()
     closepath()
-    from_poly = pathtopoly()[1]
+    from_polys = pathtopoly()
 
     newpath()
     to_func()
     closepath()
-    to_poly = pathtopoly()[1]
+    to_polys = pathtopoly()
 
-    match_num_point!(from_poly, to_poly)
+    println("#Polys from: ", length(from_polys))
+    println("#Polys to: ", length(to_polys))
 
+    for i in length(from_polys):-1:1
+        length(from_polys[i]) <= 1 && splice!(from_polys, i)
+    end
+    for i in length(to_polys):-1:1
+        length(to_polys[i]) <= 1 && splice!(to_polys, i)
+    end
+
+    println("#Polys from after: ", length(from_polys))
+    println("#Polys to after: ", length(to_polys))
+
+
+    if length(from_polys) != length(to_polys)
+        throw(ArgumentError("In morphing both function need to produce the same number of polygons."))
+    end
+
+    from_polys = reorder_match(from_polys, to_polys)
+
+    action.opts[:from_poly] = Vector{Vector{Point}}()
+    action.opts[:to_poly] = Vector{Vector{Point}}()
+    action.opts[:points] = Vector{Vector{Point}}()
+
+    for (from_poly, to_poly) in zip(from_polys, to_polys)
+        match_num_point!(from_poly, to_poly)
+        smallest_i, smallest_distance = compute_shortest_morphing_dist(from_poly, to_poly)
+
+        new_from_poly = copy(from_poly)
+        for i in 1:length(from_poly)
+            new_from_poly[i] = from_poly[(i + smallest_i - 1) % length(from_poly) + 1]
+        end
+
+        push!(action.opts[:from_poly], new_from_poly)
+        push!(action.opts[:to_poly], to_poly)
+        push!(action.opts[:points], Vector{Point}(undef, length(new_from_poly)))
+    end
+end
+
+function compute_shortest_morphing_dist(from_poly::Vector{Point}, to_poly::Vector{Point})
     # find the smallest morphing distance to match the points in a more natural way
     # smallest_i holds the best starting point of from_path
     smallest_i = 1
@@ -151,14 +189,7 @@ function save_morph_polygons!(action::Action, from_func::Function, to_func::Func
             smallest_i = i
         end
     end
-    new_from_poly = copy(from_poly)
-    for i in 1:length(from_poly)
-        new_from_poly[i] = from_poly[(i + smallest_i - 1) % length(from_poly) + 1]
-    end
-
-    action.opts[:from_poly] = new_from_poly
-    action.opts[:to_poly] = to_poly
-    action.opts[:points] = Vector{Point}(undef, length(new_from_poly))
+    return smallest_i, smallest_distance
 end
 
 """
@@ -180,17 +211,91 @@ function _morph(
     end
 
     # obtain the computed polygons. These polygons have the same number of points.
-    from_poly = action.opts[:from_poly]
-    to_poly = action.opts[:to_poly]
-    points = action.opts[:points]
+    number_of_poly = length(action.opts[:from_poly])
+    polygons = Vector{Vector{Point}}(undef, number_of_poly)
 
-    # compute the interpolation variable `t` for the current frame
-    t = get_interpolation(action, frame)
+    for pi in 1:number_of_poly
+        from_poly = action.opts[:from_poly][pi]
+        to_poly = action.opts[:to_poly][pi]
+        points = action.opts[:points][pi]
 
-    for (i, p1, p2) in zip(1:length(from_poly), from_poly, to_poly)
-        new_point = p1 + t * (p2 - p1)
-        points[i] = new_point
+        # compute the interpolation variable `t` for the current frame
+        t = get_interpolation(action, frame)
+
+        for (i, p1, p2) in zip(1:length(from_poly), from_poly, to_poly)
+            new_point = p1 + t * (p2 - p1)
+            points[i] = new_point
+        end
+
+        polygons[pi] = points
     end
 
-    poly(points, draw_action; close = true)
+    for pi in 1:number_of_poly
+        if ispolyclockwise(polygons[pi]) &&
+           (pi == number_of_poly || ispolyclockwise(polygons[pi + 1]))
+            poly(polygons[pi], draw_action; close = true)
+        elseif ispolyclockwise(polygons[pi])
+            poly(polygons[pi], :path; close = true)
+            newsubpath()
+        elseif pi == number_of_poly || ispolyclockwise(polygons[pi + 1])
+            # is last subpath
+            poly(polygons[pi], :path; close = true)
+            if draw_action == :stroke
+                strokepath()
+            elseif draw_action == :fill
+                fillpath()
+            else
+                closepath()
+            end
+        else
+            newsubpath()
+            poly(polygons[pi], :path; close = true)
+        end
+    end
+end
+
+
+function reorder_match(from_polys::Vector{Vector{Point}}, to_polys::Vector{Vector{Point}})
+    println("From Poly:")
+    for from_poly in from_polys
+        println("#Points: ", length(from_poly))
+    end
+
+    println("\nTo Poly:")
+    for to_poly in to_polys
+        println("#Points: ", length(to_poly))
+    end
+
+    to_poly_used = zeros(Bool, length(from_polys))
+    from_poly_match = zeros(Int, length(from_polys))
+
+    for (fi, from_poly) in enumerate(from_polys)
+        println("Clockwise?: ", ispolyclockwise(from_poly))
+        smallest_glob_dist = Inf
+        smallest_glob_to = 1
+        for (i, to_poly) in enumerate(to_polys)
+            to_poly_used[i] && continue
+            from_copy = copy(from_poly)
+            to_copy = copy(to_poly)
+            from_copy .-= polycentroid(from_copy)
+            to_copy .-= polycentroid(to_copy)
+
+            match_num_point!(from_copy, to_copy)
+            smallest_i, smallest_distance =
+                compute_shortest_morphing_dist(from_copy, to_copy)
+            if smallest_distance < smallest_glob_dist
+                smallest_glob_dist = smallest_distance
+                smallest_glob_to = i
+            end
+        end
+        to_poly_used[smallest_glob_to] = true
+        println("Smallest dist: ", smallest_glob_dist)
+        from_poly_match[fi] = smallest_glob_to
+    end
+    @show from_poly_match
+    new_from_polys = Vector{Vector{Point}}(undef, length(from_polys))
+    for i in 1:length(from_polys)
+        new_from_polys[from_poly_match[i]] = from_polys[i]
+    end
+    return new_from_polys
 end

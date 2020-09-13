@@ -841,6 +841,7 @@ function latex(text::LaTeXString, pos::Point, action::Symbol)
         end
         LaTeXSVG[text] = svg
     end
+    write("test.svg", svg)
     pathsvg(svg)
     if action != :path
         # stroke is also fill for letters
