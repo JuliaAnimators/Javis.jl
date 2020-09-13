@@ -66,7 +66,7 @@ graph TD
 
 - [ ] 97	OPEN	Animation persist after completion	enhancement	2020-08-18 17:00:50 +0000 UTC
 
-- [ ] 80	OPEN	Morphing v2 with color and fill :)	enhancement	2020-08-18 16:43:05 +0000 UTC
+- [x] 80	OPEN	Morphing v2 with color and fill :)	enhancement	2020-08-18 16:43:05 +0000 UTC
 
 - [ ] 75	OPEN	combine actions in a layer	enhancement, question	2020-08-13 13:48:14 +0000 UTC
 

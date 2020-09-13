@@ -5,6 +5,7 @@
   - for Transformations and `appear` and `disappear`
 - Show progress of rendering using [ProgressMeter.jl](https://github.com/timholy/ProgressMeter.jl)
 - Use [VideoIO](https://github.com/JuliaIO/VideoIO.jl) for faster rendering without temporary images
+- Ability to morph with `fill` or `stroke` and using `SubAction` to specify changes in color
 
 ## 0.1.3 (11th of September 2020)
 - First `SubAction` for an `Action` no longer requires explicit frame range and will default to the frames of the `Action`
