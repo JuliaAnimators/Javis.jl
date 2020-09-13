@@ -13,6 +13,12 @@ using VideoIO
 
 const FRAMES_SYMBOL = [:same]
 
+"""
+    ReversedEasing
+
+Will be used to reverse an easing inside [`easing_to_animation`](@ref).
+Can be constructed from an easing function using [`rev`](@ref).
+"""
 struct ReversedEasing
     easing::Easing
 end
@@ -163,6 +169,9 @@ mutable struct SubAction <: AbstractAction
     internal_transitions::Vector{InternalTransition}
 end
 
+SubAction(transitions::Transition...) = SubAction(:same, transitions...)
+SubAction(func::Function) = SubAction(:same, func)
+
 """
     SubAction(frames, easing::Union{ReversedEasing, Easing}, args...)
 
@@ -201,6 +210,10 @@ SubAction(frames, easing::Union{ReversedEasing,Easing}, args...) =
 SubAction(frames, anim::Animation, transition::Transition...) =
     SubAction(frames, anim, (args...) -> 1, transition...)
 
+SubAction(easing::Union{ReversedEasing,Easing}, args...) =
+    SubAction(:same, easing_to_animation(easing), args...)
+
+SubAction(anim::Animation, args...) = SubAction(:same, anim, args...)
 """
     SubAction(frames, func::Function)
 
@@ -544,15 +557,33 @@ function BackgroundAction(frames, id::Symbol, func::Function, args...; kwargs...
     Action(frames, id, func, args...; in_global_layer = true, kwargs...)
 end
 
+"""
+    InternalTranslation <: InternalTransition
+
+Saves a translation as described by [`Translation`](@ref) for the current frame.
+Is part of the [`Action`](@ref) struct.
+"""
 mutable struct InternalTranslation <: InternalTransition
     by::Point
 end
 
+"""
+    InternalRotation <: InternalTransition
+
+Saves a rotation as described by [`Rotation`](@ref) for the current frame.
+Is part of the [`Action`](@ref) struct.
+"""
 mutable struct InternalRotation <: InternalTransition
     angle::Float64
     center::Point
 end
 
+"""
+    InternalScaling <: InternalTransition
+
+Saves a scaling as described by [`Scaling`](@ref) for the current frame.
+Is part of the [`Action`](@ref) struct.
+"""
 mutable struct InternalScaling <: InternalTransition
     scale::Tuple{Float64,Float64}
 end
@@ -1133,7 +1164,7 @@ function javis(
     compute_frames!(actions)
 
     for action in actions
-        compute_frames!(action.subactions)
+        compute_frames!(action.subactions; last_frames = get_frames(action))
     end
 
     # get all frames
