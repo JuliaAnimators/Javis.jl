@@ -64,7 +64,7 @@ function _javis_viewer(video::Video, frames::Int, action_list::Vector)
     =#
 
     # Create a textbox
-    tbox = textbox(Int; signal = signal(slide))
+    tbox = GtkReactive.textbox(Int; signal = signal(slide))
 
     # Button for going forward through animation
     forward = GtkButton("==>")
