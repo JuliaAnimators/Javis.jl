@@ -24,7 +24,7 @@ function _draw_image(
 end
 
 """
-    _increment(video::Video, widgets::Vector, actions::Vector, dims::Vector, 
+    _increment(video::Video, widgets::Vector, actions::Vector, dims::Vector,
         canvas::Gtk.Canvas, frames::Int)
 
 Increments a given value and returns the associated frame.
@@ -40,16 +40,18 @@ function _increment(
     # Get current frame from textbox as an Int value
     curr_frame = parse(Int, get_gtk_property(widgets[2], :text, String))
     if frames > curr_frame
+        # `widgets[1]` represents the GtkReactive slider widget
         push!(widgets[1], curr_frame + 1)
         _draw_image(video, actions, curr_frame + 1, canvas, dims)
     else
+        # `widgets[2]` represents the GtkReactive textboxwidget
         push!(widgets[2], 1) # Sets the first frame shown to one
         _draw_image(video, actions, 1, canvas, dims)
     end
 end
 
 """
-    _decrement(video::Video, widgets::Vector, actions::Vector, dims::Vector, 
+    _decrement(video::Video, widgets::Vector, actions::Vector, dims::Vector,
         canvas::Gtk.Canvas, frames::Int)
 
 Decrements a given value and returns the associated frame.
@@ -65,9 +67,11 @@ function _decrement(
     # Get current frame from textbox as an Int value
     curr_frame = parse(Int, get_gtk_property(widgets[2], :text, String))
     if curr_frame > 1
+        # `widgets[1]` represents the GtkReactive slider widget
         push!(widgets[1], curr_frame - 1)
         _draw_image(video, actions, curr_frame - 1, canvas, dims)
     else
+        # `widgets[2]` represents the GtkReactive textboxwidget
         push!(widgets[2], frames) # Sets the first frame shown to one
         _draw_image(video, actions, frames, canvas, dims)
     end
@@ -78,7 +82,7 @@ end
 
 Internal Javis Viewer built on Gtk that is called for live previewing.
 """
-function _javis_viewer(video::Video, frames::Int, action_list::Vector)
+function _javis_viewer(video::Video, total_frames::Int, action_list::Vector)
 
     #####################################################################
     # VIEWER WINDOW AND CONFIGURATION
@@ -98,10 +102,10 @@ function _javis_viewer(video::Video, frames::Int, action_list::Vector)
     #####################################################################
 
     # Create GtkScale internal widget
-    _slide = GtkScale(false, 1:frames)
+    _slide = GtkScale(false, 1:total_frames)
 
     # Create GtkReactive slider widget
-    slide = slider(1:frames, value = 1, widget = _slide)
+    slide = slider(1:total_frames, value = 1, widget = _slide)
 
     #=
     #
@@ -184,41 +188,36 @@ function _javis_viewer(video::Video, frames::Int, action_list::Vector)
         if event.keyval == 65293
             # Get current frame from textbox as an Int value
             curr_frame = parse(Int, get_gtk_property(tbox, :text, String))
-            if 1 <= curr_frame && curr_frame <= frames
-                _draw_image(video, action_list, curr_frame, canvas, frame_dims)
-            elseif curr_frame > frames
-                _draw_image(video, action_list, frames, canvas, frame_dims)
-            elseif curr_frame < frames
-                _draw_image(video, action_list, 1, canvas, frame_dims)
-            end
+            curr_frame = clamp(curr_frame, 1, total_frames)
+            _draw_image(video, action_list, curr_frame, canvas, frame_dims)
         end
     end
 
     # When the `forward` button is clicked, increment current frame number
     # If at final frame, wrap viewer to first frame
     signal_connect(forward, "clicked") do widget
-        _increment(video, [slide, tbox], action_list, frame_dims, canvas, frames)
+        _increment(video, [slide, tbox], action_list, frame_dims, canvas, total_frames)
     end
 
     # When the `Right Arrow` key is pressed, increment current frame number
     # If at final frame, wrap viewer to first frame
     signal_connect(win, "key-press-event") do widget, event
         if event.keyval == 65363
-            _increment(video, [slide, tbox], action_list, frame_dims, canvas, frames)
+            _increment(video, [slide, tbox], action_list, frame_dims, canvas, total_frames)
         end
     end
 
     # When the `backward` button is clicked, decrement the current frame number
     # If at first frame, wrap viewer to last frame
     signal_connect(backward, "clicked") do widget
-        _decrement(video, [slide, tbox], action_list, frame_dims, canvas, frames)
+        _decrement(video, [slide, tbox], action_list, frame_dims, canvas, total_frames)
     end
 
     # When the `Left Arrow` key is pressed, decrement current frame number
     # If at first frame, wrap viewer to last frame
     signal_connect(win, "key-press-event") do widget, event
         if event.keyval == 65361
-            _decrement(video, [slide, tbox], action_list, frame_dims, canvas, frames)
+            _decrement(video, [slide, tbox], action_list, frame_dims, canvas, total_frames)
         end
     end
 
