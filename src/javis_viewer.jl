@@ -11,14 +11,66 @@ function _draw_image(
     canvas::Gtk.Canvas,
     img_dims::Vector,
 )
-    # Gets a specific frame from graphic; transposed due to returned matrix
-    frame_mat = transpose(get_javis_frame(video, actions, frame))
+    @guarded draw(canvas) do widget
+        # Gets a specific frame from graphic; transposed due to returned matrix
+        frame_mat = transpose(get_javis_frame(video, actions, frame))
 
-    # Gets the correct Canvas context to draw on
-    context = getgc(canvas)
+        # Gets the correct Canvas context to draw on
+        context = getgc(canvas)
 
-    # Uses Cairo to draw on Gtk canvas context
-    image(context, CairoImageSurface(frame_mat), 0, 0, img_dims[1], img_dims[2])
+        # Uses Cairo to draw on Gtk canvas context
+        image(context, CairoImageSurface(frame_mat), 0, 0, img_dims[1], img_dims[2])
+    end
+end
+
+"""
+    _increment(video::Video, widgets::Vector, actions::Vector, dims::Vector, 
+        canvas::Gtk.Canvas, frames::Int)
+
+Increments a given value and returns the associated frame.
+"""
+function _increment(
+    video::Video,
+    widgets::Vector,
+    actions::Vector,
+    dims::Vector,
+    canvas::Gtk.Canvas,
+    frames::Int,
+)
+    # Get current frame from textbox as an Int value
+    curr_frame = parse(Int, get_gtk_property(widgets[2], :text, String))
+    if frames > curr_frame
+        push!(widgets[1], curr_frame + 1)
+        _draw_image(video, actions, curr_frame + 1, canvas, dims)
+    else
+        push!(widgets[2], 1) # Sets the first frame shown to one
+        _draw_image(video, actions, 1, canvas, dims)
+    end
+end
+
+"""
+    _decrement(video::Video, widgets::Vector, actions::Vector, dims::Vector, 
+        canvas::Gtk.Canvas, frames::Int)
+
+Decrements a given value and returns the associated frame.
+"""
+function _decrement(
+    video::Video,
+    widgets::Vector,
+    actions::Vector,
+    dims::Vector,
+    canvas::Gtk.Canvas,
+    frames::Int,
+)
+    # Get current frame from textbox as an Int value
+    curr_frame = parse(Int, get_gtk_property(widgets[2], :text, String))
+    if curr_frame > 1
+        push!(widgets[1], curr_frame - 1)
+        _draw_image(video, actions, curr_frame - 1, canvas, dims)
+    else
+        push!(widgets[2], frames) # Sets the first frame shown to one
+        _draw_image(video, actions, frames, canvas, dims)
+    end
 end
 
 """
@@ -110,10 +162,7 @@ function _javis_viewer(video::Video, frames::Int, action_list::Vector)
     # DISPLAY FIRST FRAME
     #####################################################################
 
-    # Draws image
-    @guarded draw(canvas) do widget
-        _draw_image(video, action_list, 1, canvas, frame_dims)
-    end
+    _draw_image(video, action_list, 1, canvas, frame_dims)
 
     #####################################################################
     # SIGNAL CONNECTION FUNCTIONS
@@ -121,16 +170,13 @@ function _javis_viewer(video::Video, frames::Int, action_list::Vector)
 
     # When the slider is changed, update currently viewed frame
     signal_connect(_slide, "value-changed") do widget
-        # Draws current frame
-        @guarded draw(canvas) do widget
-            # Collects GtkScale as an adjustable bounded value object
-            bound_slide = Gtk.GAccessor.adjustment(_slide)
+        # Collects GtkScale as an adjustable bounded value object
+        bound_slide = Gtk.GAccessor.adjustment(_slide)
 
-            # Get frame number from bounded value object as Int
-            slide_val = Gtk.get_gtk_property(bound_slide, "value", Int)
+        # Get frame number from bounded value object as Int
+        slide_val = Gtk.get_gtk_property(bound_slide, "value", Int)
 
-            _draw_image(video, action_list, slide_val, canvas, frame_dims)
-        end
+        _draw_image(video, action_list, slide_val, canvas, frame_dims)
     end
 
     # When the `Enter` key is pressed, update the frame
@@ -139,20 +185,11 @@ function _javis_viewer(video::Video, frames::Int, action_list::Vector)
             # Get current frame from textbox as an Int value
             curr_frame = parse(Int, get_gtk_property(tbox, :text, String))
             if 1 <= curr_frame && curr_frame <= frames
-                # Draws current frame
-                @guarded draw(canvas) do widget
-                    _draw_image(video, action_list, curr_frame, canvas, frame_dims)
-                end
+                _draw_image(video, action_list, curr_frame, canvas, frame_dims)
             elseif curr_frame > frames
-                # Draws current frame
-                @guarded draw(canvas) do widget
-                    _draw_image(video, action_list, frames, canvas, frame_dims)
-                end
+                _draw_image(video, action_list, frames, canvas, frame_dims)
             elseif curr_frame < frames
-                # Draws current frame
-                @guarded draw(canvas) do widget
-                    _draw_image(video, action_list, 1, canvas, frame_dims)
-                end
+                _draw_image(video, action_list, 1, canvas, frame_dims)
             end
         end
     end
@@ -160,96 +197,28 @@ function _javis_viewer(video::Video, frames::Int, action_list::Vector)
     # When the `forward` button is clicked, increment current frame number
     # If at final frame, wrap viewer to first frame
     signal_connect(forward, "clicked") do widget
-        # Get current frame from textbox as an Int value
-        curr_frame = parse(Int, get_gtk_property(tbox, :text, String))
-        if frames > curr_frame
-            # Increments the slider by 1
-            push!(slide, curr_frame + 1)
-
-            # Draws current frame
-            @guarded draw(canvas) do widget
-                _draw_image(video, action_list, curr_frame + 1, canvas, frame_dims)
-            end
-        else
-            # If at final frame, wrap viewer to first frame
-            push!(tbox, 1)
-
-            # Draws current frame
-            @guarded draw(canvas) do widget
-                _draw_image(video, action_list, 1, canvas, frame_dims)
-            end
-        end
+        _increment(video, [slide, tbox], action_list, frame_dims, canvas, frames)
     end
 
     # When the `Right Arrow` key is pressed, increment current frame number
     # If at final frame, wrap viewer to first frame
     signal_connect(win, "key-press-event") do widget, event
         if event.keyval == 65363
-            # Get current frame from textbox as an Int value
-            curr_frame = parse(Int, get_gtk_property(tbox, :text, String))
-            if frames > curr_frame
-                # Increments the slider by 1
-                push!(slide, curr_frame + 1)
-
-                # Draws current frame
-                @guarded draw(canvas) do widget
-                    _draw_image(video, action_list, curr_frame + 1, canvas, frame_dims)
-                end
-            else
-                # Sets the first frame shown to one
-                push!(tbox, 1)
-
-                # Draws current frame
-                @guarded draw(canvas) do widget
-                    _draw_image(video, action_list, 1, canvas, frame_dims)
-                end
-            end
+            _increment(video, [slide, tbox], action_list, frame_dims, canvas, frames)
         end
     end
 
     # When the `backward` button is clicked, decrement the current frame number
     # If at first frame, wrap viewer to last frame
     signal_connect(backward, "clicked") do widget
-        # Get current frame from textbox as an Int value
-        curr_frame = parse(Int, get_gtk_property(tbox, :text, String))
-        if curr_frame > 1
-            # Decrements the slider by 1
-            push!(slide, curr_frame - 1)
-
-            # Draws current frame
-            @guarded draw(canvas) do widget
-                _draw_image(video, action_list, curr_frame - 1, canvas, frame_dims)
-            end
-        else
-            # Sets the end frame to the max number of frames
-            push!(tbox, frames)
-
-            # Draws current frame
-            @guarded draw(canvas) do widget
-                _draw_image(video, action_list, frames, canvas, frame_dims)
-            end
-        end
+        _decrement(video, [slide, tbox], action_list, frame_dims, canvas, frames)
     end
 
     # When the `Left Arrow` key is pressed, decrement current frame number
     # If at first frame, wrap viewer to last frame
     signal_connect(win, "key-press-event") do widget, event
         if event.keyval == 65361
-            # Get current frame from textbox as an Int value
-            curr_frame = parse(Int, get_gtk_property(tbox, :text, String))
-            if curr_frame > 1
-                push!(slide, curr_frame - 1)
-                # Draws current frame
-                @guarded draw(canvas) do widget
-                    _draw_image(video, action_list, curr_frame - 1, canvas, frame_dims)
-                end
-            else
-                push!(tbox, frames) # Sets the first frame shown to one
-                # Draws current frame
-                @guarded draw(canvas) do widget
-                    _draw_image(video, action_list, frames, canvas, frame_dims)
-                end
-            end
+            _decrement(video, [slide, tbox], action_list, frame_dims, canvas, frames)
         end
     end
 
