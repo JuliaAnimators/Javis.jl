@@ -1,5 +1,8 @@
 # Javis.jl - Changelog
 
+## 0.1.5 (14th of September 2020)
+- Bugfix in svg parser when a layer gets both transformed and scaled
+
 ## 0.1.4 (13th of September 2020)
 - Bugfix in svg parser when a reflected Bézier curve followed a move operation
 

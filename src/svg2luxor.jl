@@ -169,14 +169,17 @@ end
 
 Call the corresponding `set_transform` method i.e `matrix`, `scale` and `translate`
 """
-function set_attr(::Val{:transform}, transform_str)
-    if transform_str !== nothing
-        m = match(r"(.+)\((.+)\)", transform_str)
-        type = Symbol(m.captures[1])
-        set_transform(
-            Val{type}(),
-            parse.(Float64, strip.(split(m.captures[2], r"[, ]")))...,
-        )
+function set_attr(::Val{:transform}, transform_strs)
+    if transform_strs !== nothing
+        transform_parts = split(transform_strs, r"(?<=[)]) ")
+        for transform_str in transform_parts
+            m = match(r"(.+)\((.+)\)", transform_str)
+            type = Symbol(m.captures[1])
+            set_transform(
+                Val{type}(),
+                parse.(Float64, strip.(split(m.captures[2], r"[, ]")))...,
+            )
+        end
     end
 end
 
