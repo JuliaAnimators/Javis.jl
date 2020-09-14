@@ -1425,7 +1425,6 @@ export javis, latex
 export Video, Action, BackgroundAction, SubAction, Rel
 export Line, Translation, Rotation, Transformation, Scaling
 export val, pos, ang, get_value, get_position, get_angle
-export get_javis_frame
 export projection, morph
 export appear, disappear, rotate_around
 export rev
