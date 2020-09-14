@@ -1,7 +1,7 @@
 name = "Javis"
 uuid = "78b212ba-a7f9-42d4-b726-60726080707e"
 authors = ["Ole Kröger <o.kroeger@opensourc.es>", "Jacob Zelko <jacobszelko@gmail.com>"]
-version = "0.1.2"
+version = "0.1.3"
 
 [deps]
 Animations = "27a7e980-b3e6-11e9-2bcd-0b925532e340"

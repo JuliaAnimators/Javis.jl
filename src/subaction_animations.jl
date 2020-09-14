@@ -20,6 +20,8 @@ of the [`Action`](@ref) so `101-120`.
        or the value specified by [`setline`](@ref)
     - `:fade` which increases the opcacity up to the default value
        or the value specified by [`setopacity`](@ref)
+    - `:scale` which increases the scale up to the default value `1`.
+       or the value specified by [`scale`](@ref)
 """
 function appear(s::Symbol)
     (video, action, subaction, rel_frame) ->
@@ -59,10 +61,9 @@ of the [`Action`](@ref) so `181-200`.
 # Arguments
 - `s::Symbol`: the symbol defines the animation of disappearance
     The only symbols that are currently supported are:
-    - `:fade_line_width` which decreases the line width up to the default value
-        or the value specified by [`setline`](@ref)
-    - `:fade` which decreases the opcacity up to the default value
-        or the value specified by [`setopacity`](@ref)
+    - `:fade_line_width` which decreases the line width down to `0`
+    - `:fade` which decreases the opacity down to `0`
+    - `:scale` which decreases the scale down to `0`
 """
 function disappear(s::Symbol)
     (video, action, subaction, rel_frame) ->
@@ -256,4 +257,36 @@ end
 function _scale(video, action, subaction, rel_frame)
     p = get_interpolation(subaction, rel_frame)
     scale(p)
+end
+
+"""
+    sethue()
+
+Set the color of a function defined inside a [`SubAction`](@ref) using an Animation defined
+with Animations.jl.
+
+# Example
+A possible animation would look like this:
+```julia
+color_anim = Animation(
+    [0, 0.5, 1], # must go from 0 to 1
+    [
+        Lab(colorant"red"),
+        Lab(colorant"cyan"),
+        Lab(colorant"black"),
+    ],
+    [sineio(), sineio()],
+)
+```
+
+An example on how to integrate this into a SubAction can be seen in [`rotate`](@ref).
+Where this would be a valid SubAction: `SubAction(1:150, color_anim, sethue())`.
+"""
+function Luxor.sethue()
+    (video, action, subaction, rel_frame) -> _sethue(video, action, subaction, rel_frame)
+end
+
+function _sethue(video, action, subaction, rel_frame)
+    color = get_interpolation(subaction, rel_frame)
+    Luxor.sethue(color)
 end
