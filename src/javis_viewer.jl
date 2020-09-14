@@ -78,11 +78,16 @@ function _decrement(
 end
 
 """
-     _javis_viewer(video::Video, frames::Int, action_list::Vector)
+     _javis_viewer(video::Video, frames::Int, action_list::Vector, show::Bool)
 
 Internal Javis Viewer built on Gtk that is called for live previewing.
 """
-function _javis_viewer(video::Video, total_frames::Int, action_list::Vector)
+function _javis_viewer(
+    video::Video,
+    total_frames::Int,
+    action_list::Vector,
+    show::Bool = true,
+)
 
     #####################################################################
     # VIEWER WINDOW AND CONFIGURATION
@@ -223,7 +228,11 @@ function _javis_viewer(video::Video, total_frames::Int, action_list::Vector)
 
     #####################################################################
 
-    # Display image viewer
-    Gtk.showall(win)
+    if show
+        # Display image viewer
+        Gtk.showall(win)
+    else
+        return win, frame_dims, slide, tbox, canvas, action_list, total_frames, video
+    end
 
 end
