@@ -178,13 +178,8 @@ Call the corresponding `set_transform` method i.e `matrix`, `scale` and `transla
 """
 function set_attr(::Val{:transform}, transform_strs)
     if transform_strs !== nothing
-        # println("strs: $transform_strs")
-        transform_parts = split(transform_strs, ") ")
+        transform_parts = split(transform_strs, r"(?<=[)]) ")
         for transform_str in transform_parts
-            if last(transform_str) != ')'
-                transform_str = "$transform_str)"
-            end
-            # println("transform_str: $transform_str")
             m = match(r"(.+)\((.+)\)", transform_str)
             type = Symbol(m.captures[1])
             set_transform(
