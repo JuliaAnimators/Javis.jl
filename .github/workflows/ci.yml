@@ -49,7 +49,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: sudo apt-get install xvfb && Xvfb :99 &
-        if: matrix.os == 'ubuntu-latest'
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1.4'
