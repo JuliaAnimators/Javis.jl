@@ -283,6 +283,8 @@ function reorder_match(from_polys::Vector{Vector{Point}}, to_polys::Vector{Vecto
 
             smallest_distance = distance(to_pc, from_pc)
 
+            # TODO: think about this again :D There must be a compromise between morphing
+            # behaviour and moving
             comb_std = clamp(x_dir_std + y_dir_std, 0.01, 1000)
 
             if comb_std * smallest_distance < smallest_glob_std
