@@ -1216,7 +1216,7 @@ function javis(
 
     if liveview == true
         _javis_viewer(video, length(frames), actions)
-        return "Live preview of $pathname"
+        return "Live preview started."
     end
 
     path, ext = "", ""
@@ -1275,10 +1275,15 @@ end
 """
     get_javis_frame(video, actions, frame)
 
-Get one specific frame of a video with actions.
+Get a frame from an animation given a video object, its actions, and frame.
+
+# Arguments
+- `video::Video`: The video which defines the dimensions of the output
+- `actions::Vector{Action}`: All actions that are performed
+- `frame::Int`: Specific frame to be returned
 
 # Returns
-- `ARGB Matrix` - the frame image as a matrix
+- `Array{ARGB32, 2}` - request frame as a matrix
 """
 function get_javis_frame(video, actions, frame)
     background_settings = ActionSetting()
