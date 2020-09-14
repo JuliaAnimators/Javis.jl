@@ -1,5 +1,8 @@
 # Javis.jl - Changelog
 
+## 0.1.4 (13th of September 2020)
+- Bugfix in svg parser when a reflected Bézier curve followed a move operation
+
 ## 0.1.3 (11th of September 2020)
 - First `SubAction` for an `Action` no longer requires explicit frame range and will default to the frames of the `Action`
 - Ability to scale an object with `Scaling`. Works similar to `Translation` and `Rotation` 
