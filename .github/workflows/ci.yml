@@ -46,7 +46,7 @@ jobs:
         
       # Run tests
       - name: Run tests
-        run:  $TESTCMD -e 'using Pkg; Pkg.test("Javis", coverage=true);'
+        run:  $TESTCMD --project=. -e 'using Pkg; Pkg.test(coverage=true);'
           
       - name: Codecov
         uses: julia-actions/julia-uploadcodecov@latest
