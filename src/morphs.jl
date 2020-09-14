@@ -10,63 +10,37 @@ The polygon with less points gets mutated during this process.
 - `poly_1::Vector{Point}`: The points which define the first polygon
 - `poly_2::Vector{Point}`: The points which define the second polygon
 """
-function match_num_point!(poly_1::Vector{Point}, poly_2::Vector{Point})
+function match_num_point(poly_1::Vector{Point}, poly_2::Vector{Point})
     l1 = length(poly_1)
     l2 = length(poly_2)
     # if both have the same number of points => we are done
-    l1 == l2 && return
+    l1 == l2 && return poly_1, poly_2
+
+    new_poly_1 = simplify(poly_1)
+    new_poly_2 = simplify(poly_2)
+    l1 = length(new_poly_1)
+    l2 = length(new_poly_2)
 
     # poly_1 should have less points than poly_2 so we flip if this is not the case
     flipped = false
     if l1 > l2
-        poly_1, poly_2 = poly_2, poly_1
+        new_poly_1, new_poly_2 = new_poly_2, new_poly_1
         l1, l2 = l2, l1
         flipped = true
     end
 
-    # the difference of the length of points
-    diff = l2 - l1
-
-    points_per_edge = div(diff, l1)
-    # how many extra points do we need
-    points_per_edge_extra = rem(diff, l1)
-    # => will add them to the first `points_per_edge_extra` edges
-
-    # index is the index where the next point is added
-    index = 2
-    poly_1_orig = copy(poly_1)
-    for i in 1:l1
-        # p1 is the current point in the original polygon
-        p1 = poly_1_orig[i]
-        # p2 is the next point (which is the first of the polygon in the last iteration)
-        if i + 1 > l1
-            p2 = poly_1_orig[1]
-        else
-            p2 = poly_1_orig[i + 1]
-        end
-        # if we need 5 points and have only 4 edges we add 2 points for the first edge
-        rem = 0
-        if i <= points_per_edge_extra
-            rem = 1
-        end
-        for j in 1:(points_per_edge + rem)
-            # create the interpolated point between p1 and p2
-            t = j / (points_per_edge + rem + 1)
-            new_point = p1 + t * (p2 - p1)
-            insert!(poly_1, index, new_point)
-            index += 1
-        end
-        index += 1
-    end
+    new_poly_1 = polysample(new_poly_1, l2)
+    new_poly_2 = polysample(new_poly_2, l2)
 
     if flipped
-        poly_1, poly_2 = poly_2, poly_1
+        new_poly_1, new_poly_2 = new_poly_2, new_poly_1
     end
-    @assert length(poly_1) == length(poly_2)
+    @assert length(new_poly_1) == length(new_poly_2)
+    return new_poly_1, new_poly_2
 end
 
 """
-    morph(from_func::Function, to_func::Function; action=:stroke)
+    morph(from_func, to_func; action=:stroke)
 
 A closure for the [`_morph`](@ref) function.
 This makes it easier to write the function inside an `Action`.
@@ -80,9 +54,11 @@ Blending between fills of polygons is definitely coming at a later stage.
 i.e. use `circle(Point(100,100), 50)` instead of `circle(Point(100,100), 50, :stroke)`
 
 # Arguments
-- `from_func::Function`: The function that creates the path for the first polygon.
-- `to_func::Function`: Same as `from_func` but it defines the "result" polygon,
-                       which will be displayed at the end of the Action
+- `from_func::Union{Vector{Vector{Point}}, Function}`:
+    The function that creates the path for the first polygons or the paths as vector of points.
+- `to_func::Union{Vector{Vector{Point}}, Function}`:
+    Same as `from_func` but it defines the "result" polygons,
+    which will be displayed at the end of the Action
 
 # Keywords
 - `action::Symbol` defines whether the object has a fill or just a stroke. Defaults to stroke.
@@ -106,35 +82,32 @@ javis(video, [
     pathname="star2circle.gif", deletetemp=true)
 ```
 """
-function morph(from_func::Function, to_func::Function; action = :stroke)
+function morph(
+    from_func::Union{Vector{Vector{Point}},Function},
+    to_func::Union{Vector{Vector{Point}},Function};
+    action = :stroke,
+)
     return (video, scene_action, frame) ->
         _morph(video, scene_action, frame, from_func, to_func; draw_action = action)
 end
 
 """
-    save_morph_polygons!(action::Action, from_func::Function, to_func::Function)
+    save_morph_polygons!(action::Action, from_func::Vector{Vector{Point}},
+                                         to_func::Vector{Vector{Point}})
 
-Converts the paths created by the functions to polygons and calls [`match_num_point!`](@ref)
+Calls the functions to polygons and calls [`match_num_point!`](@ref)
 such that both polygons have the same number of points.
 This is done once inside [`_morph`](@ref).
 Saves the two polygons inside `action.opts[:from_poly]` and `action.opts[:to_poly]`.
 
-**Assumption:** Both functions create only a single polygon each.
+**Assumption:** Both functions create the same number of polygons.
 """
-function save_morph_polygons!(action::Action, from_func::Function, to_func::Function)
-    newpath()
-    from_func()
-    closepath()
-    from_polys = pathtopoly()
-
-    newpath()
-    to_func()
-    closepath()
-    to_polys = pathtopoly()
-
-    println("#Polys from: ", length(from_polys))
-    println("#Polys to: ", length(to_polys))
-
+function save_morph_polygons!(
+    action::Action,
+    from_polys::Vector{Vector{Point}},
+    to_polys::Vector{Vector{Point}},
+)
+    # delete polygons with less than 2 points
     for i in length(from_polys):-1:1
         length(from_polys[i]) <= 1 && splice!(from_polys, i)
     end
@@ -142,28 +115,23 @@ function save_morph_polygons!(action::Action, from_func::Function, to_func::Func
         length(to_polys[i]) <= 1 && splice!(to_polys, i)
     end
 
-    println("#Polys from after: ", length(from_polys))
-    println("#Polys to after: ", length(to_polys))
-
-
     if length(from_polys) != length(to_polys)
         throw(ArgumentError("In morphing both function need to produce the same number of polygons."))
     end
 
-    from_polys = reorder_match(from_polys, to_polys)
+    if length(from_polys) > 1
+        from_polys = reorder_match(from_polys, to_polys)
+    end
 
     action.opts[:from_poly] = Vector{Vector{Point}}()
     action.opts[:to_poly] = Vector{Vector{Point}}()
     action.opts[:points] = Vector{Vector{Point}}()
 
     for (from_poly, to_poly) in zip(from_polys, to_polys)
-        match_num_point!(from_poly, to_poly)
+        from_poly, to_poly = match_num_point(from_poly, to_poly)
         smallest_i, smallest_distance = compute_shortest_morphing_dist(from_poly, to_poly)
 
-        new_from_poly = copy(from_poly)
-        for i in 1:length(from_poly)
-            new_from_poly[i] = from_poly[(i + smallest_i - 1) % length(from_poly) + 1]
-        end
+        new_from_poly = circshift(from_poly, length(from_poly) - smallest_i + 1)
 
         push!(action.opts[:from_poly], new_from_poly)
         push!(action.opts[:to_poly], to_poly)
@@ -180,7 +148,7 @@ function compute_shortest_morphing_dist(from_poly::Vector{Point}, to_poly::Vecto
     for i in 1:length(from_poly)
         overall_distance = 0.0
         for j in 1:length(from_poly)
-            p1 = from_poly[(j + i - 1) % length(from_poly) + 1]
+            p1 = from_poly[mod1(j + i - 1, length(from_poly))]
             p2 = to_poly[j]
             overall_distance += distance(p1, p2)
         end
@@ -201,13 +169,13 @@ function _morph(
     video::Video,
     action::Action,
     frame,
-    from_func::Function,
-    to_func::Function;
+    from_polys::Vector{Vector{Point}},
+    to_polys::Vector{Vector{Point}};
     draw_action = :stroke,
 )
     # computation of the polygons and the best way to morph in the first frame
     if frame == first(get_frames(action))
-        save_morph_polygons!(action, from_func, to_func)
+        save_morph_polygons!(action, from_polys, to_polys)
     end
 
     # obtain the computed polygons. These polygons have the same number of points.
@@ -254,45 +222,78 @@ function _morph(
     end
 end
 
+"""
+    _morph(video::Video, action::Action, frame, from_func::Function, to_func::Function; draw_action=:stroke)
+
+Internal version of [`morph`](@ref) but described there.
+"""
+function _morph(
+    video::Video,
+    action::Action,
+    frame,
+    from_func::Function,
+    to_func::Function;
+    draw_action = :stroke,
+)
+    newpath()
+    from_func()
+    closepath()
+    from_polys = pathtopoly()
+
+    newpath()
+    to_func()
+    closepath()
+    to_polys = pathtopoly()
+
+    return _morph(video, action, frame, from_polys, to_polys; draw_action = draw_action)
+end
+
 
 function reorder_match(from_polys::Vector{Vector{Point}}, to_polys::Vector{Vector{Point}})
-    println("From Poly:")
-    for from_poly in from_polys
-        println("#Points: ", length(from_poly))
-    end
-
-    println("\nTo Poly:")
-    for to_poly in to_polys
-        println("#Points: ", length(to_poly))
-    end
-
     to_poly_used = zeros(Bool, length(from_polys))
     from_poly_match = zeros(Int, length(from_polys))
 
     for (fi, from_poly) in enumerate(from_polys)
-        println("Clockwise?: ", ispolyclockwise(from_poly))
         smallest_glob_dist = Inf
+        smallest_glob_std = Inf
         smallest_glob_to = 1
-        for (i, to_poly) in enumerate(to_polys)
-            to_poly_used[i] && continue
+        for (ti, to_poly) in enumerate(to_polys)
+            to_poly_used[ti] && continue
             from_copy = copy(from_poly)
             to_copy = copy(to_poly)
-            from_copy .-= polycentroid(from_copy)
-            to_copy .-= polycentroid(to_copy)
+            from_pc = polycentroid(from_copy)
+            to_pc = polycentroid(to_copy)
 
-            match_num_point!(from_copy, to_copy)
+            from_copy, to_copy = match_num_point(from_copy, to_copy)
+            # rotate the points for the best fit
             smallest_i, smallest_distance =
                 compute_shortest_morphing_dist(from_copy, to_copy)
-            if smallest_distance < smallest_glob_dist
+            x_dir = zeros(length(from_copy))
+            y_dir = zeros(length(from_copy))
+
+            for pi in 1:length(from_copy)
+                x_dir[pi] = (to_copy[pi] - from_copy[pi]).x
+                y_dir[pi] = (to_copy[pi] - from_copy[pi]).y
+            end
+
+            x_dir_std = std(x_dir)
+            y_dir_std = std(y_dir)
+
+            from_copy = circshift(from_copy, length(from_poly) - smallest_i + 1)
+
+            smallest_distance = distance(to_pc, from_pc)
+
+            comb_std = clamp(x_dir_std + y_dir_std, 0.01, 1000)
+
+            if comb_std * smallest_distance < smallest_glob_std
+                smallest_glob_std = comb_std * smallest_distance
                 smallest_glob_dist = smallest_distance
-                smallest_glob_to = i
+                smallest_glob_to = ti
             end
         end
         to_poly_used[smallest_glob_to] = true
-        println("Smallest dist: ", smallest_glob_dist)
         from_poly_match[fi] = smallest_glob_to
     end
-    @show from_poly_match
     new_from_polys = Vector{Vector{Point}}(undef, length(from_polys))
     for i in 1:length(from_polys)
         new_from_polys[from_poly_match[i]] = from_polys[i]

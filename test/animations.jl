@@ -299,7 +299,6 @@ acirc(args...) = circle(Point(100, 100), 30)
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
-
 @testset "morphing star2circle and back with fill" begin
     video = Video(500, 500)
     javis(
