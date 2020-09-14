@@ -37,4 +37,3 @@ end
 
     rm("star_morph.gif")
 end
-
