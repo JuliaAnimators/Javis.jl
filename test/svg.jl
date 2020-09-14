@@ -40,11 +40,10 @@ end
 
     function matrix(; do_transpose = false, action = :stroke)
         fontsize(50)
-        mat = ["α" "β" "γ"; "x^2" "sqrt(y)" "λ"; 1 2 "y"]
+        str = L"$\begin{equation}\left[\begin{array}{ccc}\alpha & \beta & \gamma \\x^{2} & \sqrt{y} & \lambda \\1 & 2 & y \\\end{array}\right]\end{equation}$"
         if do_transpose
-            mat = permutedims(mat)
+            str = L"$\begin{equation}\left[\begin{array}{ccc}\alpha & x^{2} & 1 \\\beta & \sqrt{y} & 2 \\\gamma & \lambda & y \\\end{array}\right]\end{equation}$"
         end
-        str = latexstring(latexify(mat))
         action == :path && newpath()
         latex(str, O, action)
         return pathtopoly()
