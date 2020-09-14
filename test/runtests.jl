@@ -1,6 +1,7 @@
 using Animations
 using Images
 using Javis
+using Latexify
 using LaTeXStrings
 using ReferenceTests
 using Test
