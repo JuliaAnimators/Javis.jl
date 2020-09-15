@@ -115,9 +115,19 @@ function save_morph_polygons!(
         length(to_polys[i]) <= 1 && splice!(to_polys, i)
     end
 
+    println("Number of non empty polygons")
+    println("#From ", length(from_polys))
+    println("#To ", length(to_polys))
+
     if length(from_polys) != length(to_polys)
-        throw(ArgumentError("In morphing both function need to produce the same number of polygons."))
+        try_merge_polygons(from_polys, to_polys)
     end
+
+    println("Number of non empty polygons after merging")
+    println("#From ", length(from_polys))
+    println("#To ", length(to_polys))
+
+
 
     if length(from_polys) > 1
         from_polys = reorder_match(from_polys, to_polys)
@@ -128,14 +138,65 @@ function save_morph_polygons!(
     action.opts[:points] = Vector{Vector{Point}}()
 
     for (from_poly, to_poly) in zip(from_polys, to_polys)
-        from_poly, to_poly = match_num_point(from_poly, to_poly)
-        smallest_i, smallest_distance = compute_shortest_morphing_dist(from_poly, to_poly)
+        if isempty(from_poly) || isempty(to_poly)
+            new_from_poly = from_poly
+        else
+            from_poly, to_poly = match_num_point(from_poly, to_poly)
+            smallest_i, smallest_distance =
+                compute_shortest_morphing_dist(from_poly, to_poly)
 
-        new_from_poly = circshift(from_poly, length(from_poly) - smallest_i + 1)
+            new_from_poly = circshift(from_poly, length(from_poly) - smallest_i + 1)
+        end
 
         push!(action.opts[:from_poly], new_from_poly)
         push!(action.opts[:to_poly], to_poly)
         push!(action.opts[:points], Vector{Point}(undef, length(new_from_poly)))
+    end
+end
+
+function try_merge_polygons(from_polys, to_polys)
+    for pi in 1:length(to_polys)
+        !ispolyclockwise(to_polys[pi]) && continue
+        for pj in 1:length(to_polys)
+            pi >= pj && continue
+            !ispolyclockwise(to_polys[pj]) && continue
+            smallest_dist = Inf
+            found_Ap = O
+            found_Bp = O
+            for (pA, pointA) in enumerate(to_polys[pi])
+                for (pB, pointB) in enumerate(to_polys[pj])
+                    dist = distance(pointA, pointB)
+                    if dist < smallest_dist
+                        smallest_dist = dist
+                        found_Ap = pA
+                        found_Bp = pB
+                    end
+                end
+            end
+            if smallest_dist <= 3
+                println("Found possible merge with $pi and $pj with dist: $smallest_dist")
+                # circle.([to_found_A, found_B], 3, :fill)
+                println("found_Ap: ", found_Ap)
+                println("found_Bp: ", found_Bp)
+                tmp_poly = circshift(to_polys[pj], length(to_polys[pj]) - found_Bp + 1)
+                to_polys[pi] = vcat(
+                    to_polys[pi][1:found_Ap],
+                    tmp_poly,
+                    to_polys[pi][(found_Ap + 1):end],
+                )
+                sethue("red")
+                poly(to_polys[pi], :fill; close = true)
+                sethue("white")
+                println("Is still clockwise? ", ispolyclockwise(to_polys[pi]))
+                to_polys[pj] = Point[]
+                println("to_polys[$pi]: ", to_polys[pi])
+            end
+        end
+    end
+    for pi in length(to_polys):-1:1
+        if isempty(to_polys[pi])
+            splice!(to_polys, pi)
+        end
     end
 end
 
@@ -181,11 +242,21 @@ function _morph(
     # obtain the computed polygons. These polygons have the same number of points.
     number_of_poly = length(action.opts[:from_poly])
     polygons = Vector{Vector{Point}}(undef, number_of_poly)
+    bool_move = ones(Bool, number_of_poly)
 
     for pi in 1:number_of_poly
         from_poly = action.opts[:from_poly][pi]
         to_poly = action.opts[:to_poly][pi]
         points = action.opts[:points][pi]
+        # polygons[pi] = from_poly
+        # println("#Points: $pi ", length(polygons[pi]))
+        # continue
+        if isempty(from_poly) || isempty(to_poly)
+            isempty(to_poly) && println("to is empty")
+            polygons[pi] = to_poly
+            bool_move[pi] = false
+            continue
+        end
 
         # compute the interpolation variable `t` for the current frame
         t = get_interpolation(action, frame)
@@ -198,10 +269,25 @@ function _morph(
         polygons[pi] = points
     end
 
+    got_drawn = true
     for pi in 1:number_of_poly
+        if !bool_move[pi]
+            if !got_drawn
+                if draw_action == :stroke
+                    strokepath()
+                elseif draw_action == :fill
+                    fillpath()
+                else
+                    closepath()
+                end
+            end
+            continue
+        end
+        got_drawn = false
         if ispolyclockwise(polygons[pi]) &&
            (pi == number_of_poly || ispolyclockwise(polygons[pi + 1]))
             poly(polygons[pi], draw_action; close = true)
+            got_drawn = true
         elseif ispolyclockwise(polygons[pi])
             poly(polygons[pi], :path; close = true)
             newsubpath()
@@ -209,8 +295,10 @@ function _morph(
             # is last subpath
             poly(polygons[pi], :path; close = true)
             if draw_action == :stroke
+                got_drawn = true
                 strokepath()
             elseif draw_action == :fill
+                got_drawn = true
                 fillpath()
             else
                 closepath()
@@ -220,6 +308,16 @@ function _morph(
             poly(polygons[pi], :path; close = true)
         end
     end
+
+    # let new paths appear
+    t = get_interpolation(action, frame)
+    setopacity(t)
+
+    for pi in 1:number_of_poly
+        bool_move[pi] && continue
+        poly(polygons[pi], draw_action; close = true)
+    end
+
 end
 
 """
@@ -250,7 +348,7 @@ end
 
 
 function reorder_match(from_polys::Vector{Vector{Point}}, to_polys::Vector{Vector{Point}})
-    to_poly_used = zeros(Bool, length(from_polys))
+    to_poly_used = zeros(Bool, length(to_polys))
     from_poly_match = zeros(Int, length(from_polys))
 
     for (fi, from_poly) in enumerate(from_polys)
@@ -296,7 +394,12 @@ function reorder_match(from_polys::Vector{Vector{Point}}, to_polys::Vector{Vecto
         to_poly_used[smallest_glob_to] = true
         from_poly_match[fi] = smallest_glob_to
     end
-    new_from_polys = Vector{Vector{Point}}(undef, length(from_polys))
+    @show from_poly_match
+    new_from_polys = Vector{Vector{Point}}(undef, length(to_polys))
+    for i in 1:length(to_polys)
+        new_from_polys[i] = Point[]
+    end
+
     for i in 1:length(from_polys)
         new_from_polys[from_poly_match[i]] = from_polys[i]
     end
