@@ -34,6 +34,20 @@ end
     @test Reactive.value(r_slide) == 1
 
     @test first_frame != second_frame
+    
+    Javis._decrement(video, [r_slide, tbox], actions, frame_dims, canvas, total_frames)
+    sleep(0.1)
+    curr_frame = Reactive.value(r_slide)
+    last_frame = Javis.get_javis_frame(video, actions, curr_frame)
+    @test curr_frame == total_frames
+    
+    Javis._increment(video, [r_slide, tbox], actions, frame_dims, canvas, total_frames)
+    sleep(0.1)
+    curr_frame = Reactive.value(r_slide)
+    first_frame = Javis.get_javis_frame(video, actions, curr_frame)
+    @test curr_frame == 1
+    
+    @test last_frame != first_frame
 
     rm("star_morph.gif")
 end
