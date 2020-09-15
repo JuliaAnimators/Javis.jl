@@ -1,7 +1,11 @@
 module Javis
 
 using Animations
+using Cairo: CairoImageSurface, image
+using ColorTypes: ARGB32
 using FFMPEG
+using Gtk
+using GtkReactive
 using Images
 using LaTeXStrings
 using LightXML
@@ -765,6 +769,7 @@ include("backgrounds.jl")
 include("svg2luxor.jl")
 include("morphs.jl")
 include("subaction_animations.jl")
+include("javis_viewer.jl")
 
 latex(text::LaTeXString) = latex(text, O)
 latex(text::LaTeXString, pos::Point) = latex(text, pos, :stroke)
@@ -1117,7 +1122,8 @@ end
         actions::Vector{AbstractAction};
         framerate=30,
         pathname="",
-        tempdirectory=""
+        tempdirectory="",
+        liveview=false
     )
 
 Similar to `animate` in Luxor with a slightly different structure.
@@ -1132,6 +1138,7 @@ Instead of using actions and a video instead of scenes in a movie.
 - `pathname::String`: The path for the rendered gif or mp4 (i.e `output.gif` or `output.mp4`)
 - `tempdirectory::String`: The folder where each frame is stored
     Defaults to a temporary directory when not set
+- `liveview::Bool`: Causes a live image viewer to appear to assist with animation development
 
 # Example
 ```
@@ -1170,6 +1177,7 @@ function javis(
     actions::Vector{AA};
     framerate = 30,
     pathname = "javis_$(randstring(7)).gif",
+    liveview = false,
     tempdirectory = "",
 ) where {AA<:AbstractAction}
     compute_frames!(actions)
@@ -1206,6 +1214,11 @@ function javis(
         CURRENT_ACTION[1] = actions[1]
     end
 
+    if liveview == true
+        _javis_viewer(video, length(frames), actions)
+        return "Live preview started."
+    end
+
     path, ext = "", ""
     if !isempty(pathname)
         path, ext = splitext(pathname)
@@ -1225,7 +1238,7 @@ function javis(
     @showprogress 1 "Rendering frames..." for frame in frames
         frame_image = convert.(RGB, get_javis_frame(video, actions, frame))
         if !isempty(tempdirectory)
-            save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
+            Images.save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
         end
         if render_mp4
             if frame == first(frames)
@@ -1262,10 +1275,15 @@ end
 """
     get_javis_frame(video, actions, frame)
 
-Get one specific frame of a video with actions.
+Get a frame from an animation given a video object, its actions, and frame.
+
+# Arguments
+- `video::Video`: The video which defines the dimensions of the output
+- `actions::Vector{Action}`: All actions that are performed
+- `frame::Int`: Specific frame to be returned
 
 # Returns
-- `ARGB Matrix` the frame image as a matrix
+- `Array{ARGB32, 2}` - request frame as a matrix
 """
 function get_javis_frame(video, actions, frame)
     background_settings = ActionSetting()
@@ -1295,7 +1313,7 @@ function get_javis_frame(video, actions, frame)
         # if action is in global layer this changes the background settings
         update_background_settings!(background_settings, action)
     end
-    img = image_as_matrix()
+    img = convert.(ARGB32, image_as_matrix())
     finish()
     return img
 end
