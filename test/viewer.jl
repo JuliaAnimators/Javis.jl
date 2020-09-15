@@ -13,7 +13,7 @@ end
         Action(1:100, morph(astar, acirc; action = :fill)),
     ]
 
-    javis(vid, action_list, pathname = "star_morph.gif")
+    javis(vid, action_list, pathname = "")
 
     viewer_win, frame_dims, r_slide, tbox, canvas, actions, total_frames, video =
         Javis._javis_viewer(vid, 100, action_list, false)
@@ -48,6 +48,4 @@ end
     @test curr_frame == 1
 
     @test last_frame != first_frame
-
-    rm("star_morph.gif")
 end
