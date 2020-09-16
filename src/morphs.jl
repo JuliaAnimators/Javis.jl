@@ -1,3 +1,5 @@
+include("Shape.jl")
+
 """
     match_num_point!(poly_1::Vector{Point}, poly_2::Vector{Point})
 
@@ -28,9 +30,40 @@ function match_num_point(poly_1::Vector{Point}, poly_2::Vector{Point})
         l1, l2 = l2, l1
         flipped = true
     end
+    # the difference of the length of points
+    diff = l2 - l1
 
-    new_poly_1 = polysample(new_poly_1, l2)
-    new_poly_2 = polysample(new_poly_2, l2)
+    points_per_edge = div(diff, l1)
+    # how many extra points do we need
+    points_per_edge_extra = rem(diff, l1)
+    # => will add them to the first `points_per_edge_extra` edges
+
+    # index is the index where the next point is added
+    index = 2
+    poly_1_orig = copy(new_poly_1)
+    for i in 1:l1
+        # p1 is the current point in the original polygon
+        p1 = poly_1_orig[i]
+        # p2 is the next point (which is the first of the polygon in the last iteration)
+        if i + 1 > l1
+            p2 = poly_1_orig[1]
+        else
+            p2 = poly_1_orig[i + 1]
+        end
+        # if we need 5 points and have only 4 edges we add 2 points for the first edge
+        rem = 0
+        if i <= points_per_edge_extra
+            rem = 1
+        end
+        for j in 1:(points_per_edge + rem)
+            # create the interpolated point between p1 and p2
+            t = j / (points_per_edge + rem + 1)
+            new_point = p1 + t * (p2 - p1)
+            insert!(new_poly_1, index, new_point)
+            index += 1
+        end
+        index += 1
+    end
 
     if flipped
         new_poly_1, new_poly_2 = new_poly_2, new_poly_1
@@ -115,87 +148,123 @@ function save_morph_polygons!(
         length(to_polys[i]) <= 1 && splice!(to_polys, i)
     end
 
-    println("Number of non empty polygons")
-    println("#From ", length(from_polys))
-    println("#To ", length(to_polys))
+    # println("Number of non empty polygons")
+    # println("#From ", length(from_polys))
+    # println("#To ", length(to_polys))
 
     if length(from_polys) != length(to_polys)
-        try_merge_polygons(from_polys, to_polys)
+        try_merge_polygons(from_polys)
+        try_merge_polygons(to_polys)
     end
 
-    println("Number of non empty polygons after merging")
-    println("#From ", length(from_polys))
-    println("#To ", length(to_polys))
+    from_shapes = create_shapes(from_polys)
+    to_shapes = create_shapes(to_polys)
 
+    # println("# from shapes: ", length(from_shapes))
+    # println("# to shapes: ", length(to_shapes))
 
-
-    if length(from_polys) > 1
-        from_polys = reorder_match(from_polys, to_polys)
+    if length(from_shapes) > 1
+        from_shapes = reorder_match(from_shapes, to_shapes)
     end
 
     action.opts[:from_poly] = Vector{Vector{Point}}()
     action.opts[:to_poly] = Vector{Vector{Point}}()
     action.opts[:points] = Vector{Vector{Point}}()
 
-    for (from_poly, to_poly) in zip(from_polys, to_polys)
-        if isempty(from_poly) || isempty(to_poly)
+    counter = 0
+    for (from_shape, to_shape) in zip(from_shapes, to_shapes)
+        counter += 1
+        if isempty(from_shape) || isempty(to_shape)
             new_from_poly = from_poly
+
+            push!(action.opts[:from_poly], new_from_poly)
+            push!(action.opts[:to_poly], to_poly)
+            push!(action.opts[:points], Vector{Point}(undef, length(new_from_poly)))
         else
-            from_poly, to_poly = match_num_point(from_poly, to_poly)
+            from_poly, to_poly = match_num_point(from_shape.points, to_shape.points)
             smallest_i, smallest_distance =
                 compute_shortest_morphing_dist(from_poly, to_poly)
 
             new_from_poly = circshift(from_poly, length(from_poly) - smallest_i + 1)
-        end
 
-        push!(action.opts[:from_poly], new_from_poly)
-        push!(action.opts[:to_poly], to_poly)
-        push!(action.opts[:points], Vector{Point}(undef, length(new_from_poly)))
+            push!(action.opts[:from_poly], new_from_poly)
+            push!(action.opts[:to_poly], to_poly)
+            push!(action.opts[:points], Vector{Point}(undef, length(new_from_poly)))
+
+            # for subpaths
+            for (from_subpath, to_subpath) in zip(from_shape.subpaths, to_shape.subpaths)
+                from_poly, to_poly = match_num_point(from_subpath, to_subpath)
+                smallest_i, smallest_distance =
+                    compute_shortest_morphing_dist(from_poly, to_poly)
+
+                new_from_poly = circshift(from_poly, length(from_poly) - smallest_i + 1)
+
+                push!(action.opts[:from_poly], new_from_poly)
+                push!(action.opts[:to_poly], to_poly)
+                push!(action.opts[:points], Vector{Point}(undef, length(new_from_poly)))
+            end
+        end
     end
 end
 
-function try_merge_polygons(from_polys, to_polys)
-    for pi in 1:length(to_polys)
-        !ispolyclockwise(to_polys[pi]) && continue
-        for pj in 1:length(to_polys)
+
+
+function try_merge_polygons(polys)
+    for pi in 1:length(polys)
+        !ispolyclockwise(polys[pi]) && continue
+        for pj in 1:length(polys)
             pi >= pj && continue
-            !ispolyclockwise(to_polys[pj]) && continue
+            !ispolyclockwise(polys[pj]) && continue
             smallest_dist = Inf
             found_Ap = O
             found_Bp = O
-            for (pA, pointA) in enumerate(to_polys[pi])
-                for (pB, pointB) in enumerate(to_polys[pj])
-                    dist = distance(pointA, pointB)
-                    if dist < smallest_dist
-                        smallest_dist = dist
-                        found_Ap = pA
-                        found_Bp = pB
+            start_with_A = true
+            for (pA, pointA1, pointA2) in
+                zip(1:length(polys[pi]), polys[pi], circshift(polys[pi], -1))
+                for (pB, pointB1, pointB2) in
+                    zip(1:length(polys[pj]), polys[pj], circshift(polys[pj], -1))
+                    dist1 = distance(pointA1, pointB2)
+                    dist2 = distance(pointA2, pointB1)
+                    if dist1 <= 3 && dist2 <= 3
+                        if isinside((pointB1 + pointB2) / 2, polys[pi]; allowonedge = true)
+                            pB1 = pB + 1 <= length(polys[pj]) ? pB + 1 : 1
+                            polys[pj][pB1] = pointA1 - (pointB2 - pointA1)
+                            polys[pj][pB] = pointA2 - (pointB1 - pointA2)
+                            pointB2 = polys[pj][pB1]
+                            pointB1 = polys[pj][pB]
+                        end
+                        if ispolyclockwise([pointA1, pointA2, pointB1, pointB2])
+                            start_with_A = false
+                            smallest_dist = dist1
+                            found_Ap = pA
+                            found_Bp = pB + 1 <= length(polys[pj]) ? pB + 1 : 1
+                        else
+                            start_with_A = true
+                            smallest_dist = dist2
+                            found_Ap = pA + 1 <= length(polys[pi]) ? pA + 1 : 1
+                            found_Bp = pB + 1
+                        end
                     end
                 end
             end
             if smallest_dist <= 3
-                println("Found possible merge with $pi and $pj with dist: $smallest_dist")
-                # circle.([to_found_A, found_B], 3, :fill)
-                println("found_Ap: ", found_Ap)
-                println("found_Bp: ", found_Bp)
-                tmp_poly = circshift(to_polys[pj], length(to_polys[pj]) - found_Bp + 1)
-                to_polys[pi] = vcat(
-                    to_polys[pi][1:found_Ap],
-                    tmp_poly,
-                    to_polys[pi][(found_Ap + 1):end],
-                )
-                sethue("red")
-                poly(to_polys[pi], :fill; close = true)
-                sethue("white")
-                println("Is still clockwise? ", ispolyclockwise(to_polys[pi]))
-                to_polys[pj] = Point[]
-                println("to_polys[$pi]: ", to_polys[pi])
+                if start_with_A
+                    tmp_polyA = circshift(polys[pi], length(polys[pi]) - found_Ap + 1)
+                    tmp_polyB = circshift(polys[pj], length(polys[pj]) - found_Bp)
+                    polys[pi] = vcat(tmp_polyA, tmp_polyB[1:(end - 1)])
+                    polys[pj] = Point[]
+                else
+                    tmp_polyB = circshift(polys[pj], length(polys[pj]) - found_Bp + 1)
+                    tmp_polyA = circshift(polys[pi], length(polys[pi]) - found_Ap)
+                    polys[pi] = vcat(tmp_polyB, tmp_polyA)
+                    polys[pj] = Point[]
+                end
             end
         end
     end
-    for pi in length(to_polys):-1:1
-        if isempty(to_polys[pi])
-            splice!(to_polys, pi)
+    for pi in length(polys):-1:1
+        if isempty(polys[pi])
+            splice!(polys, pi)
         end
     end
 end
@@ -317,7 +386,6 @@ function _morph(
         bool_move[pi] && continue
         poly(polygons[pi], draw_action; close = true)
     end
-
 end
 
 """
@@ -347,61 +415,31 @@ function _morph(
 end
 
 
-function reorder_match(from_polys::Vector{Vector{Point}}, to_polys::Vector{Vector{Point}})
-    to_poly_used = zeros(Bool, length(to_polys))
-    from_poly_match = zeros(Int, length(from_polys))
+function reorder_match(from_shapes::Vector{Shape}, to_shapes::Vector{Shape})
+    to_shape_used = zeros(Bool, length(to_shapes))
+    from_shape_match = zeros(Int, length(from_shapes))
 
-    for (fi, from_poly) in enumerate(from_polys)
-        smallest_glob_dist = Inf
-        smallest_glob_std = Inf
-        smallest_glob_to = 1
-        for (ti, to_poly) in enumerate(to_polys)
-            to_poly_used[ti] && continue
-            from_copy = copy(from_poly)
-            to_copy = copy(to_poly)
-            from_pc = polycentroid(from_copy)
-            to_pc = polycentroid(to_copy)
-
-            from_copy, to_copy = match_num_point(from_copy, to_copy)
-            # rotate the points for the best fit
-            smallest_i, smallest_distance =
-                compute_shortest_morphing_dist(from_copy, to_copy)
-            x_dir = zeros(length(from_copy))
-            y_dir = zeros(length(from_copy))
-
-            for pi in 1:length(from_copy)
-                x_dir[pi] = (to_copy[pi] - from_copy[pi]).x
-                y_dir[pi] = (to_copy[pi] - from_copy[pi]).y
-            end
-
-            x_dir_std = std(x_dir)
-            y_dir_std = std(y_dir)
-
-            from_copy = circshift(from_copy, length(from_poly) - smallest_i + 1)
-
-            smallest_distance = distance(to_pc, from_pc)
-
-            # TODO: think about this again :D There must be a compromise between morphing
-            # behaviour and moving
-            comb_std = clamp(x_dir_std + y_dir_std, 0.01, 1000)
-
-            if comb_std * smallest_distance < smallest_glob_std
-                smallest_glob_std = comb_std * smallest_distance
-                smallest_glob_dist = smallest_distance
-                smallest_glob_to = ti
+    for (fi, from_shape) in enumerate(from_shapes)
+        best_similarity = 0
+        smallest_to = 1
+        for (ti, to_shape) in enumerate(to_shapes)
+            to_shape_used[ti] && continue
+            similarity = get_similarity(from_shape, to_shape)
+            if similarity > best_similarity
+                best_similarity = similarity
+                smallest_to = ti
             end
         end
-        to_poly_used[smallest_glob_to] = true
-        from_poly_match[fi] = smallest_glob_to
+        to_shape_used[smallest_to] = true
+        from_shape_match[fi] = smallest_to
     end
-    @show from_poly_match
-    new_from_polys = Vector{Vector{Point}}(undef, length(to_polys))
-    for i in 1:length(to_polys)
-        new_from_polys[i] = Point[]
+    new_from_shapes = Vector{Shape}(undef, length(to_shapes))
+    for i in 1:length(to_shapes)
+        new_from_shapes[i] = EmptyShape()
     end
 
-    for i in 1:length(from_polys)
-        new_from_polys[from_poly_match[i]] = from_polys[i]
+    for i in 1:length(from_shapes)
+        new_from_shapes[from_shape_match[i]] = from_shapes[i]
     end
-    return new_from_polys
+    return new_from_shapes
 end
