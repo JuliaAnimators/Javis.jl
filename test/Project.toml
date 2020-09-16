@@ -1,5 +1,7 @@
 [deps]
 Animations = "27a7e980-b3e6-11e9-2bcd-0b925532e340"
+Gtk = "4c0ca9eb-093a-5379-98c5-f87ac0bbbf44"
+GtkReactive = "27996c0f-39cd-5cc1-a27a-05f136f946b6"
 ImageIO = "82e4d734-157c-48bb-816b-45c225c6df19"
 ImageMagick = "6218d12a-5da1-5696-b52f-db25d2ecc6d1"
 Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"

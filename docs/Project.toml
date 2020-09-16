@@ -1,4 +1,5 @@
 [deps]
+Animations = "27a7e980-b3e6-11e9-2bcd-0b925532e340"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 Javis = "78b212ba-a7f9-42d4-b726-60726080707e"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
