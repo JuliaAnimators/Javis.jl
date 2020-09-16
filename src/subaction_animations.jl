@@ -295,7 +295,7 @@ end
     follow_path(points::Vector{Point}; closed=true)
 
 Can be applied inside a subaction such that the object defined in the parent action follows a path.
-It takes a vector of point which can be created as an example by calling `circle(O, 50)` <- notice that the action is set to `:none` the default.
+It takes a vector of points which can be created as an example by calling `circle(O, 50)` <- notice that the action is set to `:none` the default.
 
 # Example
 ```julia
