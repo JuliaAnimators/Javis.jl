@@ -149,6 +149,20 @@ function scaleto(x, y)
     cs.current_scale = (x, y)
 end
 
+"""
+    animate_text(
+        str,
+        pos::Point,
+        valign::Symbol,
+        halign::Symbol,
+        angle::Float64,
+        t::Float64,
+    )
+
+This function is used as a subfunction of [`text`](@ref) and animates the `str` by
+clipping the textoutlines and creating a growing circle in the lower left corner to display
+the text from left to right in an animated fashion.
+"""
 function animate_text(
     str,
     pos::Point,
