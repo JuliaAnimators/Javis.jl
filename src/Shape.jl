@@ -16,7 +16,7 @@ function Base.isempty(shape::Shape)
 end
 
 function get_angles(p)
-    # TODO: let's assume it's a closed path 
+    # TODO: let's assume it's a closed path
     num_acute_angles = 0
     num_obtuse_angles = 0
     num_right_angles = 0

@@ -27,7 +27,12 @@ function draw_obj(::Val{:rect}, o, defs)
     height = float_attribute(o, "height")
     x = float_attribute(o, "x")
     y = float_attribute(o, "y")
-    rect(Point(x, y), width, height, :path)
+    # TODO: draw it anti clockwise as it gets scaled to clockwise :/
+    move(Point(x + width, y))
+    line(Point(x, y))
+    line(Point(x, y + height))
+    line(Point(x + width, y + height))
+    closepath()
 end
 
 """

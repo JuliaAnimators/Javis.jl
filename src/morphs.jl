@@ -160,9 +160,6 @@ function save_morph_polygons!(
     from_shapes = create_shapes(from_polys)
     to_shapes = create_shapes(to_polys)
 
-    # println("# from shapes: ", length(from_shapes))
-    # println("# to shapes: ", length(to_shapes))
-
     if length(from_shapes) > 1
         from_shapes = reorder_match(from_shapes, to_shapes)
     end
@@ -175,10 +172,10 @@ function save_morph_polygons!(
     for (from_shape, to_shape) in zip(from_shapes, to_shapes)
         counter += 1
         if isempty(from_shape) || isempty(to_shape)
-            new_from_poly = from_poly
+            new_from_poly = from_shape.points
 
             push!(action.opts[:from_poly], new_from_poly)
-            push!(action.opts[:to_poly], to_poly)
+            push!(action.opts[:to_poly], to_shape.points)
             push!(action.opts[:points], Vector{Point}(undef, length(new_from_poly)))
         else
             from_poly, to_poly = match_num_point(from_shape.points, to_shape.points)
@@ -198,6 +195,7 @@ function save_morph_polygons!(
                     compute_shortest_morphing_dist(from_poly, to_poly)
 
                 new_from_poly = circshift(from_poly, length(from_poly) - smallest_i + 1)
+                @assert !ispolyclockwise(new_from_poly) && !ispolyclockwise(to_poly)
 
                 push!(action.opts[:from_poly], new_from_poly)
                 push!(action.opts[:to_poly], to_poly)
@@ -312,6 +310,7 @@ function _morph(
     number_of_poly = length(action.opts[:from_poly])
     polygons = Vector{Vector{Point}}(undef, number_of_poly)
     bool_move = ones(Bool, number_of_poly)
+    bool_appear = zeros(Bool, number_of_poly)
 
     for pi in 1:number_of_poly
         from_poly = action.opts[:from_poly][pi]
@@ -321,8 +320,12 @@ function _morph(
         # println("#Points: $pi ", length(polygons[pi]))
         # continue
         if isempty(from_poly) || isempty(to_poly)
-            isempty(to_poly) && println("to is empty")
-            polygons[pi] = to_poly
+            if isempty(to_poly)
+                polygons[pi] = from_poly
+            else
+                polygons[pi] = to_poly
+                bool_appear[pi] = true
+            end
             bool_move[pi] = false
             continue
         end
@@ -336,6 +339,7 @@ function _morph(
         end
 
         polygons[pi] = points
+        @assert !xor(ispolyclockwise(polygons[pi]), ispolyclockwise(from_poly))
     end
 
     got_drawn = true
@@ -377,15 +381,24 @@ function _morph(
             poly(polygons[pi], :path; close = true)
         end
     end
-
     # let new paths appear
     t = get_interpolation(action, frame)
     setopacity(t)
 
     for pi in 1:number_of_poly
-        bool_move[pi] && continue
+        (bool_move[pi] || !bool_appear[pi]) && continue
         poly(polygons[pi], draw_action; close = true)
     end
+
+    # let old paths disappear
+    t = get_interpolation(action, frame)
+    setopacity(1 - t)
+
+    for pi in 1:number_of_poly
+        (bool_move[pi] || bool_appear[pi]) && continue
+        poly(polygons[pi], draw_action; close = true)
+    end
+    setopacity(1)
 end
 
 """
