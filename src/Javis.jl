@@ -782,10 +782,6 @@ include("javis_viewer.jl")
 latex(text::LaTeXString) = latex(text, O)
 latex(text::LaTeXString, pos::Point) = latex(text, pos, :stroke)
 latex(text::LaTeXString, x, y) = latex(text, Point(x, y), :stroke)
-@deprecate latex(text::LaTeXString, fsize::Real) begin
-    fontsize(fsize)
-    latex(text)
-end
 
 """
     latex(text::LaTeXString, pos::Point, action::Symbol)
@@ -825,6 +821,7 @@ function ground(args...)
 end
 
 function draw_latex(video, action, frame)
+    fontsize(50)
     x = 100
     y = 120
     latex(L"\\sqrt{5}", x, y)
@@ -1419,6 +1416,7 @@ const LUXOR_DONT_EXPORT = [
     :fontsize,
     :get_fontsize,
     :scale,
+    :text,
 ]
 
 # Export each function from Luxor
@@ -1439,6 +1437,6 @@ export rev
 export scaleto
 
 # custom override of luxor extensions
-export setline, setopacity, fontsize, get_fontsize, scale
+export setline, setopacity, fontsize, get_fontsize, scale, text
 
 end

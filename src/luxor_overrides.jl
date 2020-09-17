@@ -148,3 +148,103 @@ function scaleto(x, y)
     Luxor.scale(scaling...)
     cs.current_scale = (x, y)
 end
+
+"""
+    animate_text(
+        str,
+        pos::Point,
+        valign::Symbol,
+        halign::Symbol,
+        angle::Float64,
+        t::Float64,
+    )
+
+This function is used as a subfunction of [`text`](@ref) and animates the `str` by
+clipping the textoutlines and creating a growing circle in the lower left corner to display
+the text from left to right in an animated fashion.
+"""
+function animate_text(
+    str,
+    pos::Point,
+    valign::Symbol,
+    halign::Symbol,
+    angle::Float64,
+    t::Float64,
+)
+    if t >= 1
+        return Luxor.text(str, pos; valign = valign, halign = halign, angle = angle)
+    end
+
+    # copied from Luxor.text
+    xbearing, ybearing, textwidth, textheight, xadvance, yadvance = textextents(str)
+    halignment = findfirst(isequal(halign), [:left, :center, :right, :centre])
+
+    # if unspecified or wrong, default to left, also treat UK spelling centre as center
+    if halignment == nothing
+        halignment = 1
+    elseif halignment == 4
+        halignment = 2
+    end
+
+    textpointx = pos.x - [0, textwidth / 2, textwidth][halignment]
+
+    valignment = findfirst(isequal(valign), [:top, :middle, :baseline, :bottom])
+
+    # if unspecified or wrong, default to baseline
+    if valignment == nothing
+        valignment = 3
+    end
+
+    textpointy = pos.y - [ybearing, ybearing / 2, 0, textheight + ybearing][valignment]
+
+
+    gsave()
+    translate(Point(textpointx, textpointy))
+    rotate(angle)
+    # clipping region
+    textoutlines(str, O, :clip)
+    w = textwidth
+    r = t * w
+    circle(O, r, :fill)
+    grestore()
+    return Point(textpointx, textpointy)
+end
+
+"""
+    text(str, pos = O; valign = :baseline, halign = :left, angle = 0.0)
+
+Has bacially the same functionality as Luxor.text but overrides that method to allow to
+animate text with [`appear`](@ref).
+
+# Example
+```julia
+Action(
+    1:100,
+    (args...) -> text("Hello Stream!"; halign = :center);
+    subactions = [
+        SubAction(1:15, sineio(), appear(:draw_text)),
+        SubAction(76:100, sineio(), disappear(:draw_text)),
+    ],
+)
+```
+draws the text from left to right in the first 15 frames and in the last 15 frames it disappears.
+
+# Arguments
+- `str::AbstractString` the string that should be shown
+- `pos::Point` defaults to the origin and can be written as `x,y` as well as `Point(x,y)`.
+
+# Keywords
+- `valign::Symbol` defaults to `:baseline` and takes `(:top, :middle, :bottom, :baseline)`
+- `halign::Symbol` defaults to `:left` and takes `(:left, :center, :centre, :right)`
+- `angle::Float64` defaults to `0.0` and specifies the angle of the text
+"""
+function text(str, pos = O; valign = :baseline, halign = :left, angle = 0.0)
+    action = CURRENT_ACTION[1]
+    opts = action.opts
+    t = get(opts, :draw_text_t, 1.0)
+    return animate_text(str, pos, valign, halign, angle, t)
+end
+
+function text(str, x, y; kwargs...)
+    text(str, Point(x, y); kwargs...)
+end

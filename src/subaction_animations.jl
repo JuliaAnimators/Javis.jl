@@ -20,8 +20,9 @@ of the [`Action`](@ref) so `101-120`.
        or the value specified by [`setline`](@ref)
     - `:fade` which increases the opcacity up to the default value
        or the value specified by [`setopacity`](@ref)
-    - `:scale` which increases the scale up to the default value `1`.
+    - `:scale` which increases the scale up to the default value `1`
        or the value specified by [`scale`](@ref)
+    - `:draw_text` which only works for [`text`](@ref) and lets it appear from left to right.
 """
 function appear(s::Symbol)
     (video, action, subaction, rel_frame) ->
@@ -41,6 +42,11 @@ end
 function _appear(video, action, subaction, rel_frame, symbol::Val{:scale})
     t = get_interpolation(subaction, rel_frame)
     action.current_setting.mul_scale = t
+end
+
+function _appear(video, action, subaction, rel_frame, symbol::Val{:draw_text})
+    t = get_interpolation(subaction, rel_frame)
+    action.opts[:draw_text_t] = t
 end
 
 """
@@ -64,6 +70,7 @@ of the [`Action`](@ref) so `181-200`.
     - `:fade_line_width` which decreases the line width down to `0`
     - `:fade` which decreases the opacity down to `0`
     - `:scale` which decreases the scale down to `0`
+    - `:draw_text` which only works for text and let the text disappear from right to left.
 """
 function disappear(s::Symbol)
     (video, action, subaction, rel_frame) ->
@@ -83,6 +90,11 @@ end
 function _disappear(video, action, subaction, rel_frame, symbol::Val{:scale})
     t = get_interpolation(subaction, rel_frame)
     action.current_setting.mul_scale = 1 - t
+end
+
+function _disappear(video, action, subaction, rel_frame, symbol::Val{:draw_text})
+    t = get_interpolation(subaction, rel_frame)
+    action.opts[:draw_text_t] = 1 - t
 end
 
 """
