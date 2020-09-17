@@ -5,10 +5,14 @@
   - for Transformations and `appear` and `disappear`
 - Show progress of rendering using [ProgressMeter.jl](https://github.com/timholy/ProgressMeter.jl)
 - Use [VideoIO](https://github.com/JuliaIO/VideoIO.jl) for faster rendering without temporary images
-- Ability to draw text in an animated way
+- Ability to draw animated text via `appear(:draw_text)`
+  - Must be called inside a `SubAction` 
 - Ability to morph with `fill` or `stroke` and using `SubAction` to specify changes in color
-- Added live viewer based on `Gtk.jl`
-- Prototyped ability to return single frame of Javis animation
+- Added live viewer based on `Gtk.jl` in the `javis` function
+  - Activate in `javis` by setting `liveview = true`
+- Prototype returning single frame of Javis animation with `get_javis_frame`
+  - Currently must be invoked after `javis` function call
+  - Can be called via `Javis.get_javis_frame` as it is not exported yet
   
 ## 0.1.5 (14th of September 2020)
 - Bugfix in svg parser when a layer gets both transformed and scaled
