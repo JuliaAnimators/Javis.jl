@@ -539,26 +539,25 @@ function Action(
 )
     if isempty(CURRENT_VIDEO)
         throw(ErrorException("A `Video` must be defined before an `Action`"))
-    else
-        CURRENT_VIDEO[1].defs[:last_frames] = frames
-        opts = Dict(kwargs...)
-        subactions = SubAction[]
-        if haskey(opts, :subactions)
-            subactions = opts[:subactions]
-            delete!(opts, :subactions)
-        end
-        Action(
-            frames,
-            id,
-            func,
-            anim,
-            collect(transitions),
-            [],
-            subactions,
-            ActionSetting(),
-            opts,
-        )
     end
+    CURRENT_VIDEO[1].defs[:last_frames] = frames
+    opts = Dict(kwargs...)
+    subactions = SubAction[]
+    if haskey(opts, :subactions)
+        subactions = opts[:subactions]
+        delete!(opts, :subactions)
+    end
+    Action(
+        frames,
+        id,
+        func,
+        anim,
+        collect(transitions),
+        [],
+        subactions,
+        ActionSetting(),
+        opts,
+    )
 end
 
 """
