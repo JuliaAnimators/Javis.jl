@@ -273,8 +273,11 @@
     end
 
     @testset "Frames errors" begin
-        video = Video(500, 500)
+        # throws because a Video object was not previously defined
+        empty!(Javis.CURRENT_VIDEO)
+        @test_throws ErrorException Action(1:10, (args...) -> star(O, 20, 5, 0.5, 0, :fill))
         # throws because the frames of the first action need to be defined explicitly
+        video = Video(500, 500)
         @test_throws ArgumentError javis(
             video,
             [Action((args...) -> 1, Translation(Point(1, 1), Point(100, 100)))],

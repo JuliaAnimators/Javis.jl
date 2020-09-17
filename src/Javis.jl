@@ -537,6 +537,9 @@ function Action(
     transitions::Transition...;
     kwargs...,
 )
+    if isempty(CURRENT_VIDEO)
+        throw(ErrorException("A `Video` must be defined before an `Action`"))
+    end
     CURRENT_VIDEO[1].defs[:last_frames] = frames
     opts = Dict(kwargs...)
     subactions = SubAction[]
