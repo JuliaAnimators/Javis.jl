@@ -7,7 +7,7 @@
 - Use [VideoIO](https://github.com/JuliaIO/VideoIO.jl) for faster rendering without temporary images
 - Ability to draw text in an animated way
 - Ability to morph with `fill` or `stroke` and using `SubAction` to specify changes in color
-  
+- An object described by an action can follow a path (a vector of points). See `follow_path`
   
 ## 0.1.5 (14th of September 2020)
 - Bugfix in svg parser when a layer gets both transformed and scaled
