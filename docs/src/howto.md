@@ -121,3 +121,65 @@ Action(1:100, (args...)->rect(pos(:my_circle)+Point(-10, -100), 20, 20, :fill))
 
 In this animation the position of the circle is saved inside `:my_circle` and can be used with `pos(:my_circle)` inside the `rect` function.
 
+## How can I show a text being drawn?
+
+A `text` can appear as every other object with `appear(:fade)` and `appear(:scale)` but it also has a special [`appear`](@ref) functionality called 
+`:draw_text`.
+
+You can use 
+```julia
+Action(
+    1:100,
+    (args...) -> text("Hello World!"; halign = :center);
+    subactions = [
+        SubAction(1:15, sineio(), appear(:draw_text)),
+        SubAction(76:100, sineio(), disappear(:draw_text)),
+    ]
+)
+```
+
+to let the text `"Hello World!"` appear from left to right in an animated way. 
+
+## How can I let an object move along a path?
+
+In this case we need to create a list of points (a path) that the object can follow.
+This can be simple object like a `star` or a `circle` or just a list of points. 
+
+An action can look like this:
+
+```julia
+Action(
+    1:150
+    (args...) -> star(O, 20, 5, 0.5, 0, :fill);
+    subactions = [
+        SubAction(1:150, follow_path(star(O, 300))),
+    ],
+)
+```
+
+in this case a star is following the path of a bigger star. 
+> **NOTE:** the star inside [`follow_path`](@ref) should have the `action=:none` which is the default for all Luxor functions.
+
+Another possibility is to specify the a vector of points like in this example:
+
+```julia
+Action(
+    1:150
+    (args...) -> star(O, 20, 5, 0.5, 0, :fill);
+    subactions = [
+        SubAction(1:150, sineio(), follow_path([Point(100, 200), Point(-20, -250), Point(-80, -10)]; closed=false)),
+    ],
+)
+```
+
+In this case I want the star to follow a path consisting of two edges and I use `; closed=false` to specify that it's just two edges and not a closed triangle.
+
+An interesting possibility is to define paths using Bézier curves which can be defined with Luxor see: [Polygons to Bézier paths and back again](https://juliagraphics.github.io/Luxor.jl/stable/polygons/#Polygons-to-B%C3%A9zier-paths-and-back-again)
+
+## How can I see a live view of the animation?
+
+A live view of the animation can be useful for creating an animation where one doesn't need the overhead of building a gif or mp4 all the time. It also has the advantage that it's very easy to jump to a specific frame.
+
+The live viewer can be called with adding `; liveview=true` to the [`javis`](@ref) call.
+
+> **NOTE:** If `liveview=true` the `tempdirectory` and `pathname` arguments are ignored.
