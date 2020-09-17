@@ -30,6 +30,53 @@
     rm("images/0000000001.png")
 end
 
+@testset "LaTeX 8" begin
+    function latex_ground(args...)
+        translate(-200, -100)
+        background("white")
+        sethue("black")
+        fontsize(50)
+    end
+
+    video = Video(400, 200)
+    javis(
+        video,
+        [
+            BackgroundAction(1:1, latex_ground),
+            Action((args...) -> latex(L"8")), # default fontsize 50
+        ],
+        tempdirectory = "images",
+        pathname = "",
+    )
+    @test_reference "refs/latex_8.png" load("images/0000000001.png")
+    rm("images/0000000001.png")
+end
+
+@testset "LaTeX 3x3 matrix" begin
+    function latex_ground(args...)
+        translate(-200, -100)
+        background("white")
+        sethue("black")
+        fontsize(20)
+    end
+
+    video = Video(400, 200)
+    javis(
+        video,
+        [
+            BackgroundAction(1:1, latex_ground),
+            Action(
+                (args...) ->
+                    latex(L"$\begin{equation}\left[\begin{array}{ccc}1 & 2 & 3 \\4 & 5 & 6 \\7 & 8 & 9 \\\end{array}\right]\end{equation}$"),
+            ),
+        ],
+        tempdirectory = "images",
+        pathname = "",
+    )
+    @test_reference "refs/latex_3x3_matrix.png" load("images/0000000001.png")
+    rm("images/0000000001.png")
+end
+
 @testset "latex pos in function" begin
     function latex_ground(args...)
         background("white")

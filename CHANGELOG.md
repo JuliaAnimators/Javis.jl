@@ -7,6 +7,13 @@
 - Use [VideoIO](https://github.com/JuliaIO/VideoIO.jl) for faster rendering without temporary images
 - Ability to draw text in an animated way
 - Ability to morph with `fill` or `stroke` and using `SubAction` to specify changes in color
+  
+  
+## 0.1.5 (14th of September 2020)
+- Bugfix in svg parser when a layer gets both transformed and scaled
+
+## 0.1.4 (13th of September 2020)
+- Bugfix in svg parser when a reflected Bézier curve followed a move operation
 
 ## 0.1.3 (11th of September 2020)
 - First `SubAction` for an `Action` no longer requires explicit frame range and will default to the frames of the `Action`
