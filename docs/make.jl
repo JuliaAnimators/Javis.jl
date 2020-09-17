@@ -29,4 +29,4 @@ makedocs(;
     ],
 )
 
-deploydocs(; repo = "github.com/Wikunia/Javis.jl")
+deploydocs(; repo = "github.com/Wikunia/Javis.jl", push_preview = true)

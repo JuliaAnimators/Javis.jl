@@ -53,3 +53,7 @@ function get_interpolation(action::AbstractAction, frame)
     end
     return at(action.anim, t)
 end
+
+function isapprox_discrete(val; atol = 1e-4)
+    return isapprox(val, round(val); atol = atol)
+end
