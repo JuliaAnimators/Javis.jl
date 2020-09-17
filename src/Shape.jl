@@ -1,6 +1,8 @@
 struct Shape
     points::Vector{Point}
     simplified_points::Vector{Point}
+    centroid::Point
+    centered_points::Vector{Point}
     subpaths::Vector{Vector{Point}}
     num_acute_angles::Int
     num_obtuse_angles::Int
@@ -8,7 +10,7 @@ struct Shape
 end
 
 function EmptyShape()
-    return Shape(Point[], Point[], Vector{Vector{Point}}(), 0, 0, 0)
+    return Shape(Point[], Point[], O, Point[], Vector{Vector{Point}}(), 0, 0, 0)
 end
 
 function Base.isempty(shape::Shape)
@@ -40,7 +42,11 @@ function get_angles(p)
             pB = p[1]
             pC = p[2]
         end
-        ang = rad2deg(acos(dotproduct(u, v) / (sqrt(u.x^2 + u.y^2) * sqrt(v.x^2 + v.y^2))))
+        ang = rad2deg(acos(clamp(
+            dotproduct(u, v) / (sqrt(u.x^2 + u.y^2) * sqrt(v.x^2 + v.y^2)),
+            -1,
+            1,
+        )))
         if ang < 179.8
             push!(simplified, pB)
         end
@@ -60,10 +66,12 @@ end
 
 function get_similarity(shapeA::Shape, shapeB::Shape)
     score_points = 10.0
-    score_holes = 100.0
+    score_holes = 500.0
     score_acute_angles = 100.0
     score_right_angles = 100.0
     score_obtuse_angles = 100.0
+    score_point_diff = 100.0
+    score_centered_point_diff = 100.0
 
     score = 0.0
 
@@ -84,10 +92,17 @@ function get_similarity(shapeA::Shape, shapeB::Shape)
     score += perc * score_holes
 
     # number of angles
+    num_angles = shapeA.num_acute_angles
+    num_angles += shapeB.num_acute_angles
+    num_angles += shapeA.num_obtuse_angles
+    num_angles += shapeB.num_obtuse_angles
+    num_angles += shapeA.num_right_angles
+    num_angles += shapeB.num_right_angles
+
     # acute
     nA = shapeA.num_acute_angles
     nB = shapeB.num_acute_angles
-    perc = nA < nB ? nA / nB : nB / nA
+    perc = 1 - abs(nA - nB) / num_angles
     perc = isnan(perc) ? 1.0 : perc
     score += perc * score_acute_angles
     # println("Acute score: ", perc*score_points)
@@ -95,7 +110,7 @@ function get_similarity(shapeA::Shape, shapeB::Shape)
     # obtuse
     nA = shapeA.num_obtuse_angles
     nB = shapeB.num_obtuse_angles
-    perc = nA < nB ? nA / nB : nB / nA
+    perc = 1 - abs(nA - nB) / num_angles
     perc = isnan(perc) ? 1.0 : perc
     score += perc * score_obtuse_angles
     # println("Obtuse score: ", perc*score_points)
@@ -103,12 +118,41 @@ function get_similarity(shapeA::Shape, shapeB::Shape)
     # right
     nA = shapeA.num_right_angles
     nB = shapeB.num_right_angles
-    perc = nA < nB ? nA / nB : nB / nA
+    perc = 1 - abs(nA - nB) / num_angles
     perc = isnan(perc) ? 1.0 : perc
     score += perc * score_right_angles
     # println("right score: ", perc*score_points)
 
+    # difference in centered_points
+    pointsA, pointsB = match_num_point(shapeA.centered_points, shapeB.centered_points)
+    smallest_i, smallest_distance = compute_shortest_morphing_dist(pointsA, pointsB)
+    # TODO: maybe there is a more reasonable denominator
+    smallest_distance /= length(pointsA)
+    wmin, wmax = extrema(p -> p.x, pointsA)
+    hmin, hmax = extrema(p -> p.x, pointsA)
+    w = wmax - wmin
+    h = hmax - hmin
+    perc = clamp(1 - smallest_distance / sqrt(w^2 + h^2), 0, 1)
+    score += perc * score_centered_point_diff
+
+    # difference in movement
+    pointsA, pointsB = match_num_point(shapeA.points, shapeB.points)
+    smallest_i, smallest_distance = compute_shortest_morphing_dist(pointsA, pointsB)
+    video = CURRENT_VIDEO[1]
+    smallest_distance /= length(pointsA)
+    perc = clamp(1 - smallest_distance / sqrt(video.width^2 + video.height^2), 0, 1)
+    score += perc * score_centered_point_diff
+
     return score
+end
+
+function Shape(points, subpaths)
+    simplified_points = simplify(points)
+    points, aa, oa, ra = get_angles(simplified_points)
+    centroid = polycentroid(points)
+    shape =
+        Shape(points, simplified_points, centroid, points .- centroid, subpaths, aa, oa, ra)
+    return shape
 end
 
 function create_shapes(polys)
@@ -116,48 +160,34 @@ function create_shapes(polys)
 
     is_last_subpath = false
     current_points = Point[]
-    current_simplified_points = Point[]
     current_subpaths = Vector{Vector{Point}}()
     for poly in polys
         if ispolyclockwise(poly) && !is_last_subpath
             empty!(current_subpaths)
             if !isempty(current_points)
-                current_points, aa, oa, ra = get_angles(current_simplified_points)
-                shape = Shape(
-                    current_points,
-                    current_simplified_points,
-                    Vector{Vector{Point}}(),
-                    aa,
-                    oa,
-                    ra,
-                )
+                shape = Shape(current_points, Vector{Vector{Point}}())
                 push!(shapes, shape)
             end
             current_points = poly
-            current_simplified_points = simplify(poly)
             is_last_subpath = false
         elseif ispolyclockwise(poly)
-            current_points, aa, oa, ra = get_angles(current_simplified_points)
-            shape = Shape(
-                current_points,
-                current_simplified_points,
-                copy(current_subpaths),
-                aa,
-                oa,
-                ra,
-            )
+            shape = Shape(current_points, copy(current_subpaths))
             push!(shapes, shape)
             is_last_subpath = false
             current_points = poly
-            current_simplified_points = simplify(poly)
             empty!(current_subpaths)
         else # is a hole
             push!(current_subpaths, poly)
             is_last_subpath = true
         end
     end
-    current_points, aa, oa, ra = get_angles(current_simplified_points)
-    shape = Shape(current_points, current_simplified_points, current_subpaths, aa, oa, ra)
+    shape = Shape(current_points, copy(current_subpaths))
     push!(shapes, shape)
     return shapes
+end
+
+function print_basic(s::Shape)
+    println("Shape: #Points: $(length(s.points))")
+    println("Angles: #Acute: $(s.num_acute_angles) #Obtuse: $(s.num_obtuse_angles) #Right: $(s.num_right_angles)")
+    println("#Holes: $(length(s.subpaths))")
 end

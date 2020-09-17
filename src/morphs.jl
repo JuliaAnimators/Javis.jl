@@ -1,7 +1,7 @@
 include("Shape.jl")
 
 """
-    match_num_point!(poly_1::Vector{Point}, poly_2::Vector{Point})
+    match_num_point(poly_1::Vector{Point}, poly_2::Vector{Point})
 
 This is a helper function for [`morph`](@ref).
 Given two polygons `poly_1` and `poly_2` points are added to the polygon with less points
@@ -162,6 +162,15 @@ function save_morph_polygons!(
 
     if length(from_shapes) > 1
         from_shapes = reorder_match(from_shapes, to_shapes)
+    end
+
+    println("Shape info after reoder")
+    for (shapeA, shapeB) in zip(from_shapes, to_shapes)
+        println("Matched")
+        print_basic(shapeA)
+        println("with")
+        print_basic(shapeB)
+        println("=================================")
     end
 
     action.opts[:from_poly] = Vector{Vector{Point}}()
