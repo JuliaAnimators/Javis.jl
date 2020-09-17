@@ -14,6 +14,9 @@
 ## 0.1.4 (13th of September 2020)
 - Bugfix in svg parser when a reflected Bézier curve followed a move operation
 
+### Removed
+- `latex` no longer takes the `fontsize` as an argument [PR #180](https://github.com/Wikunia/Javis.jl/pull/180)
+
 ## 0.1.3 (11th of September 2020)
 - First `SubAction` for an `Action` no longer requires explicit frame range and will default to the frames of the `Action`
 - Ability to scale an object with `Scaling`. Works similar to `Translation` and `Rotation` 
