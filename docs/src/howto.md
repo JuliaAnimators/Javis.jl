@@ -143,7 +143,7 @@ to let the text `"Hello World!"` appear from left to right in an animated way.
 ## How can I let an object move along a path?
 
 In this case we need to create a list of points (a path) that the object can follow.
-This can be simple object like a `star` or a `circle` or just a list of points. 
+This can be simple object like a `star` or just a list of points. 
 
 An action can look like this:
 
@@ -158,9 +158,40 @@ Action(
 ```
 
 in this case a star is following the path of a bigger star. 
-> **NOTE:** the star inside [`follow_path`](@ref) should have the `action=:none` which is the default for all Luxor functions.
+> **NOTE:** the star inside [`follow_path`](@ref) should have the `action=:none` which is the default for most Luxor functions.
 
-Another possibility is to specify the a vector of points like in this example:
+Unfortunately the above currently only works for some Luxor functions like `ngon` and `star` but not for `circle` and `rect` as they return `true` instead of the points.
+
+In that case you need to define a function like:
+```julia
+function ground(args...)
+    background("white")
+    sethue("black")
+end
+
+function luxor2poly(func::Function)
+    newpath()
+    func()
+    closepath()
+    return pathtopoly()[1]
+end
+
+video = Video(600, 400)
+javis(video, [
+    BackgroundAction(1:150, ground),
+    Action(
+        1:150,
+        (args...) -> star(O, 20, 5, 0.5, 0, :fill);
+        subactions = [
+            SubAction(1:150, follow_path(luxor2poly(()->rect(O, 100, 100, :path))))
+        ]
+    )
+]; pathname="follow_path.gif")
+```
+
+I admit that this is not the nicest syntax so we might choose to return the points by overriding some Luxor functions in the future.
+
+Another possibility is to specify a vector of points like in this example:
 
 ```julia
 Action(
