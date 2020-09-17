@@ -65,6 +65,9 @@ function get_angles(p)
 end
 
 function get_similarity(shapeA::Shape, shapeB::Shape)
+    if isempty(shapeA) || isempty(shapeB)
+        return 0.0
+    end
     score_points = 10.0
     score_holes = 500.0
     score_acute_angles = 100.0
@@ -88,7 +91,7 @@ function get_similarity(shapeA::Shape, shapeB::Shape)
     nB = length(shapeB.subpaths)
     perc = nA < nB ? nA / nB : nB / nA
     perc = isnan(perc) ? 1.0 : perc
-    # println("Hole score: ", perc*score_points)
+    # println("Hole score: ", perc*score_holes)
     score += perc * score_holes
 
     # number of angles
@@ -99,13 +102,16 @@ function get_similarity(shapeA::Shape, shapeB::Shape)
     num_angles += shapeA.num_right_angles
     num_angles += shapeB.num_right_angles
 
+    # TODO: think about how to compare this better
+    # Probably dividing by the whole number of angles is dumb
+    # Or one might need a score for the difference in number of angles
     # acute
     nA = shapeA.num_acute_angles
     nB = shapeB.num_acute_angles
     perc = 1 - abs(nA - nB) / num_angles
     perc = isnan(perc) ? 1.0 : perc
     score += perc * score_acute_angles
-    # println("Acute score: ", perc*score_points)
+    # println("Acute score: ", perc*score_acute_angles)
 
     # obtuse
     nA = shapeA.num_obtuse_angles
@@ -113,7 +119,7 @@ function get_similarity(shapeA::Shape, shapeB::Shape)
     perc = 1 - abs(nA - nB) / num_angles
     perc = isnan(perc) ? 1.0 : perc
     score += perc * score_obtuse_angles
-    # println("Obtuse score: ", perc*score_points)
+    # println("Obtuse score: ", perc*score_obtuse_angles)
 
     # right
     nA = shapeA.num_right_angles
@@ -121,7 +127,7 @@ function get_similarity(shapeA::Shape, shapeB::Shape)
     perc = 1 - abs(nA - nB) / num_angles
     perc = isnan(perc) ? 1.0 : perc
     score += perc * score_right_angles
-    # println("right score: ", perc*score_points)
+    # println("right score: ", perc*score_right_angles)
 
     # difference in centered_points
     pointsA, pointsB = match_num_point(shapeA.centered_points, shapeB.centered_points)

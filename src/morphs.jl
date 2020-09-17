@@ -161,17 +161,22 @@ function save_morph_polygons!(
     to_shapes = create_shapes(to_polys)
 
     if length(from_shapes) > 1
-        from_shapes = reorder_match(from_shapes, to_shapes)
+        from_shapes, to_shapes = reorder_match(from_shapes, to_shapes)
     end
 
+    #=
     println("Shape info after reoder")
+    println("Num shapes A: ", length(from_shapes))
+    println("Num shapes B: ", length(to_shapes))
     for (shapeA, shapeB) in zip(from_shapes, to_shapes)
         println("Matched")
         print_basic(shapeA)
         println("with")
         print_basic(shapeB)
+        println("Similarity: ", get_similarity(shapeA, shapeB))
         println("=================================")
     end
+    =#
 
     action.opts[:from_poly] = Vector{Vector{Point}}()
     action.opts[:to_poly] = Vector{Vector{Point}}()
@@ -438,30 +443,43 @@ end
 
 
 function reorder_match(from_shapes::Vector{Shape}, to_shapes::Vector{Shape})
-    to_shape_used = zeros(Bool, length(to_shapes))
-    from_shape_match = zeros(Int, length(from_shapes))
+    num_shapes = max(length(from_shapes), length(to_shapes))
 
-    for (fi, from_shape) in enumerate(from_shapes)
-        best_similarity = 0
-        smallest_to = 1
-        for (ti, to_shape) in enumerate(to_shapes)
-            to_shape_used[ti] && continue
-            similarity = get_similarity(from_shape, to_shape)
-            if similarity > best_similarity
-                best_similarity = similarity
-                smallest_to = ti
-            end
+    similiarity_matrix = zeros(length(from_shapes), length(to_shapes))
+    for fi in 1:length(from_shapes)
+        from_shape = from_shapes[fi]
+        for ti in 1:length(to_shapes)
+            to_shape = to_shapes[ti]
+            similiarity_matrix[fi, ti] = -get_similarity(from_shape, to_shape)
         end
-        to_shape_used[smallest_to] = true
-        from_shape_match[fi] = smallest_to
     end
-    new_from_shapes = Vector{Shape}(undef, length(to_shapes))
-    for i in 1:length(to_shapes)
+    assignment, cost = hungarian(similiarity_matrix)
+    # println("assignment: $assignment")
+    # println("similarity: $(-cost)")
+    # display("text/plain", similiarity_matrix)
+
+    new_from_shapes = Vector{Shape}(undef, num_shapes)
+    for i in 1:num_shapes
         new_from_shapes[i] = EmptyShape()
     end
 
-    for i in 1:length(from_shapes)
-        new_from_shapes[from_shape_match[i]] = from_shapes[i]
+    new_to_shapes = Vector{Shape}(undef, num_shapes)
+    for i in 1:num_shapes
+        if i <= length(to_shapes)
+            new_to_shapes[i] = to_shapes[i]
+        else
+            new_to_shapes[i] = EmptyShape()
+        end
     end
-    return new_from_shapes
+
+    ptr = length(to_shapes) + 1
+    for i in 1:length(from_shapes)
+        if assignment[i] == 0
+            new_from_shapes[ptr] = from_shapes[i]
+            ptr += 1
+        else
+            new_from_shapes[assignment[i]] = from_shapes[i]
+        end
+    end
+    return new_from_shapes, new_to_shapes
 end

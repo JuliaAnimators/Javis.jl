@@ -6,6 +6,7 @@ using ColorTypes: ARGB32
 using FFMPEG
 using Gtk
 using GtkReactive
+using Hungarian
 using Images
 using LaTeXStrings
 using LightXML
