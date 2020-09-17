@@ -97,7 +97,7 @@ function draw_obj(::Val{:path}, o, defs)
         # using if else statements instead of dispatching here. Maybe it's faster :D
         if command == 'M'
             c_pt = path_move(parse.(Float64, split(args))...)
-            # need to set the last control point for 'T'
+            # need to set the last control point as the current point for 'T'
             l_pt = c_pt
         elseif command == 'Q'
             l_pt, c_pt = path_quadratic(c_pt, parse.(Float64, split(args))...)
