@@ -813,6 +813,7 @@ function ground(args...)
 end
 
 function draw_latex(video, action, frame)
+    fontsize(50)
     x = 100
     y = 120
     latex(L"\\sqrt{5}", x, y)
