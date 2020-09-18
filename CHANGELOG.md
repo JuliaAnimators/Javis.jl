@@ -8,7 +8,6 @@
 - Ability to draw animated text via `appear(:draw_text)`
   - Must be called inside a `SubAction` 
 - Ability to morph with `fill` or `stroke` and using `SubAction` to specify changes in color
-
 - Added live viewer based on `Gtk.jl` in the `javis` function
   - Activate in `javis` by setting `liveview = true`
 - Prototype returning single frame of Javis animation with `get_javis_frame`
