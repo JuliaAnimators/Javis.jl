@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Tutorial 2: What Are Actions? · Javis.jl</title><link rel="canonical" href="https://Wikunia.github.io/Javis.jl/tutorials/tutorial_2/"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">Javis.jl</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../"><strong>Information about Tutorials - Beginners Start Here!</strong></a></li><li><a class="tocitem" href="../tutorial_1/"><strong>Tutorial 1:</strong> Making Your First Javis Animation!</a></li><li class="is-active"><a class="tocitem" href><strong>Tutorial 2:</strong> What Are Actions?</a><ul class="internal"><li><a class="tocitem" href="#Learning-Outcomes"><span>Learning Outcomes</span></a></li><li><a class="tocitem" href="#Setting-Up-Our-Animation"><span>Setting Up Our Animation</span></a></li><li><a class="tocitem" href="#Getting-A-*head*"><span>Getting A - <em>head</em></span></a></li><li><a class="tocitem" href="#Placing-the-Electrodes"><span>Placing the Electrodes</span></a></li><li><a class="tocitem" href="#&quot;If-Only-I-Had-a-Brain...&quot;"><span>&quot;If Only I Had a Brain...&quot; 🎵</span></a></li><li><a class="tocitem" href="#As-You-Can-See-Here..."><span>As You Can See Here...</span></a></li><li><a class="tocitem" href="#Conclusion"><span>Conclusion</span></a></li><li><a class="tocitem" href="#Full-Code"><span>Full Code</span></a></li></ul></li><li><a class="tocitem" href="../tutorial_3/"><strong>Tutorial 3:</strong> Rendering LaTeX with Javis!</a></li><li><a class="tocitem" href="../tutorial_4/"><strong>Tutorial 4:</strong> Do You Know Our Mascot? - Learn About Transitions And Subactions!</a></li><li><a class="tocitem" href="../tutorial_5/"><strong>Tutorial 5:</strong> Scaling the Elements</a></li><li><a class="tocitem" href="../tutorial_6/"><strong>Tutorial 6:</strong> Using Animations.jl to Create something with more Pep!</a></li></ul></li><li><a class="tocitem" href="../../howto/">HowTo</a></li><li><a class="tocitem" href="../../mission/">Mission</a></li><li><a class="tocitem" href="../../references/">References</a></li><li><a class="tocitem" href="../../contributing/">Contributing</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href><strong>Tutorial 2:</strong> What Are Actions?</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href><strong>Tutorial 2:</strong> What Are Actions?</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/Wikunia/Javis.jl/blob/master/docs/src/tutorials/tutorial_2.md#L" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="**Tutorial-2:**-What-Are-Actions?"><a class="docs-heading-anchor" href="#**Tutorial-2:**-What-Are-Actions?"><strong>Tutorial 2:</strong> What Are Actions?</a><a id="**Tutorial-2:**-What-Are-Actions?-1"></a><a class="docs-heading-anchor-permalink" href="#**Tutorial-2:**-What-Are-Actions?" title="Permalink"></a></h1><p>In this tutorial, we are going to learn how to make a brain! 🧠  Well, not <em>exactly</em> making a brain.  Instead, we are going to animate brain activity by simulating a <a href="https://en.wikipedia.org/wiki/10%E2%80%9320_system_(EEG)?oldformat=true">10-20 EEG Electrode Array</a> using random data.  This Project Tutorial builds on prior tutorials and serves as a cumulative test of your understanding about <code>Javis</code>.</p><p>When you are done with this tutorial, you will have created the following animation:</p><p><img src="../assets/eeg.gif" alt/></p><h2 id="Learning-Outcomes"><a class="docs-heading-anchor" href="#Learning-Outcomes">Learning Outcomes</a><a id="Learning-Outcomes-1"></a><a class="docs-heading-anchor-permalink" href="#Learning-Outcomes" title="Permalink"></a></h2><p>From this project tutorial you will:</p><ul><li>Clearly understand how to use Actions to create an animation</li><li>Be able to create more complex animations</li><li>Display meaningful information on your animations</li></ul><h2 id="Setting-Up-Our-Animation"><a class="docs-heading-anchor" href="#Setting-Up-Our-Animation">Setting Up Our Animation</a><a id="Setting-Up-Our-Animation-1"></a><a class="docs-heading-anchor-permalink" href="#Setting-Up-Our-Animation" title="Permalink"></a></h2><p>As demonstrated in prior tutorials, we will use <code>Javis</code> to create a <code>Video</code> object:</p><pre><code class="language-julia">using Javis
+
+video = Video(500, 500)</code></pre><p>Let&#39;s define our background function to create the backdrop of our frames:</p><pre><code class="language-julia">function ground(args...)
+    background(&quot;white&quot;)
+    sethue(&quot;black&quot;)
+end</code></pre><p>If we were to execute the <code>javis</code> command now, this is what would appear as an output of the following execution:</p><pre><code class="language-julia">video = Video(500, 500)
+javis(video, [BackgroundAction(1:30, ground)], pathname = &quot;eeg.gif&quot;, framerate = 1)</code></pre><p><img src="../assets/blank.gif" alt/></p><p>As you can see, we have generated a blank gif. Not exactly what we want but it is a start! We used a special type of action called <a href="../../references/#Javis.BackgroundAction-Tuple{Any,Function,Vararg{Any,N} where N}"><code>BackgroundAction</code></a>. This applies whatever function that is provided to it as the default background of any future animations produced by a future action.</p><blockquote><p><strong>NOTE:</strong> For this animation, we will be using a framerate of 1 frame per second. Thus, why <code>framerate</code> is set to the value of <code>1</code> in <code>javis</code>.</p></blockquote><h2 id="Getting-A-*head*"><a class="docs-heading-anchor" href="#Getting-A-*head*">Getting A - <em>head</em></a><a id="Getting-A-*head*-1"></a><a class="docs-heading-anchor-permalink" href="#Getting-A-*head*" title="Permalink"></a></h2><p>Now that we have created our default background via the <code>BackgroundAction</code>, let&#39;s move onto making the head that we will attach our electrodes to!</p><p>First, we define an additional function that allows us to draw a circle. This will be used extensively later:</p><pre><code class="language-julia">function circ(p = O, color = &quot;black&quot;, action = :fill, radius = 25, edge = &quot;solid&quot;)
+    sethue(color)
+    setdash(edge)
+    circle(p, radius, action)
+end</code></pre><p>We can now do the exciting part – using an <a href="../../references/#Javis.Action"><code>Action</code></a>! Actions are at the very heart of the entire <code>Javis</code> library and are the foundational building blocks to make animations. Actions are what is used to draw objects on a frame, animate objects, or change objects altogether!</p><p>Using the <code>circ</code> function we defined, we can execute an <code>Action</code> inside of the <code>javis</code> function to draw a head. The following invocation will create the head:</p><pre><code class="language-julia">...
+    Action(:same, :head, (args...) -&gt; circ(O, &quot;black&quot;, :stroke, 170)),
+...</code></pre><p><img src="../assets/head.gif" alt/></p><p>Now we are getting a - <em>head</em>! 😃</p><blockquote><p><strong>NOTE:</strong> The ellipses, <code>...</code>, in the code block to produce the head represents putting the action inside of the <a href="../../references/#Javis.javis-Union{Tuple{AA}, Tuple{Video,Array{AA,1}}} where AA&lt;:Javis.AbstractAction"><code>javis</code></a> function. So, the above block actually turns out to look like this:</p><pre><code class="language-julia">javis(video, [
+    Action(:same, :head, (args...) -&gt; circ(O, &quot;black&quot;, :stroke, 170))],
+    pathname = &quot;eeg.gif&quot;, framerate = 1)</code></pre></blockquote><h2 id="Placing-the-Electrodes"><a class="docs-heading-anchor" href="#Placing-the-Electrodes">Placing the Electrodes</a><a id="Placing-the-Electrodes-1"></a><a class="docs-heading-anchor-permalink" href="#Placing-the-Electrodes" title="Permalink"></a></h2><p>To draw our electrodes, it would be useful to have a frame of reference for where the electrodes are supposed to go. Let&#39;s draw some axes for our electrode locations!</p><p>We will need to define a new function that allows us to draw lines. This is accomplished by the following function definition:</p><pre><code class="language-julia">function draw_line(p1 = O, p2 = O, color = &quot;black&quot;, action = :stroke, edge = &quot;solid&quot;)
+    sethue(color)
+    setdash(edge)
+    line(p1, p2, action)
+end</code></pre><p>Now, we can add in some grid lines for our electrode array.  The following code places a vertical and horizontal axis as well as an inscribed circle to represent polar placement of the electrodes:</p><pre><code class="language-julia">...
+        Action(
+            :same,
+            :inside_circle,
+            (args...) -&gt; circ(O, &quot;black&quot;, :stroke, 140, &quot;longdashed&quot;),
+        ),
+        Action(
+            :same,
+            :vert_line,
+            (args...) -&gt;
+                draw_line(Point(0, -170), Point(0, 170), &quot;black&quot;, :stroke, &quot;longdashed&quot;),
+        ),
+        Action(
+            :same,
+            :horiz_line,
+            (args...) -&gt;
+		draw_line(Point(-170, 0), Point(170, 0), &quot;black&quot;, :stroke, &quot;longdashed&quot;)),
+...</code></pre><p><img src="../assets/head_gridlines.gif" alt/></p><p>Great! Now that we have the gridlines, let&#39;s add in our electrode!</p><blockquote><p><strong>NOTE:</strong> If you noticed, we used Symbols to mark each <code>Action</code>. <code>id</code>&#39;s can actually be used to store the returns of a function called via an <code>Action</code>. This functionality was introduced in <a href="../tutorial_1/">Tutorial 1</a> and will be further explored in future tutorials. An alternative syntax that is valid is to leave out the <code>id</code> and instead use a comment to mark what <code>Action</code> does what. </p></blockquote><p>We have to define our own function to create an electrode. The following code accomplishes this goal:</p><pre><code class="language-julia">function electrode(
+    p = O,
+    fill_color = &quot;white&quot;,
+    outline_color = &quot;black&quot;,
+    action = :fill,
+    radius = 25,
+    circ_text = &quot;&quot;,
+)
+    sethue(fill_color)
+    circle(p, radius, :fill)
+    sethue(outline_color)
+    circle(p, radius, :stroke)
+    text(circ_text, p, valign = :middle, halign = :center)
+end</code></pre><p>Essentially, all the <code>electrode</code> function does is draws two circles on top of each other. One circle creates a white circle for the backdrop of text provided to it and the other circle provides a black outline. </p><p>From there, we need to position our electrodes! I already went through and created two lists: </p><ul><li><code>electrode_locations</code> is a list of <code>Point</code> objects that defines where an electrode should be placed.</li><li><code>electrode_names</code> are the names of each electrode.</li></ul><p>Go ahead and copy this to save yourself the time to place these perfectly. I already did this for you - aren&#39;t I great? 😉</p><pre><code class="language-julia">electrode_locations = [
+    O,
+    Point(-70, 0),
+    Point(70, 0),
+    Point(-140, 0),
+    Point(140, 0),
+    Point(0, 70),
+    Point(-50, 70),
+    Point(50, 70),
+    Point(0, -70),
+    Point(-50, -70),
+    Point(50, -70),
+    Point(115, -80),
+    Point(-115, -80),
+    Point(115, 80),
+    Point(-115, 80),
+    Point(40, -135),
+    Point(-40, -135),
+    Point(-190, -10),
+    Point(190, -10),
+    Point(-40, 135),
+    Point(40, 135),
+]
+
+
+electrode_names = [
+    &quot;Cz&quot;,
+    &quot;C3&quot;,
+    &quot;C4&quot;,
+    &quot;T3&quot;,
+    &quot;T4&quot;,
+    &quot;Pz&quot;,
+    &quot;P3&quot;,
+    &quot;P4&quot;,
+    &quot;Fz&quot;,
+    &quot;F3&quot;,
+    &quot;F4&quot;,
+    &quot;F8&quot;,
+    &quot;F7&quot;,
+    &quot;T6&quot;,
+    &quot;T5&quot;,
+    &quot;Fp2&quot;,
+    &quot;Fp1&quot;,
+    &quot;A1&quot;,
+    &quot;A2&quot;,
+    &quot;O1&quot;,
+    &quot;O2&quot;,
+]</code></pre><p>Finally, we can broadcast these points and names to our previously defined <code>electrode</code> function. Also, we need to define the radius of our electrodes; we will set that to 15:</p><pre><code class="language-julia">...
+        radius = 15
+	Action(
+            :electrodes,
+            (args...) -&gt;
+                electrode.(
+                    electrode_locations,
+                    &quot;white&quot;,
+                    &quot;black&quot;,
+                    :fill,
+                    radius,
+                    electrode_names,
+                ),
+        ),
+...</code></pre><p>Now, executing this code block with our previously defined functions, we get this output:</p><p><img src="../assets/electrodes.gif" alt/></p><h2 id="&quot;If-Only-I-Had-a-Brain...&quot;"><a class="docs-heading-anchor" href="#&quot;If-Only-I-Had-a-Brain...&quot;">&quot;If Only I Had a Brain...&quot; 🎵</a><a id="&quot;If-Only-I-Had-a-Brain...&quot;-1"></a><a class="docs-heading-anchor-permalink" href="#&quot;If-Only-I-Had-a-Brain...&quot;" title="Permalink"></a></h2><p>I think this is starting to come together quite nicely! It would appear that our subject however has no brain activity - quite alarming! 😱 Like the scarecrow from the film, <em>The Wizard of Oz</em>, let&#39;s give him a brain!</p><p>To simulate brain activity, we are going to add one more package from Julia base. This package is the <code>Random</code> package and it needs to be added like such:</p><pre><code class="language-julia">using Javis
+using Random</code></pre><p>From there, we need to define colors to represent no, low, medium, and high brain activity. Feel free to change up the colors! I chose these colors that need to be added to your code:</p><pre><code class="language-julia">indicators = [&quot;tomato&quot;, &quot;darkolivegreen1&quot;, &quot;gold1&quot;, &quot;white&quot;]</code></pre><p>From there, we also need to change the code block that defined the electrode locations. The previous electrode code looked like this</p><pre><code class="language-julia">...
+        Action(
+            :electrodes,
+            (args...) -&gt;
+                electrode.(
+                    electrode_locations,
+                    &quot;white&quot;,
+                    &quot;black&quot;,
+                    :fill,
+                    radius,
+                    electrode_names,
+                ),
+        ),
+...</code></pre><p>However, what we now need to change is <code>&quot;white&quot;</code> to <code>rand(indicators, length(electrode_locations))</code> for each electrode. The <code>rand</code> function allows proper broadcasting such that a new color is chosen for each electrode between frames. Without having the <code>length(electrode_locations)</code> random colors would be generated but only for the first frame. The next frame would then keep these colors for the rest of the animation.</p><p>An example resulting electrode configuration with random colors looks like this:</p><pre><code class="language-julia">...
+        Action(
+            :electrodes,
+            (args...) -&gt;
+                electrode.(
+                    electrode_locations,
+                    rand(indicators, length(electrode_locations)),
+                    &quot;black&quot;,
+                    :fill,
+                    radius,
+                    electrode_names,
+                ),
+        ),
+...</code></pre><p>Once all these modifications were made, execute your EEG and you should get something that looks like this:</p><p><img src="../assets/eeg_colors.gif" alt/></p><p>IT&#39;S ALIVE!!! 🔬 We could finish this now, but let&#39;s add just a little bit more polish to it.</p><h2 id="As-You-Can-See-Here..."><a class="docs-heading-anchor" href="#As-You-Can-See-Here...">As You Can See Here...</a><a id="As-You-Can-See-Here...-1"></a><a class="docs-heading-anchor-permalink" href="#As-You-Can-See-Here..." title="Permalink"></a></h2><p>Let&#39;s add some information to our animation.  We can create an info box using the following function:</p><pre><code class="language-julia">function info_box(video, action, frame)
+    fontsize(12)
+    box(140, -210, 170, 40, :stroke)
+    text(&quot;10-20 EEG Array Readings&quot;, 140, -220, valign = :middle, halign = :center)
+    text(&quot;t = $(frame)s&quot;, 140, -200, valign = :middle, halign = :center)
+end</code></pre><p>It&#39;s invocation in the code looks like this:</p><pre><code class="language-julia">...
+Action(:same, :info, info_box),
+...</code></pre><blockquote><p><strong>NOTE:</strong> The function for <code>info_box</code> is a little different! Each <code>Action</code> inside of the <code>javis</code> function automatically receives three objects being a <code>Video</code> object, which was previously defined outside of the <code>javis</code> function, the <code>Action</code> object, and the current frame number. </p></blockquote><p>Once everything is executed, we get this very nice and clean looking animation which shows what this animation is and when parts of the brain are activated:</p><p><img src="../assets/eeg.gif" alt/></p><h2 id="Conclusion"><a class="docs-heading-anchor" href="#Conclusion">Conclusion</a><a id="Conclusion-1"></a><a class="docs-heading-anchor-permalink" href="#Conclusion" title="Permalink"></a></h2><p>Congratulations! 🎉 🎉 🎉 You made a brain!  To recap, by working through this animation you should now:</p><ol><li>Clearly understand how to use an <code>Action</code> </li><li>Be able to create your own <code>Action</code></li><li>Know how to approach complex animations</li><li>Make meaningful information displayed easily on your animations</li></ol><p>Great job leveling up your <code>Javis</code> skills! 💪</p><h2 id="Full-Code"><a class="docs-heading-anchor" href="#Full-Code">Full Code</a><a id="Full-Code-1"></a><a class="docs-heading-anchor-permalink" href="#Full-Code" title="Permalink"></a></h2><p>In case you ran into any issues or confusion, here is the full code:</p><pre><code class="language-julia">using Javis
+using Random
+
+function ground(args...)
+    background(&quot;white&quot;)
+    sethue(&quot;black&quot;)
+end
+
+function draw_line(p1 = O, p2 = O, color = &quot;black&quot;, action = :stroke, edge = &quot;solid&quot;)
+    sethue(color)
+    setdash(edge)
+    line(p1, p2, action)
+end
+
+function circ(p = O, color = &quot;black&quot;, action = :fill, radius = 25, edge = &quot;solid&quot;)
+    sethue(color)
+    setdash(edge)
+    circle(p, radius, action)
+end
+
+function info_box(video, action, frame)
+    fontsize(12)
+    box(140, -210, 170, 40, :stroke)
+    text(&quot;10-20 EEG Array Readings&quot;, 140, -220, valign = :middle, halign = :center)
+    text(&quot;t = $(frame)s&quot;, 140, -200, valign = :middle, halign = :center)
+end
+
+function electrode(
+    p = O,
+    fill_color = &quot;white&quot;,
+    outline_color = &quot;black&quot;,
+    action = :fill,
+    radius = 25,
+    circ_text = &quot;&quot;,
+)
+    sethue(fill_color)
+    circle(p, radius, :fill)
+    sethue(outline_color)
+    circle(p, radius, :stroke)
+    text(circ_text, p, valign = :middle, halign = :center)
+end
+
+electrode_locations = [
+    O,
+    Point(-70, 0),
+    Point(70, 0),
+    Point(-140, 0),
+    Point(140, 0),
+    Point(0, 70),
+    Point(-50, 70),
+    Point(50, 70),
+    Point(0, -70),
+    Point(-50, -70),
+    Point(50, -70),
+    Point(115, -80),
+    Point(-115, -80),
+    Point(115, 80),
+    Point(-115, 80),
+    Point(40, -135),
+    Point(-40, -135),
+    Point(-190, -10),
+    Point(190, -10),
+    Point(-40, 135),
+    Point(40, 135),
+]
+
+electrode_names = [
+    &quot;Cz&quot;,
+    &quot;C3&quot;,
+    &quot;C4&quot;,
+    &quot;T3&quot;,
+    &quot;T4&quot;,
+    &quot;Pz&quot;,
+    &quot;P3&quot;,
+    &quot;P4&quot;,
+    &quot;Fz&quot;,
+    &quot;F3&quot;,
+    &quot;F4&quot;,
+    &quot;F8&quot;,
+    &quot;F7&quot;,
+    &quot;T6&quot;,
+    &quot;T5&quot;,
+    &quot;Fp2&quot;,
+    &quot;Fp1&quot;,
+    &quot;A1&quot;,
+    &quot;A2&quot;,
+    &quot;O1&quot;,
+    &quot;O2&quot;,
+]
+
+radius = 15
+indicators = [&quot;tomato&quot;, &quot;darkolivegreen1&quot;, &quot;gold1&quot;, &quot;white&quot;]
+demo = Video(500, 500)
+javis(
+    demo,
+    [
+        BackgroundAction(1:10, ground),
+        Action(
+            :inside_circle,
+            (args...) -&gt; circ(O, &quot;black&quot;, :stroke, 140, &quot;longdashed&quot;),
+        ),
+        Action(:head, (args...) -&gt; circ(O, &quot;black&quot;, :stroke, 170)),
+        Action(
+            :vert_line,
+            (args...) -&gt;
+                draw_line(Point(0, -170), Point(0, 170), &quot;black&quot;, :stroke, &quot;longdashed&quot;),
+        ),
+        Action(
+            :horiz_line,
+            (args...) -&gt;
+                draw_line(Point(-170, 0), Point(170, 0), &quot;black&quot;, :stroke, &quot;longdashed&quot;),
+        ),
+        Action(
+            :electrodes,
+            (args...) -&gt;
+                electrode.(
+                    electrode_locations,
+                    rand(indicators, length(electrode_locations)),
+                    &quot;black&quot;,
+                    :fill,
+                    radius,
+                    electrode_names,
+                ),
+        ),
+        Action(:info, info_box),
+    ],
+    pathname = &quot;eeg.gif&quot;,
+    framerate = 1,
+)
+</code></pre><hr/><hr/><blockquote><p><strong>Author(s):</strong> Jacob Zelko, Ole Kröger <br/><strong>Date:</strong> August 11th, 2020 <br/><strong>Tag(s):</strong> brain, EEG, project, tutorial, electrodes, Action, BackgroundAction</p></blockquote></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tutorial_1/">« <strong>Tutorial 1:</strong> Making Your First Javis Animation!</a><a class="docs-footer-nextpage" href="../tutorial_3/"><strong>Tutorial 3:</strong> Rendering LaTeX with Javis! »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 18 September 2020 10:18">Friday 18 September 2020</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
