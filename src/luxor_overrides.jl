@@ -120,9 +120,13 @@ function scale(scl_x, scl_y)
     cs = get_current_setting()
     cs.desired_scale = (scl_x, scl_y)
     current_scale = cs.desired_scale .* cs.mul_scale
-    Luxor.scale(current_scale...)
-    cs.current_scale = cs.current_scale .* current_scale
-    # println("cs.current_scale: $(cs.current_scale)")
+    if current_scale[1] ≈ 0.0 || current_scale[2] ≈ 0.0
+        cs.show_action = false
+    else
+        cs.show_action = true
+        Luxor.scale(current_scale...)
+        cs.current_scale = cs.current_scale .* current_scale
+    end
 end
 
 scaleto(xy) = scaleto(xy, xy)
@@ -139,12 +143,11 @@ function scaleto(x, y)
     scaling = (x, y) ./ cs.current_scale
     # we divided by 0 but clearly we want to scale to 0
     # -> we want scaling to be 0 not Inf
-    if x ≈ 0
-        scaling = (0.0, scaling[2])
+    if x ≈ 0 || y ≈ 0
+        cs.show_action = false
+        return
     end
-    if y ≈ 0
-        scaling = (scaling[1], 0.0)
-    end
+    cs.show_action = true
     Luxor.scale(scaling...)
     cs.current_scale = (x, y)
 end
