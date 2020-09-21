@@ -123,7 +123,7 @@ In this animation the position of the circle is saved inside `:my_circle` and ca
 
 ## How can I show a text being drawn?
 
-A `text` can appear as every other object with `appear(:fade)` and `appear(:scale)` but it also has a special [`appear`](@ref) functionality called 
+A `text` can appear as *any* other object with `appear(:fade)` and `appear(:scale)`, However, it also has a special [`appear`](@ref) functionality called 
 `:draw_text`.
 
 You can use 
@@ -142,8 +142,8 @@ to let the text `"Hello World!"` appear from left to right in an animated way.
 
 ## How can I let an object move along a path?
 
-In this case we need to create a list of points (a path) that the object can follow.
-This can be simple object like a `star` or just a list of points. 
+We need to create a path by providing a list of points that the object can follow.
+All objects that return a list of points can be used directly like `star` and `poly` for others a list of points must be provided as the input.
 
 An action can look like this:
 
@@ -160,7 +160,7 @@ Action(
 in this case a star is following the path of a bigger star. 
 > **NOTE:** the star inside [`follow_path`](@ref) should have the `action=:none` which is the default for most Luxor functions.
 
-Unfortunately the above currently only works for some Luxor functions like `ngon` and `star` but not for `circle` and `rect` as they return `true` instead of the points.
+> **NOTE:** Unfortunately the above currently only works for some Luxor functions like `ngon` and `star` but not for `circle` and `rect` as they return `true` instead of the points.
 
 In that case you need to define a function like:
 ```julia
@@ -189,9 +189,8 @@ javis(video, [
 ]; pathname="follow_path.gif")
 ```
 
-I admit that this is not the nicest syntax so we might choose to return the points by overriding some Luxor functions in the future.
 
-Another possibility is to specify a vector of points like in this example:
+Another possibility is to specify a vector of points like this:
 
 ```julia
 Action(
