@@ -20,8 +20,9 @@ of the [`Action`](@ref) so `101-120`.
        or the value specified by [`setline`](@ref)
     - `:fade` which increases the opcacity up to the default value
        or the value specified by [`setopacity`](@ref)
-    - `:scale` which increases the scale up to the default value `1`.
+    - `:scale` which increases the scale up to the default value `1`
        or the value specified by [`scale`](@ref)
+    - `:draw_text` which only works for [`text`](@ref) and lets it appear from left to right.
 """
 function appear(s::Symbol)
     (video, action, subaction, rel_frame) ->
@@ -41,6 +42,11 @@ end
 function _appear(video, action, subaction, rel_frame, symbol::Val{:scale})
     t = get_interpolation(subaction, rel_frame)
     action.current_setting.mul_scale = t
+end
+
+function _appear(video, action, subaction, rel_frame, symbol::Val{:draw_text})
+    t = get_interpolation(subaction, rel_frame)
+    action.opts[:draw_text_t] = t
 end
 
 """
@@ -64,6 +70,7 @@ of the [`Action`](@ref) so `181-200`.
     - `:fade_line_width` which decreases the line width down to `0`
     - `:fade` which decreases the opacity down to `0`
     - `:scale` which decreases the scale down to `0`
+    - `:draw_text` which only works for text and let the text disappear from right to left.
 """
 function disappear(s::Symbol)
     (video, action, subaction, rel_frame) ->
@@ -83,6 +90,11 @@ end
 function _disappear(video, action, subaction, rel_frame, symbol::Val{:scale})
     t = get_interpolation(subaction, rel_frame)
     action.current_setting.mul_scale = 1 - t
+end
+
+function _disappear(video, action, subaction, rel_frame, symbol::Val{:draw_text})
+    t = get_interpolation(subaction, rel_frame)
+    action.opts[:draw_text_t] = 1 - t
 end
 
 """
@@ -289,4 +301,64 @@ end
 function _sethue(video, action, subaction, rel_frame)
     color = get_interpolation(subaction, rel_frame)
     Luxor.sethue(color)
+end
+
+"""
+    follow_path(points::Vector{Point}; closed=true)
+
+Can be applied inside a subaction such that the object defined in the parent action follows a path.
+It takes a vector of points which can be created as an example by calling `circle(O, 50)` <- notice that the action is set to `:none` the default.
+
+# Example
+```julia
+SubAction(1:150, follow_path(star(O, 300)))
+```
+
+# Arguments
+- `points::Vector{Point}` - the vector of points the object should follow
+
+# Keywords
+- `closed::Bool` default: true, sets whether the path is a closed path as for example when
+    using a circle, ellipse or any polygon. For a bezier path it should be set to false.
+"""
+function follow_path(points::Vector{Point}; closed = true)
+    (video, action, subaction, rel_frame) ->
+        _follow_path(video, action, subaction, rel_frame, points; closed = closed)
+end
+
+function _follow_path(video, action, subaction, rel_frame, points; closed = closed)
+    t = get_interpolation(subaction, rel_frame)
+    # if not closed it should be always between 0 and 1
+    if !closed
+        t = clamp(t, 0.0, 1.0)
+    end
+    # if t is discrete and not 0.0 take the last point or first if closed
+    if rel_frame != 1 && isapprox_discrete(t)
+        if closed
+            translate(points[1])
+        else
+            translate(points[end])
+        end
+        return
+    end
+    # get only the fractional part to be between 0 and 1
+    t -= floor(t)
+    if rel_frame == 1
+        # compute the distances only once for performance reasons
+        subaction.defs[:p_dist] = polydistances(points, closed = closed)
+    end
+    if isapprox(t, 0.0, atol = 1e-4)
+        translate(points[1])
+        return
+    end
+    pdist = subaction.defs[:p_dist]
+    ind, surplus = nearestindex(pdist, t * pdist[end])
+
+    nextind = mod1(ind + 1, length(points))
+    overshootpoint = between(
+        points[ind],
+        points[nextind],
+        surplus / distance(points[ind], points[nextind]),
+    )
+    translate(overshootpoint)
 end

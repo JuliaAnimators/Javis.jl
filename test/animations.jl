@@ -645,6 +645,168 @@ end
     end
 end
 
+@testset "animating text" begin
+    # does only test that it doesn't fail but I wasn't able to test this on all platforms
+    # with using reference tests
+    video = Video(400, 300)
+
+    javis(
+        video,
+        [
+            BackgroundAction(1:100, ground),
+            BackgroundAction(1:100, (args...) -> fontsize(30)),
+            Action(
+                1:100,
+                (args...) -> text("Hello Stream!", -50, 50; halign = :centre);
+                subactions = [
+                    SubAction(1:15, sineio(), appear(:draw_text)),
+                    SubAction(76:100, sineio(), disappear(:draw_text)),
+                ],
+            ),
+            Action(
+                1:100,
+                (args...) ->
+                    text("Hello World!", -50, -100; halign = :wrong, valign = :wrong);
+                subactions = [
+                    SubAction(1:15, sineio(), appear(:draw_text)),
+                    SubAction(76:100, sineio(), disappear(:draw_text)),
+                ],
+            ),
+        ],
+        tempdirectory = "images",
+        pathname = "",
+    )
+
+    img07 = load("images/$(lpad(7, 10, "0")).png")
+    img30 = load("images/$(lpad(30, 10, "0")).png")
+    img82 = load("images/$(lpad(30, 10, "0")).png")
+
+    # does only test that it doesn't fail but I wasn't able to test this on all platforms
+    # with using reference tests
+    video = Video(400, 300)
+
+    javis(
+        video,
+        [
+            BackgroundAction(1:100, ground),
+            BackgroundAction(1:100, (args...) -> fontsize(30)),
+            Action(
+                1:100,
+                (args...) -> text("Hello Stream!", -50, 50; halign = :center);
+                subactions = [
+                    SubAction(1:15, sineio(), appear(:draw_text)),
+                    SubAction(76:100, sineio(), disappear(:draw_text)),
+                ],
+            ),
+            Action(
+                1:100,
+                (args...) -> text("Hello World!", -50, -100);
+                subactions = [
+                    SubAction(1:15, sineio(), appear(:draw_text)),
+                    SubAction(76:100, sineio(), disappear(:draw_text)),
+                ],
+            ),
+        ],
+        tempdirectory = "images",
+        pathname = "",
+    )
+
+    img_other07 = load("images/$(lpad(7, 10, "0")).png")
+    img_other30 = load("images/$(lpad(30, 10, "0")).png")
+    img_other82 = load("images/$(lpad(30, 10, "0")).png")
+
+    @test img07 == img_other07
+    @test img30 == img_other30
+    @test img82 == img_other82
+
+    for i in 1:100
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
+@testset "Following a path" begin
+    video = Video(800, 600)
+
+    anim = Animation([0, 1], [0.0, 2.0], [sineio()])
+
+    color_anim = Animation(
+        [0, 0.5, 1], # must go from 0 to 1
+        [Lab(colorant"red"), Lab(colorant"cyan"), Lab(colorant"red")],
+        [sineio(), sineio()],
+    )
+
+    actions = [
+        Action(
+            frame_start:(frame_start + 149),
+            (args...) -> star(O, 20, 5, 0.5, 0, :fill);
+            subactions = [
+                SubAction(1:150, anim, follow_path(star(O, 100))),
+                SubAction(1:150, color_anim, sethue()),
+            ],
+        ) for frame_start in 1:7:22
+    ]
+
+    javis(
+        video,
+        [BackgroundAction(1:180, ground), actions...],
+        tempdirectory = "images",
+        pathname = "",
+    )
+
+    @test_reference "refs/followPath10.png" load("images/0000000010.png")
+    @test_reference "refs/followPath30.png" load("images/0000000030.png")
+    @test_reference "refs/followPath100.png" load("images/0000000100.png")
+    @test_reference "refs/followPath160.png" load("images/0000000160.png")
+
+    # Following along a bezier path
+    function simple_bezier()
+        P1 = Point(-300, 0)
+        CP1 = Point(-200, -200)
+        CP2 = Point(200, -200)
+        P2 = Point(300, 0)
+
+        beziersegment = BezierPathSegment(P1, CP1, CP2, P2)
+        beziertopoly(beziersegment)
+    end
+
+    video = Video(800, 600)
+
+    anim = Animation([0, 1], [0.0, 1.0], [sineio()])
+
+    color_anim = Animation(
+        [0, 0.5, 1], # must go from 0 to 1
+        [Lab(colorant"red"), Lab(colorant"cyan"), Lab(colorant"red")],
+        [sineio(), sineio()],
+    )
+
+    actions = [
+        Action(
+            frame_start:(frame_start + 149),
+            (args...) -> star(O, 20, 5, 0.5, 0, :fill);
+            subactions = [
+                SubAction(1:150, anim, follow_path(simple_bezier(); closed = false)),
+                SubAction(1:150, color_anim, sethue()),
+            ],
+        ) for frame_start in 1:7:22
+    ]
+
+    javis(
+        video,
+        [BackgroundAction(1:180, ground), actions...],
+        tempdirectory = "images",
+        pathname = "",
+    )
+
+    @test_reference "refs/followPathBezier10.png" load("images/0000000010.png")
+    @test_reference "refs/followPathBezier30.png" load("images/0000000030.png")
+    @test_reference "refs/followPathBezier100.png" load("images/0000000100.png")
+    @test_reference "refs/followPathBezier160.png" load("images/0000000160.png")
+
+    for i in 1:180
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
 @testset "test default kwargs" begin
     video = Video(500, 500)
     pathname = javis(video, [Action(1:10, ground), Action(1:10, morph(astar, acirc))])

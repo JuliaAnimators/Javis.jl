@@ -69,6 +69,7 @@ Create a video with a certain `width` and `height` in pixel.
 This also sets `CURRENT_VIDEO`.
 """
 function Video(width, height)
+    # some luxor functions need a drawing ;)
     Drawing(width, height)
     video = Video(width, height, Dict{Symbol,Any}())
     if isempty(CURRENT_VIDEO)
@@ -173,6 +174,7 @@ A SubAction should not be created by hand but instead by using one of the constr
 - `transitions::Vector{Transition}`: A list of transitions like [`Translation`](@ref)
 - `internal_transitions::Vector{InternalTransition}`:
     A list of internal transitions which store the current transition for a specific frame.
+- `defs::Dict{Symbol, Any}` any kind of definitions that are relevant for the subaction.
 """
 mutable struct SubAction <: AbstractAction
     frames::Frames
@@ -180,6 +182,7 @@ mutable struct SubAction <: AbstractAction
     func::Function
     transitions::Vector{Transition}
     internal_transitions::Vector{InternalTransition}
+    defs::Dict{Symbol,Any}
 end
 
 SubAction(transitions::Transition...) = SubAction(:same, transitions...)
@@ -290,7 +293,7 @@ SubAction(frames, trans::Transition...) =
 
 
 SubAction(frames, anim::Animation, func::Function, transitions::Transition...) =
-    SubAction(frames, anim, func::Function, collect(transitions), [])
+    SubAction(frames, anim, func::Function, collect(transitions), [], Dict{Symbol,Any}())
 
 """
     ActionSetting
@@ -542,6 +545,9 @@ function Action(
     transitions::Transition...;
     kwargs...,
 )
+    if isempty(CURRENT_VIDEO)
+        throw(ErrorException("A `Video` must be defined before an `Action`"))
+    end
     CURRENT_VIDEO[1].defs[:last_frames] = frames
     opts = Dict(kwargs...)
     subactions = SubAction[]
@@ -791,10 +797,6 @@ include("javis_viewer.jl")
 latex(text::LaTeXString) = latex(text, O)
 latex(text::LaTeXString, pos::Point) = latex(text, pos, :stroke)
 latex(text::LaTeXString, x, y) = latex(text, Point(x, y), :stroke)
-@deprecate latex(text::LaTeXString, fsize::Real) begin
-    fontsize(fsize)
-    latex(text)
-end
 
 """
     latex(text::LaTeXString, pos::Point, action::Symbol)
@@ -834,6 +836,7 @@ function ground(args...)
 end
 
 function draw_latex(video, action, frame)
+    fontsize(50)
     x = 100
     y = 120
     latex(L"\\sqrt{5}", x, y)
@@ -1428,6 +1431,7 @@ const LUXOR_DONT_EXPORT = [
     :fontsize,
     :get_fontsize,
     :scale,
+    :text,
 ]
 
 # Export each function from Luxor
@@ -1443,11 +1447,11 @@ export Video, Action, BackgroundAction, SubAction, Rel
 export Line, Translation, Rotation, Transformation, Scaling
 export val, pos, ang, get_value, get_position, get_angle
 export projection, morph
-export appear, disappear, rotate_around
+export appear, disappear, rotate_around, follow_path
 export rev
 export scaleto
 
 # custom override of luxor extensions
-export setline, setopacity, fontsize, get_fontsize, scale
+export setline, setopacity, fontsize, get_fontsize, scale, text
 
 end
