@@ -352,6 +352,12 @@ function _follow_path(video, action, subaction, rel_frame, points; closed = clos
         return
     end
     pdist = subaction.defs[:p_dist]
+
+    overshootpoint = get_polypoint_at(points, t; pdist = pdist)
+    translate(overshootpoint)
+end
+
+function get_polypoint_at(points, t; pdist = polydistances(points))
     ind, surplus = nearestindex(pdist, t * pdist[end])
 
     nextind = mod1(ind + 1, length(points))
@@ -360,5 +366,5 @@ function _follow_path(video, action, subaction, rel_frame, points; closed = clos
         points[nextind],
         surplus / distance(points[ind], points[nextind]),
     )
-    translate(overshootpoint)
+    return overshootpoint
 end

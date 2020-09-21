@@ -1,7 +1,7 @@
 include("Shape.jl")
 
 """
-    match_num_point(poly_1::Vector{Point}, poly_2::Vector{Point})
+    match_num_points(poly_1::Vector{Point}, poly_2::Vector{Point})
 
 This is a helper function for [`morph`](@ref).
 Given two polygons `poly_1` and `poly_2` points are added to the polygon with less points
@@ -12,7 +12,7 @@ The polygon with less points gets mutated during this process.
 - `poly_1::Vector{Point}`: The points which define the first polygon
 - `poly_2::Vector{Point}`: The points which define the second polygon
 """
-function match_num_point(poly_1::Vector{Point}, poly_2::Vector{Point})
+function match_num_points(poly_1::Vector{Point}, poly_2::Vector{Point})
     l1 = length(poly_1)
     l2 = length(poly_2)
     # if both have the same number of points => we are done
@@ -31,38 +31,30 @@ function match_num_point(poly_1::Vector{Point}, poly_2::Vector{Point})
         flipped = true
     end
     # the difference of the length of points
-    diff = l2 - l1
+    missing_nodes = l2 - l1
 
-    points_per_edge = div(diff, l1)
-    # how many extra points do we need
-    points_per_edge_extra = rem(diff, l1)
-    # => will add them to the first `points_per_edge_extra` edges
+    pdists = polydistances(new_poly_1)
+    every_dist = pdists[end] / missing_nodes
+    pdiffs = diff(pdists)
 
-    # index is the index where the next point is added
-    index = 2
+    ct = 0.0
     poly_1_orig = copy(new_poly_1)
-    for i in 1:l1
-        # p1 is the current point in the original polygon
-        p1 = poly_1_orig[i]
-        # p2 is the next point (which is the first of the polygon in the last iteration)
-        if i + 1 > l1
-            p2 = poly_1_orig[1]
-        else
-            p2 = poly_1_orig[i + 1]
+    npi = 1
+    for pi in 1:length(poly_1_orig)
+        add_nodes = convert(Int, round(pdiffs[pi] / every_dist))
+        t = pdiffs[pi] / (add_nodes + 1)
+        ct_local = ct
+        for i in 1:add_nodes
+            ct_local += t
+            new_point =
+                get_polypoint_at(poly_1_orig, ct_local / pdists[end]; pdist = pdists)
+            npi += 1
+            insert!(new_poly_1, npi, new_point)
         end
-        # if we need 5 points and have only 4 edges we add 2 points for the first edge
-        rem = 0
-        if i <= points_per_edge_extra
-            rem = 1
-        end
-        for j in 1:(points_per_edge + rem)
-            # create the interpolated point between p1 and p2
-            t = j / (points_per_edge + rem + 1)
-            new_point = p1 + t * (p2 - p1)
-            insert!(new_poly_1, index, new_point)
-            index += 1
-        end
-        index += 1
+        npi += 1
+        missing_nodes -= add_nodes
+        ct += pdiffs[pi]
+        every_dist = (pdists[end] - ct) / missing_nodes
     end
 
     if flipped
@@ -128,7 +120,7 @@ end
     save_morph_polygons!(action::Action, from_func::Vector{Vector{Point}},
                                          to_func::Vector{Vector{Point}})
 
-Calls the functions to polygons and calls [`match_num_point!`](@ref)
+Calls the functions to polygons and calls [`match_num_points!`](@ref)
 such that both polygons have the same number of points.
 This is done once inside [`_morph`](@ref).
 Saves the two polygons inside `action.opts[:from_poly]` and `action.opts[:to_poly]`.
@@ -192,7 +184,7 @@ function save_morph_polygons!(
             push!(action.opts[:to_poly], to_shape.points)
             push!(action.opts[:points], Vector{Point}(undef, length(new_from_poly)))
         else
-            from_poly, to_poly = match_num_point(from_shape.points, to_shape.points)
+            from_poly, to_poly = match_num_points(from_shape.points, to_shape.points)
             smallest_i, smallest_distance =
                 compute_shortest_morphing_dist(from_poly, to_poly)
 
@@ -204,7 +196,7 @@ function save_morph_polygons!(
 
             # for subpaths
             for (from_subpath, to_subpath) in zip(from_shape.subpaths, to_shape.subpaths)
-                from_poly, to_poly = match_num_point(from_subpath, to_subpath)
+                from_poly, to_poly = match_num_points(from_subpath, to_subpath)
                 smallest_i, smallest_distance =
                     compute_shortest_morphing_dist(from_poly, to_poly)
 

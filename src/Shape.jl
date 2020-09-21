@@ -130,7 +130,7 @@ function get_similarity(shapeA::Shape, shapeB::Shape)
     # println("right score: ", perc*score_right_angles)
 
     # difference in centered_points
-    pointsA, pointsB = match_num_point(shapeA.centered_points, shapeB.centered_points)
+    pointsA, pointsB = match_num_points(shapeA.centered_points, shapeB.centered_points)
     smallest_i, smallest_distance = compute_shortest_morphing_dist(pointsA, pointsB)
     # TODO: maybe there is a more reasonable denominator
     smallest_distance /= length(pointsA)
@@ -142,7 +142,7 @@ function get_similarity(shapeA::Shape, shapeB::Shape)
     score += perc * score_centered_point_diff
 
     # difference in movement
-    pointsA, pointsB = match_num_point(shapeA.points, shapeB.points)
+    pointsA, pointsB = match_num_points(shapeA.points, shapeB.points)
     smallest_i, smallest_distance = compute_shortest_morphing_dist(pointsA, pointsB)
     video = CURRENT_VIDEO[1]
     smallest_distance /= length(pointsA)
