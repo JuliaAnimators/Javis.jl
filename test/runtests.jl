@@ -5,6 +5,11 @@ using ReferenceTests
 using Test
 using VideoIO
 
+EXCLUDE_FILES = [".keep"]
+for f in readdir("images")
+    !(f in EXCLUDE_FILES) && rm("images/$f")
+end
+
 @testset "Unit" begin
     include("unit.jl")
 end
