@@ -140,7 +140,7 @@ Action(
 
 to let the text `"Hello World!"` appear from left to right in an animated way. 
 
-## How can I let an object move along a path?
+## How can I have an object follow a path?
 
 We need to create a path by providing a list of points that the object can follow.
 All objects that return a list of points can be used directly like `star` and `poly` for others a list of points must be provided as the input.
