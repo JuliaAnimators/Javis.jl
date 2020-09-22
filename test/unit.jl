@@ -278,7 +278,7 @@
         action = Action(1:1, () -> 1, Translation(Point(10, 10)))
         # needs internal translation as well
         push!(action.internal_transitions, Javis.InternalTranslation(O))
-        Javis.compute_transformation!(action, video, 1)
+        Javis.compute_transition!(action, video, 1)
         @test action.internal_transitions[1].by == Point(10, 10)
     end
 
