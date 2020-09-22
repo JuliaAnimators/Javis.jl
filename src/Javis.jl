@@ -350,6 +350,12 @@ function perform_action(action, video, frame, origin_matrix)
     # set the defaults for the frame like setline() and setopacity()
     # which can depend on the subactions
     set_action_defaults!(action)
+
+    # if the scale would be 0.0 `show_action` is set to false => don't show the action
+    # (it wasn't actually scaled to 0 because it would break Cairo :D)
+    cs = get_current_setting()
+    !cs.show_action && return
+
     res = action.func(video, action, frame)
     if action.id !== nothing
         current_global_matrix = cairotojuliamatrix(getmatrix())
