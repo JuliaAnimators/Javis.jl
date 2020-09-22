@@ -807,8 +807,8 @@ end
         pathname = "",
     )
 
-    @test_reference "refs/followPathBezier1.png" load("images/00000000001.png")
-    @test_reference "refs/followPathBezier5.png" load("images/00000000005.png")
+    @test_reference "refs/followPathBezier1.png" load("images/0000000001.png")
+    @test_reference "refs/followPathBezier5.png" load("images/0000000005.png")
     @test_reference "refs/followPathBezier10.png" load("images/0000000010.png")
     @test_reference "refs/followPathBezier30.png" load("images/0000000030.png")
     @test_reference "refs/followPathBezier100.png" load("images/0000000100.png")
