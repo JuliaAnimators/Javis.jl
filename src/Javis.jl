@@ -300,7 +300,7 @@ The current settings of an [`Action`](@ref) which are saved in `action.current_s
 - `mul_opacity::Float64`: the current multiplier for opacity.
     The actual opacity is then: `mul_opacity * opacity`
 - `fontsize::Float64` the current font size
-- `show_action::Bool` is set to false if scale would be 0.0 which is kinda forbidden
+- `show_action::Bool` is set to false if scale would be 0.0 which is forbidden by Cairo
 - `current_scale::Tuple{Float64, Float64}`: the current scale
 - `desired_scale::Tuple{Float64, Float64}`: the new desired scale
 - `mul_scale::Float64`: the multiplier for the new desired scale.
