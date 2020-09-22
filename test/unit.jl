@@ -272,6 +272,16 @@
         @test action.internal_transitions[1].center == Point(2.0, 5.0)
     end
 
+    @testset "action with a single frame" begin
+        video = Video(500, 500)
+        # dummy action doesn't need a real function
+        action = Action(1:1, () -> 1, Translation(Point(10, 10)))
+        # needs internal translation as well
+        push!(action.internal_transitions, Javis.InternalTranslation(O))
+        Javis.compute_transformation!(action, video, 1)
+        @test action.internal_transitions[1].by == Point(10, 10)
+    end
+
     @testset "Frames errors" begin
         # throws because a Video object was not previously defined
         empty!(Javis.CURRENT_VIDEO)
