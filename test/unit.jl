@@ -6,7 +6,7 @@
         Leftover files from failed tests or errors can cause testing errors.
         Therefore, we remove any files in the `images` directory not pertinent to testing before executing a test.
         =#
-        
+
         EXCLUDE_FILES = [".keep"]
         for f in readdir("images")
             !(f in EXCLUDE_FILES) && rm("images/$f")
