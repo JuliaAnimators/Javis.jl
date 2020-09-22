@@ -300,6 +300,7 @@ The current settings of an [`Action`](@ref) which are saved in `action.current_s
 - `mul_opacity::Float64`: the current multiplier for opacity.
     The actual opacity is then: `mul_opacity * opacity`
 - `fontsize::Float64` the current font size
+- `show_action::Bool` is set to false if scale would be 0.0 which is forbidden by Cairo
 - `current_scale::Tuple{Float64, Float64}`: the current scale
 - `desired_scale::Tuple{Float64, Float64}`: the new desired scale
 - `mul_scale::Float64`: the multiplier for the new desired scale.
@@ -315,12 +316,16 @@ mutable struct ActionSetting
     # current scale
     # desired scale and scale multiplier => `desired_scale*mul_scale` is the new desired scale
     # the scale change needs to be computed using `current_scale` and the desired scale
+    # current_scale should never be 0 as this breaks scaleto has various other bad effects
+    # see: https://github.com/JuliaGraphics/Luxor.jl/issues/114
+    # in this case show will be set to false and the action will not be called
+    show_action::Bool
     current_scale::Tuple{Float64,Float64}
     desired_scale::Tuple{Float64,Float64}
     mul_scale::Float64 # the multiplier of scale is between 0 and 1
 end
 
-ActionSetting() = ActionSetting(1.0, 1.0, 1.0, 1.0, 10.0, (1.0, 1.0), (1.0, 1.0), 1.0)
+ActionSetting() = ActionSetting(1.0, 1.0, 1.0, 1.0, 10.0, true, (1.0, 1.0), (1.0, 1.0), 1.0)
 
 """
     update_ActionSetting!(as::ActionSetting, by::ActionSetting)
@@ -333,11 +338,11 @@ function update_ActionSetting!(as::ActionSetting, by::ActionSetting)
     as.opacity = by.opacity
     as.mul_opacity = by.mul_opacity
     as.fontsize = by.fontsize
+    as.show_action = by.show_action
     as.current_scale = by.current_scale
     as.desired_scale = by.desired_scale
     as.mul_scale = by.mul_scale
 end
-
 """
     Action
 
@@ -1372,6 +1377,12 @@ function perform_action(action, video, frame, origin_matrix)
     # set the defaults for the frame like setline() and setopacity()
     # which can depend on the subactions
     set_action_defaults!(action)
+
+    # if the scale would be 0.0 `show_action` is set to false => don't show the action
+    # (it wasn't actually scaled to 0 because it would break Cairo :D)
+    cs = get_current_setting()
+    !cs.show_action && return
+
     res = action.func(video, action, frame)
     if action.id !== nothing
         current_global_matrix = cairotojuliamatrix(getmatrix())

@@ -430,10 +430,11 @@ end
         [
             BackgroundAction(1:50, ground_opacity),
             Action(
+                1:42,
                 (args...) -> circ();
                 subactions = [
                     SubAction(1:25, appear(:fade)),
-                    SubAction(26:50, disappear(:fade)),
+                    SubAction(26:42, disappear(:fade)),
                 ],
             ),
             Action(
