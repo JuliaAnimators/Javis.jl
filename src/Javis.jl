@@ -1249,7 +1249,7 @@ function javis(
 
     filecounter = 1
     @showprogress 1 "Rendering frames..." for frame in frames
-        frame_image = convert.(RGB, get_javis_frame(video, actions, frame))
+        frame_image = get_javis_frame(video, actions, frame, RGB)
         if !isempty(tempdirectory)
             Images.save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
         end
@@ -1286,7 +1286,7 @@ function javis(
 end
 
 """
-    get_javis_frame(video, actions, frame)
+    get_javis_frame(video, actions, frame, img_type=ARGB32)
 
 Get a frame from an animation given a video object, its actions, and frame.
 
@@ -1294,11 +1294,12 @@ Get a frame from an animation given a video object, its actions, and frame.
 - `video::Video`: The video which defines the dimensions of the output
 - `actions::Vector{Action}`: All actions that are performed
 - `frame::Int`: Specific frame to be returned
+- `img_type`: ARGB32 by default
 
 # Returns
-- `Array{ARGB32, 2}` - request frame as a matrix
+- `Array{img_type, 2}` - request frame as a matrix
 """
-function get_javis_frame(video, actions, frame)
+function get_javis_frame(video, actions, frame, img_type = ARGB32)
     background_settings = ActionSetting()
     Drawing(video.width, video.height, :image)
     origin()
@@ -1312,7 +1313,7 @@ function get_javis_frame(video, actions, frame)
         if frame in get_frames(action)
             # check if the action should be part of the global layer (i.e BackgroundAction)
             # or in its own layer (default)
-            in_global_layer = get(action.opts, :in_global_layer, false)
+            in_global_layer = get(action.opts, :in_global_layer, false)::Bool
             if !in_global_layer
                 @layer begin
                     perform_action(action, video, frame, origin_matrix)
@@ -1326,7 +1327,7 @@ function get_javis_frame(video, actions, frame)
         # if action is in global layer this changes the background settings
         update_background_settings!(background_settings, action)
     end
-    img = convert.(ARGB32, image_as_matrix())
+    img = convert.(img_type, image_as_matrix())
     finish()
     return img
 end
