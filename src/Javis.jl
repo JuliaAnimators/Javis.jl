@@ -1249,7 +1249,7 @@ function javis(
 
     filecounter = 1
     @showprogress 1 "Rendering frames..." for frame in frames
-        frame_image = get_javis_frame(video, actions, frame, RGB)
+        frame_image = convert.(RGB, get_javis_frame(video, actions, frame))
         if !isempty(tempdirectory)
             Images.save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
         end
@@ -1286,7 +1286,7 @@ function javis(
 end
 
 """
-    get_javis_frame(video, actions, frame, img_type=ARGB32)
+    get_javis_frame(video, actions, frame)
 
 Get a frame from an animation given a video object, its actions, and frame.
 
@@ -1294,12 +1294,11 @@ Get a frame from an animation given a video object, its actions, and frame.
 - `video::Video`: The video which defines the dimensions of the output
 - `actions::Vector{Action}`: All actions that are performed
 - `frame::Int`: Specific frame to be returned
-- `img_type`: ARGB32 by default
 
 # Returns
-- `Array{img_type, 2}` - request frame as a matrix
+- `Array{ARGB32, 2}` - request frame as a matrix
 """
-function get_javis_frame(video, actions, frame, img_type = ARGB32)
+function get_javis_frame(video, actions, frame)
     background_settings = ActionSetting()
     Drawing(video.width, video.height, :image)
     origin()
@@ -1327,7 +1326,7 @@ function get_javis_frame(video, actions, frame, img_type = ARGB32)
         # if action is in global layer this changes the background settings
         update_background_settings!(background_settings, action)
     end
-    img = convert.(img_type, image_as_matrix())
+    img = image_as_matrix()
     finish()
     return img
 end
