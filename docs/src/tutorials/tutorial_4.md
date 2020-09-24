@@ -88,7 +88,7 @@ Action(16:150, (args...)->circle(O, 100, :stroke); subactions=[
 
 This is very similar to the previous action. Here we can see that `SubAction` uses relative frame numbers such that the head appears in the frames `16:30` and then is at full opacity afterwards.
 
->> **Note:** Just a small refresher: We need the anonymous function `(args...)->circle(O, 100, :stroke)` as each function gets called with the three arguments `video, action, frame`.
+> **NOTE:** Just a small refresher: We need the anonymous function `(args...)->circle(O, 100, :stroke)` as each function gets called with the three arguments `video, action, frame`.
 
 ### The Power of Splatting
 

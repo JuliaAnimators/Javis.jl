@@ -160,7 +160,7 @@ Setting the attributes of the object `o` by calling `set_attr` methods.
 function set_attrs(o)
     for attribute in attributes(o)
         sym = Symbol(name(attribute))
-        set_attr(Val{sym}(), value(attribute))
+        set_attr(Val{sym}(), LightXML.value(attribute))
     end
 end
 
