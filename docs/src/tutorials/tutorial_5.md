@@ -89,6 +89,7 @@ Further, it helps one to keep track of units and easily convert between differen
 As always, let's import our needed packages:
 
 ```julia
+using Animations
 using Javis
 using PeriodicTable
 using Unitful
@@ -266,10 +267,26 @@ Of course, we need to further update our `javis` function to this:
                 SubAction(521:550, Scaling(7, 1))
             ]
         ),
-        Action(1:100, (args...) -> info_box(value = val(:atom))),
-        Action(141:240, (args...) -> info_box(value = val(:atom))),
-        Action(281:380, (args...) -> info_box(value = val(:atom))),
-        Action(421:520, (args...) -> info_box(value = val(:atom))),
+        Action(
+            1:100,
+            (args...) -> info_box(value = val(:atom)),
+            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
+        ),
+        Action(
+            141:240,
+            (args...) -> info_box(value = val(:atom)),
+            subactions = [SubAction(141:170, sineio(), appear(:draw_text))],
+        ),
+        Action(
+            281:380,
+            (args...) -> info_box(value = val(:atom)),
+            subactions = [SubAction(281:310, sineio(), appear(:draw_text))],
+        ),
+        Action(
+            421:520,
+            (args...) -> info_box(value = val(:atom)),
+            subactions = [SubAction(421:450, sineio(), appear(:draw_text))],
+        ),
 ...
 ```
 
@@ -326,6 +343,7 @@ Good luck and have fun making more animations!
 ## Full Code
 
 ```julia
+using Animations
 using Javis
 using PeriodicTable
 using Unitful
@@ -336,7 +354,7 @@ function ground(video, action, frame)
     text("$frame / 550", -240, -230)
 end
 
-function element(;color = "black")
+function element(; color = "black")
     sethue(color)
     circle(O, 4, :fill)
     return val(:_current_scale)[1]
@@ -372,20 +390,37 @@ javis(
     demo,
     [
         BackgroundAction(1:550, ground),
-        Action(1:550,
+        Action(
+            1:550,
             :atom,
             (args...) -> element(),
-            subactions = [ 
+            subactions = [
                 SubAction(101:140, Scaling(1, 12)),
                 SubAction(241:280, Scaling(12, 20)),
                 SubAction(381:420, Scaling(20, 7)),
-                SubAction(521:550, Scaling(7, 1))
-            ]
+                SubAction(521:550, Scaling(7, 1)),
+            ],
         ),
-        Action(1:100, (args...) -> info_box(value = val(:atom))),
-        Action(141:240, (args...) -> info_box(value = val(:atom))),
-        Action(281:380, (args...) -> info_box(value = val(:atom))),
-        Action(421:520, (args...) -> info_box(value = val(:atom))),
+        Action(
+            1:100,
+            (args...) -> info_box(value = val(:atom)),
+            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
+        ),
+        Action(
+            141:240,
+            (args...) -> info_box(value = val(:atom)),
+            subactions = [SubAction(141:170, sineio(), appear(:draw_text))],
+        ),
+        Action(
+            281:380,
+            (args...) -> info_box(value = val(:atom)),
+            subactions = [SubAction(281:310, sineio(), appear(:draw_text))],
+        ),
+        Action(
+            421:520,
+            (args...) -> info_box(value = val(:atom)),
+            subactions = [SubAction(421:450, sineio(), appear(:draw_text))],
+        ),
     ],
     pathname = "atomic.gif",
     framerate = 10,
