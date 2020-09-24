@@ -1312,7 +1312,7 @@ function get_javis_frame(video, actions, frame)
         if frame in get_frames(action)
             # check if the action should be part of the global layer (i.e BackgroundAction)
             # or in its own layer (default)
-            in_global_layer = get(action.opts, :in_global_layer, false)
+            in_global_layer = get(action.opts, :in_global_layer, false)::Bool
             if !in_global_layer
                 @layer begin
                     perform_action(action, video, frame, origin_matrix)
@@ -1326,7 +1326,7 @@ function get_javis_frame(video, actions, frame)
         # if action is in global layer this changes the background settings
         update_background_settings!(background_settings, action)
     end
-    img = convert.(ARGB32, image_as_matrix())
+    img = image_as_matrix()
     finish()
     return img
 end
