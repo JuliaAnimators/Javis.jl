@@ -30,8 +30,10 @@ Check out our [documentation](https://wikunia.github.io/Javis.jl/dev/) for tutor
 
 ### Examples
 
-<!--|  |  |-->
-<!--|--|--|-->
+| Animation                                 |
+|-------------------------------------------|
+| ![](examples/gifs/follow_bezier_path.gif) |
+| [Follow a Path](/examples/follow_path.jl) |
 
 ## Installation
 
