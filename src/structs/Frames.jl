@@ -2,7 +2,7 @@
     Frames
 
 Stores the actual computed frames and the user input
-which can be i.e. `:same` or `Rel(10)`.
+which can be `:same` or `Rel(10)`.
 The `frames` are computed in `javis`.
 """
 mutable struct Frames{T}

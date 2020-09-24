@@ -66,7 +66,7 @@ end
 """
     Action(func::Function, args...)
 
-Similar to the above but uses the same as frames as the action above.
+Similar to the above but uses the same frames as the action above.
 """
 Action(func::Function, args...; kwargs...) =
     Action(:same, nothing, func, args...; kwargs...)
