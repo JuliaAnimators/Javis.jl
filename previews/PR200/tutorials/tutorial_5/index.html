@@ -29,7 +29,7 @@ e⁻-configuration: 1s² 2s² 2p⁴
   spectral image: https://en.wikipedia.org/wiki/File:Oxygen_spectre.jpg</code></pre><p>As fellow Julian, Johann-Tobias Schäg, said, one should learn <code>Unitful.jl</code> if they want to interact with the real world. <code>Unitful.jl</code> handles physical quantites such as pounds, meters, mols, etc. with minimal overhead in Julia. Further, it helps one to keep track of units and easily convert between different measurement systems.</p><h2 id="Setting-Up-Our-Animation"><a class="docs-heading-anchor" href="#Setting-Up-Our-Animation">Setting Up Our Animation</a><a id="Setting-Up-Our-Animation-1"></a><a class="docs-heading-anchor-permalink" href="#Setting-Up-Our-Animation" title="Permalink"></a></h2><p>As always, let&#39;s import our needed packages:</p><pre><code class="language-julia">using Animations
 using Javis
 using PeriodicTable
-using Unitful</code></pre><p>And let&#39;s define our background function. This background function will also write the current frame being drawn:</p><pre><code class="language-julia">function ground(video, action, frame)
+using Unitful</code></pre><blockquote><p><strong>NOTE:</strong> For this tutorial, we will also use <code>Animations.jl</code> to provide what are called &quot;easing functions&quot;.</p></blockquote><p>These are used to control the speed at which an animation is drawn. This is further explained in <a href="../tutorial_6/">Tutorial 6</a> so for now, don&#39;t worry too much about what we are doing with it. </p><p>And let&#39;s define our background function. This background function will also write the current frame being drawn:</p><pre><code class="language-julia">function ground(video, action, frame)
     background(&quot;white&quot;)
     sethue(&quot;black&quot;)
     text(&quot;$frame / 550&quot;, -240, -230)
@@ -114,19 +114,19 @@ end</code></pre><p>Whenever a mass is measured that corresponds to a known eleme
         Action(
             141:240,
             (args...) -&gt; info_box(value = val(:atom)),
-            subactions = [SubAction(141:170, sineio(), appear(:draw_text))],
+            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
         ),
         Action(
             281:380,
             (args...) -&gt; info_box(value = val(:atom)),
-            subactions = [SubAction(281:310, sineio(), appear(:draw_text))],
+            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
         ),
         Action(
             421:520,
             (args...) -&gt; info_box(value = val(:atom)),
-            subactions = [SubAction(421:450, sineio(), appear(:draw_text))],
+            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
         ),
-...</code></pre><p>The current scale of the circle object is now passed to the <code>info_box</code> function via the <code>:atom</code> symbol. This produces the following animation:</p><p><img src="../assets/min_atomic_info.gif" alt/></p><p>We can now see what element is being viewed! Hooray! However, it doesn&#39;t tell us much about the element - let&#39;s change that!</p><p>All one needs to do is update the <code>info_box</code> function with the following two lines:</p><pre><code class="language-julia">function info_box(args...; value = 0)
+...</code></pre><p>The current scale of the circle object is now passed to the <code>info_box</code> function via the <code>:atom</code> symbol. Furthermore, we use a <code>SubAction</code> to have the text appear using the method <code>appear(:draw_text)</code> and we control the speed at which is appears using <code>sineio()</code>.</p><blockquote><p><strong>NOTE:</strong> <code>sineio()</code> comes from <code>Animations.jl</code> and is an easing function.</p></blockquote><p>More on this in <a href="../tutorial_6/">Tutorial 6</a>.</p><p>This produces the following animation:</p><p><img src="../assets/min_atomic_info.gif" alt/></p><p>We can now see what element is being viewed! Hooray! However, it doesn&#39;t tell us much about the element - let&#39;s change that!</p><p>All one needs to do is update the <code>info_box</code> function with the following two lines:</p><pre><code class="language-julia">function info_box(args...; value = 0)
     fontsize(12)
     box(140, -210, 170, 40, :stroke)
     # Add the following line to your code
@@ -207,19 +207,19 @@ javis(
         Action(
             141:240,
             (args...) -&gt; info_box(value = val(:atom)),
-            subactions = [SubAction(141:170, sineio(), appear(:draw_text))],
+            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
         ),
         Action(
             281:380,
             (args...) -&gt; info_box(value = val(:atom)),
-            subactions = [SubAction(281:310, sineio(), appear(:draw_text))],
+            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
         ),
         Action(
             421:520,
             (args...) -&gt; info_box(value = val(:atom)),
-            subactions = [SubAction(421:450, sineio(), appear(:draw_text))],
+            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
         ),
     ],
-    pathname = &quot;atomic.gif&quot;,
+    pathname = &quot;min_atomic.gif&quot;,
     framerate = 10,
-)</code></pre><blockquote><p><strong>Author(s):</strong> Jacob Zelko <br/><strong>Date:</strong> September 10, 2020 <br/><strong>Tag(s):</strong> scaling, atoms, elements, unitful, periodictable</p></blockquote></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tutorial_4/">« <strong>Tutorial 4:</strong> Do You Know Our Mascot? - Learn About Transitions And Subactions!</a><a class="docs-footer-nextpage" href="../tutorial_6/"><strong>Tutorial 6:</strong> Using Animations.jl to Create something with more Pep! »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Thursday 24 September 2020 17:21">Thursday 24 September 2020</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+)</code></pre><blockquote><p><strong>Author(s):</strong> Jacob Zelko <br/><strong>Date:</strong> September 10, 2020 <br/><strong>Tag(s):</strong> scaling, atoms, elements, unitful, periodictable</p></blockquote></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tutorial_4/">« <strong>Tutorial 4:</strong> Do You Know Our Mascot? - Learn About Transitions And Subactions!</a><a class="docs-footer-nextpage" href="../tutorial_6/"><strong>Tutorial 6:</strong> Using Animations.jl to Create something with more Pep! »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Thursday 24 September 2020 17:37">Thursday 24 September 2020</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
