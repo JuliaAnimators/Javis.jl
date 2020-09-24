@@ -19,7 +19,7 @@ Check out our [documentation](https://wikunia.github.io/Javis.jl/dev/) for tutor
 
 ### Tutorials
 
-|                                                                                                               |                                                                                                                      |
+| Animation                                                                                                     | Animation                                                                                                            |
 |---------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
 | ![](assets/eeg.gif)                                                                                           | ![](assets/dancing_circles.gif)                                                                                      |
 | **Tutorial:** [What Are Actions?](/https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_2/)           | **Tutorial:** [Making Your First Javis Animation!](/https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_1/) |
