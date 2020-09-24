@@ -95,6 +95,10 @@ using PeriodicTable
 using Unitful
 ```
 
+> **NOTE:** For this tutorial, we will also use `Animations.jl` to provide what are called "easing functions".
+These are used to control the speed at which an animation is drawn.
+This is further explained in [Tutorial 6](tutorial_6.md) so for now, don't worry too much about what we are doing with it. 
+
 And let's define our background function.
 This background function will also write the current frame being drawn:
 
@@ -275,22 +279,27 @@ Of course, we need to further update our `javis` function to this:
         Action(
             141:240,
             (args...) -> info_box(value = val(:atom)),
-            subactions = [SubAction(141:170, sineio(), appear(:draw_text))],
+            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
         ),
         Action(
             281:380,
             (args...) -> info_box(value = val(:atom)),
-            subactions = [SubAction(281:310, sineio(), appear(:draw_text))],
+            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
         ),
         Action(
             421:520,
             (args...) -> info_box(value = val(:atom)),
-            subactions = [SubAction(421:450, sineio(), appear(:draw_text))],
+            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
         ),
 ...
 ```
 
 The current scale of the circle object is now passed to the `info_box` function via the `:atom` symbol.
+Furthermore, we use a `SubAction` to have the text appear using the method `appear(:draw_text)` and we control the speed at which is appears using `sineio()`.
+
+> **NOTE:** `sineio()` comes from `Animations.jl` and is an easing function.
+More on this in [Tutorial 6](tutorial_6.md).
+
 This produces the following animation:
 
 ![](assets/min_atomic_info.gif)
@@ -409,20 +418,20 @@ javis(
         Action(
             141:240,
             (args...) -> info_box(value = val(:atom)),
-            subactions = [SubAction(141:170, sineio(), appear(:draw_text))],
+            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
         ),
         Action(
             281:380,
             (args...) -> info_box(value = val(:atom)),
-            subactions = [SubAction(281:310, sineio(), appear(:draw_text))],
+            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
         ),
         Action(
             421:520,
             (args...) -> info_box(value = val(:atom)),
-            subactions = [SubAction(421:450, sineio(), appear(:draw_text))],
+            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
         ),
     ],
-    pathname = "atomic.gif",
+    pathname = "min_atomic.gif",
     framerate = 10,
 )
 ```
