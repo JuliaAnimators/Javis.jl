@@ -17,7 +17,23 @@ Check out our [documentation](https://wikunia.github.io/Javis.jl/dev/) for tutor
 
 ## Gallery
 
-![](assets/showcase.gif)
+### Tutorials
+
+| Animation                                                                                                     | Animation                                                                                                            |
+|---------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
+| ![](assets/eeg.gif)                                                                                           | ![](assets/dancing_circles.gif)                                                                                      |
+| **Tutorial:** [What Are Actions?](/https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_2/)           | **Tutorial:** [Making Your First Javis Animation!](/https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_1/) |
+| ![](assets/atomic.gif)                                                                                        | ![](assets/jarvis.gif)                                                                                               |
+| **Tutorial:** [Taming the Elements](/https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_5/)         | **Tutorial:** [Do You Know Our Mascot?](/https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_4/)            |
+| ![](assets/matrix.gif)                                                                                        | ![](assets/loading.gif)                                                                                              |
+| **Tutorial:** [Rendering LaTeX with Javis!](/https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_3/) | **Tutorial:** [Using Animations.jl with Javis!](/https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_6/)    |
+
+### Examples
+
+| Animation                                 |
+|-------------------------------------------|
+| ![](examples/gifs/follow_bezier_path.gif) |
+| [Follow a Path](/examples/follow_path.jl) |
 
 ## Installation
 
