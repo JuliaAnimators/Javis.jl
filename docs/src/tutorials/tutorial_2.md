@@ -81,48 +81,62 @@ The following invocation will create the head:
 ...
 ```
 
-### Different types of defining an Action
+An `Action` consists of at least one part, namely calling a function which draw something on to the canvas. 
+An `Action` is fully comprised of `frames`, an optional `id`, a `function` that draws something on a canvas, an optional `Animation`, and an optional `Movement`.
 
-During the first tutorial you have already seen some other ways to define an `Action`. It's time to explain all kinds of different ways to work with `Action`s before you can continue.
+### Frames
 
-An `Action` consists of at least one part, namely calling a function which draw something on to the canvas. However, normally you want to specify the range of frames as well for which this function gets called. 
+The default of an `Action` is to use the same frames as a previous `Action`. 
+Besides that there are three other options:
 
-#### Frames
-
-The default is to use the same frames as previous `Action`. Besides that there are three other options:
-- Define the range explicitly i.e `1:100` 
-- Use the default but mention it: `:same` which means same as before
+- Define the range explicitly i.e `1:100`.
+- Use the default or explicitly write `:same` into the unit range location which means the same frames as before
 - Use [`Rel`](@ref) to specify it relative to the previous frame
-  - `Rel(10)` which is short for `Rel(1:10)` after an `Action` which is defined for `1:100` would mean `101:110`. You just want to make sure that you don't use frame numbers higher than the `BackgroundAction`.
+  - `Rel(10)` which is short for `Rel(1:10)` after an `Action` which is defined for `1:100` would mean `101:110`.
+  You just want to make sure that you don't use frame numbers higher than the `BackgroundAction`.
 
-#### Action ID
+### Action ID
 
-The action id which in the above example is `:head` can be used to store a return value from the drawing function you call. This can be used in later actions such that two actions can interact. One example was shown in the [previous tutorial](tutorial_1.md) where one object rotated around another one.
-In this tutorial it's basically used as a comment.
+The action id which in the above example is `:head` can be used to store a return value from the drawing function you call. 
+This can be used in later actions such that two actions can interact.
+One example was shown in the [previous tutorial](tutorial_1.md) where one object rotated around another one.
+In this tutorial it's basically used as a comment to keep track of what each `Action` is creating.
 
-#### Function
+### Function
 
-As mentioned the most important part of each [`Action`](@ref) is to define what should be drawn in these frames. Javis calls these functions with three arguments: `video`, `action` and `framenumber`. Normally this not needed but instead one defines own arguments. In this case the following syntax is used.
+As mentioned the most important part of each [`Action`](@ref) is to define what should be drawn in these frames. 
+Javis calls these functions with three arguments: `video`, `action` and `framenumber`. 
+Normally this is not needed but instead one defines own arguments. 
+In this case the following syntax is used.
 
 ```julia
-(args...)->my_function(argument_1, argument_2, ..., argument_X)
+(args...) -> my_function(argument_1, argument_2, ..., argument_X)
 ```
 
-You have seen that `my_function` can be a Luxor function or a function which calls some Luxor functions to draw on the canvas. 
+In [Tutorial 1](tutorial_1.md), it showed that `my_function` can be a Luxor function or a function which calls some Luxor functions to draw on the canvas. 
 
-#### Animation
+### Animation
 
-In [tutorial 6](tutorial_6.md) you can read more about the following. An `Action` can be used to define a simple movement of what can be drawn. An example for this was shown in the [previous tutorial](tutorial_1.md) where objects rotate. This movement is normally linear which is rather dull. Therefore, it's possible to define the speed using so called easing functions but more on that later.
+An `Action` can be used to define a simple movement of what can be drawn. 
+An example for this was shown in the [previous tutorial](tutorial_1.md) where objects rotate. 
+This movement is normally linear which is rather dull. 
+Therefore, it's possible to define the speed using so called easing functions (for more info, see [Tutorial 6](tutorial_6.md).
 
-#### Movement
+### Movement
 
-It's possible to give actions a movement during the entirety of existence of the action. This can be done using [`Translation`](@ref), [`Rotation`](@ref) and [`Scaling`](@ref). Nevertheless, it is suggested, and for more complex movements required, to use [`SubAction`](@ref)s to steer the animation of an `Action`. 
+It's possible to give an `Action`, a movement that persists over the entirety of its frames.
+This can be done using [`Translation`](@ref), [`Rotation`](@ref) and [`Scaling`](@ref). 
+However, it is suggested, and for more complex movements required, to use [`SubAction`](@ref)s to steer the animation of an `Action`. 
 
-#### SubAction
+### SubAction
 
-Actions have one keyword argument called `subactions` which is used to have fine grained control of how the objects can move frame by frame. [Tutorial 6](tutorial_6.md) contains detailed information about how to use this feature.
+Actions have one more additional keyword argument called `subactions`.
+A `SubAction` is used to have fine grained control of how an objects can move  from frame to frame. 
+[Tutorial 4](tutorial_4.md) and [tutorial 6](tutorial_6.md) explain more about a `SubAction`.
 
-Now please continue with animation the brain. The code
+Now that those explanations are out of the way, back to the brain! 
+
+The code
 
 ```julia
 ...
