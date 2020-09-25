@@ -6,5 +6,5 @@ If you have an interesting example that you would like to share with us, open an
 
 | Example                                                                                            |
 |-------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ![](assets/follow\_bezier\_path.gif                                                                |
+| ![](assets/follow_bezier_path.gif)                                                               |
 | [Follow a Path](https://github.com/Wikunia/Javis.jl/blob/master/examples/follow_path.jl) |
