@@ -170,6 +170,20 @@ From there, we need to define more `Action` objects for our `javis` function for
 
 This will grow our element from `1` to `12`, from `12` to `20`, `20` to `7`, and finally `7` to `1`.
 
+> **IMPORTANT:** `Scaling` does not really scale the element itself but instead the entire canvas. 
+> This produces the desired effect for two reasons:
+> 1. The `Action` is inside a Luxor layer which means that scaling inside this layer does not scale elements outside the layer like the frame counter in the upper left corner.
+> 2. As it scales the canvas and not the action itself it only works nicely if the action is defined at the origin. If you want to display the element somewhere else you should **not** change 
+> ```julia
+> function element(;color = "black")
+>    sethue(color)
+>    circle(O, 4, :fill)
+> end
+> ```
+> by changing `O` to `Point(x, y)` but instead use another `SubAction`:  
+> `SubAction(1:1, Translation(x, y))`
+> this will move the origin of the canvas to `x,y` and then scaling will work fine. As this is defined on the first frame only it's **not** an animated translation. 
+
 That scaling looks like this:
 
 ![](assets/blank_atom_scaling.gif)
