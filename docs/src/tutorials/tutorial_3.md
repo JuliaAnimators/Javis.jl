@@ -147,8 +147,8 @@ end
 ```
 
 The biggest change is that we added the `blend` and `setblend` functions.
-The `blend` function creates a linear blend between two points using two given colors - in this case, black and red.
-The `setblend` function applies the blend to the drawn object. 
+`blend` creates a linear blend between two points using two given colors - in this case, black and red.
+`setblend` applies the blend to the drawn object. 
 We also use the `translate` function this time as it makes writing the `blend` function easier.
 
 Can you guess what happens when we execute the code with this newly updated `draw_latex` function?
