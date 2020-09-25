@@ -2,7 +2,7 @@
 
 ## What is Javis? 
 
-`Javis.jl` is a tool focused on providing an easy to use interface for making animations and developing visualizations quickly - while having fun! :smiley:
+`Javis.jl` is a tool focused on providing an easy to use interface for making animations and developing visualizations quickly - while having fun! 😃
 
 That being said, we decided to make this mission statement to clearly explain the scope of this project. That is, to explain what this project _is_ and what it _is not_. Here are the core tenents of `Javis` concisely explained:
 
@@ -14,7 +14,7 @@ That being said, we decided to make this mission statement to clearly explain th
 
 - **Javis is not neccesarilly geared towards data analytics.** Admittedly, there are ways to use Javis to visualize data while creating animations. However, the intent of Javis is not focused on creating functionality to analyze datasets _as of this moment_. This may change in the future.
 
-- **We love documentation and tutorials! 🤓** One of the things we prioritize in each release of Javis is to document functionalities of the tools we add. Furthermore, we like to make tutorials to also show what is possible in Javis. Do you have a cool animation or blog that you have written using Javis? Let us know by making an issue to let us know!
+- **We love documentation and tutorials! 🤓** One of the things we prioritize in each release of Javis is to document functionalities of the tools we add. Furthermore, we like to make tutorials to also show what is possible in Javis. Do you have a cool animation or blog that you have written using Javis? Let us know by opening an issue!
 
 ## Summary
 

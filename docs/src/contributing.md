@@ -123,7 +123,7 @@ Finally, click "Create pull request".
 
 You may get some questions about it, and possibly suggestions of how to make it ready to go into the main project. 
 If you had test errors or problems, we are happy to help you. 
-Then, if all goes according to plan, it gets merged... **Thanks for the contribution!!** :tada: :tada: :tada:
+Then, if all goes according to plan, it gets merged... **Thanks for the contribution!!** 🎉 🎉 🎉
 
 ## Note on Adding Dependencies
 

@@ -28,3 +28,33 @@ function get_current_setting()
     action = CURRENT_ACTION[1]
     return action.current_setting
 end
+
+"""
+    get_interpolation(frames::UnitRange, frame)
+
+Return a value between 0 and 1 which represents the relative `frame` inside `frames`.
+"""
+function get_interpolation(frames::UnitRange, frame)
+    frame == last(frames) && return 1.0
+    t = (frame - first(frames)) / (length(frames) - 1)
+    # makes sense to only allow 0 ≤ t ≤ 1
+    t = min(1.0, t)
+end
+
+"""
+    get_interpolation(action::AbstractAction, frame)
+
+Return the value of the `action.anim` Animation based on the relative frame given by
+`get_interpolation(get_frames(action), frame)`
+"""
+function get_interpolation(action::AbstractAction, frame)
+    t = get_interpolation(get_frames(action), frame)
+    if !(action.anim.frames[end].t ≈ 1)
+        @warn "Animations should be defined from 0.0 to 1.0"
+    end
+    return at(action.anim, t)
+end
+
+function isapprox_discrete(val; atol = 1e-4)
+    return isapprox(val, round(val); atol = atol)
+end

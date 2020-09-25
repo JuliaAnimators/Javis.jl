@@ -20,11 +20,14 @@ makedocs(;
             "tutorials/tutorial_3.md",
             "tutorials/tutorial_4.md",
             "tutorials/tutorial_5.md",
+            "tutorials/tutorial_6.md",
         ],
+        "HowTo" => "howto.md",
+        "Examples" => "examples.md",
         "Mission" => "mission.md",
         "References" => "references.md",
         "Contributing" => "contributing.md",
     ],
 )
 
-deploydocs(; repo = "github.com/Wikunia/Javis.jl")
+deploydocs(; repo = "github.com/Wikunia/Javis.jl", push_preview = true)
