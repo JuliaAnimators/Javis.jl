@@ -186,7 +186,7 @@ Let's walk through the steps Javis takes to create the animation:
   - Remember the `O` is the same as `(0, 0)` and is at the center of the canvas at the beginning.
   - Then the circle is at position `(150, 0)`. Remember that it is still drawn at the origin so actually we shifted our whole view to the right.
 - Therefore for the next 100 frames we need to specify that we actually want to rotate around the world origin which is at `Point(-150, 0)` from our current perspective. 
-- Afterwards we are now again ath `(150, 0)` but see it as our origin and therefore need to move our circle to the left to `Point(-150, 0)` which is the world origin. 
+- Afterwards we are now again at `(150, 0)` but see it as our origin and therefore need to move our circle to the left to `Point(-150, 0)` which is the world origin. 
 
 Hope that makes sense! Let's see it in action:
 

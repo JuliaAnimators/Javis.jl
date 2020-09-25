@@ -405,7 +405,7 @@ Once everything is executed, we get this very nice and clean looking animation w
 
 ## Conclusion
 
-Congratulations! 🎉 🎉 🎉
+Congratulations! 🎉 🎉 🎉 
 You made a brain! 
 To recap, by working through this animation you should now:
 
