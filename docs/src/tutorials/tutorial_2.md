@@ -81,6 +81,71 @@ The following invocation will create the head:
 ...
 ```
 
+`Action` objects consist of at least one part, namely calling a function which draws something on to the canvas. 
+`Action` objects are fully comprised of `frames` (which can be optional), an optional `id`, a `function` that draws something on a canvas, an optional `Animation`, an optional `Movement`, and optional `SubAction` definitions.
+
+### Frames
+
+The default of an `Action` is to use the same frames as a previous `Action`. 
+Besides that there are three other options:
+
+- Define the range explicitly i.e `1:100`.
+- Use the default or explicitly write `:same` into the unit range location which means the same frames as before
+- Use [`Rel`](@ref) to specify it relative to the previous frame
+  - `Rel(10)` which is short for `Rel(1:10)` after an `Action` which is defined for `1:100` would mean `101:110`.
+  You just want to make sure that you don't use frame numbers higher than the `BackgroundAction`.
+
+### Action ID
+
+The action id which in the above example is `:head` can be used to store a return value from the drawing function you call. 
+This can be used in later actions such that two actions can interact.
+One example was shown in the [previous tutorial](tutorial_1.md) where one object rotated around another one.
+In this tutorial it's basically used as a comment to keep track of what each `Action` is creating.
+
+### Function
+
+As mentioned the most important part of each [`Action`](@ref) is to define what should be drawn in these frames. 
+Javis calls these functions with three arguments: `video`, `action` and `framenumber`. 
+Normally this is not needed but instead one defines own arguments. 
+In this case the following syntax is used.
+
+```julia
+(args...) -> my_function(argument_1, argument_2, ..., argument_X)
+```
+
+In [Tutorial 1](tutorial_1.md), it showed that `my_function` can be a Luxor function or a function which calls some Luxor functions to draw on the canvas. 
+
+### Animation
+
+An `Action` can be used to define a simple movement of what can be drawn. 
+An example for this was shown in the [previous tutorial](tutorial_1.md) where objects rotate. 
+This movement is normally linear which is rather dull. 
+Therefore, it's possible to define the speed using so called easing functions (for more info, see [Tutorial 6](tutorial_6.md).
+
+### Movement
+
+It's possible to give an `Action`, a movement that persists over the entirety of its frames.
+This can be done using [`Translation`](@ref), [`Rotation`](@ref) and [`Scaling`](@ref). 
+However, it is suggested, and for more complex movements required, to use [`SubAction`](@ref)s to steer the animation of an `Action`. 
+
+### SubAction
+
+Actions have one more additional keyword argument called `subactions`.
+A `SubAction` is used to have fine grained control of how an objects can move  from frame to frame. 
+[Tutorial 4](tutorial_4.md) and [tutorial 6](tutorial_6.md) explain more about a `SubAction`.
+
+Now that those explanations are out of the way, back to the brain! 
+
+The code
+
+```julia
+...
+    Action(:same, :head, (args...) -> circ(O, "black", :stroke, 170)),
+...
+```
+
+creates
+
 ![](assets/head.gif)
 
 Now we are getting a - _head_! 😃
@@ -230,7 +295,7 @@ Also, we need to define the radius of our electrodes; we will set that to 15:
 
 ```julia
 ...
-        radius = 15
+    radius = 15 # needs to be defined before calling `javis`
 	Action(
             :electrodes,
             (args...) ->
@@ -354,7 +419,7 @@ Once everything is executed, we get this very nice and clean looking animation w
 
 ## Conclusion
 
-Congratulations! 🎉 🎉 🎉
+Congratulations! 🎉 🎉 🎉 
 You made a brain! 
 To recap, by working through this animation you should now:
 

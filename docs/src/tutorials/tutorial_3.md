@@ -1,7 +1,6 @@
 # **Tutorial 3:** Rendering LaTeX with Javis!
 
 This is a rather brief tutorial about an exciting functionality of `Javis.jl`: the ability to render $\LaTeX$!
-By the end of this tutorial, you will be able to create 
 
 If you have never heard of `LaTeX` before, we highly recommend the following resources:
 
@@ -128,7 +127,7 @@ Let's spice it up!
 
 ## Throw it in the Blender!
 
-A fun function that `Javis` provides is the ability to blend colors together!
+A fun function that `Luxor` provides is the ability to blend colors together!
 To do so, let's modify the `draw_latex` function:
 
 ```julia
@@ -148,8 +147,8 @@ end
 ```
 
 The biggest change is that we added the `blend` and `setblend` functions.
-The `blend` function creates a linear blend between two points using two given colors - in this case, black and red.
-The `setblend` function applies the blend to the drawn object. 
+`blend` creates a linear blend between two points using two given colors - in this case, black and red.
+`setblend` applies the blend to the drawn object. 
 We also use the `translate` function this time as it makes writing the `blend` function easier.
 
 Can you guess what happens when we execute the code with this newly updated `draw_latex` function?
