@@ -4,7 +4,6 @@ Aside from tutorials which take you step by step on how to create a tutorial, we
 These animations do not have an accompanying tutorial but rather, scripts that you can examine, tweak, and modify to suit your own purposes.
 If you have an interesting example that you would like to share with us, open an issue (check out our [Contributing Guide](contributing.md) on how to do this) and we'd be happy to add your example to this page!
 
-| Example                                                                                            |
-|-------------------------------------------------------------------------------------------------------------------------------------------------------|
-| ![](assets/follow_bezier_path.gif)                                                               |
-| [Follow a Path](https://github.com/Wikunia/Javis.jl/blob/master/examples/follow_path.jl) |
+| Example                            | Link                                                                                               | Details                                                                                                                                                                                                                    |
+|------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ![](assets/follow_bezier_path.gif) | [Follow a Path](https://github.com/Wikunia/Javis.jl/blob/master/examples/follow_path.jl) | This creates a bezier curve to draw the outline of a car and have a circle go around that outlined path. [`follow_path`](@ref), [`makebezierpath`](@ref), and [`appear`](@ref) were used to create this animation. |
