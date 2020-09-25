@@ -170,19 +170,29 @@ function save_morph_polygons!(
     end
     =#
 
-    action.opts[:from_poly] = Vector{Vector{Point}}()
-    action.opts[:to_poly] = Vector{Vector{Point}}()
+    action.opts[:from_shape] = Vector{Shape}()
+    action.opts[:to_shape] = Vector{Shape}()
     action.opts[:points] = Vector{Vector{Point}}()
 
     counter = 0
     for (from_shape, to_shape) in zip(from_shapes, to_shapes)
         counter += 1
         if isempty(from_shape) || isempty(to_shape)
-            new_from_poly = from_shape.points
-
-            push!(action.opts[:from_poly], new_from_poly)
-            push!(action.opts[:to_poly], to_shape.points)
-            push!(action.opts[:points], Vector{Point}(undef, length(new_from_poly)))
+            if isempty(from_shape)
+                push!(action.opts[:from_shape], EmptyShape())
+                push!(action.opts[:to_shape], to_shape)
+                push!(
+                    action.opts[:points],
+                    Vector{Point}(undef, total_num_points(to_shape)),
+                )
+            else
+                push!(action.opts[:from_shape], from_shape)
+                push!(action.opts[:to_shape], EmptyShape())
+                push!(
+                    action.opts[:points],
+                    Vector{Point}(undef, total_num_points(from_shape)),
+                )
+            end
         else
             from_poly, to_poly = match_num_points(from_shape.points, to_shape.points)
             smallest_i, smallest_distance =
@@ -294,6 +304,33 @@ function compute_shortest_morphing_dist(from_poly::Vector{Point}, to_poly::Vecto
     return smallest_i, smallest_distance
 end
 
+function draw_polygon(polygon, next_polygon, draw_action)
+    got_drawn = false
+    if ispolyclockwise(polygon) && ispolyclockwise(next_polygon)
+        poly(polygon, draw_action; close = true)
+        got_drawn = true
+    elseif ispolyclockwise(polygon)
+        poly(polygon, :path; close = true)
+        newsubpath()
+    elseif ispolyclockwise(next_polygon)
+        # is last subpath
+        poly(polygon, :path; close = true)
+        if draw_action == :stroke
+            got_drawn = true
+            strokepath()
+        elseif draw_action == :fill
+            got_drawn = true
+            fillpath()
+        else
+            closepath()
+        end
+    else
+        newsubpath()
+        poly(polygon, :path; close = true)
+    end
+    return got_drawn
+end
+
 """
     _morph(video::Video, action::Action, frame, from_func::Function, to_func::Function; draw_action=:stroke)
 
@@ -362,47 +399,33 @@ function _morph(
             end
             continue
         end
-        got_drawn = false
-        if ispolyclockwise(polygons[pi]) &&
-           (pi == number_of_poly || ispolyclockwise(polygons[pi + 1]))
-            poly(polygons[pi], draw_action; close = true)
-            got_drawn = true
-        elseif ispolyclockwise(polygons[pi])
-            poly(polygons[pi], :path; close = true)
-            newsubpath()
-        elseif pi == number_of_poly || ispolyclockwise(polygons[pi + 1])
-            # is last subpath
-            poly(polygons[pi], :path; close = true)
-            if draw_action == :stroke
-                got_drawn = true
-                strokepath()
-            elseif draw_action == :fill
-                got_drawn = true
-                fillpath()
-            else
-                closepath()
-            end
-        else
-            newsubpath()
-            poly(polygons[pi], :path; close = true)
-        end
+        # if last polygon the next is a clockwise one
+        next_polygon =
+            pi == number_of_poly ? [O, Point(-1, 0), Point(-1, -1)] : polygons[pi + 1]
+        got_drawn = draw_polygon(polygons[pi], next_polygon, draw_action)
     end
     # let new paths appear
     t = get_interpolation(action, frame)
     setopacity(t)
 
-    for pi in 1:number_of_poly
-        (bool_move[pi] || !bool_appear[pi]) && continue
-        poly(polygons[pi], draw_action; close = true)
+    polygon_ids = [pi for pi in 1:number_of_poly if (!bool_move[pi] && bool_appear[pi])]
+    polys = polygons[polygon_ids]
+    for pi in 1:length(polys)
+        next_polygon =
+            pi == length(polys) ? [O, Point(-1, 0), Point(-1, -1)] : polys[pi + 1]
+        got_drawn = draw_polygon(polys[pi], next_polygon, draw_action)
     end
 
     # let old paths disappear
     t = get_interpolation(action, frame)
     setopacity(1 - t)
 
-    for pi in 1:number_of_poly
-        (bool_move[pi] || bool_appear[pi]) && continue
-        poly(polygons[pi], draw_action; close = true)
+    polygon_ids = [pi for pi in 1:number_of_poly if (!bool_move[pi] && !bool_appear[pi])]
+    polys = polygons[polygon_ids]
+    for pi in 1:length(polys)
+        next_polygon =
+            pi == length(polys) ? [O, Point(-1, 0), Point(-1, -1)] : polys[pi + 1]
+        got_drawn = draw_polygon(polys[pi], next_polygon, draw_action)
     end
     setopacity(1)
 end

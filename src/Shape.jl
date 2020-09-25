@@ -17,6 +17,10 @@ function Base.isempty(shape::Shape)
     return length(shape.points) == 0
 end
 
+function total_num_points(shape::Shape)
+    return length(shape.points) + sum(map(x -> length(x), shape.subpaths))
+end
+
 function get_angles(p)
     # TODO: let's assume it's a closed path
     num_acute_angles = 0
