@@ -81,8 +81,8 @@ The following invocation will create the head:
 ...
 ```
 
-An `Action` consists of at least one part, namely calling a function which draw something on to the canvas. 
-An `Action` is fully comprised of `frames`, an optional `id`, a `function` that draws something on a canvas, an optional `Animation`, and an optional `Movement`.
+`Action` objects consist of at least one part, namely calling a function which draws something on to the canvas. 
+`Action` objects are fully comprised of `frames` (which can be optional), an optional `id`, a `function` that draws something on a canvas, an optional `Animation`, an optional `Movement`, and optional `SubAction` definitions.
 
 ### Frames
 
