@@ -327,13 +327,14 @@ function follow_path(points::Vector{Point}; closed = true)
 end
 
 function _follow_path(video, action, subaction, rel_frame, points; closed = closed)
+    isfirstframe = rel_frame == first(get_frames(subaction))
     t = get_interpolation(subaction, rel_frame)
     # if not closed it should be always between 0 and 1
     if !closed
         t = clamp(t, 0.0, 1.0)
     end
     # if t is discrete and not 0.0 take the last point or first if closed
-    if rel_frame != 1 && isapprox_discrete(t)
+    if !isfirstframe && isapprox_discrete(t)
         if closed
             translate(points[1])
         else
@@ -343,7 +344,7 @@ function _follow_path(video, action, subaction, rel_frame, points; closed = clos
     end
     # get only the fractional part to be between 0 and 1
     t -= floor(t)
-    if rel_frame == 1
+    if isfirstframe
         # compute the distances only once for performance reasons
         subaction.defs[:p_dist] = polydistances(points, closed = closed)
     end

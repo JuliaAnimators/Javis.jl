@@ -172,7 +172,7 @@ function save_morph_polygons!(
 
     action.opts[:from_shape] = Vector{Shape}()
     action.opts[:to_shape] = Vector{Shape}()
-    action.opts[:points] = Vector{Vector{Point}}()
+    action.opts[:points] = Vector{Shape}()
 
     counter = 0
     for (from_shape, to_shape) in zip(from_shapes, to_shapes)
@@ -183,14 +183,20 @@ function save_morph_polygons!(
                 push!(action.opts[:to_shape], to_shape)
                 push!(
                     action.opts[:points],
-                    Vector{Point}(undef, total_num_points(to_shape)),
+                    Shape(
+                        length(to_shape.points),
+                        [length(subpath) for subpath in to_shape.subpaths],
+                    ),
                 )
             else
                 push!(action.opts[:from_shape], from_shape)
                 push!(action.opts[:to_shape], EmptyShape())
                 push!(
                     action.opts[:points],
-                    Vector{Point}(undef, total_num_points(from_shape)),
+                    Shape(
+                        length(from_shape.points),
+                        [length(subpath) for subpath in from_shape.subpaths],
+                    ),
                 )
             end
         else

@@ -13,13 +13,28 @@ function EmptyShape()
     return Shape(Point[], Point[], O, Point[], Vector{Vector{Point}}(), 0, 0, 0)
 end
 
+function Shape(num_points::Int, points_of_subpaths::Vector{Int})
+    points = Vector{Point}(undef, num_points)
+    subpaths = Vector{Vector{Point}}()
+    for points_in_subpath in points_of_subpaths
+        push!(subpaths, Vector{Point}(undef, points_in_subpath))
+    end
+    return Shape(points, Point[], O, Point[], subpaths, 0, 0, 0)
+end
+
+function Shape(points, subpaths)
+    simplified_points = simplify(points)
+    points, aa, oa, ra = get_angles(simplified_points)
+    centroid = polycentroid(points)
+    shape =
+        Shape(points, simplified_points, centroid, points .- centroid, subpaths, aa, oa, ra)
+    return shape
+end
+
 function Base.isempty(shape::Shape)
     return length(shape.points) == 0
 end
 
-function total_num_points(shape::Shape)
-    return length(shape.points) + sum(map(x -> length(x), shape.subpaths))
-end
 
 function get_angles(p)
     # TODO: let's assume it's a closed path
@@ -154,15 +169,6 @@ function get_similarity(shapeA::Shape, shapeB::Shape)
     score += perc * score_centered_point_diff
 
     return score
-end
-
-function Shape(points, subpaths)
-    simplified_points = simplify(points)
-    points, aa, oa, ra = get_angles(simplified_points)
-    centroid = polycentroid(points)
-    shape =
-        Shape(points, simplified_points, centroid, points .- centroid, subpaths, aa, oa, ra)
-    return shape
 end
 
 function create_shapes(polys)

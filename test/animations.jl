@@ -429,10 +429,11 @@ end
         [
             BackgroundAction(1:50, ground_opacity),
             Action(
+                1:42,
                 (args...) -> circ();
                 subactions = [
                     SubAction(1:25, appear(:fade)),
-                    SubAction(26:50, disappear(:fade)),
+                    SubAction(26:42, disappear(:fade)),
                 ],
             ),
             Action(
@@ -784,7 +785,16 @@ end
             frame_start:(frame_start + 149),
             (args...) -> star(O, 20, 5, 0.5, 0, :fill);
             subactions = [
-                SubAction(1:150, anim, follow_path(simple_bezier(); closed = false)),
+                SubAction(1:1, Translation(simple_bezier()[1] + Point(0, 3 * frame_start))),
+                SubAction(1:10, appear(:fade)),
+                SubAction(
+                    11:150,
+                    anim,
+                    follow_path(
+                        simple_bezier() .- (simple_bezier()[1] + Point(0, 3 * frame_start));
+                        closed = false,
+                    ),
+                ),
                 SubAction(1:150, color_anim, sethue()),
             ],
         ) for frame_start in 1:7:22
@@ -797,6 +807,8 @@ end
         pathname = "",
     )
 
+    @test_reference "refs/followPathBezier1.png" load("images/0000000001.png")
+    @test_reference "refs/followPathBezier5.png" load("images/0000000005.png")
     @test_reference "refs/followPathBezier10.png" load("images/0000000010.png")
     @test_reference "refs/followPathBezier30.png" load("images/0000000030.png")
     @test_reference "refs/followPathBezier100.png" load("images/0000000100.png")

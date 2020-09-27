@@ -8,13 +8,14 @@
 - Ability to draw animated text via `appear(:draw_text)`
   - Must be called inside a `SubAction` 
 - Ability to morph with `fill` or `stroke` and using `SubAction` to specify changes in color
-
 - Added live viewer based on `Gtk.jl` in the `javis` function
   - Activate in `javis` by setting `liveview = true`
 - Prototype returning single frame of Javis animation with `get_javis_frame`
   - Currently must be invoked after `javis` function call
   - Can be called via `Javis.get_javis_frame` as it is not exported yet
 - An object described by an action can follow a path (a vector of points). See `follow_path`
+- Bugfix when scaling to 0. Before this every object on that frame would disappear even in a different layer
+- Bugfix in interpolation: Interpolation of a single frame like `1:1` returns `1.0` now instead of `NaN`.
 
   
 ## 0.1.5 (14th of September 2020)

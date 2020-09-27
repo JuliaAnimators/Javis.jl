@@ -35,6 +35,7 @@ end
 Return a value between 0 and 1 which represents the relative `frame` inside `frames`.
 """
 function get_interpolation(frames::UnitRange, frame)
+    frame == last(frames) && return 1.0
     t = (frame - first(frames)) / (length(frames) - 1)
     # makes sense to only allow 0 ≤ t ≤ 1
     t = min(1.0, t)
