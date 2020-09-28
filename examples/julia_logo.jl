@@ -11,7 +11,6 @@ vid = Video(800, 500)
 function ground(args...)
     background("black")
     sethue("black")
-    circle(Point(0, 0), 200, :fill)
 end
 
 function object(
@@ -106,7 +105,6 @@ function draw_logo(n::Int; frames = 2160)
                 ids[0],
                 (args...) ->
                     object(Point(base_size * cs[0]), size = abs(base_size * cs[1])),
-                Rotation(0.0, 0.0),
                 subactions = fade_fourier(),
             ),
             map(
