@@ -1,10 +1,8 @@
 using Javis
 using DelimitedFiles
-using OffsetArrays, FFTViews # (not strictly necessary, but make DFT indexing more intuitive)
-
-# Import the discrete fourier transform of our points and recast them in their original complex form
+using OffsetArrays, FFTW, FFTViews # (not strictly necessary, but make DFT indexing more intuitive)
 ps = readdlm("julia_logo.csv", ',')
-cs = complex.(ps[:, 1], ps[:, 2]) |> FFTView
+coordinates_dft = complex.(ps[:, 1], ps[:, 2]) |> fft |> FFTView
 
 vid = Video(800, 500)
 
@@ -73,8 +71,7 @@ function vector(p1, p2; color = "white", opacity = 1 / 2, linewidth = 1, tipsize
     poly([p2, v1, v2, p2], :fill)           # vector tip
 end
 
-function draw_logo(n::Int; frames = 2160)
-    # TODO: (1) Fix indices so that I don't need to go to end-1 (a problem for very small n)
+function draw_logo(cs, n::Int; frames = 2160)
 
     base_size = 7.5e-5
     n_rotations = 2         # how many times the "tip" goes around the drawing
@@ -155,3 +152,5 @@ function draw_logo(n::Int; frames = 2160)
         pathname = "julia_logo.gif",
     )
 end
+
+draw_logo(coordinates_dft, 1001)
