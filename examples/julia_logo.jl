@@ -82,7 +82,7 @@ function draw_logo(n::Int; frames = 2160)
     remap_idx(i::Int) = (-1)^(i - 1) * floor(Int, (i + 1) / 2)
     remap_inv(n::Int) = 2n * sign(n) - 1 * (n > 0)
 
-    n0, nT = -Int((n - 1) / 2), Int((n - 1) / 2)
+    n0, nT = -ceil(Int, (n - 1) / 2), ceil(Int, (n - 1) / 2)
     ids = OffsetArray(map(i -> Symbol("ball_" * "$(i)"), n0:nT), n0:nT)
     indices = [remap_idx(i) for i in 0:(n - 1)]
 
