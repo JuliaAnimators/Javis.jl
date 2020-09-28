@@ -1,6 +1,14 @@
 using Javis
 using DelimitedFiles
 using OffsetArrays, FFTW, FFTViews # (not strictly necessary, but make DFT indexing more intuitive)
+
+#=
+    Here we import the (ordered) coordinates of the julia logo. They were obtained by extracting the contours of the 
+    julia logo using JuliaImages; then, they were "ordered" by finding a solution to the Traveling Salesman Problem (that
+    is, by finding the shortest path that travels once through all the points).
+    To draw the logo using Fourier series approximation we then need to take the Discrete Fourier Transform of the set of
+    coordinates. Doing everything in polar form and using OffsetArrays makes the computations slightly more intuitive.
+=#
 ps = readdlm("julia_logo.csv", ',')
 coordinates_dft = complex.(ps[:, 1], ps[:, 2]) |> fft |> FFTView
 
@@ -72,6 +80,8 @@ function vector(p1, p2; color = "white", opacity = 1 / 2, linewidth = 1, tipsize
 end
 
 function draw_logo(cs, n::Int; frames = 2160)
+    # This function uses the first n terms (both positive and negative frequencies) of the Discrete Fourier Transform
+    # to draw a line by "summing up" the terms
 
     base_size = 7.5e-5
     n_rotations = 2         # how many times the "tip" goes around the drawing
