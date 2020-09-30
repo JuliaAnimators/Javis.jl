@@ -22,9 +22,15 @@ function Shape(num_points::Int, points_of_subpaths::Vector{Int})
     return Shape(points, Point[], O, Point[], subpaths, 0, 0, 0)
 end
 
-function Shape(points, subpaths)
+function Shape(points, subpaths; compute_info = true)
     simplified_points = simplify(points)
-    points, aa, oa, ra = get_angles(simplified_points)
+    if compute_info
+        points, aa, oa, ra = get_angles(simplified_points)
+    else
+        aa = 0
+        oa = 0
+        ra = 0
+    end
     centroid = polycentroid(points)
     shape =
         Shape(points, simplified_points, centroid, points .- centroid, subpaths, aa, oa, ra)
@@ -206,4 +212,64 @@ function print_basic(s::Shape)
     println("Shape: #Points: $(length(s.points))")
     println("Angles: #Acute: $(s.num_acute_angles) #Obtuse: $(s.num_obtuse_angles) #Right: $(s.num_right_angles)")
     println("#Holes: $(length(s.subpaths))")
+end
+
+
+function prepare_to_interpolate(from_shape, to_shape)
+    # match number of points for outer polygon
+    from_outer, to_outer = match_num_points(from_shape.points, to_shape.points)
+
+    # for holes
+    from_holes = Vector{Vector{Point}}()
+    to_holes = Vector{Vector{Point}}()
+
+    for (from_hole, to_hole) in zip(from_shape.subpaths, to_shape.subpaths)
+        from_hole_matched, to_hole_matched = match_num_points(from_hole, to_hole)
+        push!(from_holes, from_hole_matched)
+        push!(to_holes, to_hole_matched)
+    end
+
+    # rotate outer polygon
+    rotate_i, _ = compute_shortest_morphing_dist(from_outer, to_outer)
+    new_from_outer = circshift(from_outer, -rotate_i + 1)
+
+    new_from_holes = Vector{Vector{Point}}()
+
+    # rotate holes
+    for (from_hole, to_hole) in zip(from_holes, to_holes)
+        rotate_i, _ = compute_shortest_morphing_dist(from_hole, to_hole)
+        push!(new_from_holes, circshift(from_hole, -rotate_i + 1))
+    end
+
+    from = Shape(new_from_outer, new_from_holes; compute_info = false)
+    to = Shape(to_outer, to_holes; compute_info = false)
+
+    return from, to
+end
+
+function interpolate_shape!(inter_shape, from, to, t)
+    # outer
+    for (i, p1, p2) in zip(1:length(from.points), from.points, to.points)
+        new_point = p1 + t * (p2 - p1)
+        inter_shape.points[i] = new_point
+    end
+
+    # for holes
+    for hi in 1:length(from.subpaths)
+        for (i, p1, p2) in
+            zip(1:length(from.subpaths[hi]), from.subpaths[hi], to.subpaths[hi])
+            new_point = p1 + t * (p2 - p1)
+            inter_shape.subpaths[hi][i] = new_point
+        end
+    end
+end
+
+function draw_shape(shape, draw_action)
+    newpath()
+    poly(shape.points, :path; close = true)
+    for hi in 1:length(shape.subpaths)
+        newsubpath()
+        poly(shape.subpaths[hi], :path; close = true)
+    end
+    do_action(draw_action)
 end

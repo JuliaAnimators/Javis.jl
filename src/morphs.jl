@@ -172,7 +172,7 @@ function save_morph_polygons!(
 
     action.opts[:from_shape] = Vector{Shape}()
     action.opts[:to_shape] = Vector{Shape}()
-    action.opts[:points] = Vector{Shape}()
+    action.opts[:inter_shape] = Vector{Shape}()
 
     counter = 0
     for (from_shape, to_shape) in zip(from_shapes, to_shapes)
@@ -182,7 +182,7 @@ function save_morph_polygons!(
                 push!(action.opts[:from_shape], EmptyShape())
                 push!(action.opts[:to_shape], to_shape)
                 push!(
-                    action.opts[:points],
+                    action.opts[:inter_shape],
                     Shape(
                         length(to_shape.points),
                         [length(subpath) for subpath in to_shape.subpaths],
@@ -192,7 +192,7 @@ function save_morph_polygons!(
                 push!(action.opts[:from_shape], from_shape)
                 push!(action.opts[:to_shape], EmptyShape())
                 push!(
-                    action.opts[:points],
+                    action.opts[:inter_shape],
                     Shape(
                         length(from_shape.points),
                         [length(subpath) for subpath in from_shape.subpaths],
@@ -200,34 +200,20 @@ function save_morph_polygons!(
                 )
             end
         else
-            from_poly, to_poly = match_num_points(from_shape.points, to_shape.points)
-            smallest_i, smallest_distance =
-                compute_shortest_morphing_dist(from_poly, to_poly)
+            from_shape, to_shape = prepare_to_interpolate(from_shape, to_shape)
 
-            new_from_poly = circshift(from_poly, length(from_poly) - smallest_i + 1)
-
-            push!(action.opts[:from_poly], new_from_poly)
-            push!(action.opts[:to_poly], to_poly)
-            push!(action.opts[:points], Vector{Point}(undef, length(new_from_poly)))
-
-            # for subpaths
-            for (from_subpath, to_subpath) in zip(from_shape.subpaths, to_shape.subpaths)
-                from_poly, to_poly = match_num_points(from_subpath, to_subpath)
-                smallest_i, smallest_distance =
-                    compute_shortest_morphing_dist(from_poly, to_poly)
-
-                new_from_poly = circshift(from_poly, length(from_poly) - smallest_i + 1)
-                @assert !ispolyclockwise(new_from_poly) && !ispolyclockwise(to_poly)
-
-                push!(action.opts[:from_poly], new_from_poly)
-                push!(action.opts[:to_poly], to_poly)
-                push!(action.opts[:points], Vector{Point}(undef, length(new_from_poly)))
-            end
+            push!(action.opts[:from_shape], from_shape)
+            push!(action.opts[:to_shape], to_shape)
+            push!(
+                action.opts[:inter_shape],
+                Shape(
+                    length(from_shape.points),
+                    [length(subpath) for subpath in from_shape.subpaths],
+                ),
+            )
         end
     end
 end
-
-
 
 function try_merge_polygons(polys)
     for pi in 1:length(polys)
@@ -356,84 +342,56 @@ function _morph(
     end
 
     # obtain the computed polygons. These polygons have the same number of points.
-    number_of_poly = length(action.opts[:from_poly])
-    polygons = Vector{Vector{Point}}(undef, number_of_poly)
-    bool_move = ones(Bool, number_of_poly)
-    bool_appear = zeros(Bool, number_of_poly)
+    number_of_shapes = length(action.opts[:from_shape])
+    bool_move = ones(Bool, number_of_shapes)
+    bool_appear = zeros(Bool, number_of_shapes)
 
-    for pi in 1:number_of_poly
-        from_poly = action.opts[:from_poly][pi]
-        to_poly = action.opts[:to_poly][pi]
-        points = action.opts[:points][pi]
+    for si in 1:number_of_shapes
+        from_shape = action.opts[:from_shape][si]
+        to_shape = action.opts[:to_shape][si]
+        inter_shape = action.opts[:inter_shape][si]
+
         # polygons[pi] = from_poly
         # println("#Points: $pi ", length(polygons[pi]))
         # continue
-        if isempty(from_poly) || isempty(to_poly)
-            if isempty(to_poly)
-                polygons[pi] = from_poly
+        if isempty(from_shape) || isempty(to_shape)
+            if isempty(to_shape)
+                action.opts[:inter_shape][si] = from_shape
             else
-                polygons[pi] = to_poly
-                bool_appear[pi] = true
+                action.opts[:inter_shape][si] = to_shape
+                bool_appear[si] = true
             end
-            bool_move[pi] = false
+            bool_move[si] = false
             continue
         end
 
         # compute the interpolation variable `t` for the current frame
         t = get_interpolation(action, frame)
-
-        for (i, p1, p2) in zip(1:length(from_poly), from_poly, to_poly)
-            new_point = p1 + t * (p2 - p1)
-            points[i] = new_point
-        end
-
-        polygons[pi] = points
-        @assert !xor(ispolyclockwise(polygons[pi]), ispolyclockwise(from_poly))
+        interpolate_shape!(inter_shape, from_shape, to_shape, t)
+        draw_shape(inter_shape, draw_action)
     end
 
-    got_drawn = true
-    for pi in 1:number_of_poly
-        if !bool_move[pi]
-            if !got_drawn
-                if draw_action == :stroke
-                    strokepath()
-                elseif draw_action == :fill
-                    fillpath()
-                else
-                    closepath()
-                end
-            end
-            continue
-        end
-        # if last polygon the next is a clockwise one
-        next_polygon =
-            pi == number_of_poly ? [O, Point(-1, 0), Point(-1, -1)] : polygons[pi + 1]
-        got_drawn = draw_polygon(polygons[pi], next_polygon, draw_action)
-    end
+    #=
     # let new paths appear
     t = get_interpolation(action, frame)
     setopacity(t)
 
-    polygon_ids = [pi for pi in 1:number_of_poly if (!bool_move[pi] && bool_appear[pi])]
-    polys = polygons[polygon_ids]
-    for pi in 1:length(polys)
-        next_polygon =
-            pi == length(polys) ? [O, Point(-1, 0), Point(-1, -1)] : polys[pi + 1]
-        got_drawn = draw_polygon(polys[pi], next_polygon, draw_action)
-    end
+    shape_ids = [si for si in 1:number_of_shapes if (!bool_move[si] && bool_appear[si])]
+    shapes = action.opts[:inter_shape][shape_ids]
+    # print_basic.(shapes)
+    # error(1)
+    draw_shape.(shapes, draw_action)
 
     # let old paths disappear
     t = get_interpolation(action, frame)
     setopacity(1 - t)
 
-    polygon_ids = [pi for pi in 1:number_of_poly if (!bool_move[pi] && !bool_appear[pi])]
-    polys = polygons[polygon_ids]
-    for pi in 1:length(polys)
-        next_polygon =
-            pi == length(polys) ? [O, Point(-1, 0), Point(-1, -1)] : polys[pi + 1]
-        got_drawn = draw_polygon(polys[pi], next_polygon, draw_action)
-    end
+    shape_ids = [si for si in 1:number_of_shapes if (!bool_move[si] && !bool_appear[si])]
+    shapes = action.opts[:inter_shape][shape_ids]
+    draw_shape.(shapes, draw_action)
+
     setopacity(1)
+    =#
 end
 
 """

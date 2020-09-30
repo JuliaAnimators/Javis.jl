@@ -38,5 +38,11 @@ function Video(width, height)
     else
         CURRENT_VIDEO[1] = video
     end
+
+    if isempty(CURRENT_ACTION)
+        push!(CURRENT_ACTION, Action(1:1, (args...) -> 1))
+    else
+        CURRENT_ACTION[1] = Action(1:1, (args...) -> 1)
+    end
     return video
 end
