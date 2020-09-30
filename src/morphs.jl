@@ -88,6 +88,9 @@ i.e. use `circle(Point(100,100), 50)` instead of `circle(Point(100,100), 50, :st
 # Keywords
 - `action::Symbol` defines whether the object has a fill or just a stroke. Defaults to stroke.
 
+# Keywords
+- `action::Symbol` defines whether the object has a fill or just a stroke. Defaults to stroke.
+
 # Example
 
 This creates a star that morphs into a circle and back.
@@ -371,7 +374,6 @@ function _morph(
         draw_shape(inter_shape, draw_action)
     end
 
-    #=
     # let new paths appear
     t = get_interpolation(action, frame)
     setopacity(t)
@@ -391,7 +393,6 @@ function _morph(
     draw_shape.(shapes, draw_action)
 
     setopacity(1)
-    =#
 end
 
 """

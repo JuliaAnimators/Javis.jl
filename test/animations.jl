@@ -324,6 +324,31 @@ end
     end
 end
 
+@testset "morphing star2circle and back with fill" begin
+    video = Video(500, 500)
+    javis(
+        video,
+        [
+            BackgroundAction(
+                1:20,
+                :framenumber,
+                (args...) -> ground_color("white", "black", args[3]),
+            ),
+            Action(1:10, (args...) -> circle(Point(-100, 0), val(:framenumber), :fill)),
+            Action(1:10, morph(astar, acirc; action = :fill)),
+            Action(11:20, morph(acirc, astar; action = :fill)),
+        ],
+        tempdirectory = "images",
+        pathname = "",
+    )
+
+    @test_reference "refs/star2circle_fill5.png" load("images/0000000005.png")
+    @test_reference "refs/star2circle_fill15.png" load("images/0000000015.png")
+    for i in 1:20
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
 function ground_nicholas(args...)
     background("white")
     sethue("blue")

@@ -21,6 +21,7 @@ const FRAMES_SYMBOL = [:same]
 
 abstract type Transition end
 abstract type InternalTransition end
+
 abstract type AbstractAction end
 
 include("structs/Video.jl")
