@@ -7,6 +7,8 @@
 [![Coverage](https://codecov.io/gh/Wikunia/Javis.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Wikunia/Javis.jl)
 [![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://julialang.zulipchat.com/#narrow/stream/253420-javis)
 
+![](https://img.shields.io/github/hacktoberfest/2020/badges/shields?label=hacktoberfest%202020)
+
 **Javis:** **J**ulia **A**nimations and **Vis**ualizations
 
 ## Introduction 
@@ -98,6 +100,7 @@ We want to thank a couple of people who helped make this possible.
 
 ### Contributors 
 
-- [sudomaze](https://github.com/sudomaze) for helping out with tutorials and feedback for v0.1.0.
-- [mythreyiramesh](https://github.com/mythreyiramesh) cleaning up tutorials 
-
+- @sudomaze for helping out with tutorials and feedback for v0.1.0.
+- @mythreyiramesh cleaning up tutorials 
+- @briochemc for spotting and cleaning up tutorial typos and grammar
+- @ric-cioffi for adding the Julia Logo example and for feedback
