@@ -110,13 +110,105 @@ javis(video, [
     pathname="star2circle.gif", deletetemp=true)
 ```
 """
-function morph(
-    from_func::Union{Vector{Vector{Point}},Function},
-    to_func::Union{Vector{Vector{Point}},Function};
-    action = :stroke,
-)
+function morph(from_func::Function, to_func::Function; action = :stroke)
     return (video, scene_action, frame) ->
         _morph(video, scene_action, frame, from_func, to_func; draw_action = action)
+end
+
+
+"""
+    _morph(video::Video, action::Action, frame, from_func::Function, to_func::Function; draw_action=:stroke)
+
+Internal version of [`morph`](@ref) but described there.
+"""
+function _morph(
+    video::Video,
+    action::Action,
+    frame,
+    from_func::Function,
+    to_func::Function;
+    draw_action = :stroke,
+)
+    newpath()
+    from_func()
+    closepath()
+    from_polys = pathtopoly()
+
+    newpath()
+    to_func()
+    closepath()
+    to_polys = pathtopoly()
+
+    return _morph(video, action, frame, from_polys, to_polys; draw_action = draw_action)
+end
+
+"""
+    _morph(video::Video, action::Action, frame, from_func::Function, to_func::Function; draw_action=:stroke)
+
+Internal version of [`morph`](@ref) but described there.
+"""
+function _morph(
+    video::Video,
+    action::Action,
+    frame,
+    from_polys::Vector{Vector{Point}},
+    to_polys::Vector{Vector{Point}};
+    draw_action = :stroke,
+)
+    # computation of the polygons and the best way to morph in the first frame
+    if frame == first(get_frames(action))
+        save_morph_polygons!(action, from_polys, to_polys)
+    end
+
+    # obtain the computed polygons. These polygons have the same number of points.
+    number_of_shapes = length(action.opts[:from_shape])
+    bool_move = ones(Bool, number_of_shapes)
+    bool_appear = zeros(Bool, number_of_shapes)
+
+    for si in 1:number_of_shapes
+        from_shape = action.opts[:from_shape][si]
+        to_shape = action.opts[:to_shape][si]
+        inter_shape = action.opts[:inter_shape][si]
+
+        # polygons[pi] = from_poly
+        # println("#Points: $pi ", length(polygons[pi]))
+        # continue
+        if isempty(from_shape) || isempty(to_shape)
+            if isempty(to_shape)
+                action.opts[:inter_shape][si] = from_shape
+            else
+                action.opts[:inter_shape][si] = to_shape
+                bool_appear[si] = true
+            end
+            bool_move[si] = false
+            continue
+        end
+
+        # compute the interpolation variable `t` for the current frame
+        t = get_interpolation(action, frame)
+        interpolate_shape!(inter_shape, from_shape, to_shape, t)
+        draw_shape(inter_shape, draw_action)
+    end
+
+    # let new paths appear
+    t = get_interpolation(action, frame)
+    setopacity(t)
+
+    shape_ids = [si for si in 1:number_of_shapes if (!bool_move[si] && bool_appear[si])]
+    shapes = action.opts[:inter_shape][shape_ids]
+    # print_basic.(shapes)
+    # error(1)
+    draw_shape.(shapes, draw_action)
+
+    # let old paths disappear
+    t = get_interpolation(action, frame)
+    setopacity(1 - t)
+
+    shape_ids = [si for si in 1:number_of_shapes if (!bool_move[si] && !bool_appear[si])]
+    shapes = action.opts[:inter_shape][shape_ids]
+    draw_shape.(shapes, draw_action)
+
+    setopacity(1)
 end
 
 """
@@ -158,20 +250,6 @@ function save_morph_polygons!(
     if length(from_shapes) > 1
         from_shapes, to_shapes = reorder_match(from_shapes, to_shapes)
     end
-
-    #=
-    println("Shape info after reoder")
-    println("Num shapes A: ", length(from_shapes))
-    println("Num shapes B: ", length(to_shapes))
-    for (shapeA, shapeB) in zip(from_shapes, to_shapes)
-        println("Matched")
-        print_basic(shapeA)
-        println("with")
-        print_basic(shapeB)
-        println("Similarity: ", get_similarity(shapeA, shapeB))
-        println("=================================")
-    end
-    =#
 
     action.opts[:from_shape] = Vector{Shape}()
     action.opts[:to_shape] = Vector{Shape}()
@@ -218,6 +296,13 @@ function save_morph_polygons!(
     end
 end
 
+"""
+    try_merge_polygons(polys)
+
+Try to merge polygons together to match the number of polygons that get morphed.
+The only example I encountered is that the `[` of a 3xY matrix consists of 3 parts which
+are merged together.
+"""
 function try_merge_polygons(polys)
     for pi in 1:length(polys)
         !ispolyclockwise(polys[pi]) && continue
@@ -298,129 +383,6 @@ function compute_shortest_morphing_dist(from_poly::Vector{Point}, to_poly::Vecto
     end
     return smallest_i, smallest_distance
 end
-
-function draw_polygon(polygon, next_polygon, draw_action)
-    got_drawn = false
-    if ispolyclockwise(polygon) && ispolyclockwise(next_polygon)
-        poly(polygon, draw_action; close = true)
-        got_drawn = true
-    elseif ispolyclockwise(polygon)
-        poly(polygon, :path; close = true)
-        newsubpath()
-    elseif ispolyclockwise(next_polygon)
-        # is last subpath
-        poly(polygon, :path; close = true)
-        if draw_action == :stroke
-            got_drawn = true
-            strokepath()
-        elseif draw_action == :fill
-            got_drawn = true
-            fillpath()
-        else
-            closepath()
-        end
-    else
-        newsubpath()
-        poly(polygon, :path; close = true)
-    end
-    return got_drawn
-end
-
-"""
-    _morph(video::Video, action::Action, frame, from_func::Function, to_func::Function; draw_action=:stroke)
-
-Internal version of [`morph`](@ref) but described there.
-"""
-function _morph(
-    video::Video,
-    action::Action,
-    frame,
-    from_polys::Vector{Vector{Point}},
-    to_polys::Vector{Vector{Point}};
-    draw_action = :stroke,
-)
-    # computation of the polygons and the best way to morph in the first frame
-    if frame == first(get_frames(action))
-        save_morph_polygons!(action, from_polys, to_polys)
-    end
-
-    # obtain the computed polygons. These polygons have the same number of points.
-    number_of_shapes = length(action.opts[:from_shape])
-    bool_move = ones(Bool, number_of_shapes)
-    bool_appear = zeros(Bool, number_of_shapes)
-
-    for si in 1:number_of_shapes
-        from_shape = action.opts[:from_shape][si]
-        to_shape = action.opts[:to_shape][si]
-        inter_shape = action.opts[:inter_shape][si]
-
-        # polygons[pi] = from_poly
-        # println("#Points: $pi ", length(polygons[pi]))
-        # continue
-        if isempty(from_shape) || isempty(to_shape)
-            if isempty(to_shape)
-                action.opts[:inter_shape][si] = from_shape
-            else
-                action.opts[:inter_shape][si] = to_shape
-                bool_appear[si] = true
-            end
-            bool_move[si] = false
-            continue
-        end
-
-        # compute the interpolation variable `t` for the current frame
-        t = get_interpolation(action, frame)
-        interpolate_shape!(inter_shape, from_shape, to_shape, t)
-        draw_shape(inter_shape, draw_action)
-    end
-
-    # let new paths appear
-    t = get_interpolation(action, frame)
-    setopacity(t)
-
-    shape_ids = [si for si in 1:number_of_shapes if (!bool_move[si] && bool_appear[si])]
-    shapes = action.opts[:inter_shape][shape_ids]
-    # print_basic.(shapes)
-    # error(1)
-    draw_shape.(shapes, draw_action)
-
-    # let old paths disappear
-    t = get_interpolation(action, frame)
-    setopacity(1 - t)
-
-    shape_ids = [si for si in 1:number_of_shapes if (!bool_move[si] && !bool_appear[si])]
-    shapes = action.opts[:inter_shape][shape_ids]
-    draw_shape.(shapes, draw_action)
-
-    setopacity(1)
-end
-
-"""
-    _morph(video::Video, action::Action, frame, from_func::Function, to_func::Function; draw_action=:stroke)
-
-Internal version of [`morph`](@ref) but described there.
-"""
-function _morph(
-    video::Video,
-    action::Action,
-    frame,
-    from_func::Function,
-    to_func::Function;
-    draw_action = :stroke,
-)
-    newpath()
-    from_func()
-    closepath()
-    from_polys = pathtopoly()
-
-    newpath()
-    to_func()
-    closepath()
-    to_polys = pathtopoly()
-
-    return _morph(video, action, frame, from_polys, to_polys; draw_action = draw_action)
-end
-
 
 function reorder_match(from_shapes::Vector{Shape}, to_shapes::Vector{Shape})
     num_shapes = max(length(from_shapes), length(to_shapes))

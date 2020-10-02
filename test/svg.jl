@@ -30,54 +30,6 @@
     rm("images/0000000001.png")
 end
 
-@testset "transposing a matrix" begin
-    function latex_ground(args...)
-        translate(-200, -100)
-        background("white")
-        sethue("black")
-        fontsize(50)
-    end
-
-    function matrix(; do_transpose = false, action = :stroke)
-        fontsize(50)
-        str = L"$\begin{equation}\left[\begin{array}{ccc}\alpha & \beta & \gamma \\x^{2} & \sqrt{y} & \lambda \\1 & 2 & y \\\end{array}\right]\end{equation}$"
-        if do_transpose
-            str = L"$\begin{equation}\left[\begin{array}{ccc}\alpha & x^{2} & 1 \\\beta & \sqrt{y} & 2 \\\gamma & \lambda & y \\\end{array}\right]\end{equation}$"
-        end
-        action == :path && newpath()
-        latex(str, O, action)
-        return pathtopoly()
-    end
-
-    video = Video(600, 400)
-    javis(
-        video,
-        [
-            BackgroundAction(1:62, latex_ground),
-            Action(1:30, (args...) -> matrix()),
-            Action(
-                31:60,
-                morph(
-                    matrix(; action = :path),
-                    matrix(; action = :path, do_transpose = true);
-                    action = :fill,
-                ),
-            ),
-            Action(61:62, (args...) -> matrix(; do_transpose = true)),
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
-
-    @test_reference "refs/matrix_transpose1.png" load("images/0000000001.png")
-    @test_reference "refs/matrix_transpose50.png" load("images/0000000050.png")
-    @test_reference "refs/matrix_transpose55.png" load("images/0000000055.png")
-    @test_reference "refs/matrix_transpose62.png" load("images/0000000062.png")
-    for i in 1:62
-        rm("images/$(lpad(i, 10, "0")).png")
-    end
-end
-
 @testset "latex pos in function" begin
     function latex_ground(args...)
         background("white")

@@ -1,15 +1,3 @@
-function ground(video, action, framenumber)
-    background("white")
-    sethue("blue")
-    return framenumber
-end
-
-function ground_color(color_bg, color_pen, framenumber)
-    background(color_bg)
-    sethue(color_pen)
-    return framenumber
-end
-
 function latex_title(args...)
     fontsize(20)
     latex(L"E=mc^2", 0, -200)
@@ -268,83 +256,6 @@ end
 
     @test_reference "refs/circle_angle.png" load("images/0000000008.png")
     for i in 1:10
-        rm("images/$(lpad(i, 10, "0")).png")
-    end
-end
-
-astar(args...) = star(Point(-100, -100), 30)
-acirc(args...) = circle(Point(100, 100), 30)
-
-@testset "morphing star2circle and back" begin
-    video = Video(500, 500)
-    javis(
-        video,
-        [
-            BackgroundAction(
-                1:20,
-                :framenumber,
-                (args...) -> ground_color("white", "black", args[3]),
-            ),
-            Action(1:10, (args...) -> circle(Point(-100, 0), val(:framenumber), :fill)),
-            Action(1:10, morph(astar, acirc)),
-            Action(11:20, morph(acirc, astar)),
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
-
-    @test_reference "refs/star2circle5.png" load("images/0000000005.png")
-    @test_reference "refs/star2circle15.png" load("images/0000000015.png")
-    for i in 1:20
-        rm("images/$(lpad(i, 10, "0")).png")
-    end
-end
-@testset "morphing star2circle and back with fill" begin
-    video = Video(500, 500)
-    javis(
-        video,
-        [
-            BackgroundAction(
-                1:20,
-                :framenumber,
-                (args...) -> ground_color("white", "black", args[3]),
-            ),
-            Action(1:10, (args...) -> circle(Point(-100, 0), val(:framenumber), :fill)),
-            Action(1:10, morph(astar, acirc; action = :fill)),
-            Action(11:20, morph(acirc, astar; action = :fill)),
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
-
-    @test_reference "refs/star2circle_fill5.png" load("images/0000000005.png")
-    @test_reference "refs/star2circle_fill15.png" load("images/0000000015.png")
-    for i in 1:20
-        rm("images/$(lpad(i, 10, "0")).png")
-    end
-end
-
-@testset "morphing star2circle and back with fill" begin
-    video = Video(500, 500)
-    javis(
-        video,
-        [
-            BackgroundAction(
-                1:20,
-                :framenumber,
-                (args...) -> ground_color("white", "black", args[3]),
-            ),
-            Action(1:10, (args...) -> circle(Point(-100, 0), val(:framenumber), :fill)),
-            Action(1:10, morph(astar, acirc; action = :fill)),
-            Action(11:20, morph(acirc, astar; action = :fill)),
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
-
-    @test_reference "refs/star2circle_fill5.png" load("images/0000000005.png")
-    @test_reference "refs/star2circle_fill15.png" load("images/0000000015.png")
-    for i in 1:20
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
@@ -844,20 +755,11 @@ end
     end
 end
 
-@testset "test default kwargs" begin
-    video = Video(500, 500)
-    pathname = javis(video, [Action(1:10, ground), Action(1:10, morph(astar, acirc))])
-    path, ext = splitext(pathname)
-    @test ext == ".gif"
-    @test isfile(pathname)
-    rm(pathname)
-end
-
 @testset "test @error .mp3" begin
     video = Video(500, 500)
     @test_logs (:error,) javis(
         video,
-        [Action(1:10, ground), Action(1:10, morph(astar, acirc))];
+        [BackgroundAction(1:10, ground), Action(1:10, (args...) -> circle(O, 50, :fill))];
         pathname = "test.mp3",
     )
 end
