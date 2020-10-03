@@ -7,7 +7,7 @@
 [![Coverage](https://codecov.io/gh/Wikunia/Javis.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Wikunia/Javis.jl)
 [![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://julialang.zulipchat.com/#narrow/stream/253420-javis)
 
-![](https://img.shields.io/github/hacktoberfest/2020/badges/shields?label=hacktoberfest%202020)
+![GitHub Hacktoberfest combined status](https://img.shields.io/github/hacktoberfest/2020/Wikunia/Javis.jl)
 
 **Javis:** **J**ulia **A**nimations and **Vis**ualizations
 
