@@ -93,8 +93,9 @@ function animate_latex(text, pos::Point, t, action)
     translate(pos)
     pathsvg(svg)
     do_action(:clip)
-    r = t * sqrt(w^2 + h^2)
-    circle(O, r, :fill)
+    # r = t * sqrt(w^2 + h^2)
+    # circle(O, r, :fill)
+    rect(O, t * w, h, :fill)
     translate(-pos)
 end
 
