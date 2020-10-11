@@ -18,13 +18,10 @@
         video,
         [
             BackgroundObject(1:35, latex_ground),
-            Object(
-                (args...) -> latex(L"\mathcal{O}(\log{n})");
-                subactions = [
-                    SubObject(1:15, appear(:draw_text)),
-                    SubObject(21:35, disappear(:draw_text)),
-                ],
-            ), # default fontsize 50
+            # default fontsize 50
+            Object((args...) -> latex(L"\mathcal{O}(\log{n})");) +
+            Action(1:15, appear(:draw_text)) +
+            Action(21:35, disappear(:draw_text)),
             Object(
                 (args...) -> latex_blend(L"\mathcal{O}\left(\frac{\log{x}}{2}\right)", 20),
             ),

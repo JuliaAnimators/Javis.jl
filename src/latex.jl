@@ -81,7 +81,7 @@ function animate_latex(text, pos::Point, t, object)
     if t >= 1
         translate(pos)
         pathsvg(svg)
-        do_object(object)
+        do_action(object)
         translate(-pos)
         return
     end
@@ -92,7 +92,7 @@ function animate_latex(text, pos::Point, t, object)
 
     translate(pos)
     pathsvg(svg)
-    do_object(:clip)
+    do_action(:clip)
     r = t * sqrt(w^2 + h^2)
     circle(O, r, :fill)
     translate(-pos)
