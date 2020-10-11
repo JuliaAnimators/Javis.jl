@@ -33,35 +33,38 @@ function match_num_points(poly_1::Vector{Point}, poly_2::Vector{Point})
     # the difference of the length of points
     missing_nodes = l2 - l1
 
-    pdists = polydistances(new_poly_1)
-    every_dist = pdists[end] / missing_nodes
-    pdiffs = diff(pdists)
-
-    ct = 0.0
-    poly_1_orig = copy(new_poly_1)
-    npi = 1
-    for pi in 1:length(poly_1_orig)
-        add_nodes = convert(Int, round(pdiffs[pi] / every_dist))
-        t = pdiffs[pi] / (add_nodes + 1)
-        ct_local = ct
-        for i in 1:add_nodes
-            ct_local += t
-            new_point =
-                get_polypoint_at(poly_1_orig, ct_local / pdists[end]; pdist = pdists)
-            npi += 1
-            insert!(new_poly_1, npi, new_point)
-        end
-        npi += 1
-        missing_nodes -= add_nodes
-        ct += pdiffs[pi]
-        every_dist = (pdists[end] - ct) / missing_nodes
-    end
+    add_points!(new_poly_1, missing_nodes)
 
     if flipped
         new_poly_1, new_poly_2 = new_poly_2, new_poly_1
     end
     @assert length(new_poly_1) == length(new_poly_2)
     return new_poly_1, new_poly_2
+end
+
+function add_points!(poly, missing_nodes)
+    pdists = polydistances(poly)
+    every_dist = pdists[end] / missing_nodes
+    pdiffs = diff(pdists)
+
+    ct = 0.0
+    poly_orig = copy(poly)
+    npi = 1
+    for pi in 1:length(poly_orig)
+        add_nodes = convert(Int, round(pdiffs[pi] / every_dist))
+        t = pdiffs[pi] / (add_nodes + 1)
+        ct_local = ct
+        for i in 1:add_nodes
+            ct_local += t
+            new_point = get_polypoint_at(poly_orig, ct_local / pdists[end]; pdist = pdists)
+            npi += 1
+            insert!(poly, npi, new_point)
+        end
+        npi += 1
+        missing_nodes -= add_nodes
+        ct += pdiffs[pi]
+        every_dist = (pdists[end] - ct) / missing_nodes
+    end
 end
 
 """
@@ -396,9 +399,6 @@ function reorder_match(from_shapes::Vector{Shape}, to_shapes::Vector{Shape})
         end
     end
     assignment, cost = hungarian(similiarity_matrix)
-    # println("assignment: $assignment")
-    # println("similarity: $(-cost)")
-    # display("text/plain", similiarity_matrix)
 
     new_from_shapes = Vector{Shape}(undef, num_shapes)
     for i in 1:num_shapes
