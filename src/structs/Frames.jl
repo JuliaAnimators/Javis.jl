@@ -15,22 +15,22 @@ Base.convert(::Type{Frames}, x::UnitRange) = Frames(x, x)
 
 
 """
-    set_frames!(a::AbstractAction, last_frames::UnitRange)
+    set_frames!(a::AbstractObject, last_frames::UnitRange)
 
 Compute the frames based on a.frames and `last_frames`.
 Save the result in `a.frames.frames` which can be accessed via [`get_frames`](@ref).
 """
-function set_frames!(a::AbstractAction, last_frames::UnitRange)
+function set_frames!(a::AbstractObject, last_frames::UnitRange)
     frames = a.frames.user
     a.frames.frames = get_frames(frames, last_frames)
 end
 
 """
-    get_frames(a::AbstractAction)
+    get_frames(a::AbstractObject)
 
-Return `a.frames.frames` which holds the computed frames for the AbstractAction `a`.
+Return `a.frames.frames` which holds the computed frames for the AbstractObject `a`.
 """
-get_frames(a::AbstractAction) = a.frames.frames
+get_frames(a::AbstractObject) = a.frames.frames
 
 """
     get_frames(frames::Symbol, last_frames::UnitRange)

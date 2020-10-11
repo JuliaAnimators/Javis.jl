@@ -1,182 +1,136 @@
 """
-    Action
+    Action <: AbstractObject
 
-Defines what is drawn in a defined frame range.
+A Action can be used in the keyword arguments of an [`Object`](@ref) to define small
+sub objects on the object function, such as [`appear`](@ref).
+
+A Action should not be created by hand but instead by using one of the constructors.
 
 # Fields
-- `frames::Frames`: A range of frames for which the `Action` is called
-- `id::Union{Nothing, Symbol}`: An id which can be used to save the result of `func`
-- `func::Function`: The drawing function which draws something on the canvas.
-    It gets called with the arguments `video, action, frame`
+- `frames::Frames`: the frames relative to the parent [`Object`](@ref)
 - `anim::Animation`: defines the interpolation function for the transitions
-- `transitions::Vector{Transition}` a list of transitions
-    which can be performed before the function gets called.
+- `func::Function`: the function that gets called in each of those frames.
+    Takes the following arguments: `video, object, action, rel_frame`
+- `transitions::Vector{Transition}`: A list of transitions like [`Translation`](@ref)
 - `internal_transitions::Vector{InternalTransition}`:
-    Similar to `transitions` but holds the concrete information whereas `Transition` can
-    hold links to other actions which need to be computed first.
-    See [`compute_transition!`](@ref)
-- `opts::Any` can hold any options defined by the user
+    A list of internal transitions which store the current transition for a specific frame.
+- `defs::Dict{Symbol, Any}` any kind of definitions that are relevant for the action.
 """
-mutable struct Action <: AbstractAction
+mutable struct Action <: AbstractObject
     frames::Frames
-    id::Union{Nothing,Symbol}
-    func::Function
     anim::Animation
+    func::Function
     transitions::Vector{Transition}
     internal_transitions::Vector{InternalTransition}
-    subactions::Vector{SubAction}
-    current_setting::ActionSetting
-    opts::Dict{Symbol,Any}
+    defs::Dict{Symbol,Any}
 end
 
-"""
-    CURRENT_ACTION
-
-holds the current action in an array to be declared as a constant
-The current action can be accessed using CURRENT_ACTION[1]
-"""
-const CURRENT_ACTION = Array{Action,1}()
+Action(transitions::Transition...) = Action(:same, transitions...)
+Action(func::Function) = Action(:same, func)
 
 """
-    Action(frames, func::Function, args...)
+    Action(frames, easing::Union{ReversedEasing, Easing}, args...)
 
-The most simple form of an action (if there are no `args`/`kwargs`) just calls
-`func(video, action, frame)` for each of the frames it is defined for.
-`args` are defined it the next function definition and can be seen in action
-    in this example [`javis`](@ref)
+A `Action` can be defined with frames an
+[easing function](https://jkrumbiegel.github.io/Animations.jl/stable/#Easings-1) and either
+a function or transformation(s).
+
+
+# Example
+In the following example a filled circle with radius 50 appears in the first 20 frames,
+which means the opacity is increased from 0 to 1.0. The interpolation function used here is
+sineio from [`Animations.jl`](https://github.com/jkrumbiegel/Animations.jl).
+Then it stays at full opacity and disappears the same way in the last 20 frames using a
+linear decay.
+
+```julia
+javis(demo, [
+    BackgroundObject(1:100, ground),
+    Object((args...)->circle(O, 50, :fill); actions = [
+        Action(1:20, sineio(), appear(:fade)),
+        Action(81:100, disappear(:fade))
+    ])
+])
+```
+
+# Arguments
+- `frames`: A list of frames for which the function should be called.
+    - The frame numbers are relative to the parent [`Object`](@ref).
+- `easing::Union{ReversedEasing, Easing}`: The easing function for `args...`
+- `args...`: Either a function like [`appear`](@ref) or a Transformation
+    like [`Translation`](@ref)
 """
-Action(frames, func::Function, args...; kwargs...) =
-    Action(frames, nothing, func, args...; kwargs...)
+Action(frames, easing::Union{ReversedEasing,Easing}, args...) =
+    Action(frames, easing_to_animation(easing), args...)
+
+Action(frames, anim::Animation, transition::Transition...) =
+    Action(frames, anim, (args...) -> 1, transition...)
+
+Action(easing::Union{ReversedEasing,Easing}, args...) =
+    Action(:same, easing_to_animation(easing), args...)
+
+Action(anim::Animation, args...) = Action(:same, anim, args...)
+"""
+    Action(frames, func::Function)
+
+A `Action` can be defined with frames and a function
+inside the `actions` kwarg of an [`Object`](@ref).
+In the following example a filled circle with radius 50 appears in the first 20 frames,
+which means the opacity is increased from 0 to 1.0.
+Then it stays at full opacity and disappears the same way in the last 20 frames.
+
+# Example
+javis(demo, [
+    BackgroundObject(1:100, ground),
+    Object((args...)->circle(O, 50, :fill); actions = [
+        Action(1:20, appear(:fade)),
+        Action(81:100, disappear(:fade))
+    ])
+])
+
+# Arguments
+- `frames`: A list of frames for which the function should be called.
+    - The frame numbers are relative to the parent [`Object`](@ref).
+- `func::Function`: The function that gets called for the frames.
+    - Needs to have four arguments: `video, object, action, rel_frame`
+    - For [`appear`](@ref) and [`disappear`](@ref) a closure exists,
+      such that `appear(:fade)` works.
+"""
+Action(frames, func::Function) = Action(frames, easing_to_animation(linear()), func)
 
 """
-    Action(frames_or_id::Symbol, func::Function, args...)
+    Action(frames, trans::Transition...)
 
-This function decides whether you wrote `Action(frames_symbol, ...)`,
-    or `Action(id_symbol, ...)`
-If the symbol `frames_or_id` is not a `FRAMES_SYMBOL` then it is used as an id_symbol.
-"""
-function Action(frames_or_id::Symbol, func::Function, args...; kwargs...)
-    if frames_or_id in FRAMES_SYMBOL
-        Action(frames_or_id, nothing, func, args...; kwargs...)
-    else
-        Action(:same, frames_or_id, func, args...; kwargs...)
-    end
-end
+A `Action` can also be defined this way with having a list of transitions.
+This is similar to defining transitions inside [`Object`](@ref)
 
-"""
-    Action(func::Function, args...)
-
-Similar to the above but uses the same frames as the action above.
-"""
-Action(func::Function, args...; kwargs...) =
-    Action(:same, nothing, func, args...; kwargs...)
-
-"""
-    Action(frames, id::Union{Nothing,Symbol}, func::Function,
-           transitions::Transition...; kwargs...)
-
-Fallback constructor for an Action which doesn't define an animation.
-A linear animation is assumed.
-"""
-function Action(
-    frames,
-    id::Union{Nothing,Symbol},
-    func::Function,
-    transitions::Transition...;
-    kwargs...,
-)
-
-    Action(frames, id, func, easing_to_animation(linear()), transitions...; kwargs...)
-end
-
-"""
-    Action(frames, id::Union{Nothing,Symbol}, func::Function, easing::Union{ReversedEasing, Easing},
-           args...; kwargs...)
-
-Fallback constructor for an Action which does define an animation using an easing function.
+In the following example a circle is faded in during the first 25 frames then moves to
+- `Point(100, 20)` then to `Point(120, -20)` (the translations are added)
+- and then back to the origin
+In the last 25 frames it disappears from the world.
 
 # Example
 ```
-javis(
-    video, [
-        BackgroundAction(1:100, ground),
-        Action((args...)->t(), sineio(), Translation(250, 0))
-    ]
-)
+javis(demo, [
+        BackgroundObject(1:200, ground_opacity),
+        Object((args...)->circle(O, 50, :fill); actions = [
+            Action(1:25, appear(:fade)),
+            Action(26:75, Translation(Point(100, 20))),
+            Action(76:100, Translation(Point(20, -40))),
+            Action(101:175, Translation(Point(-120, 20))),
+            Action(176:200, disappear(:fade))
+        ]),
+    ], tempdirectory="current/images", pathname="current/circle_square.gif")
 ```
-"""
-function Action(
-    frames,
-    id::Union{Nothing,Symbol},
-    func::Function,
-    easing::Union{ReversedEasing,Easing},
-    args...;
-    kwargs...,
-)
-
-    Action(frames, id, func, easing_to_animation(easing), args...; kwargs...)
-end
-
-"""
-    Action(frames, id::Union{Nothing,Symbol}, func::Function,
-           transitions::Transition...; kwargs...)
 
 # Arguments
-- `frames`: defines for which frames this action is called
-- `id::Symbol`: Is used if the `func` returns something which
-    shall be accessible by other actions later
-- `func::Function` the function that is called after the `transitions` are performed
-- `transitions::Transition...` a list of transitions that are performed before
-    the function `func` itself is called
-
-The keywords arguments will be saved inside `.opts` as a `Dict{Symbol, Any}`
+- `frames`: A list of frames for which the function should be called.
+    - The frame numbers are relative to the parent [`Object`](@ref).
+- `trans::Transition...`: A list of transitions that shall be performed.
 """
-function Action(
-    frames,
-    id::Union{Nothing,Symbol},
-    func::Function,
-    anim::Animation,
-    transitions::Transition...;
-    kwargs...,
-)
-    if isempty(CURRENT_VIDEO)
-        throw(ErrorException("A `Video` must be defined before an `Action`"))
-    end
-    CURRENT_VIDEO[1].defs[:last_frames] = frames
-    opts = Dict(kwargs...)
-    subactions = SubAction[]
-    if haskey(opts, :subactions)
-        subactions = opts[:subactions]
-        delete!(opts, :subactions)
-    end
-    Action(
-        frames,
-        id,
-        func,
-        anim,
-        collect(transitions),
-        [],
-        subactions,
-        ActionSetting(),
-        opts,
-    )
-end
+Action(frames, trans::Transition...) =
+    Action(frames, easing_to_animation(linear()), (args...) -> 1, trans...)
 
-"""
-    BackgroundAction(frames, func::Function, args...; kwargs...)
 
-Create an Action where `in_global_layer` is set to true such that
-i.e the specified color in the background is applied globally (basically a new default)
-"""
-function BackgroundAction(frames, func::Function, args...; kwargs...)
-    Action(frames, nothing, func, args...; in_global_layer = true, kwargs...)
-end
-
-"""
-    BackgroundAction(frames, id::Symbol, func::Function, args...; kwargs...)
-
-Create an Action where `in_global_layer` is set to true and saves the return into `id`.
-"""
-function BackgroundAction(frames, id::Symbol, func::Function, args...; kwargs...)
-    Action(frames, id, func, args...; in_global_layer = true, kwargs...)
-end
+Action(frames, anim::Animation, func::Function, transitions::Transition...) =
+    Action(frames, anim, func::Function, collect(transitions), [], Dict{Symbol,Any}())
