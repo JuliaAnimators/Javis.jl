@@ -1,11 +1,13 @@
 module Javis
 
+using Requires 
+
 using Animations
 using Cairo: CairoImageSurface, image
 using ColorTypes: ARGB32
 using FFMPEG
-using Gtk
-using GtkReactive
+# using Gtk
+# using GtkReactive
 using Images
 using LaTeXStrings
 using LightXML
@@ -91,7 +93,7 @@ include("backgrounds.jl")
 include("svg2luxor.jl")
 include("morphs.jl")
 include("subaction_animations.jl")
-include("javis_viewer.jl")
+# include("javis_viewer.jl")
 include("latex.jl")
 include("transition2transformation.jl")
 include("symbol_values.jl")
@@ -425,5 +427,9 @@ export scaleto
 
 # custom override of luxor extensions
 export setline, setopacity, fontsize, get_fontsize, scale, text
+
+function __init__()
+    @require Gtk="4c0ca9eb-093a-5379-98c5-f87ac0bbbf44" include("javis_viewer.jl")
+end
 
 end
