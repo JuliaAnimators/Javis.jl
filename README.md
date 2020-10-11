@@ -99,4 +99,4 @@ We want to thank a couple of people who helped make this possible.
 
 - [sudomaze](https://github.com/sudomaze) for helping out with tutorials and feedback for v0.1.0.
 - [mythreyiramesh](https://github.com/mythreyiramesh) cleaning up tutorials 
-
+- [ric-cioffi](https://github.com/ric-cioffi) for a Fourier series animation of the Julia logo
