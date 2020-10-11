@@ -33,7 +33,7 @@ Action(1:100, (args...)->circle(O, 50, :fill))
 and then you need the [`Translation`](@ref) command to move the circle.
 
 ```julia
-Action(1:100, (args...)->circle(O, 50, :fill), Translation(O, Point(100, 100))
+Action(1:100, (args...)->circle(O, 50, :fill), Translation(O, Point(100, 100)))
 ```
 
 The circle then moves from the origin (center of frame) 100 px down and to the right.
