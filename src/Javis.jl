@@ -191,6 +191,12 @@ function javis(
     end
     frames = unique(frames)
 
+    for object in objects
+        for action in object.actions
+            create_internal_transitions!(action)
+        end
+    end
+
     # create defs object
     for object in objects
         if object.id !== nothing
@@ -292,10 +298,10 @@ function get_javis_frame(video, objects, frame)
             in_global_layer = get(object.opts, :in_global_layer, false)::Bool
             if !in_global_layer
                 @layer begin
-                    perform_object(object, video, frame, origin_matrix)
+                    draw_object(object, video, frame, origin_matrix)
                 end
             else
-                perform_object(object, video, frame, origin_matrix)
+                draw_object(object, video, frame, origin_matrix)
                 # update origin_matrix as it's inside the global layer
                 origin_matrix = cairotojuliamatrix(getmatrix())
             end
@@ -309,7 +315,7 @@ function get_javis_frame(video, objects, frame)
 end
 
 """
-    perform_object(object, video, frame, origin_matrix)
+    draw_object(object, video, frame, origin_matrix)
 
 Is called inside the `javis` and does everything handled for an `AbstractObject`.
 It is a 4-step process:
@@ -318,7 +324,7 @@ It is a 4-step process:
 - call the object function
 - save the result of the object if wanted inside `video.defs`
 """
-function perform_object(object, video, frame, origin_matrix)
+function draw_object(object, video, frame, origin_matrix)
     # first compute and perform the global transformations of this object
     translate(object.start_pos)
 
@@ -414,6 +420,7 @@ export projection, morph
 export appear, disappear, rotate_around, follow_path
 export rev
 export scaleto
+export add!
 
 # custom override of luxor extensions
 export setline, setopacity, fontsize, get_fontsize, scale, text

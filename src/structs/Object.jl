@@ -96,9 +96,21 @@ function Object(
     Object(frames, id, func, start_pos, Action[], ObjectSetting(), opts)
 end
 
-function Base.:+(object::Object, action::Action)
+function Base.:+(object::AbstractObject, action::AbstractAction)
     push!(object.actions, action)
     return object
+end
+
+function add!(object::AbstractObject, actions::Vector{<:AbstractAction})
+    for action in actions
+        object += action
+    end
+end
+
+function add!(objects::Vector{<:AbstractObject}, actions::Vector{<:AbstractAction})
+    for object in objects
+        add!(object, actions)
+    end
 end
 
 """
