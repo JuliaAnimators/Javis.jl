@@ -1,9 +1,17 @@
+#=
+
+    Drawing Julia using a Fourier series.
+    A high definition animation can be seen here: https://youtu.be/uM2sbIsqGg4
+
+    This code was kindly provided by ric-cioffi (https://github.com/ric-cioffi)
+=#
+
 using Javis
 using DelimitedFiles
 using OffsetArrays, FFTW, FFTViews # (not strictly necessary, but make DFT indexing more intuitive)
 
 #=
-    Here we import the (ordered) coordinates of the julia logo. They were obtained by extracting the contours of the 
+    Here we import the (ordered) coordinates of the julia logo. They were obtained by extracting the contours of the
     julia logo using JuliaImages; then, they were "ordered" by finding a solution to the Traveling Salesman Problem (that
     is, by finding the shortest path that travels once through all the points).
     To draw the logo using Fourier series approximation we then need to take the Discrete Fourier Transform of the set of
