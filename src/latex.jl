@@ -68,8 +68,37 @@ javis(demo, [BackgroundAction(1:2, ground), Action(draw_latex)],
 ```
 
 """
-function latex(text::LaTeXString, pos::Point, action::Symbol)
+function latex(text::LaTeXString, pos::Point, draw_action::Symbol)
+    action = CURRENT_ACTION[1]
+    opts = action.opts
+    t = get(opts, :draw_text_t, 1.0)
+    return animate_latex(text, pos, t, draw_action)
+end
+
+function animate_latex(text, pos::Point, t, action)
+    svg = get_latex_svg(text)
+    action == :stroke && (action = :fill)
+    if t >= 1
+        translate(pos)
+        pathsvg(svg)
+        do_action(action)
+        translate(-pos)
+        return
+    end
+
+    pathsvg(svg)
+    polygon = pathtopoly()
+    w, h = polywh(polygon)
+
     translate(pos)
+    pathsvg(svg)
+    do_action(:clip)
+    r = t * sqrt(w^2 + h^2)
+    circle(O, r, :fill)
+    translate(-pos)
+end
+
+function get_latex_svg(text::LaTeXString)
     # check if it's cached
     if haskey(LaTeXSVG, text)
         svg = LaTeXSVG[text]
@@ -86,10 +115,5 @@ function latex(text::LaTeXString, pos::Point, action::Symbol)
         end
         LaTeXSVG[text] = svg
     end
-    pathsvg(svg)
-    if action != :path
-        # stroke is also fill for letters
-        do_action(:fill)
-    end
-    translate(-pos)
+    return svg
 end

@@ -7,6 +7,8 @@
 [![Coverage](https://codecov.io/gh/Wikunia/Javis.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Wikunia/Javis.jl)
 [![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://julialang.zulipchat.com/#narrow/stream/253420-javis)
 
+![GitHub Hacktoberfest combined status](https://img.shields.io/github/hacktoberfest/2020/Wikunia/Javis.jl)
+
 **Javis:** **J**ulia **A**nimations and **Vis**ualizations
 
 ## Introduction 
@@ -63,24 +65,27 @@ If you don't need `LaTeX`, there is no reason to install this :wink:
 
 ### Current state
 
-#### v0.1.0
+#### v0.2.0
 
 `Javis` currently supports very simple animations with:
 - `LaTeX` support
 - Transformations
 - Subactions
 - Drawing grid lines
-- A tiny bit of morphing a shape into another 
+- Morphing one shape into another 
+- Image Viewer (`; liveview=true`)
+- Compatibility with [Animations.jl](https://github.com/jkrumbiegel/Animations.jl)
 
 ## Future goals
 
-We have a list of issues for v0.2.0 and beyond which contain things like:
-- Animating transposing a matrix
-- More morphing
+We have a list of issues for v0.3.0 and beyond which contain things like:
+- Animating transposing a matrix using morphing [PR #175](https://github.com/Wikunia/Javis.jl/pull/175)
 - Combine actions into layers/collections
 - Polar coordinates
 - Vectors
 - ...
+
+[Read more about the current state and our vision](https://opensourc.es/blog/javis-v0.2-and-future/)
 
 Make sure to add a feature request if you think we miss something fundamental or something that would be nice to have.
 
@@ -97,6 +102,7 @@ We want to thank a couple of people who helped make this possible.
 
 ### Contributors 
 
-- [sudomaze](https://github.com/sudomaze) for helping out with tutorials and feedback for v0.1.0.
-- [mythreyiramesh](https://github.com/mythreyiramesh) cleaning up tutorials 
-- [ric-cioffi](https://github.com/ric-cioffi) for a Fourier series animation of the Julia logo
+- @sudomaze for helping out with tutorials and feedback for v0.1.0.
+- @mythreyiramesh cleaning up tutorials 
+- @briochemc for spotting and cleaning up tutorial typos and grammar
+- @ric-cioffi for adding the Julia Logo example and for feedback

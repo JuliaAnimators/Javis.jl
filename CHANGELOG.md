@@ -1,5 +1,8 @@
 # Javis.jl - Changelog
 
+## Unreleased
+- Ability to draw animated LaTeX via `appear(:draw_text)`
+
 ## 0.2.0 (25th of September 2020)
 - Ability to use [Animations.jl](https://github.com/jkrumbiegel/Animations.jl) 
   - for Transformations and `appear` and `disappear`
