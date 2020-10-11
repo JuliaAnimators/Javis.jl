@@ -1,5 +1,5 @@
 """
-    Action <: AbstractObject
+    Action <: AbstractAction
 
 A Action can be used in the keyword arguments of an [`Object`](@ref) to define small
 sub objects on the object function, such as [`appear`](@ref).
@@ -16,7 +16,7 @@ A Action should not be created by hand but instead by using one of the construct
     A list of internal transitions which store the current transition for a specific frame.
 - `defs::Dict{Symbol, Any}` any kind of definitions that are relevant for the action.
 """
-mutable struct Action <: AbstractObject
+mutable struct Action <: AbstractAction
     frames::Frames
     anim::Animation
     func::Function

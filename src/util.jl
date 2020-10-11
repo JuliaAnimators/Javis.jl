@@ -4,13 +4,13 @@
 Set object.frames.frames to the computed frames for each object in objects.
 """
 function compute_frames!(
-    objects::Vector{AA};
+    objects::Vector{UA};
     last_frames = nothing,
-) where {AA<:AbstractObject}
+) where {UA<:Union{AbstractObject,AbstractAction}}
     for object in objects
         if last_frames === nothing && get_frames(object) === nothing
             throw(ArgumentError("Frames need to be defined explicitly in the initial
-            AbstractObject like Object/BackgroundObject or Action."))
+                Object/BackgroundObject or Action."))
         end
         if get_frames(object) === nothing
             set_frames!(object, last_frames)
@@ -42,17 +42,17 @@ function get_interpolation(frames::UnitRange, frame)
 end
 
 """
-    get_interpolation(object::AbstractObject, frame)
+    get_interpolation(action::AbstractAction, frame)
 
-Return the value of the `object.anim` Animation based on the relative frame given by
-`get_interpolation(get_frames(object), frame)`
+Return the value of the `action.anim` Animation based on the relative frame given by
+`get_interpolation(get_frames(action), frame)`
 """
-function get_interpolation(object::AbstractObject, frame)
-    t = get_interpolation(get_frames(object), frame)
-    if !(object.anim.frames[end].t ≈ 1)
+function get_interpolation(action::AbstractAction, frame)
+    t = get_interpolation(get_frames(action), frame)
+    if !(action.anim.frames[end].t ≈ 1)
         @warn "Animations should be defined from 0.0 to 1.0"
     end
-    return at(object.anim, t)
+    return at(action.anim, t)
 end
 
 function isapprox_discrete(val; atol = 1e-4)

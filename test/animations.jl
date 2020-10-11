@@ -50,31 +50,31 @@ end
     javis(
         video,
         [
-            BackgroundAction(
+            BackgroundObject(
                 1:25,
                 ground,
                 Rotation(0.0),
                 Translation(Point(25, 25), Point(25, 25)),
             ),
-            Action(latex_title),
-            Action(
+            Object(latex_title),
+            Object(
                 Rel(-24:0),
                 :red_ball,
                 (args...) -> circ(p1, "red"),
                 Rotation(from_rot, to_rot),
             ),
-            Action(
+            Object(
                 1:25,
                 :blue_ball,
                 (args...) -> circ(p2, "blue"),
                 Rotation(to_rot, from_rot, :red_ball),
             ),
-            Action(
+            Object(
                 1:25,
                 (video, args...) -> path!(path_of_red, get_position(:red_ball), "red"),
             ),
-            Action(:same, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue")),
-            Action(1:25, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
+            Object(:same, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue")),
+            Object(1:25, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
         ],
         tempdirectory = "images",
         pathname = "dancing.gif",
@@ -101,26 +101,26 @@ end
     javis(
         video,
         [
-            BackgroundAction(
+            BackgroundObject(
                 1:30,
                 ground,
                 Rotation(0.0),
                 Translation(Point(25, 25), Point(25, 25)),
             ),
-            Action(latex_title),
-            Action(:red_ball, (args...) -> circ(p1, "red"), Rotation(from_rot, to_rot)),
-            Action(
+            Object(latex_title),
+            Object(:red_ball, (args...) -> circ(p1, "red"), Rotation(from_rot, to_rot)),
+            Object(
                 1:30,
                 :blue_ball,
                 (args...) -> circ(p2, "blue"),
                 Rotation(to_rot, from_rot, :red_ball),
             ),
-            Action(
+            Object(
                 1:30,
                 (video, args...) -> path!(path_of_red, get_position(:red_ball), "red"),
             ),
-            Action(:same, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue")),
-            Action(1:30, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
+            Object(:same, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue")),
+            Object(1:30, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
         ],
         tempdirectory = "images",
         pathname = "dancing.mp4",
@@ -144,27 +144,27 @@ end
     javis(
         video,
         [
-            Action(
+            Object(
                 1:25,
                 ground,
                 Rotation(π / 2, π / 2, O),
                 Translation(Point(25, 25), Point(25, 25));
                 in_global_layer = true,
             ),
-            Action(1:25, latex_title),
-            Action(1:25, :red_ball, (args...) -> circ(p1, "red"), Rotation(to_rot)),
-            Action(
+            Object(1:25, latex_title),
+            Object(1:25, :red_ball, (args...) -> circ(p1, "red"), Rotation(to_rot)),
+            Object(
                 1:25,
                 :blue_ball,
                 (args...) -> circ(p2, "blue"),
                 Rotation(to_rot, from_rot, :red_ball),
             ),
-            Action(
+            Object(
                 1:25,
                 (video, args...) -> path!(path_of_red, get_position(:red_ball), "red"),
             ),
-            Action(1:25, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue")),
-            Action(1:25, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
+            Object(1:25, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue")),
+            Object(1:25, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
         ],
         tempdirectory = "images",
         pathname = "",
@@ -188,29 +188,29 @@ end
     javis(
         video,
         [
-            Action(
+            Object(
                 1:25,
                 ground,
                 Rotation(π / 2, π / 2, O),
                 Translation(Point(25, 25), Point(25, 25));
                 in_global_layer = true,
             ),
-            Action(1:25, latex_title),
-            Action(
+            Object(1:25, latex_title),
+            Object(
                 1:25,
                 :red_ball,
                 (args...) -> circ_ret_trans(p1, "red"),
                 Rotation(to_rot),
             ),
-            Action(
+            Object(
                 1:25,
                 :blue_ball,
                 (args...) -> circ_ret_trans(p2, "blue"),
                 Rotation(to_rot, from_rot, :red_ball),
             ),
-            Action(1:25, (video, args...) -> path!(path_of_red, pos(:red_ball), "red")),
-            Action(1:25, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue")),
-            Action(1:25, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
+            Object(1:25, (video, args...) -> path!(path_of_red, pos(:red_ball), "red")),
+            Object(1:25, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue")),
+            Object(1:25, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
         ],
         tempdirectory = "images",
         pathname = "",
@@ -227,15 +227,15 @@ end
     javis(
         video,
         [
-            Action(1:40, ground),
-            Action(1:10, draw_grid(direction = "BL", line_gap = 25)),
-            Action(zero_lines(direction = "BL", line_thickness = 10)),
-            Action(Rel(10), draw_grid(direction = "BR", line_gap = 25)),
-            Action(zero_lines(direction = "BR", line_thickness = 10)),
-            Action(Rel(10), draw_grid(direction = "TL", line_gap = 25)),
-            Action(zero_lines(direction = "TL", line_thickness = 10)),
-            Action(Rel(10), draw_grid(direction = "TR", line_gap = 25)),
-            Action(zero_lines(direction = "TR", line_thickness = 10)),
+            Object(1:40, ground),
+            Object(1:10, draw_grid(direction = "BL", line_gap = 25)),
+            Object(zero_lines(direction = "BL", line_thickness = 10)),
+            Object(Rel(10), draw_grid(direction = "BR", line_gap = 25)),
+            Object(zero_lines(direction = "BR", line_thickness = 10)),
+            Object(Rel(10), draw_grid(direction = "TL", line_gap = 25)),
+            Object(zero_lines(direction = "TL", line_thickness = 10)),
+            Object(Rel(10), draw_grid(direction = "TR", line_gap = 25)),
+            Object(zero_lines(direction = "TR", line_thickness = 10)),
         ],
         tempdirectory = "images",
         pathname = "",
@@ -256,9 +256,9 @@ end
     javis(
         video,
         [
-            Action(1:10, ground),
-            Action(:circ, (args...) -> circ_ret_trans(p), Rotation(2π)),
-            Action(
+            Object(1:10, ground),
+            Object(:circ, (args...) -> circ_ret_trans(p), Rotation(2π)),
+            Object(
                 (args...) -> line(Point(-200, 0), Point(-200, -10 * ang(:circ)), :stroke),
             ),
         ],
@@ -280,14 +280,14 @@ acirc(args...) = circle(Point(100, 100), 30)
     javis(
         video,
         [
-            BackgroundAction(
+            BackgroundObject(
                 1:20,
                 :framenumber,
                 (args...) -> ground_color("white", "black", args[3]),
             ),
-            Action(1:10, (args...) -> circle(Point(-100, 0), val(:framenumber), :fill)),
-            Action(1:10, morph(astar, acirc)),
-            Action(11:20, morph(acirc, astar)),
+            Object(1:10, (args...) -> circle(Point(-100, 0), val(:framenumber), :fill)),
+            Object(1:10, morph(astar, acirc)),
+            Object(11:20, morph(acirc, astar)),
         ],
         tempdirectory = "images",
         pathname = "",
@@ -305,14 +305,14 @@ end
     javis(
         video,
         [
-            BackgroundAction(
+            BackgroundObject(
                 1:20,
                 :framenumber,
                 (args...) -> ground_color("white", "black", args[3]),
             ),
-            Action(1:10, (args...) -> circle(Point(-100, 0), val(:framenumber), :fill)),
-            Action(1:10, morph(astar, acirc; action = :fill)),
-            Action(11:20, morph(acirc, astar; action = :fill)),
+            Object(1:10, (args...) -> circle(Point(-100, 0), val(:framenumber), :fill)),
+            Object(1:10, morph(astar, acirc; action = :fill)),
+            Object(11:20, morph(acirc, astar; action = :fill)),
         ],
         tempdirectory = "images",
         pathname = "",
@@ -358,12 +358,12 @@ end
     javis(
         demo,
         [
-            BackgroundAction(1:50, ground_nicholas),
-            Action(
+            BackgroundObject(1:50, ground_nicholas),
+            Object(
                 (args...) -> house_of_nicholas();
                 subactions = [
-                    SubAction(1:25, appear(:fade_line_width)),
-                    SubAction(Rel(25), disappear(:fade_line_width)),
+                    SubObject(1:25, appear(:fade_line_width)),
+                    SubObject(Rel(25), disappear(:fade_line_width)),
                 ],
             ),
         ],
@@ -384,18 +384,18 @@ end
     javis(
         demo,
         [
-            BackgroundAction(1:100, ground),
-            Action(:start_scale, (args...) -> (1.0, 1.0)),
-            Action(
+            BackgroundObject(1:100, ground),
+            Object(:start_scale, (args...) -> (1.0, 1.0)),
+            Object(
                 (args...) -> circ();
                 subactions = [
-                    SubAction(1:25, Scaling((1.0, 1.5))),
-                    SubAction(Rel(25), Scaling((2.0, 1.0))),
-                    SubAction(Rel(25), Scaling(:start_scale)),
-                    SubAction(Rel(25), Scaling(2.0)),
+                    SubObject(1:25, Scaling((1.0, 1.5))),
+                    SubObject(Rel(25), Scaling((2.0, 1.0))),
+                    SubObject(Rel(25), Scaling(:start_scale)),
+                    SubObject(Rel(25), Scaling(2.0)),
                 ],
             ),
-            Action((args...) -> circ(Point(-100, 0))),
+            Object((args...) -> circ(Point(-100, 0))),
         ],
         tempdirectory = "images",
         pathname = "",
@@ -428,22 +428,22 @@ end
     javis(
         demo,
         [
-            BackgroundAction(1:50, ground_opacity),
-            Action(
+            BackgroundObject(1:50, ground_opacity),
+            Object(
                 1:42,
                 (args...) -> circ();
                 subactions = [
-                    SubAction(1:25, appear(:fade)),
-                    SubAction(26:42, disappear(:fade)),
+                    SubObject(1:25, appear(:fade)),
+                    SubObject(26:42, disappear(:fade)),
                 ],
             ),
-            Action(
+            Object(
                 5:50,
                 (args...) -> square_opacity(Point(-100, 0), 60);
                 subactions = [
-                    SubAction(1:15, linear(), appear(:fade)),
-                    SubAction(Rel(20), linear(), Translation(100, 50)),
-                    SubAction(Rel(5), disappear(:fade)),
+                    SubObject(1:15, linear(), appear(:fade)),
+                    SubObject(Rel(20), linear(), Translation(100, 50)),
+                    SubObject(Rel(5), disappear(:fade)),
                     # for global frames 46-50 it should still be disappeared
                 ],
             ),
@@ -473,10 +473,10 @@ end
     javis(
         video,
         [
-            BackgroundAction(1:150, ground),
-            Action(
+            BackgroundObject(1:150, ground),
+            Object(
                 (args...) -> circle(O, 25, :fill);
-                subactions = [SubAction(1:150, circle_anim, translate())],
+                subactions = [SubObject(1:150, circle_anim, translate())],
             ),
         ],
         tempdirectory = "images",
@@ -501,10 +501,10 @@ end
     @test_logs (:warn,) (:warn,) javis(
         video,
         [
-            BackgroundAction(1:2, ground),
-            Action(
+            BackgroundObject(1:2, ground),
+            Object(
                 (args...) -> circle(O, 25, :fill);
-                subactions = [SubAction(1:2, circle_anim, translate())],
+                subactions = [SubObject(1:2, circle_anim, translate())],
             ),
         ],
         pathname = "",
@@ -540,16 +540,16 @@ end
     javis(
         video,
         [
-            BackgroundAction(1:150, ground),
-            Action(
+            BackgroundObject(1:150, ground),
+            Object(
                 (args...) -> circle(O, 25, :fill);
                 subactions = [
-                    SubAction(1:10, sineio(), scale()),
-                    SubAction(11:50, translate_anim, translate()),
-                    SubAction(51:100, rotate_anim, rotate_around(Point(-150, 0))),
-                    SubAction(101:140, translate_back_anim, translate()),
-                    SubAction(141:150, rev(sineio()), scale()),
-                    SubAction(1:150, color_anim, sethue()),
+                    SubObject(1:10, sineio(), scale()),
+                    SubObject(11:50, translate_anim, translate()),
+                    SubObject(51:100, rotate_anim, rotate_around(Point(-150, 0))),
+                    SubObject(101:140, translate_back_anim, translate()),
+                    SubObject(141:150, rev(sineio()), scale()),
+                    SubObject(1:150, color_anim, sethue()),
                 ],
             ),
         ],
@@ -575,11 +575,11 @@ end
     javis(
         video,
         [
-            BackgroundAction(1:50, ground),
-            BackgroundAction(1:50, (args...) -> scaleto(2)),
-            Action(
+            BackgroundObject(1:50, ground),
+            BackgroundObject(1:50, (args...) -> scaleto(2)),
+            Object(
                 (args...) -> circ(Point(75, 0)),
-                subactions = [SubAction(1:50, rotate_anim, rotate())],
+                subactions = [SubObject(1:50, rotate_anim, rotate())],
             ),
         ],
         tempdirectory = "images",
@@ -599,13 +599,13 @@ end
     javis(
         video,
         [
-            BackgroundAction(1:50, ground),
-            Action(:set_scale, (args...) -> 2),
-            Action(
+            BackgroundObject(1:50, ground),
+            Object(:set_scale, (args...) -> 2),
+            Object(
                 (args...) -> circ(),
                 subactions = [
-                    SubAction(1:15, Scaling(0.0, :set_scale)),
-                    SubAction(36:50, Scaling(0.0)),
+                    SubObject(1:15, Scaling(0.0, :set_scale)),
+                    SubObject(36:50, Scaling(0.0)),
                 ],
             ),
         ],
@@ -622,13 +622,13 @@ end
     javis(
         video,
         [
-            BackgroundAction(1:50, ground),
-            BackgroundAction(1:50, (args...) -> scale(2)),
-            Action(
+            BackgroundObject(1:50, ground),
+            BackgroundObject(1:50, (args...) -> scale(2)),
+            Object(
                 (args...) -> circ(),
                 subactions = [
-                    SubAction(1:15, appear(:scale)),
-                    SubAction(36:50, disappear(:scale)),
+                    SubObject(1:15, appear(:scale)),
+                    SubObject(36:50, disappear(:scale)),
                 ],
             ),
         ],
@@ -655,23 +655,23 @@ end
     javis(
         video,
         [
-            BackgroundAction(1:100, ground),
-            BackgroundAction(1:100, (args...) -> fontsize(30)),
-            Action(
+            BackgroundObject(1:100, ground),
+            BackgroundObject(1:100, (args...) -> fontsize(30)),
+            Object(
                 1:100,
                 (args...) -> text("Hello Stream!", -50, 50; halign = :centre);
                 subactions = [
-                    SubAction(1:15, sineio(), appear(:draw_text)),
-                    SubAction(76:100, sineio(), disappear(:draw_text)),
+                    SubObject(1:15, sineio(), appear(:draw_text)),
+                    SubObject(76:100, sineio(), disappear(:draw_text)),
                 ],
             ),
-            Action(
+            Object(
                 1:100,
                 (args...) ->
                     text("Hello World!", -50, -100; halign = :wrong, valign = :wrong);
                 subactions = [
-                    SubAction(1:15, sineio(), appear(:draw_text)),
-                    SubAction(76:100, sineio(), disappear(:draw_text)),
+                    SubObject(1:15, sineio(), appear(:draw_text)),
+                    SubObject(76:100, sineio(), disappear(:draw_text)),
                 ],
             ),
         ],
@@ -690,22 +690,22 @@ end
     javis(
         video,
         [
-            BackgroundAction(1:100, ground),
-            BackgroundAction(1:100, (args...) -> fontsize(30)),
-            Action(
+            BackgroundObject(1:100, ground),
+            BackgroundObject(1:100, (args...) -> fontsize(30)),
+            Object(
                 1:100,
                 (args...) -> text("Hello Stream!", -50, 50; halign = :center);
                 subactions = [
-                    SubAction(1:15, sineio(), appear(:draw_text)),
-                    SubAction(76:100, sineio(), disappear(:draw_text)),
+                    SubObject(1:15, sineio(), appear(:draw_text)),
+                    SubObject(76:100, sineio(), disappear(:draw_text)),
                 ],
             ),
-            Action(
+            Object(
                 1:100,
                 (args...) -> text("Hello World!", -50, -100);
                 subactions = [
-                    SubAction(1:15, sineio(), appear(:draw_text)),
-                    SubAction(76:100, sineio(), disappear(:draw_text)),
+                    SubObject(1:15, sineio(), appear(:draw_text)),
+                    SubObject(76:100, sineio(), disappear(:draw_text)),
                 ],
             ),
         ],
@@ -738,19 +738,19 @@ end
     )
 
     actions = [
-        Action(
+        Object(
             frame_start:(frame_start + 149),
             (args...) -> star(O, 20, 5, 0.5, 0, :fill);
             subactions = [
-                SubAction(1:150, anim, follow_path(star(O, 100))),
-                SubAction(1:150, color_anim, sethue()),
+                SubObject(1:150, anim, follow_path(star(O, 100))),
+                SubObject(1:150, color_anim, sethue()),
             ],
         ) for frame_start in 1:7:22
     ]
 
     javis(
         video,
-        [BackgroundAction(1:180, ground), actions...],
+        [BackgroundObject(1:180, ground), actions...],
         tempdirectory = "images",
         pathname = "",
     )
@@ -782,13 +782,13 @@ end
     )
 
     actions = [
-        Action(
+        Object(
             frame_start:(frame_start + 149),
             (args...) -> star(O, 20, 5, 0.5, 0, :fill);
             subactions = [
-                SubAction(1:1, Translation(simple_bezier()[1] + Point(0, 3 * frame_start))),
-                SubAction(1:10, appear(:fade)),
-                SubAction(
+                SubObject(1:1, Translation(simple_bezier()[1] + Point(0, 3 * frame_start))),
+                SubObject(1:10, appear(:fade)),
+                SubObject(
                     11:150,
                     anim,
                     follow_path(
@@ -796,14 +796,14 @@ end
                         closed = false,
                     ),
                 ),
-                SubAction(1:150, color_anim, sethue()),
+                SubObject(1:150, color_anim, sethue()),
             ],
         ) for frame_start in 1:7:22
     ]
 
     javis(
         video,
-        [BackgroundAction(1:180, ground), actions...],
+        [BackgroundObject(1:180, ground), actions...],
         tempdirectory = "images",
         pathname = "",
     )
@@ -822,7 +822,7 @@ end
 
 @testset "test default kwargs" begin
     video = Video(500, 500)
-    pathname = javis(video, [Action(1:10, ground), Action(1:10, morph(astar, acirc))])
+    pathname = javis(video, [Object(1:10, ground), Object(1:10, morph(astar, acirc))])
     path, ext = splitext(pathname)
     @test ext == ".gif"
     @test isfile(pathname)
@@ -833,7 +833,7 @@ end
     video = Video(500, 500)
     @test_logs (:error,) javis(
         video,
-        [Action(1:10, ground), Action(1:10, morph(astar, acirc))];
+        [Object(1:10, ground), Object(1:10, morph(astar, acirc))];
         pathname = "test.mp3",
     )
 end

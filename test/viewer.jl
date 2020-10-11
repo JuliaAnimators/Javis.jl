@@ -9,8 +9,8 @@ end
 
     vid = Video(500, 500)
     action_list = [
-        BackgroundAction(1:100, ground),
-        Action(1:100, morph(astar, acirc; action = :fill)),
+        BackgroundObject(1:100, ground),
+        Object(1:100, morph(astar, acirc; action = :fill)),
     ]
 
     javis(vid, action_list, pathname = "")
