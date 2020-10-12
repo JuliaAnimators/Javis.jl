@@ -66,10 +66,10 @@ Action(frames, easing::Union{ReversedEasing,Easing}, args...) =
 Action(frames, anim::Animation, transition::Transition...) =
     Action(frames, anim, (args...) -> 1, transition...)
 
-Action(easing::Union{ReversedEasing,Easing}, args...) =
-    Action(:same, easing_to_animation(easing), args...)
+Action(easing::Union{ReversedEasing,Easing}, func::Function, args...) =
+    Action(:same, easing_to_animation(easing), func, args...)
 
-Action(anim::Animation, args...) = Action(:same, anim, args...)
+Action(anim::Animation, func::Function, args...) = Action(:same, anim, func, args...)
 """
     Action(frames, func::Function)
 
