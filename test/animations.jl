@@ -232,8 +232,8 @@ end
     end
 end
 
-astar(args...) = star(Point(-100, -100), 30)
-acirc(args...) = circle(Point(100, 100), 30)
+astar(args...; do_action = :stroke) = star(Point(-100, -100), 30, 5, 0.5, 0, do_action)
+acirc(args...; do_action = :stroke) = circle(Point(100, 100), 30, do_action)
 
 @testset "morphing star2circle and back" begin
     video = Video(500, 500)
@@ -246,8 +246,8 @@ acirc(args...) = circle(Point(100, 100), 30)
                 (args...) -> ground_color("white", "black", args[3]),
             ),
             Object(1:10, (args...) -> circle(Point(-100, 0), val(:framenumber), :fill)),
-            Object(1:10, morph(astar, acirc)),
-            Object(11:20, morph(acirc, astar)),
+            Object(1:10, astar) + Action(morph_to(acirc)),
+            Object(11:20, acirc) + Action(morph_to(astar)),
         ],
         tempdirectory = "images",
         pathname = "",
@@ -271,8 +271,8 @@ end
                 (args...) -> ground_color("white", "black", args[3]),
             ),
             Object(1:10, (args...) -> circle(Point(-100, 0), val(:framenumber), :fill)),
-            Object(1:10, morph(astar, acirc; action = :fill)),
-            Object(11:20, morph(acirc, astar; action = :fill)),
+            Object(1:10, astar) + Action(morph_to(acirc; draw_object = :fill)),
+            Object(11:20, acirc) + Action(morph_to(astar; draw_object = :fill)),
         ],
         tempdirectory = "images",
         pathname = "",

@@ -416,7 +416,7 @@ export javis, latex
 export Video, Object, BackgroundObject, Action, Rel
 export Line, Translation, Rotation, Transformation, Scaling
 export val, pos, ang, get_value, get_position, get_angle
-export projection, morph
+export projection, morph_to
 export appear, disappear, rotate_around, follow_path
 export rev
 export scaleto

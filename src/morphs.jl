@@ -66,7 +66,7 @@ function match_num_point!(poly_1::Vector{Point}, poly_2::Vector{Point})
 end
 
 """
-    morph(from_func::Function, to_func::Function; object=:stroke)
+    morph_to(to_func::Function; object=:stroke)
 
 A closure for the [`_morph`](@ref) function.
 This makes it easier to write the function inside an `Object`.
@@ -80,7 +80,6 @@ Blending between fills of polygons is definitely coming at a later stage.
 i.e. use `circle(Point(100,100), 50)` instead of `circle(Point(100,100), 50, :stroke)`
 
 # Arguments
-- `from_func::Function`: The function that creates the path for the first polygon.
 - `to_func::Function`: Same as `from_func` but it defines the "result" polygon,
                        which will be displayed at the end of the Object
 
@@ -106,9 +105,9 @@ javis(video, [
     pathname="star2circle.gif", deletetemp=true)
 ```
 """
-function morph(from_func::Function, to_func::Function; object = :stroke)
-    return (video, scene_object, frame) ->
-        _morph(video, scene_object, frame, from_func, to_func; draw_object = object)
+function morph_to(to_func::Function; draw_object = :stroke)
+    return (video, object, action, frame) ->
+        _morph_to(video, object, action, frame, to_func; draw_object = draw_object)
 end
 
 """
@@ -122,17 +121,18 @@ Saves the two polygons inside `object.opts[:from_poly]` and `object.opts[:to_pol
 **Assumption:** Both functions create only a single polygon each.
 """
 function save_morph_polygons!(
+    video::Video,
     object::AbstractObject,
-    from_func::Function,
+    frame::Int,
     to_func::Function,
 )
     newpath()
-    from_func()
+    object.func(video, object, frame; do_action = :none)
     closepath()
     from_poly = pathtopoly()[1]
 
     newpath()
-    to_func()
+    to_func(video, object, frame; do_action = :none)
     closepath()
     to_poly = pathtopoly()[1]
 
@@ -166,21 +166,24 @@ function save_morph_polygons!(
 end
 
 """
-    _morph(video::Video, object::AbstractObject, frame, from_func::Function, to_func::Function; draw_object=:stroke)
+    _morph_to(video::Video, object::AbstractObject, frame, from_func::Function, to_func::Function; draw_object=:stroke)
 
 Internal version of [`morph`](@ref) but described there.
 """
-function _morph(
+function _morph_to(
     video::Video,
     object::AbstractObject,
+    action::AbstractAction,
     frame,
-    from_func::Function,
     to_func::Function;
     draw_object = :stroke,
 )
+    cs = get_current_setting()
+    cs.show_object = false
+
     # computation of the polygons and the best way to morph in the first frame
-    if frame == first(get_frames(object))
-        save_morph_polygons!(object, from_func, to_func)
+    if frame == first(get_frames(action))
+        save_morph_polygons!(video, object, frame, to_func)
     end
 
     # obtain the computed polygons. These polygons have the same number of points.
@@ -189,7 +192,7 @@ function _morph(
     points = object.opts[:points]
 
     # compute the interpolation variable `t` for the current frame
-    t = get_interpolation(object, frame)
+    t = get_interpolation(action, frame)
 
     for (i, p1, p2) in zip(1:length(from_poly), from_poly, to_poly)
         new_point = p1 + t * (p2 - p1)

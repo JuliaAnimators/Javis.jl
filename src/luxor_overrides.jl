@@ -123,7 +123,6 @@ function scale(scl_x, scl_y)
     if current_scale[1] ≈ 0.0 || current_scale[2] ≈ 0.0
         cs.show_object = false
     else
-        cs.show_object = true
         Luxor.scale(current_scale...)
         cs.current_scale = cs.current_scale .* current_scale
     end
@@ -147,7 +146,6 @@ function scaleto(x, y)
         cs.show_object = false
         return
     end
-    cs.show_object = true
     Luxor.scale(scaling...)
     cs.current_scale = (x, y)
 end

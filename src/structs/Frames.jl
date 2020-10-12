@@ -22,24 +22,27 @@ Save the result in `a.frames.frames` which can be accessed via [`get_frames`](@r
 """
 function set_frames!(a::Union{AbstractObject,AbstractAction}, last_frames::UnitRange)
     frames = a.frames.user
-    a.frames.frames = get_frames(frames, last_frames)
+    a.frames.frames = get_frames(frames, last_frames; is_action = a isa AbstractAction)
 end
 
 """
-    get_frames(a::Union{AbstractObject, AbstractAction})
+    get_frames(a::Union{AbstractObject, AbstractAction}; is_action = false)
 
 Return `a.frames.frames` which holds the computed frames for the AbstractObject or AbstractAction `a`.
 """
-get_frames(a::Union{AbstractObject,AbstractAction}) = a.frames.frames
+get_frames(a::Union{AbstractObject,AbstractAction}; is_action = false) = a.frames.frames
 
 """
-    get_frames(frames::Symbol, last_frames::UnitRange)
+    get_frames(frames::Symbol, last_frames::UnitRange; is_action = false)
 
 Get the frames based on a symbol (currently only `same`) and the `last_frames`.
 Throw `ArgumentError` if symbol is unknown
 """
-function get_frames(frames::Symbol, last_frames::UnitRange)
+function get_frames(frames::Symbol, last_frames::UnitRange; is_action = false)
     if frames === :same
+        if is_action
+            return 1:length(last_frames)
+        end
         return last_frames
     else
         throw(ArgumentError("Currently the only symbol supported for defining frames is `:same`"))
@@ -47,11 +50,11 @@ function get_frames(frames::Symbol, last_frames::UnitRange)
 end
 
 """
-    get_frames(frames::Rel, last_frames::UnitRange)
+    get_frames(frames::Rel, last_frames::UnitRange; is_action = false)
 
 Return the frames based on a relative frames [`Rel`](@ref) object and the `last_frames`.
 """
-function get_frames(frames::Rel, last_frames::UnitRange)
+function get_frames(frames::Rel, last_frames::UnitRange; is_action = false)
     start_frame = last(last_frames) + first(frames.rel)
     last_frame = last(last_frames) + last(frames.rel)
     return start_frame:last_frame
