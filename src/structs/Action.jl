@@ -40,6 +40,8 @@ It can be defined in many different ways.
         and **not** the first ten frames of the [`Video`](@ref)
 - animation can be an easing function or animation which can be defined by Animations.jl
     - **Default:** The default is `linear()`
+    - Possible simple easing functions is `sineio()` for more check
+        [Animations.jl](https://jkrumbiegel.github.io/Animations.jl/stable/)
 - func is either a `Function` or a `Transition`
     - This is the actual action that is applied to the parent object.
     - It can be either a general function which takes in the following four arguments
@@ -53,6 +55,7 @@ It can be defined in many different ways.
         - [`Scaling`](@ref)
 
 # Example
+```julia
 function ground(args...)
     background("black")
     sethue("white")
@@ -67,6 +70,7 @@ javis(video, [
         Action(51:80, Translation(-50, -50)) +
         Action(81:100, disappear(:fade))
 ]; pathname="current/_test.gif")
+```
 """
 Action(transitions::Transition...) = Action(:same, transitions...)
 
