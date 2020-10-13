@@ -25,41 +25,53 @@ mutable struct Action <: AbstractAction
     defs::Dict{Symbol,Any}
 end
 
-Action(transitions::Transition...) = Action(:same, transitions...)
-Action(func::Function) = Action(:same, func)
-
 """
-    Action(frames, easing::Union{ReversedEasing, Easing}, args...)
+    Action([frames], [Animation], func::Union{Function, Transition})
 
-A `Action` can be defined with frames an
-[easing function](https://jkrumbiegel.github.io/Animations.jl/stable/#Easings-1) and either
-a function or transformation(s).
-
-
-# Example
-In the following example a filled circle with radius 50 appears in the first 20 frames,
-which means the opacity is increased from 0 to 1.0. The interpolation function used here is
-sineio from [`Animations.jl`](https://github.com/jkrumbiegel/Animations.jl).
-Then it stays at full opacity and disappears the same way in the last 20 frames using a
-linear decay.
-
-```julia
-javis(demo, [
-    BackgroundObject(1:100, ground),
-    Object((args...)->circle(O, 50, :fill); actions = [
-        Action(1:20, sineio(), appear(:fade)),
-        Action(81:100, disappear(:fade))
-    ])
-])
-```
+An `Action` gives an [`Object`](@ref) the opportunity to move, change color or much more.
+It can be defined in many different ways.
 
 # Arguments
-- `frames`: A list of frames for which the function should be called.
-    - The frame numbers are relative to the parent [`Object`](@ref).
-- `easing::Union{ReversedEasing, Easing}`: The easing function for `args...`
-- `args...`: Either a function like [`appear`](@ref) or a Transformation
-    like [`Translation`](@ref)
+- frames can be a `Symbol`, a `UnitRange` or a relative way to define frames [`Rel`](@ref)
+    - **Default:** If not defined it will be the same as the previous [`Action`](@ref) or
+        if it's the first action then it will be applied for the whole length of the object.
+    - It defines for which frames the action acts on the object.
+    - These are defined in a relative fashion so `1:10` means the first ten frames of the object
+        and **not** the first ten frames of the [`Video`](@ref)
+- animation can be an easing function or animation which can be defined by Animations.jl
+    - **Default:** The default is `linear()`
+- func is either a `Function` or a `Transition`
+    - This is the actual action that is applied to the parent object.
+    - It can be either a general function which takes in the following four arguments
+        - video, object, action, rel_frame
+    - If you don't need them you can write `(args...)->your_function(arg1, arg2)`
+    - You often don't need an own function and instead can use predefined functions like
+        - [`appear`](@ref), [`disappear`](@ref), [`follow_path`](@ref)
+    - Another way is to define a transition with
+        - [`Translation`](@ref)
+        - [`Rotation`](@ref)
+        - [`Scaling`](@ref)
+
+# Example
+function ground(args...)
+    background("black")
+    sethue("white")
+end
+
+video = Video(500, 500)
+javis(video, [
+    BackgroundObject(1:100, ground),
+    Object((args...)->circle(O, 50, :fill)) +
+        Action(1:20, appear(:fade)) +
+        Action(21:50, Translation(50, 50)) +
+        Action(51:80, Translation(-50, -50)) +
+        Action(81:100, disappear(:fade))
+]; pathname="current/_test.gif")
 """
+Action(transitions::Transition...) = Action(:same, transitions...)
+
+Action(func::Function) = Action(:same, func)
+
 Action(frames, easing::Union{ReversedEasing,Easing}, args...) =
     Action(frames, easing_to_animation(easing), args...)
 
@@ -70,64 +82,9 @@ Action(easing::Union{ReversedEasing,Easing}, func::Function, args...) =
     Action(:same, easing_to_animation(easing), func, args...)
 
 Action(anim::Animation, func::Function, args...) = Action(:same, anim, func, args...)
-"""
-    Action(frames, func::Function)
 
-A `Action` can be defined with frames and a function
-inside the `actions` kwarg of an [`Object`](@ref).
-In the following example a filled circle with radius 50 appears in the first 20 frames,
-which means the opacity is increased from 0 to 1.0.
-Then it stays at full opacity and disappears the same way in the last 20 frames.
-
-# Example
-javis(demo, [
-    BackgroundObject(1:100, ground),
-    Object((args...)->circle(O, 50, :fill); actions = [
-        Action(1:20, appear(:fade)),
-        Action(81:100, disappear(:fade))
-    ])
-])
-
-# Arguments
-- `frames`: A list of frames for which the function should be called.
-    - The frame numbers are relative to the parent [`Object`](@ref).
-- `func::Function`: The function that gets called for the frames.
-    - Needs to have four arguments: `video, object, action, rel_frame`
-    - For [`appear`](@ref) and [`disappear`](@ref) a closure exists,
-      such that `appear(:fade)` works.
-"""
 Action(frames, func::Function) = Action(frames, easing_to_animation(linear()), func)
 
-"""
-    Action(frames, trans::Transition...)
-
-A `Action` can also be defined this way with having a list of transitions.
-This is similar to defining transitions inside [`Object`](@ref)
-
-In the following example a circle is faded in during the first 25 frames then moves to
-- `Point(100, 20)` then to `Point(120, -20)` (the translations are added)
-- and then back to the origin
-In the last 25 frames it disappears from the world.
-
-# Example
-```
-javis(demo, [
-        BackgroundObject(1:200, ground_opacity),
-        Object((args...)->circle(O, 50, :fill); actions = [
-            Action(1:25, appear(:fade)),
-            Action(26:75, Translation(Point(100, 20))),
-            Action(76:100, Translation(Point(20, -40))),
-            Action(101:175, Translation(Point(-120, 20))),
-            Action(176:200, disappear(:fade))
-        ]),
-    ], tempdirectory="current/images", pathname="current/circle_square.gif")
-```
-
-# Arguments
-- `frames`: A list of frames for which the function should be called.
-    - The frame numbers are relative to the parent [`Object`](@ref).
-- `trans::Transition...`: A list of transitions that shall be performed.
-"""
 Action(frames, trans::Transition...) =
     Action(frames, easing_to_animation(linear()), (args...) -> 1, trans...)
 
