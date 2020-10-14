@@ -8,20 +8,20 @@ A Action should not be created by hand but instead by using one of the construct
 
 # Fields
 - `frames::Frames`: the frames relative to the parent [`Object`](@ref)
-- `anim::Animation`: defines the interpolation function for the transitions
+- `anim::Animation`: defines the interpolation function for the transition
 - `func::Function`: the function that gets called in each of those frames.
     Takes the following arguments: `video, object, action, rel_frame`
-- `transitions::Vector{Transition}`: A list of transitions like [`Translation`](@ref)
-- `internal_transitions::Vector{InternalTransition}`:
-    A list of internal transitions which store the current transition for a specific frame.
+- `transition::Transition`: A [`Translation`](@ref)
+- `internal_transition::InternalTransition`:
+    A transition which stores the current transition for a specific frame.
 - `defs::Dict{Symbol, Any}` any kind of definitions that are relevant for the action.
 """
 mutable struct Action <: AbstractAction
     frames::Frames
     anim::Animation
     func::Function
-    transitions::Vector{Transition}
-    internal_transitions::Vector{InternalTransition}
+    transition::Union{Nothing,Transition}
+    internal_transition::Union{Nothing,InternalTransition}
     defs::Dict{Symbol,Any}
 end
 
@@ -72,26 +72,26 @@ javis(video, [
 ]; pathname="current/_test.gif")
 ```
 """
-Action(transitions::Transition...) = Action(:same, transitions...)
+Action(func::Union{Function,Transition}) = Action(:same, func)
 
-Action(func::Function) = Action(:same, func)
+Action(frames, easing::Union{ReversedEasing,Easing}, func::Union{Function,Transition}) =
+    Action(frames, easing_to_animation(easing), func)
 
-Action(frames, easing::Union{ReversedEasing,Easing}, args...) =
-    Action(frames, easing_to_animation(easing), args...)
+Action(frames, anim::Animation, transition::Transition) =
+    Action(frames, anim, (args...) -> 1, transition)
 
-Action(frames, anim::Animation, transition::Transition...) =
-    Action(frames, anim, (args...) -> 1, transition...)
+Action(anim::Animation, func::Union{Function,Transition}) = Action(:same, anim, func)
+Action(easing::Union{ReversedEasing,Easing}, func::Union{Function,Transition}) =
+    Action(:same, easing_to_animation(easing), func)
 
-Action(easing::Union{ReversedEasing,Easing}, func::Function, args...) =
-    Action(:same, easing_to_animation(easing), func, args...)
+Action(frames, func::Union{Function,Transition}) =
+    Action(frames, easing_to_animation(linear()), func)
 
-Action(anim::Animation, func::Function, args...) = Action(:same, anim, func, args...)
+Action(frames, trans::Transition) =
+    Action(frames, easing_to_animation(linear()), (args...) -> 1, trans)
 
-Action(frames, func::Function) = Action(frames, easing_to_animation(linear()), func)
+Action(frames, anim::Animation, func::Function) =
+    Action(frames, anim, func, nothing, nothing, Dict{Symbol,Any}())
 
-Action(frames, trans::Transition...) =
-    Action(frames, easing_to_animation(linear()), (args...) -> 1, trans...)
-
-
-Action(frames, anim::Animation, func::Function, transitions::Transition...) =
-    Action(frames, anim, func::Function, collect(transitions), [], Dict{Symbol,Any}())
+Action(frames, anim::Animation, func::Function, transition::Transition) =
+    Action(frames, anim, func, transition, nothing, Dict{Symbol,Any}())

@@ -193,7 +193,7 @@ function javis(
 
     for object in objects
         for action in object.actions
-            create_internal_transitions!(action)
+            create_internal_transition!(action)
         end
     end
 

@@ -76,7 +76,7 @@ Object(frames, id::Union{Nothing,Symbol}, func::Function; kwargs...) =
 - `frames`: defines for which frames this object is called
 - `id::Symbol`: Is used if the `func` returns something which
     shall be accessible by other objects later
-- `func::Function` the function that is called after the `transitions` are performed
+- `func::Function` the function that is called after the `transition` is performed
 - `start_pos::Point` the start position
 
 The keywords arguments will be saved inside `.opts` as a `Dict{Symbol, Any}`
