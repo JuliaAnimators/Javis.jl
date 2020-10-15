@@ -279,32 +279,16 @@
 
         video = Video(500, 500)
         Object(1:100, (args...) -> 1)
-        Object(:some, :id, (args...) -> 1)
+        Object(:some, (args...) -> 1)
         # throws because :some is not supported as Symbol for `frames`
         @test_throws ArgumentError render(video)
-    end
-
-    @testset "Unspecified symbol error" begin
-        video = Video(500, 500)
-        Object(1:100, (args...) -> 1)
-        Object(1:100, (args...) -> line(O, pos(:non_existent), :stroke))
-
-        # throws because `:non_existent` doesn't exist
-        @test_throws ErrorException render(video)
-
-        video = Video(500, 500)
-        Object(1:100, (args...) -> 1)
-        Object(1:100, (args...) -> line(O, ang(:non_existent), :stroke))
-
-        # throws because `:non_existent` doesn't exist
-        @test_throws ErrorException render(video)
     end
 
     @testset "Frame computation" begin
 
         demo = Video(500, 500)
         back = BackgroundObject(1:50, (args...) -> 1)
-        obj = Object(:atom, (args...) -> 1)
+        obj = Object((args...) -> 1)
         act!(obj, Action(Scaling(1, 2)))
 
         objects = [back, obj]
@@ -317,7 +301,7 @@
 
         demo = Video(500, 500)
         back = BackgroundObject(1:50, (args...) -> 1)
-        obj = Object(Rel(-19:0), :atom, (args...) -> 1)
+        obj = Object(Rel(-19:0), (args...) -> 1)
         act!(obj, Action(1:10, Scaling(1, 2)))
         act!(obj, Action(Rel(10), Scaling(1, 2)))
 

@@ -197,13 +197,6 @@ function render(
         end
     end
 
-    # create defs object
-    for object in objects
-        if object.id !== nothing
-            video.defs[object.id] = Transformation(O, 0.0)
-        end
-    end
-
     if isempty(CURRENT_OBJECT)
         push!(CURRENT_OBJECT, objects[1])
     else
@@ -322,7 +315,6 @@ It is a 4-step process:
 - translate to the start position
 - call the relevant actions
 - call the object function
-- save the result of the object if wanted inside `video.defs`
 """
 function draw_object(object, video, frame, origin_matrix)
     # first compute and perform the global transformations of this object
@@ -355,21 +347,19 @@ function draw_object(object, video, frame, origin_matrix)
     !cs.show_object && return
 
     res = object.func(video, object, frame)
-    if object.id !== nothing
-        current_global_matrix = cairotojuliamatrix(getmatrix())
-        # obtain current matrix without the initial matrix part
-        current_matrix = inv(origin_matrix) * current_global_matrix
+    current_global_matrix = cairotojuliamatrix(getmatrix())
+    # obtain current matrix without the initial matrix part
+    current_matrix = inv(origin_matrix) * current_global_matrix
 
-        # if a transformation let's save the global coordinates
-        if res isa Point
-            vec = current_matrix * [res.x, res.y, 1.0]
-            video.defs[object.id] = Point(vec[1], vec[2])
-        elseif res isa Transformation
-            trans = current_matrix * res
-            video.defs[object.id] = trans
-        else # just save the result such that it can be used as one wishes
-            video.defs[object.id] = res
-        end
+    # if a transformation let's save the global coordinates
+    if res isa Point
+        vec = current_matrix * [res.x, res.y, 1.0]
+        object.result[1] = Point(vec[1], vec[2])
+    elseif res isa Transformation
+        trans = current_matrix * res
+        object.result[1] = trans
+    else # just save the result such that it can be used as one wishes
+        object.result[1] = res
     end
 end
 
