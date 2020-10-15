@@ -32,7 +32,7 @@ An `Action` gives an [`Object`](@ref) the opportunity to move, change color or m
 It can be defined in many different ways.
 
 # Arguments
-- frames can be a `Symbol`, a `UnitRange` or a relative way to define frames [`Rel`](@ref)
+- frames can be a `Symbol`, a `UnitRange` or a relative way to define frames see [`Rel`](@ref)
     - **Default:** If not defined it will be the same as the previous [`Action`](@ref) or
         if it's the first action then it will be applied for the whole length of the object.
     - It defines for which frames the action acts on the object.
@@ -69,7 +69,7 @@ javis(video, [
         Action(21:50, Translation(50, 50)) +
         Action(51:80, Translation(-50, -50)) +
         Action(81:100, disappear(:fade))
-]; pathname="current/_test.gif")
+]; pathname="test.gif")
 ```
 """
 Action(func::Union{Function,Transition}) = Action(:same, func)
