@@ -33,7 +33,7 @@ Action(1:100, (args...)->circle(O, 50, :fill))
 and then you need the [`Translation`](@ref) command to move the circle.
 
 ```julia
-Action(1:100, (args...)->circle(O, 50, :fill), Translation(O, Point(100, 100))
+Action(1:100, (args...)->circle(O, 50, :fill), Translation(O, Point(100, 100)))
 ```
 
 The circle then moves from the origin (center of frame) 100 px down and to the right.
@@ -123,7 +123,7 @@ In this animation the position of the circle is saved inside `:my_circle` and ca
 
 ## How can I show a text being drawn?
 
-A `text` can appear as *any* other object with `appear(:fade)` and `appear(:scale)`, However, it also has a special [`appear`](@ref) functionality called 
+A `text` or [`latex`](@ref) rendering can appear as *any* other object with `appear(:fade)` and `appear(:scale)`, However, it also has a special [`appear`](@ref) functionality called 
 `:draw_text`.
 
 You can use 

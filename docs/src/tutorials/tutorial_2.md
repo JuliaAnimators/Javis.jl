@@ -82,7 +82,7 @@ The following invocation will create the head:
 ```
 
 `Action` objects consist of at least one part, namely calling a function which draws something on to the canvas. 
-`Action` objects are fully comprised of `frames` (which can be optional), an optional `id`, a `function` that draws something on a canvas, an optional `Animation`, an optional `Movement`, and optional `SubAction` definitions.
+`Action` objects are fully comprised of `Frames` (which can be optional), an optional `id::Symbol`, a drawing function `func`, an optional `Animation`, an optional `Movement`, and optional `SubAction` definitions.
 
 ### Frames
 
@@ -104,16 +104,17 @@ In this tutorial it's basically used as a comment to keep track of what each `Ac
 
 ### Function
 
-As mentioned the most important part of each [`Action`](@ref) is to define what should be drawn in these frames. 
-Javis calls these functions with three arguments: `video`, `action` and `framenumber`. 
-Normally this is not needed but instead one defines own arguments. 
-In this case the following syntax is used.
+The most important part of each [`Action`](@ref) is the drawing function `func` that defines what should be drawn in these frames. 
+Under the hood, Javis calls `func` with three arguments (`video`, `action`, and `framenumber`) but you do not need to preoccupy yourself with these.
+Just make `func` an anonymous function and define the output being drawn in the canvas:
 
 ```julia
-(args...) -> my_function(argument_1, argument_2, ..., argument_X)
+(args...) -> my_drawing_function(my_drawing_arguments...)
 ```
 
-In [Tutorial 1](tutorial_1.md), it showed that `my_function` can be a Luxor function or a function which calls some Luxor functions to draw on the canvas. 
+(The `args...` don't even need to be part of the output!)
+
+In [Tutorial 1](tutorial_1.md), we saw that `my_drawing_function` could either be a Luxor function or a function which calls some Luxor functions to draw on the canvas. 
 
 ### Animation
 

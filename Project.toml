@@ -1,7 +1,7 @@
 name = "Javis"
 uuid = "78b212ba-a7f9-42d4-b726-60726080707e"
 authors = ["Ole Kröger <o.kroeger@opensourc.es>", "Jacob Zelko <jacobszelko@gmail.com>"]
-version = "0.2.0"
+version = "0.2.1"
 
 [deps]
 Animations = "27a7e980-b3e6-11e9-2bcd-0b925532e340"
@@ -27,7 +27,7 @@ ColorTypes = "0.10"
 FFMPEG = "0.3, 0.4"
 Gtk = "1.1"
 GtkReactive = "1.0.3"
-Images = "0.20, 0.21, 0.22"
+Images = "0.20, 0.21, 0.22, 0.23"
 LaTeXStrings = "1.1"
 LightXML = "0.9"
 Luxor = "2"

@@ -17,8 +17,14 @@
     javis(
         video,
         [
-            BackgroundAction(1:1, latex_ground),
-            Action((args...) -> latex(L"\mathcal{O}(\log{n})")), # default fontsize 50
+            BackgroundAction(1:35, latex_ground),
+            Action(
+                (args...) -> latex(L"\mathcal{O}(\log{n})");
+                subactions = [
+                    SubAction(1:15, appear(:draw_text)),
+                    SubAction(21:35, disappear(:draw_text)),
+                ],
+            ), # default fontsize 50
             Action(
                 (args...) -> latex_blend(L"\mathcal{O}\left(\frac{\log{x}}{2}\right)", 20),
             ),
@@ -26,8 +32,12 @@
         tempdirectory = "images",
         pathname = "",
     )
-    @test_reference "refs/ologn.png" load("images/0000000001.png")
-    rm("images/0000000001.png")
+    @test_reference "refs/ologn.png" load("images/0000000016.png")
+    @test_reference "refs/ologn_mid.png" load("images/0000000007.png")
+    @test_reference "refs/ologn_dis_mid.png" load("images/0000000027.png")
+    for i in 1:35
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
 end
 
 @testset "latex pos in function" begin

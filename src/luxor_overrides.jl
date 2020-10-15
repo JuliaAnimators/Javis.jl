@@ -183,7 +183,7 @@ function animate_text(
     halignment = findfirst(isequal(halign), [:left, :center, :right, :centre])
 
     # if unspecified or wrong, default to left, also treat UK spelling centre as center
-    if halignment == nothing
+    if halignment === nothing
         halignment = 1
     elseif halignment == 4
         halignment = 2
@@ -194,7 +194,7 @@ function animate_text(
     valignment = findfirst(isequal(valign), [:top, :middle, :baseline, :bottom])
 
     # if unspecified or wrong, default to baseline
-    if valignment == nothing
+    if valignment === nothing
         valignment = 3
     end
 
@@ -206,8 +206,8 @@ function animate_text(
     rotate(angle)
     # clipping region
     textoutlines(str, O, :clip)
-    w = textwidth
-    r = t * w
+    complete_radius = sqrt(textwidth^2 + textheight^2)
+    r = t * complete_radius
     circle(O, r, :fill)
     grestore()
     return Point(textpointx, textpointy)
