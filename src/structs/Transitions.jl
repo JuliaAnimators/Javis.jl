@@ -129,6 +129,7 @@ end
 Scaling(to::Tuple) = Scaling(:_current_scale, to, true)
 Scaling(to::Real) = Scaling(:_current_scale, convert(Float64, to), true)
 Scaling(to::AbstractObject) = Scaling(:_current_scale, to, true)
+Scaling(to::Symbol) = Scaling(:_current_scale, to, true)
 
 function Scaling(from::Real, to::Real, compute_from_once = false)
     from_flt = convert(Float64, from)

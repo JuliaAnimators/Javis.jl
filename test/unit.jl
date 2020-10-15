@@ -284,6 +284,13 @@
         @test_throws ArgumentError render(video)
     end
 
+    @testset "Scaling internal variable not defined" begin
+        video = Video(500, 500)
+        obj = Object(1:100, (args...) -> 1)
+        act!(obj, Action(Scaling(:_test)))
+        @test_throws ErrorException render(video)
+    end
+
     @testset "Frame computation" begin
 
         demo = Video(500, 500)
