@@ -118,7 +118,29 @@ function add!(objects::Vector{<:AbstractObject}, actions::Vector{<:AbstractActio
     end
 end
 
+"""
+    BackgroundObject(frames, [id], func)
 
+The BackgroundObject is internally just an [`Object`](@ref) and can be defined the same way.
+In contrast to an object this a `BackgroundObject` will change the global canvas and not just
+a layer. Normally it's used to define defaults and the `background` color. See Luxor.background
+
+# Example
+```julia
+function ground(args...)
+    background("black")
+    sethue("white")
+end
+
+video = Video(500, 500)
+javis(video, [
+    BackgroundObject(1:100, ground),
+    Object((args...)->circle(O, 50, :fill))
+]; pathname="test.gif")
+```
+
+This draws a white circle on a black background as `sethue` is defined for the global frame.
+"""
 function BackgroundObject(frames, func::Function, args...; kwargs...)
     Object(frames, nothing, func, args...; in_global_layer = true, kwargs...)
 end
