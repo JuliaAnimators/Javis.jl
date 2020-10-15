@@ -27,7 +27,7 @@
         video = Video(500, 500)
         # dummy action doesn't need a real function
         object = Object(1:100, () -> 1)
-        object += Action(1:100, Translation(Point(1, 1), Point(100, 100)))
+        act!(object, Action(1:100, Translation(Point(1, 1), Point(100, 100))))
 
         action = object.actions[1]
 
@@ -44,7 +44,7 @@
         video = Video(500, 500)
         # dummy action doesn't need a real function
         object = Object(1:100, () -> 1)
-        object += Action(1:100, sineio(), Translation(Point(1, 1), Point(100, 100)))
+        act!(object, Action(1:100, sineio(), Translation(Point(1, 1), Point(100, 100))))
 
         action = object.actions[1]
 
@@ -64,7 +64,7 @@
         video = Video(500, 500)
         # dummy action doesn't need a real function
         object = Object(1:100, () -> 1)
-        object += Action(1:100, anim_01, Translation(Point(1, 1), Point(100, 100)))
+        act!(object, Action(1:100, anim_01, Translation(Point(1, 1), Point(100, 100))))
 
         action = object.actions[1]
 
@@ -82,9 +82,10 @@
 
     @testset "Relative frames" begin
         video = Video(500, 500)
+        Object(1:100, (args...) -> 1)
         object = Object(Rel(10), (args...) -> 1)
         # dummy object doesn't need a real function
-        test_file = javis(video, [Object(1:100, (args...) -> 1), object])
+        test_file = render(video)
         @test Javis.get_frames(object) == 101:110
         rm(test_file)
     end
@@ -93,7 +94,7 @@
         video = Video(500, 500)
         # dummy object doesn't need a real function
         object = Object(1:100, () -> 1)
-        object += Action(1:100, Translation(Point(99, 99)))
+        act!(object, Action(1:100, Translation(Point(99, 99))))
 
         action = object.actions[1]
 
@@ -110,7 +111,7 @@
         video = Video(500, 500)
         # dummy object doesn't need a real function
         object = Object(1:100, () -> 1)
-        object += Action(1:100, Translation(99, 99))
+        act!(object, Action(1:100, Translation(99, 99)))
         action = object.actions[1]
 
         # needs internal translation as well
@@ -128,7 +129,7 @@
         video = Video(500, 500)
         # dummy object doesn't need a real function
         object = Object(1:100, () -> 1)
-        object += Action(1:100, Rotation(2π))
+        act!(object, Action(1:100, Rotation(2π)))
 
         action = object.actions[1]
         # needs internal translation as well
@@ -142,7 +143,7 @@
         video = Video(500, 500)
         # dummy object doesn't need a real function
         object = Object(1:100, () -> 1)
-        object += Action(1:100, Rotation(2π, Point(2.0, 5.0)))
+        act!(object, Action(1:100, Rotation(2π, Point(2.0, 5.0))))
 
         action = object.actions[1]
 
@@ -161,7 +162,7 @@
         video = Video(500, 500)
         # dummy object doesn't need a real function
         object = Object(0:100, () -> 1)
-        object += Action(0:100, Scaling(0.0, 1.0))
+        act!(object, Action(0:100, Scaling(0.0, 1.0)))
         action = object.actions[1]
 
         # needs internal scaling as well
@@ -176,18 +177,14 @@
 
     @testset "Relative frames" begin
         video = Video(500, 500)
-        object = Object(Rel(10), (args...) -> 1)
-        object += Action(1:10, Translation(Point(1, 1), Point(100, 100)))
-        # dummy object doesn't need a real function
-        test_file = javis(
-            video,
-            [
-                Object(1:100, (args...) -> 1) +
-                Action(1:100, Translation(Point(1, 1), Point(100, 100))),
-                object,
-            ],
-        )
-        @test Javis.get_frames(object) == 101:110
+        o1 = Object(1:100, (args...) -> 1)
+        act!(o1, Action(1:100, Translation(Point(1, 1), Point(100, 100))))
+
+        o2 = Object(Rel(10), (args...) -> 1)
+        act!(o2, Action(1:10, Translation(Point(1, 1), Point(100, 100))))
+        test_file = render(video)
+
+        @test Javis.get_frames(o2) == 101:110
         rm(test_file)
     end
 
@@ -195,7 +192,7 @@
         video = Video(500, 500)
         # dummy object doesn't need a real function
         object = Object(1:100, () -> 1)
-        object += Action(1:100, Translation(Point(99, 99)))
+        act!(object, Action(1:100, Translation(Point(99, 99))))
         action = object.actions[1]
 
         # needs internal translation as well
@@ -210,7 +207,8 @@
 
         video = Video(500, 500)
         # dummy object doesn't need a real function
-        object = Object(1:100, () -> 1) + Action(1:100, Translation(99, 99))
+        object = Object(1:100, () -> 1)
+        act!(object, Action(1:100, Translation(99, 99)))
         action = object.actions[1]
         # needs internal translation as well
         action.internal_transition = Javis.InternalTranslation(O)
@@ -226,7 +224,8 @@
     @testset "rotations" begin
         video = Video(500, 500)
         # dummy object doesn't need a real function
-        object = Object(1:100, () -> 1) + Action(1:100, Rotation(2π))
+        object = Object(1:100, () -> 1)
+        act!(object, Action(1:100, Rotation(2π)))
         action = object.actions[1]
         # needs internal translation as well
         action.internal_transition = Javis.InternalRotation(0.0, O)
@@ -238,7 +237,8 @@
 
         video = Video(500, 500)
         # dummy object doesn't need a real function
-        object = Object(1:100, () -> 1) + Action(1:100, Rotation(2π, Point(2.0, 5.0)))
+        object = Object(1:100, () -> 1)
+        act!(object, Action(1:100, Rotation(2π, Point(2.0, 5.0))))
         action = object.actions[1]
         # needs internal translation as well
         action.internal_transition = Javis.InternalRotation(0.0, O)
@@ -254,7 +254,8 @@
     @testset "action with a single frame" begin
         video = Video(500, 500)
         # dummy object doesn't need a real function
-        object = Object(1:1, () -> 1) + Action(1:1, Translation(Point(10, 10)))
+        object = Object(1:1, () -> 1)
+        act!(object, Action(1:1, Translation(Point(10, 10))))
         action = object.actions[1]
         # needs internal translation as well
         action.internal_transition = Javis.InternalTranslation(O)
@@ -268,68 +269,60 @@
         @test_throws ErrorException Object(1:10, (args...) -> star(O, 20, 5, 0.5, 0, :fill))
         # throws because the frames of the first object need to be defined explicitly
         video = Video(500, 500)
-        @test_throws ArgumentError javis(video, [Object((args...) -> 1)])
+        Object((args...) -> 1)
+        @test_throws ArgumentError render(video)
+
+        video = Video(500, 500)
+        Object(Rel(10), (args...) -> 1)
         # throws because the frames of the first object need to be defined explicitly
-        @test_throws ArgumentError javis(video, [Object(Rel(10), (args...) -> 1)])
+        @test_throws ArgumentError render(video)
+
+        video = Video(500, 500)
+        Object(1:100, (args...) -> 1)
+        Object(:some, :id, (args...) -> 1)
         # throws because :some is not supported as Symbol for `frames`
-        @test_throws ArgumentError javis(
-            video,
-            [Object(1:100, (args...) -> 1), Object(:some, :id, (args...) -> 1)],
-        )
+        @test_throws ArgumentError render(video)
     end
 
     @testset "Unspecified symbol error" begin
         video = Video(500, 500)
-        # throws because the frames of the first action need to be defined explicitly
-        @test_throws ErrorException javis(
-            video,
-            [
-                Object(1:100, (args...) -> 1),
-                Object(1:100, (args...) -> line(O, pos(:non_existent), :stroke)),
-            ],
-        )
+        Object(1:100, (args...) -> 1)
+        Object(1:100, (args...) -> line(O, pos(:non_existent), :stroke))
+
+        # throws because `:non_existent` doesn't exist
+        @test_throws ErrorException render(video)
 
         video = Video(500, 500)
-        # throws because the frames of the first action need to be defined explicitly
-        @test_throws ErrorException javis(
-            video,
-            [
-                Object(1:100, (args...) -> 1),
-                Object(1:100, (args...) -> line(O, ang(:non_existent), :stroke)),
-            ],
-        )
+        Object(1:100, (args...) -> 1)
+        Object(1:100, (args...) -> line(O, ang(:non_existent), :stroke))
+
+        # throws because `:non_existent` doesn't exist
+        @test_throws ErrorException render(video)
     end
 
     @testset "Frame computation" begin
 
-        objects = [
-            BackgroundObject(1:50, (args...) -> 1),
-            Object(:atom, (args...) -> 1) + Action(Scaling(1, 2)),
-        ]
         demo = Video(500, 500)
-        javis(demo, objects; pathname = "")
+        back = BackgroundObject(1:50, (args...) -> 1)
+        obj = Object(:atom, (args...) -> 1)
+        act!(obj, Action(Scaling(1, 2)))
+
+        objects = [back, obj]
+
+        render(demo; pathname = "")
         @test Javis.get_frames(objects[1]) == 1:50
         @test Javis.get_frames(objects[2]) == 1:50
         @test Javis.get_frames(objects[2].actions[1]) == 1:50
 
-        objects = [
-            BackgroundObject(1:50, (args...) -> 1),
-            Object(:atom, (args...) -> 1) + Action((args...) -> 1),
-        ]
-        demo = Video(500, 500)
-        javis(demo, objects; pathname = "")
-        @test Javis.get_frames(objects[1]) == 1:50
-        @test Javis.get_frames(objects[2]) == 1:50
-        @test Javis.get_frames(objects[2].actions[1]) == 1:50
 
-        objects = [
-            BackgroundObject(1:50, (args...) -> 1),
-            Object(Rel(-19:0), :atom, (args...) -> 1) +
-            Action(1:10, Scaling(1, 2)) +
-            Action(Rel(10), Scaling(1, 2)),
-        ]
         demo = Video(500, 500)
-        javis(demo, objects; pathname = "")
+        back = BackgroundObject(1:50, (args...) -> 1)
+        obj = Object(Rel(-19:0), :atom, (args...) -> 1)
+        act!(obj, Action(1:10, Scaling(1, 2)))
+        act!(obj, Action(Rel(10), Scaling(1, 2)))
+
+        objects = [back, obj]
+        render(demo; pathname = "")
         @test Javis.get_frames(objects[1]) == 1:50
         @test Javis.get_frames(objects[2]) == 31:50
         @test Javis.get_frames(objects[2].actions[1]) == 1:10

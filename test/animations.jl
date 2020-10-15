@@ -47,25 +47,22 @@ end
     path_of_red = Point[]
 
     video = Video(500, 500)
-    javis(
-        video,
-        [
-            BackgroundObject(1:25, ground, Point(25, 25)) + Action(1:1, Rotation(0.0)),
-            Object(latex_title),
-            Object(Rel(-24:0), :red_ball, (args...) -> circ(p1, "red")) +
-            Action(Rotation(from_rot, to_rot)),
-            Object(1:25, :blue_ball, (args...) -> circ(p2, "blue")) +
-            Action(Rotation(to_rot, from_rot, :red_ball)),
-            Object(
-                1:25,
-                (video, args...) -> path!(path_of_red, get_position(:red_ball), "red"),
-            ),
-            Object(:same, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue")),
-            Object(1:25, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
-        ],
-        tempdirectory = "images",
-        pathname = "dancing.gif",
-    )
+    back = BackgroundObject(1:25, ground, Point(25, 25))
+    act!(back, Action(1:1, Rotation(0.0)))
+
+    Object(latex_title)
+    red_ball = Object(Rel(-24:0), :red_ball, (args...) -> circ(p1, "red"))
+    act!(red_ball, Action(Rotation(from_rot, to_rot)))
+
+    blue_ball = Object(1:25, :blue_ball, (args...) -> circ(p2, "blue"))
+    act!(blue_ball, Action(Rotation(to_rot, from_rot, :red_ball)))
+    path_red =
+        Object(1:25, (video, args...) -> path!(path_of_red, get_position(:red_ball), "red"))
+    path_blue =
+        Object(:same, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue"))
+    string = Object(1:25, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black"))
+
+    render(video; tempdirectory = "images", pathname = "dancing.gif")
 
     @test_reference "refs/dancing_circles_16.png" load("images/0000000016.png")
     @test isfile("dancing.gif")
@@ -85,26 +82,22 @@ end
     path_of_red = Point[]
 
     video = Video(500, 500)
-    javis(
-        video,
-        [
-            BackgroundObject(1:30, ground, Point(25, 25)),
-            Object(latex_title),
-            Object(:red_ball, (args...) -> circ(p1, "red")) +
-            Action(Rotation(from_rot, to_rot)),
-            Object(1:30, :blue_ball, (args...) -> circ(p2, "blue")) +
-            Action(Rotation(to_rot, from_rot, :red_ball)),
-            Object(
-                1:30,
-                (video, args...) -> path!(path_of_red, get_position(:red_ball), "red"),
-            ),
-            Object(:same, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue")),
-            Object(1:30, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
-        ],
-        tempdirectory = "images",
-        pathname = "dancing.mp4",
-        framerate = 1,
-    )
+    back = BackgroundObject(1:30, ground, Point(25, 25))
+    act!(back, Action(1:1, Rotation(0.0)))
+
+    Object(latex_title)
+    red_ball = Object(Rel(-24:0), :red_ball, (args...) -> circ(p1, "red"))
+    act!(red_ball, Action(Rotation(from_rot, to_rot)))
+
+    blue_ball = Object(1:30, :blue_ball, (args...) -> circ(p2, "blue"))
+    act!(blue_ball, Action(Rotation(to_rot, from_rot, :red_ball)))
+    path_red =
+        Object(1:30, (video, args...) -> path!(path_of_red, get_position(:red_ball), "red"))
+    path_blue =
+        Object(:same, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue"))
+    string = Object(1:30, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black"))
+
+    render(video; tempdirectory = "images", pathname = "dancing.mp4", framerate = 1)
 
     # 30 frames with a framerate of 1 should take about 30 seconds ;)
     @test isapprox(VideoIO.get_duration("dancing.mp4"), 30.0, atol = 0.1)
@@ -120,27 +113,23 @@ end
     path_of_red = Point[]
 
     video = Video(500, 500)
-    javis(
-        video,
-        [
-            Object(1:25, ground, in_global_layer = true) +
-            Action(Rotation(π / 2, π / 2, O)) +
-            Action(Translation(Point(25, 25), Point(25, 25))),
-            Object(1:25, latex_title),
-            Object(1:25, :red_ball, (args...) -> circ(p1, "red")) +
-            Action(Rotation(to_rot)),
-            Object(1:25, :blue_ball, (args...) -> circ(p2, "blue")) +
-            Action(Rotation(to_rot, from_rot, :red_ball)),
-            Object(
-                1:25,
-                (video, args...) -> path!(path_of_red, get_position(:red_ball), "red"),
-            ),
-            Object(1:25, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue")),
-            Object(1:25, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
+    back = Object(1:25, ground, in_global_layer = true)
+    act!(back, Action(Rotation(π / 2, π / 2, O)))
+    act!(back, Action(Translation(Point(25, 25), Point(25, 25))))
+
+    Object(latex_title)
+    red_ball = Object(Rel(-24:0), :red_ball, (args...) -> circ(p1, "red"))
+    act!(red_ball, Action(Rotation(from_rot, to_rot)))
+
+    blue_ball = Object(1:25, :blue_ball, (args...) -> circ(p2, "blue"))
+    act!(blue_ball, Action(Rotation(to_rot, from_rot, :red_ball)))
+    path_red =
+        Object(1:25, (video, args...) -> path!(path_of_red, get_position(:red_ball), "red"))
+    path_blue =
+        Object(:same, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue"))
+    string = Object(1:25, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black"))
+
+    render(video; tempdirectory = "images", pathname = "")
 
     @test_reference "refs/dancing_circles_16_rot_trans.png" load("images/0000000016.png")
     for i in 1:25
@@ -157,24 +146,23 @@ end
     path_of_red = Point[]
 
     video = Video(500, 500)
-    javis(
-        video,
-        [
-            Object(1:25, ground, in_global_layer = true) +
-            Action(Rotation(π / 2, π / 2, O)) +
-            Action(Translation(Point(25, 25), Point(25, 25))),
-            Object(1:25, latex_title),
-            Object(1:25, :red_ball, (args...) -> circ_ret_trans(p1, "red")) +
-            Action(Rotation(to_rot)),
-            Object(1:25, :blue_ball, (args...) -> circ_ret_trans(p2, "blue")) +
-            Action(Rotation(to_rot, from_rot, :red_ball)),
-            Object(1:25, (video, args...) -> path!(path_of_red, pos(:red_ball), "red")),
-            Object(1:25, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue")),
-            Object(1:25, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black")),
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
+    back = Object(1:25, ground, in_global_layer = true)
+    act!(back, Action(Rotation(π / 2, π / 2, O)))
+    act!(back, Action(Translation(Point(25, 25), Point(25, 25))))
+
+    title = Object(1:25, latex_title)
+    red_ball = Object(1:25, :red_ball, (args...) -> circ_ret_trans(p1, "red"))
+    act!(red_ball, Action(Rotation(to_rot)))
+
+    blue_ball = Object(1:25, :blue_ball, (args...) -> circ_ret_trans(p2, "blue"))
+    act!(blue_ball, Action(Rotation(to_rot, from_rot, :red_ball)))
+
+    path_red = Object(1:25, (video, args...) -> path!(path_of_red, pos(:red_ball), "red"))
+    path_blue =
+        Object(1:25, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue"))
+    string = Object(1:25, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black"))
+
+    render(video; tempdirectory = "images", pathname = "")
 
     @test_reference "refs/dancing_circles_16_rot_trans.png" load("images/0000000016.png")
     for i in 1:25
@@ -184,22 +172,16 @@ end
 
 @testset "Drawing grid" begin
     video = Video(500, 500)
-    javis(
-        video,
-        [
-            Object(1:40, ground),
-            Object(1:10, draw_grid(direction = "BL", line_gap = 25)),
-            Object(zero_lines(direction = "BL", line_thickness = 10)),
-            Object(Rel(10), draw_grid(direction = "BR", line_gap = 25)),
-            Object(zero_lines(direction = "BR", line_thickness = 10)),
-            Object(Rel(10), draw_grid(direction = "TL", line_gap = 25)),
-            Object(zero_lines(direction = "TL", line_thickness = 10)),
-            Object(Rel(10), draw_grid(direction = "TR", line_gap = 25)),
-            Object(zero_lines(direction = "TR", line_thickness = 10)),
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
+    Object(1:40, ground), Object(1:10, draw_grid(direction = "BL", line_gap = 25))
+    Object(zero_lines(direction = "BL", line_thickness = 10))
+    Object(Rel(10), draw_grid(direction = "BR", line_gap = 25))
+    Object(zero_lines(direction = "BR", line_thickness = 10))
+    Object(Rel(10), draw_grid(direction = "TL", line_gap = 25))
+    Object(zero_lines(direction = "TL", line_thickness = 10))
+    Object(Rel(10), draw_grid(direction = "TR", line_gap = 25))
+    Object(zero_lines(direction = "TR", line_thickness = 10))
+
+    render(video; tempdirectory = "images", pathname = "")
 
     @test_reference "refs/grid_drawing_bl.png" load("images/0000000008.png")
     @test_reference "refs/grid_drawing_br.png" load("images/0000000018.png")
@@ -213,18 +195,13 @@ end
 @testset "Use returned angle" begin
     video = Video(500, 500)
     p = Point(100, 0)
-    javis(
-        video,
-        [
-            Object(1:10, ground),
-            Object(:circ, (args...) -> circ_ret_trans(p)) + Action(Rotation(2π)),
-            Object(
-                (args...) -> line(Point(-200, 0), Point(-200, -10 * ang(:circ)), :stroke),
-            ),
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
+
+    Object(1:10, ground)
+    obj = Object(:circ, (args...) -> circ_ret_trans(p))
+    act!(obj, Action(Rotation(2π)))
+    Object((args...) -> line(Point(-200, 0), Point(-200, -10 * ang(:circ)), :stroke))
+
+    render(video; tempdirectory = "images", pathname = "")
 
     @test_reference "refs/circle_angle.png" load("images/0000000008.png")
     for i in 1:10
@@ -237,21 +214,19 @@ acirc(args...; do_action = :stroke) = circle(Point(100, 100), 30, do_action)
 
 @testset "morphing star2circle and back" begin
     video = Video(500, 500)
-    javis(
-        video,
-        [
-            BackgroundObject(
-                1:20,
-                :framenumber,
-                (args...) -> ground_color("white", "black", args[3]),
-            ),
-            Object(1:10, (args...) -> circle(Point(-100, 0), val(:framenumber), :fill)),
-            Object(1:10, astar) + Action(linear(), morph_to(acirc)),
-            Object(11:20, acirc) + Action(:same, morph_to(astar)),
-        ],
-        tempdirectory = "images",
-        pathname = "",
+
+    BackgroundObject(
+        1:20,
+        :framenumber,
+        (args...) -> ground_color("white", "black", args[3]),
     )
+    Object(1:10, (args...) -> circle(Point(-100, 0), val(:framenumber), :fill))
+    star_obj = Object(1:10, astar)
+    act!(star_obj, Action(linear(), morph_to(acirc)))
+    circle_obj = Object(11:20, acirc)
+    act!(circle_obj, Action(:same, morph_to(astar)))
+
+    render(video; tempdirectory = "images", pathname = "")
 
     @test_reference "refs/star2circle5.png" load("images/0000000005.png")
     @test_reference "refs/star2circle15.png" load("images/0000000015.png")
@@ -262,21 +237,19 @@ end
 
 @testset "morphing star2circle and back with fill" begin
     video = Video(500, 500)
-    javis(
-        video,
-        [
-            BackgroundObject(
-                1:20,
-                :framenumber,
-                (args...) -> ground_color("white", "black", args[3]),
-            ),
-            Object(1:10, (args...) -> circle(Point(-100, 0), val(:framenumber), :fill)),
-            Object(1:10, astar) + Action(morph_to(acirc; draw_object = :fill)),
-            Object(11:20, acirc) + Action(morph_to(astar; draw_object = :fill)),
-        ],
-        tempdirectory = "images",
-        pathname = "",
+    BackgroundObject(
+        1:20,
+        :framenumber,
+        (args...) -> ground_color("white", "black", args[3]),
     )
+    Object(1:10, (args...) -> circle(Point(-100, 0), val(:framenumber), :fill))
+    star_obj = Object(1:10, astar)
+    act!(star_obj, Action(morph_to(acirc; draw_object = :fill)))
+
+    circle_obj = Object(11:20, acirc)
+    act!(circle_obj, Action(morph_to(astar; draw_object = :fill)))
+
+    render(video; tempdirectory = "images", pathname = "")
 
     @test_reference "refs/star2circle_fill5.png" load("images/0000000005.png")
     @test_reference "refs/star2circle_fill15.png" load("images/0000000015.png")
@@ -315,17 +288,12 @@ end
 
 @testset "House of Nicholas line_width" begin
     demo = Video(500, 500)
-    javis(
-        demo,
-        [
-            BackgroundObject(1:50, ground_nicholas),
-            Object((args...) -> house_of_nicholas()) +
-            Action(1:25, appear(:fade_line_width)) +
-            Action(Rel(25), disappear(:fade_line_width)),
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
+    BackgroundObject(1:50, ground_nicholas)
+    house = Object((args...) -> house_of_nicholas())
+    act!(house, Action(1:25, appear(:fade_line_width)))
+    act!(house, Action(Rel(25), disappear(:fade_line_width)))
+
+    render(demo; tempdirectory = "images", pathname = "")
 
     @test_reference "refs/nicholas15.png" load("images/0000000015.png")
     @test_reference "refs/nicholas25.png" load("images/0000000025.png")
@@ -337,21 +305,16 @@ end
 
 @testset "Squeezing a circle using scale" begin
     demo = Video(500, 500)
-    javis(
-        demo,
-        [
-            BackgroundObject(1:100, ground),
-            Object(:start_scale, (args...) -> (1.0, 1.0)),
-            Object((args...) -> circ()) +
-            Action(1:25, Scaling((1.0, 1.5))) +
-            Action(Rel(25), Scaling((2.0, 1.0))) +
-            Action(Rel(25), Scaling(:start_scale)) +
-            Action(Rel(25), Scaling(2.0)),
-            Object((args...) -> circ(Point(-100, 0))),
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
+
+    BackgroundObject(1:100, ground), Object(:start_scale, (args...) -> (1.0, 1.0))
+    circle_obj = Object((args...) -> circ())
+    act!(circle_obj, Action(1:25, Scaling((1.0, 1.5))))
+    act!(circle_obj, Action(Rel(25), Scaling((2.0, 1.0))))
+    act!(circle_obj, Action(Rel(25), Scaling(:start_scale)))
+    act!(circle_obj, Action(Rel(25), Scaling(2.0)))
+    Object((args...) -> circ(Point(-100, 0)))
+
+    render(demo; tempdirectory = "images", pathname = "")
 
     @test_reference "refs/squeeze15.png" load("images/0000000015.png")
     @test_reference "refs/squeeze25.png" load("images/0000000025.png")
@@ -377,22 +340,19 @@ end
 
 @testset "Circle/square appear opacity" begin
     demo = Video(500, 500)
-    javis(
-        demo,
-        [
-            BackgroundObject(1:50, ground_opacity),
-            Object(1:42, (args...) -> circ()) +
-            Action(1:25, appear(:fade)) +
-            Action(26:42, disappear(:fade)),
-            Object(5:50, (args...) -> square_opacity(Point(-100, 0), 60)) +
-            Action(1:15, linear(), appear(:fade)) +
-            Action(Rel(20), linear(), Translation(100, 50)) +
-            Action(Rel(5), disappear(:fade)),
-            # for global frames 46-50 it should still be disappeared
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
+
+    BackgroundObject(1:50, ground_opacity)
+    circle_obj = Object(1:42, (args...) -> circ())
+    act!(circle_obj, Action(1:25, appear(:fade)))
+    act!(circle_obj, Action(26:42, disappear(:fade)))
+
+    square_obj = Object(5:50, (args...) -> square_opacity(Point(-100, 0), 60))
+    act!(square_obj, Action(1:15, linear(), appear(:fade)))
+    act!(square_obj, Action(Rel(20), linear(), Translation(100, 50)))
+    act!(square_obj, Action(Rel(5), disappear(:fade)))
+    # for global frames 46-50 it should still be disappeared
+
+    render(demo; tempdirectory = "images", pathname = "")
 
     @test_reference "refs/circleSquare07opacity.png" load("images/0000000007.png")
     @test_reference "refs/circleSquare25opacity.png" load("images/0000000025.png")
@@ -412,16 +372,12 @@ end
         [O, Point(150, 0), Point(150, 150), O],
         [sineio(), polyin(5), expin(8)],
     )
-    javis(
-        video,
-        [
-            BackgroundObject(1:150, ground),
-            Object((args...) -> circle(O, 25, :fill)) +
-            Action(1:150, circle_anim, translate()),
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
+
+    BackgroundObject(1:150, ground)
+    circle_obj = Object((args...) -> circle(O, 25, :fill))
+    act!(circle_obj, Action(1:150, circle_anim, translate()))
+
+    render(video; tempdirectory = "images", pathname = "")
     @test_reference "refs/anim_circle020.png" load("images/0000000020.png")
     @test_reference "refs/anim_circle075.png" load("images/0000000075.png")
     @test_reference "refs/anim_circle142.png" load("images/0000000142.png")
@@ -437,16 +393,13 @@ end
         [O, Point(150, 0), Point(150, 150), O],
         [sineio(), polyin(5), expin(8)],
     )
+
+    BackgroundObject(1:2, ground)
+    circle_obj = Object((args...) -> circle(O, 25, :fill))
+    act!(circle_obj, Action(circle_anim, translate()))
+
     # warning as animation goes to 1.2 but should go to 1.0
-    @test_logs (:warn,) (:warn,) javis(
-        video,
-        [
-            BackgroundObject(1:2, ground),
-            Object((args...) -> circle(O, 25, :fill);) +
-            Action(1:2, circle_anim, translate()),
-        ],
-        pathname = "",
-    )
+    @test_logs (:warn,) (:warn,) render(video; pathname = "")
 end
 
 @testset "Animations.jl rotate, scale, translate" begin
@@ -475,21 +428,17 @@ end
         [sineio(), sineio()],
     )
 
-    javis(
-        video,
-        [
-            BackgroundObject(1:150, ground),
-            Object((args...) -> circle(O, 25, :fill)) +
-            Action(1:10, sineio(), scale()) +
-            Action(11:50, translate_anim, translate()) +
-            Action(51:100, rotate_anim, rotate_around(Point(-150, 0))) +
-            Action(101:140, translate_back_anim, translate()) +
-            Action(141:150, rev(sineio()), scale()) +
-            Action(1:150, color_anim, sethue()),
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
+
+    BackgroundObject(1:150, ground)
+    circle_obj = Object((args...) -> circle(O, 25, :fill))
+    act!(circle_obj, Action(1:10, sineio(), scale()))
+    act!(circle_obj, Action(11:50, translate_anim, translate()))
+    act!(circle_obj, Action(51:100, rotate_anim, rotate_around(Point(-150, 0))))
+    act!(circle_obj, Action(101:140, translate_back_anim, translate()))
+    act!(circle_obj, Action(141:150, rev(sineio()), scale()))
+    act!(circle_obj, Action(1:150, color_anim, sethue()))
+
+    render(video; tempdirectory = "images", pathname = "")
 
     @test_reference "refs/animations_all_05.png" load("images/0000000005.png")
     @test_reference "refs/animations_all_25.png" load("images/0000000025.png")
@@ -506,16 +455,12 @@ end
     rotate_anim = Animation([0.0, 1.0], [0.0, 2π], [sineio()])
 
     video = Video(500, 500)
-    javis(
-        video,
-        [
-            BackgroundObject(1:50, ground),
-            BackgroundObject(1:50, (args...) -> scaleto(2)),
-            Object((args...) -> circ(Point(75, 0))) + Action(1:50, rotate_anim, rotate()),
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
+    BackgroundObject(1:50, ground)
+    BackgroundObject(1:50, (args...) -> scaleto(2))
+    circle_obj = Object((args...) -> circ(Point(75, 0)))
+    act!(circle_obj, Action(1:50, rotate_anim, rotate()))
+
+    render(video; tempdirectory = "images", pathname = "")
 
     @test_reference "refs/rotate_center25.png" load("images/0000000025.png")
     @test_reference "refs/rotate_center45.png" load("images/0000000045.png")
@@ -527,18 +472,14 @@ end
 
 @testset "Scaling circle" begin
     video = Video(500, 500)
-    javis(
-        video,
-        [
-            BackgroundObject(1:50, ground),
-            Object(:set_scale, (args...) -> 2),
-            Object((args...) -> circ()) +
-            Action(1:15, Scaling(0.0, :set_scale)) +
-            Action(36:50, Scaling(0.0)),
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
+
+    BackgroundObject(1:50, ground)
+    Object(:set_scale, (args...) -> 2)
+    circle_obj = Object((args...) -> circ())
+    act!(circle_obj, Action(1:15, Scaling(0.0, :set_scale)))
+    act!(circle_obj, Action(36:50, Scaling(0.0)))
+
+    render(video; tempdirectory = "images", pathname = "")
 
     @test_reference "refs/scalingCircle07.png" load("images/0000000007.png")
     @test_reference "refs/scalingCircle25.png" load("images/0000000025.png")
@@ -546,18 +487,14 @@ end
 
     # test using appear and disappear
     video = Video(500, 500)
-    javis(
-        video,
-        [
-            BackgroundObject(1:50, ground),
-            BackgroundObject(1:50, (args...) -> scale(2)),
-            Object((args...) -> circ()) +
-            Action(1:15, appear(:scale)) +
-            Action(36:50, disappear(:scale)),
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
+
+    BackgroundObject(1:50, ground)
+    BackgroundObject(1:50, (args...) -> scale(2))
+    circle_obj = Object((args...) -> circ())
+    act!(circle_obj, Action(1:15, appear(:scale)))
+    act!(circle_obj, Action(36:50, disappear(:scale)))
+
+    render(video; tempdirectory = "images", pathname = "")
 
     @test_reference "refs/scalingCircle07.png" load("images/0000000007.png")
     @test_reference "refs/scalingCircle25.png" load("images/0000000025.png")
@@ -575,25 +512,19 @@ end
     # with using reference tests
     video = Video(400, 300)
 
-    javis(
-        video,
-        [
-            BackgroundObject(1:100, ground),
-            BackgroundObject(1:100, (args...) -> fontsize(30)),
-            Object(1:100, (args...) -> text("Hello Stream!", -50, 50; halign = :centre)) +
-            Action(1:15, sineio(), appear(:draw_text)) +
-            Action(76:100, sineio(), disappear(:draw_text)),
-            Object(
-                1:100,
-                (args...) ->
-                    text("Hello World!", -50, -100; halign = :wrong, valign = :wrong),
-            ) +
-            Action(1:15, sineio(), appear(:draw_text)) +
-            Action(76:100, sineio(), disappear(:draw_text)),
-        ],
-        tempdirectory = "images",
-        pathname = "",
+    BackgroundObject(1:100, ground)
+    BackgroundObject(1:100, (args...) -> fontsize(30))
+    title = Object(1:100, (args...) -> text("Hello Stream!", -50, 50; halign = :centre))
+    act!(title, Action(1:15, sineio(), appear(:draw_text)))
+    act!(title, Action(76:100, sineio(), disappear(:draw_text)))
+    title2 = Object(
+        1:100,
+        (args...) -> text("Hello World!", -50, -100; halign = :wrong, valign = :wrong),
     )
+    act!(title2, Action(1:15, sineio(), appear(:draw_text)))
+    act!(title2, Action(76:100, sineio(), disappear(:draw_text)))
+
+    render(video; tempdirectory = "images", pathname = "")
 
     img07 = load("images/$(lpad(7, 10, "0")).png")
     img30 = load("images/$(lpad(30, 10, "0")).png")
@@ -603,21 +534,16 @@ end
     # with using reference tests
     video = Video(400, 300)
 
-    javis(
-        video,
-        [
-            BackgroundObject(1:100, ground),
-            BackgroundObject(1:100, (args...) -> fontsize(30)),
-            Object(1:100, (args...) -> text("Hello Stream!", -50, 50; halign = :center)) +
-            Action(1:15, sineio(), appear(:draw_text)) +
-            Action(76:100, sineio(), disappear(:draw_text)),
-            Object(1:100, (args...) -> text("Hello World!", -50, -100)) +
-            Action(1:15, sineio(), appear(:draw_text)) +
-            Action(76:100, sineio(), disappear(:draw_text)),
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
+    BackgroundObject(1:100, ground)
+    BackgroundObject(1:100, (args...) -> fontsize(30))
+    title = Object(1:100, (args...) -> text("Hello Stream!", -50, 50; halign = :center))
+    act!(title, Action(1:15, sineio(), appear(:draw_text)))
+    act!(title, Action(76:100, sineio(), disappear(:draw_text)))
+    title2 = Object(1:100, (args...) -> text("Hello World!", -50, -100))
+    act!(title2, Action(1:15, sineio(), appear(:draw_text)))
+    act!(title2, Action(76:100, sineio(), disappear(:draw_text)))
+
+    render(video; tempdirectory = "images", pathname = "")
 
     img_other07 = load("images/$(lpad(7, 10, "0")).png")
     img_other30 = load("images/$(lpad(30, 10, "0")).png")
@@ -634,6 +560,7 @@ end
 
 @testset "Following a path" begin
     video = Video(800, 600)
+    BackgroundObject(1:180, ground)
 
     anim = Animation([0, 1], [0.0, 2.0], [sineio()])
 
@@ -642,6 +569,7 @@ end
         [Lab(colorant"red"), Lab(colorant"cyan"), Lab(colorant"red")],
         [sineio(), sineio()],
     )
+
 
     actions = [
         Action(1:150, anim, follow_path(star(O, 100))),
@@ -652,14 +580,9 @@ end
         Object(frame_start:(frame_start + 149), (args...) -> star(O, 20, 5, 0.5, 0, :fill)) for frame_start in 1:7:22
     ]
 
-    add!(objects, actions)
+    act!(objects, actions)
 
-    javis(
-        video,
-        [BackgroundObject(1:180, ground), objects...],
-        tempdirectory = "images",
-        pathname = "",
-    )
+    render(video; tempdirectory = "images", pathname = "")
 
     @test_reference "refs/followPath10.png" load("images/0000000010.png")
     @test_reference "refs/followPath30.png" load("images/0000000030.png")
@@ -678,6 +601,7 @@ end
     end
 
     video = Video(800, 600)
+    BackgroundObject(1:180, ground)
 
     anim = Animation([0, 1], [0.0, 1.0], [sineio()])
 
@@ -707,15 +631,10 @@ end
     ]
 
     for (object, frame_start) in zip(objects, 1:7:22)
-        add!(object, actions(frame_start))
+        act!(object, actions(frame_start))
     end
 
-    javis(
-        video,
-        [BackgroundObject(1:180, ground), objects...],
-        tempdirectory = "images",
-        pathname = "",
-    )
+    render(video; tempdirectory = "images", pathname = "")
 
     @test_reference "refs/followPathBezier1.png" load("images/0000000001.png")
     @test_reference "refs/followPathBezier5.png" load("images/0000000005.png")
@@ -731,10 +650,9 @@ end
 
 @testset "test default kwargs" begin
     video = Video(500, 500)
-    pathname = javis(
-        video,
-        [Object(1:10, ground), Object(1:10, (args...) -> circle(O, 50, :fill))],
-    )
+    Object(1:10, ground)
+    Object(1:10, (args...) -> circle(O, 50, :fill))
+    pathname = render(video)
     path, ext = splitext(pathname)
     @test ext == ".gif"
     @test isfile(pathname)
@@ -743,9 +661,7 @@ end
 
 @testset "test @error .mp3" begin
     video = Video(500, 500)
-    @test_logs (:error,) javis(
-        video,
-        [Object(1:10, ground), Object(1:10, (args...) -> circle(O, 50, :fill))];
-        pathname = "test.mp3",
-    )
+    Object(1:10, ground)
+    Object(1:10, (args...) -> circle(O, 50, :fill))
+    @test_logs (:error,) render(video; pathname = "test.mp3")
 end

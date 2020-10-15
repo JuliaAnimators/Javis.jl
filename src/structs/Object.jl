@@ -98,23 +98,24 @@ function Object(
     end
     CURRENT_VIDEO[1].defs[:last_frames] = frames
     opts = Dict(kwargs...)
-    Object(frames, id, func, start_pos, Action[], ObjectSetting(), opts)
-end
-
-function Base.:+(object::AbstractObject, action::AbstractAction)
-    push!(object.actions, copy(action))
+    object = Object(frames, id, func, start_pos, Action[], ObjectSetting(), opts)
+    push!(CURRENT_VIDEO[1].objects, object)
     return object
 end
 
-function add!(object::AbstractObject, actions::Vector{<:AbstractAction})
+function act!(object::AbstractObject, action::AbstractAction)
+    push!(object.actions, copy(action))
+end
+
+function act!(object::AbstractObject, actions::Vector{<:AbstractAction})
     for action in actions
-        object += copy(action)
+        act!(object, action)
     end
 end
 
-function add!(objects::Vector{<:AbstractObject}, actions::Vector{<:AbstractAction})
+function act!(objects::Vector{<:AbstractObject}, action)
     for object in objects
-        add!(object, actions)
+        act!(object, action)
     end
 end
 
