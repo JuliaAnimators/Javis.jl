@@ -102,13 +102,13 @@ function Object(
 end
 
 function Base.:+(object::AbstractObject, action::AbstractAction)
-    push!(object.actions, action)
+    push!(object.actions, copy(action))
     return object
 end
 
 function add!(object::AbstractObject, actions::Vector{<:AbstractAction})
     for action in actions
-        object += action
+        object += copy(action)
     end
 end
 

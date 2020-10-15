@@ -13,6 +13,7 @@ end
 Base.convert(::Type{Frames}, x::Union{Symbol,Rel}) = Frames(nothing, x)
 Base.convert(::Type{Frames}, x::UnitRange) = Frames(x, x)
 
+Base.copy(f::Frames) = Frames(f.frames, f.user)
 
 """
     set_frames!(a::Union{AbstractObject, AbstractAction}, last_frames::UnitRange)

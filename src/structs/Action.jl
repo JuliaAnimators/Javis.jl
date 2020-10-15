@@ -95,3 +95,7 @@ Action(frames, anim::Animation, func::Function) =
 
 Action(frames, anim::Animation, func::Function, transition::Transition) =
     Action(frames, anim, func, transition, nothing, Dict{Symbol,Any}())
+
+
+Base.copy(a::Action) =
+    Action(copy(a.frames), a.anim, a.func, a.transition, a.internal_transition, a.defs)

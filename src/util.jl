@@ -1,21 +1,22 @@
 """
-    compute_frames!(objects::Vector{AA}; last_frames=nothing) where AA <: AbstractObject
+    compute_frames!(elements::Vector{UA}; last_frames=nothing)
+        where UA<:Union{AbstractObject,AbstractAction}
 
-Set object.frames.frames to the computed frames for each object in objects.
+Set elem.frames.frames to the computed frames for each elem in elements.
 """
 function compute_frames!(
-    objects::Vector{UA};
+    elements::Vector{UA};
     last_frames = nothing,
 ) where {UA<:Union{AbstractObject,AbstractAction}}
-    for object in objects
-        if last_frames === nothing && get_frames(object) === nothing
+    for elem in elements
+        if last_frames === nothing && get_frames(elem) === nothing
             throw(ArgumentError("Frames need to be defined explicitly in the initial
                 Object/BackgroundObject or Action."))
         end
-        if get_frames(object) === nothing
-            set_frames!(object, last_frames)
+        if get_frames(elem) === nothing
+            set_frames!(elem, last_frames)
         end
-        last_frames = get_frames(object)
+        last_frames = get_frames(elem)
     end
 end
 
