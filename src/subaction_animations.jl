@@ -363,3 +363,23 @@ function _follow_path(video, action, subaction, rel_frame, points; closed = clos
     )
     translate(overshootpoint)
 end
+
+function change(s::Symbol, vals::Pair)
+    (video, action, subaction, rel_frame) ->
+        _change(video, action, subaction, rel_frame, s, vals)
+end
+
+function change(s::Symbol)
+    (video, action, subaction, rel_frame) -> _change(video, action, subaction, rel_frame, s)
+end
+
+function _change(video, action, subaction, rel_frame, s, vals)
+    t = get_interpolation(subaction, rel_frame)
+    val = vals[1] + t * (vals[2] - vals[1])
+    action.change_keywords[s] = val
+end
+
+function _change(video, action, subaction, rel_frame, s)
+    val = get_interpolation(subaction, rel_frame)
+    action.change_keywords[s] = val
+end
