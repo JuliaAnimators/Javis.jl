@@ -123,7 +123,7 @@ In this animation the position of the circle is saved inside `:my_circle` and ca
 
 ## How can I show a text being drawn?
 
-A `text` can appear as *any* other object with `appear(:fade)` and `appear(:scale)`, However, it also has a special [`appear`](@ref) functionality called 
+A `text` or [`latex`](@ref) rendering can appear as *any* other object with `appear(:fade)` and `appear(:scale)`, However, it also has a special [`appear`](@ref) functionality called 
 `:draw_text`.
 
 You can use 
