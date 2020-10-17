@@ -128,10 +128,10 @@ function _javis_viewer(
     tbox = GtkReactive.textbox(Int; signal = signal(slide))
 
     # Button for going forward through animation
-    forward = GtkButton("⇒")
+    forward = GtkButton("\U021D2")
 
     # Button for going backward through animation
-    backward = GtkButton("⇐")
+    backward = GtkButton("\U021D0")
 
     #=
 
