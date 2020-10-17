@@ -127,12 +127,18 @@ function _javis_viewer(
     # Create a textbox
     tbox = GtkReactive.textbox(Int; signal = signal(slide))
 
+    # fontCss =  """GtkButton {
+    #             font-size: 1000px;
+    #         }"""
+
+    # provider = GtkCssProviderLeaf(data = fontCss)
     # Button for going forward through animation
-    forward = GtkButton("\U021D2")
+    # forward = GtkButton("\U021D2")
+    forward = GtkButton("Next Frame")
 
     # Button for going backward through animation
-    backward = GtkButton("\U021D0")
-
+    # backward = GtkButton("\U021D0")
+    backward = GtkButton("Previous Frame")
     #=
 
     TODO: Enable widgets of window to dynamically resize based on user changing the size of a window.
