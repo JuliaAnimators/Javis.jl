@@ -1,5 +1,8 @@
 # Javis.jl - Changelog
 
+## Unreleased
+- Changed the arrows of the liveviewer to unicode
+
 ## v0.2.1 (11th of October 2020)
 - Ability to draw animated LaTeX via `appear(:draw_text)`
 - Support for Images v0.23
