@@ -361,7 +361,7 @@ function perform_action(action, video, frame, origin_matrix)
     cs = get_current_setting()
     !cs.show_action && return
 
-    res = action.func(video, action, frame)
+    res = action.func(video, action, frame; collect(action.change_keywords)...)
     if action.id !== nothing
         current_global_matrix = cairotojuliamatrix(getmatrix())
         # obtain current matrix without the initial matrix part
@@ -424,7 +424,7 @@ export Video, Action, BackgroundAction, SubAction, Rel
 export Line, Translation, Rotation, Transformation, Scaling
 export val, pos, ang, get_value, get_position, get_angle
 export projection, morph
-export appear, disappear, rotate_around, follow_path
+export appear, disappear, rotate_around, follow_path, change
 export rev
 export scaleto
 

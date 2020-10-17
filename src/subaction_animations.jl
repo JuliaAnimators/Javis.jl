@@ -363,3 +363,54 @@ function _follow_path(video, action, subaction, rel_frame, points; closed = clos
     )
     translate(overshootpoint)
 end
+
+"""
+    change(s::Symbol, [vals::Pair])
+
+Changes the keyword `s` of the parent [`Action`](@ref) from `vals[1]` to `vals[2]`
+in an animated way.
+
+# Arguments
+- `s::Symbol` Change the keyword with the name `s`
+- `vals::Pair` If vals is given i.e `0 => 25` it will be animated from 0 to 25.
+    - The default is to use `0 => 1` or use the value given by the animation
+    defined in the [`SubAction`](@ref)
+
+# Example
+```julia
+myvideo = Video(500, 500)
+javis(
+    myvideo,
+    [
+        BackgroundAction(1:100, ground),
+        Action(
+            (args...; radius = 25) -> object(Point(100, 0), radius, "red"),
+            Rotation(0.0, 4π);
+            subactions = [
+                SubAction(1:50, change(:radius, 25 => 0))
+                SubAction(51:100, change(:radius, 0 => 25))
+            ],
+        )
+    ]; pathname = "current/_change.gif"
+)
+```
+"""
+function change(s::Symbol, vals::Pair)
+    (video, action, subaction, rel_frame) ->
+        _change(video, action, subaction, rel_frame, s, vals)
+end
+
+function change(s::Symbol)
+    (video, action, subaction, rel_frame) -> _change(video, action, subaction, rel_frame, s)
+end
+
+function _change(video, action, subaction, rel_frame, s, vals)
+    t = get_interpolation(subaction, rel_frame)
+    val = vals[1] + t * (vals[2] - vals[1])
+    action.change_keywords[s] = val
+end
+
+function _change(video, action, subaction, rel_frame, s)
+    val = get_interpolation(subaction, rel_frame)
+    action.change_keywords[s] = val
+end

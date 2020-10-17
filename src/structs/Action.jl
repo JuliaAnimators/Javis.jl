@@ -16,6 +16,7 @@ Defines what is drawn in a defined frame range.
     hold links to other actions which need to be computed first.
     See [`compute_transition!`](@ref)
 - `opts::Any` can hold any options defined by the user
+- `change_keywords::Vector{Pair}`
 """
 mutable struct Action <: AbstractAction
     frames::Frames
@@ -27,6 +28,7 @@ mutable struct Action <: AbstractAction
     subactions::Vector{SubAction}
     current_setting::ActionSetting
     opts::Dict{Symbol,Any}
+    change_keywords::Dict{Symbol,Any}
 end
 
 """
@@ -159,6 +161,7 @@ function Action(
         subactions,
         ActionSetting(),
         opts,
+        Dict{Symbol,Any}(),
     )
 end
 
