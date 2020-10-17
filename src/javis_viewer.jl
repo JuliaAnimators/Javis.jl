@@ -4,6 +4,9 @@
 
 Internal function to create an image that is drawn on a Gtk Canvas.
 """
+
+using .Gtk 
+
 function _draw_image(
     video::Video,
     actions::Vector,
