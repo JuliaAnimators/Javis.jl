@@ -1,5 +1,4 @@
 using Animations
-using GtkReactive
 using Gtk: get_gtk_property, visible
 using Images
 using Javis
