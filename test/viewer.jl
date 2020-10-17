@@ -1,3 +1,4 @@
+using Gtk: get_gtk_property, visible
 function ground(args...)
     background("white")
     sethue("black")
