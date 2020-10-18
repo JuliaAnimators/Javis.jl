@@ -346,7 +346,7 @@ function draw_object(object, video, frame, origin_matrix)
     cs = get_current_setting()
     !cs.show_object && return
 
-    res = object.func(video, object, frame)
+    res = object.func(video, object, frame; collect(object.change_keywords)...)
     current_global_matrix = cairotojuliamatrix(getmatrix())
     # obtain current matrix without the initial matrix part
     current_matrix = inv(origin_matrix) * current_global_matrix
@@ -407,7 +407,7 @@ export Video, Object, BackgroundObject, Action, Rel
 export Line, Translation, Rotation, Transformation, Scaling
 export val, pos, ang, get_value, get_position, get_angle
 export projection, morph_to
-export appear, disappear, rotate_around, follow_path
+export appear, disappear, rotate_around, follow_path, change
 export rev
 export scaleto
 export act!

@@ -641,6 +641,48 @@ end
     end
 end
 
+
+@testset "Change" begin
+
+    function object(p, radius, color = "black")
+        sethue(color)
+        circle(p, radius, :fill)
+        return p
+    end
+
+    anim =
+        Animation([0.0, 0.5, 1.0], [O, Point(100, 0), Point(50, 50)], [sineio(), sineio()])
+
+    rev_anim =
+        Animation([0.0, 0.5, 1.0], [Point(50, 50), Point(100, 0), O], [sineio(), sineio()])
+
+    myvideo = Video(500, 500)
+    double_rotation = Animation([0.0, 1.0], [0.0, 4π], [linear()])
+
+    BackgroundObject(1:100, ground)
+    circ1 = Object((args...; radius = 25) -> object(Point(100, 0), radius, "red"))
+    act!(circ1, Action(double_rotation, rotate()))
+    act!(circ1, Action(1:50, change(:radius, 25 => 0)))
+    act!(circ1, Action(51:100, change(:radius, 0 => 25)))
+
+    circ2 = Object((args...; point = O) -> object(point, 25, "green"))
+    act!(circ2, Action(1:50, anim, change(:point)))
+    act!(circ2, Action(51:100, rev_anim, change(:point)))
+
+    render(myvideo; tempdirectory = "images")
+
+    @test_reference "refs/changeKeyword1.png" load("images/0000000001.png")
+    @test_reference "refs/changeKeyword25.png" load("images/0000000025.png")
+    @test_reference "refs/changeKeyword40.png" load("images/0000000040.png")
+    @test_reference "refs/changeKeyword70.png" load("images/0000000070.png")
+    @test_reference "refs/changeKeyword90.png" load("images/0000000090.png")
+
+    for i in 1:100
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+    rm("images/palette.bmp")
+end
+
 @testset "test default kwargs" begin
     video = Video(500, 500)
     Object(1:10, ground)
