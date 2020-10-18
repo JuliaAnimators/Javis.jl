@@ -12,6 +12,7 @@ Defines what is drawn in a defined frame range.
 - `actions::Vector{Action}` a list of actions applied to this object
 - `current_setting`:: The current state of the object see [ObjectSetting](@ref)
 - `opts::Any` can hold any options defined by the user
+- `change_keywords::Dict{Symbol,Any}` the modified keywords changed by `change`
 """
 struct Object <: AbstractObject
     frames::Frames
@@ -21,6 +22,7 @@ struct Object <: AbstractObject
     actions::Vector{Action}
     current_setting::ObjectSetting
     opts::Dict{Symbol,Any}
+    change_keywords::Dict{Symbol,Any}
 end
 
 """
@@ -98,7 +100,7 @@ function Object(
     end
     CURRENT_VIDEO[1].defs[:last_frames] = frames
     opts = Dict(kwargs...)
-    Object(frames, id, func, start_pos, Action[], ObjectSetting(), opts)
+    Object(frames, id, func, start_pos, Action[], ObjectSetting(), opts, Dict{Symbol,Any}())
 end
 
 function Base.:+(object::AbstractObject, action::AbstractAction)
