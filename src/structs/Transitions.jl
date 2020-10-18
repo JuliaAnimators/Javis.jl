@@ -114,6 +114,9 @@ Scaling(10, 2) -> Scaling((10.0, 10.0), (2.0, 2.0))
 Scaling(10, (1,2)) -> Scaling((10.0, 10.0), (1.0, 2.0))
 ```
 
+**Attention:** This always scales from the origin. For scaling of objects you might want to
+use [`change`](@ref) instead.
+
 # Fields
 - `from::Union{Tuple{Float64, Float64}, Symbol, AbstractObject}`: The start scaling or a link to it
 - `to::Union{Tuple{Float64, Float64}, Symbol, AbstractObject}`: The end scaling or a link to it

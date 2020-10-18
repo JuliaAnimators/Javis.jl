@@ -1,14 +1,13 @@
 """
     appear(s::Symbol)
 
-Appear can be used inside a [`Action`](@ref)
+Appear can be used inside an [`Action`](@ref) to let an [`Object`](@ref) appear.
 
 # Example
 ```
-Object(101:200, (args...)->house_of_nicholas(); actions = [
-    Action(1:20, appear(:fade)),
-    Action(81:100, disappear(:fade))
-])
+house = Object(101:200, (args...)->house_of_nicholas())
+act!(house, Action(1:20, appear(:fade)))
+act!(house, Action(81:100, disappear(:fade)))
 ```
 In this case the `house_of_nicholas` will fade in during the first 20 frames
 of the [`Object`](@ref) so `101-120`.
@@ -51,14 +50,13 @@ end
 """
     disappear(s::Symbol)
 
-Disappear can be used inside a [`Action`](@ref)
+Disappear can be used inside an [`Action`](@ref)  to let an [`Object`](@ref) disappear.
 
 # Example
 ```
-Object(101:200, (args...)->house_of_nicholas(); actions = [
-    Action(1:20, appear(:fade)),
-    Action(81:100, disappear(:fade))
-])
+house = Object(101:200, (args...)->house_of_nicholas())
+act!(house, Action(1:20, appear(:fade)))
+act!(house, Action(81:100, disappear(:fade)))
 ```
 In this case the `house_of_nicholas` will fade out during the last 20 frames
 of the [`Object`](@ref) so `181-200`.
@@ -99,7 +97,7 @@ end
 """
     translate()
 
-Translate a function defined inside a [`Action`](@ref) using an Animation defined
+Translate an [`Object`](@ref) using an [`Action`](@ref) and an Animation defined
 with Animations.jl.
 
 If you're used to working with Animations.jl this should feel quite natural.
@@ -123,32 +121,22 @@ circle_anim = Animation(
     [O, Point(150, 0), Point(150, 150), O],
     [sineio(), polyin(5), expin(8)],
 )
-javis(
-    video, [
-        BackgroundObject(1:150, ground),
-        Object((args...)->circle(O, 25, :fill); actions=[
-            Action(1:150, circle_anim, translate())
-        ])
-    ], pathname="moving_a_circle.gif"
-)
+
+BackgroundObject(1:150, ground)
+obj = Object((args...)->circle(O, 25, :fill))
+act!(obj, Action(1:150, circle_anim, translate()))
+
+render(video)
 ```
 
 This notation uses the Animations.jl library very explicitly. It's also possible to do the
 same with:
 
 ```
-javis(
-    video,
-    [
-        BackgroundObject(1:150, ground),
-        Object((args...)->circle(O, 25, :fill); actions = [
-            Action(1:50, sineio(), Translation(150, 0)),
-            Action(51:100, polyin(2), Translation(0, 150)),
-            Action(101:150, expin(8), Translation(-150, -150))
-        ])
-    ],
-    pathname = "moving_a_circle_javis.gif",
-)
+obj = Object((args...)->circle(O, 25, :fill))
+act!(obj, Action(1:50, sineio(), Translation(150, 0)))
+act!(obj, Action(51:100, polyin(2), Translation(0, 150)))
+act!(obj, Action(101:150, expin(8), Translation(-150, -150)))
 ```
 
 which uses the `Action` syntax three times and only uses easing functions instead of
@@ -169,7 +157,7 @@ end
 """
     rotate()
 
-Rotate a function defined inside a [`Action`](@ref) using an Animation defined
+Rotate an [`Object`](@ref) using an [`Action`](@ref) and an Animation defined
 with Animations.jl.
 
 If you're used to working with Animations.jl this should feel quite natural.
@@ -179,6 +167,8 @@ by using an Animation.
 # Example
 ```
 using Javis, Animations
+
+# define ground function here
 
 video = Video(500, 500)
 translate_anim = Animation(
@@ -199,23 +189,15 @@ rotate_anim = Animation(
     [linear()],
 )
 
-javis(
-    video,
-    [
-        BackgroundObject(1:150, ground),
-        Object(
-            (args...) -> circle(O, 25, :fill);
-            actions = [
-                Action(1:10, sineio(), scale()),
-                Action(11:50, translate_anim, translate()),
-                Action(51:100, rotate_anim, rotate_around(Point(-150, 0))),
-                Action(101:140, translate_back_anim, translate()),
-                Action(141:150, rev(sineio()), scale())
-            ],
-        ),
-    ],
-    pathname = "animation.gif",
-)
+BackgroundObject(1:150, ground)
+ball = Object((args...) -> circle(O, 25, :fill))
+act!(ball, Action(1:10, sineio(), scale()))
+act!(ball, Action(11:50, translate_anim, translate()))
+act!(ball, Action(51:100, rotate_anim, rotate_around(Point(-150, 0))))
+act!(ball, Action(101:140, translate_back_anim, translate()))
+act!(ball, Action(141:150, rev(sineio()), scale()))
+
+render(video)
 ```
 
 which uses the `Action` syntax five times with both easing functions directly and animation objects.
@@ -233,8 +215,8 @@ end
 """
     rotate_around(p::Point)
 
-Rotate a function defined inside a [`Action`](@ref) using an Animation defined
-with Animations.jl around the point `p`.
+Royaye an [`Object`](@ref) using an [`Action`](@ref) and an Animation defined
+with Animations.jl around a point `p`. For [`rotate`](@ref) it rotates around the current origin.
 
 An example can be seen in [`rotate`](@ref).
 
@@ -273,7 +255,7 @@ end
 """
     sethue()
 
-Set the color of a function defined inside a [`Action`](@ref) using an Animation defined
+Set the color of an [`Object`](@ref) using an [`Action`](@ref) and an Animation defined
 with Animations.jl.
 
 # Example
@@ -290,7 +272,7 @@ color_anim = Animation(
 )
 ```
 
-An example on how to integrate this into a Action can be seen in [`rotate`](@ref).
+An example on how to integrate this into an [`Action`](@ref) can be seen in [`rotate`](@ref).
 Where this would be a valid Action: `Action(1:150, color_anim, sethue())`.
 """
 function Luxor.sethue()
@@ -305,8 +287,9 @@ end
 """
     follow_path(points::Vector{Point}; closed=true)
 
-Can be applied inside a action such that the object defined in the parent object follows a path.
-It takes a vector of points which can be created as an example by calling `circle(O, 50)` <- notice that the object is set to `:none` the default.
+Can be applied inside a action such that the parent object follows a path.
+It takes a vector of points which can be created as an example by calling
+`circle(O, 50)` <- notice that the object is set to `:none` the default.
 
 # Example
 ```julia
@@ -366,7 +349,7 @@ end
 """
     change(s::Symbol, [vals::Pair])
 
-Changes the keyword `s` of the parent [`Action`](@ref) from `vals[1]` to `vals[2]`
+Changes the keyword `s` of the parent [`Object`](@ref) from `vals[1]` to `vals[2]`
 in an animated way.
 
 # Arguments
@@ -377,12 +360,10 @@ in an animated way.
 
 # Example
 ```julia
-javis(myvideo, [
-    BackgroundObject(1:100, ground),
-    Object((args...; radius = 25) -> object(O, radius, "red"), Point(100, 0)) +
-        Action(1:50, change(:radius, 25 => 0)) +
-        Action(51:100, change(:radius, 0 => 25))
-])
+BackgroundObject(1:100, ground)
+obj = Object((args...; radius = 25) -> object(O, radius, "red"), Point(100, 0))
+act!(obj, Action(1:50, change(:radius, 25 => 0)))
+act!(Action(51:100, change(:radius, 0 => 25)))
 ```
 """
 function change(s::Symbol, vals::Pair)
