@@ -362,3 +362,44 @@ function _follow_path(video, object, action, rel_frame, points; closed = closed)
     )
     translate(overshootpoint)
 end
+
+"""
+    change(s::Symbol, [vals::Pair])
+
+Changes the keyword `s` of the parent [`Action`](@ref) from `vals[1]` to `vals[2]`
+in an animated way.
+
+# Arguments
+- `s::Symbol` Change the keyword with the name `s`
+- `vals::Pair` If vals is given i.e `0 => 25` it will be animated from 0 to 25.
+    - The default is to use `0 => 1` or use the value given by the animation
+    defined in the [`SubAction`](@ref)
+
+# Example
+```julia
+javis(myvideo, [
+    BackgroundObject(1:100, ground),
+    Object((args...; radius = 25) -> object(O, radius, "red"), Point(100, 0)) +
+        Action(1:50, change(:radius, 25 => 0)) +
+        Action(51:100, change(:radius, 0 => 25))
+])
+```
+"""
+function change(s::Symbol, vals::Pair)
+    (video, object, action, rel_frame) -> _change(video, object, action, rel_frame, s, vals)
+end
+
+function change(s::Symbol)
+    (video, object, action, rel_frame) -> _change(video, object, action, rel_frame, s)
+end
+
+function _change(video, object, action, rel_frame, s, vals)
+    t = get_interpolation(action, rel_frame)
+    val = vals[1] + t * (vals[2] - vals[1])
+    object.change_keywords[s] = val
+end
+
+function _change(video, object, action, rel_frame, s)
+    val = get_interpolation(action, rel_frame)
+    object.change_keywords[s] = val
+end
