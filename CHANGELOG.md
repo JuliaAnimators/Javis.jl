@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Ability to change a keyword using `change`
+- Lazy loading of Gtk
 
 ## v0.2.1 (11th of October 2020)
 - Ability to draw animated LaTeX via `appear(:draw_text)`
