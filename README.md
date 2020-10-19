@@ -32,12 +32,10 @@ Check out our [documentation](https://wikunia.github.io/Javis.jl/dev/) for tutor
 
 ### Examples
 
-| Animation                                      |
-|------------------------------------------------|
-| ![](examples/gifs/follow_bezier_path.gif)      |
-| [Follow a Path](/examples/follow_path.jl)      |
-| ![](examples/gifs/julia_logo_dft.gif)                 |
-| [Draw the Julia Logo](/examples/julia_logo.jl) |
+| Animation                                      | Animation
+|------------------------------------------------|------------------------------------------------|
+| ![](examples/gifs/follow_bezier_path.gif)      | ![](examples/gifs/julia_logo_dft.gif)                 |
+| [Follow a Path](/examples/follow_path.jl)      |  [Draw the Julia Logo](/examples/julia_logo.jl) |
 
 ## Installation
 
