@@ -1,6 +1,6 @@
 """
 
-`draw_grid(video::Video, action::Action, frame::Int; direction::AbstractString = "TR", line_gap = 25)`
+`draw_grid(video::Video, object::AbstractObject, frame::Int; direction::AbstractString = "TR", line_gap = 25)`
 
 Draws an oriented grid on the given frame of a Video.
 
@@ -13,22 +13,22 @@ Draws an oriented grid on the given frame of a Video.
 - `line_gap`: How many pixels between each line. Default: `25`
 
 # Example
-Example call of this function within an `Action`.
+Example call of this function within an `Object`.
 ```
 ...
- Action(1:100, :line, draw_grid(direction = "TL", line_gap = 25))
+ Object(1:100, :line, draw_grid(direction = "TL", line_gap = 25))
 ...
 ```
 
 """
 function draw_grid(; direction::AbstractString = "TR", line_gap = 25)
-    return (video, action, frame) ->
-        _draw_grid(video, action, frame; direction = direction, line_gap = line_gap)
+    return (video, object, frame) ->
+        _draw_grid(video, object, frame; direction = direction, line_gap = line_gap)
 end
 
 function _draw_grid(
     video::Video,
-    action::Action,
+    object::AbstractObject,
     frame::Int;
     direction::AbstractString = "TR",
     line_gap = 25,
@@ -41,7 +41,7 @@ function _draw_grid(
     max_height = div(video.height, 2, RoundUp)
 
     # This determines how quickly the animation is drawn
-    step = (frame - first(get_frames(action))) / (length(get_frames(action)) - 1)
+    step = (frame - first(get_frames(object))) / (length(get_frames(object)) - 1)
 
     if direction[1] == 'T'
         # Bottom to top for vertical grid lines
@@ -83,7 +83,7 @@ end
 
 """
 
-`zero_lines(video::Video, action::Action, frame::Int; direction::AbstractString = "TR",
+`zero_lines(video::Video, object::AbstractObject, frame::Int; direction::AbstractString = "TR",
             line_thickness = 10)`
 
 Draws zero lines on the given frame of a Video.
@@ -108,15 +108,15 @@ One will need to define their own path for `tempdirectory` and `pathname`.
 
 ```
 ...
- Action(1:100, :line, zero_lines(direction = "TL", line_thickness = 10)),
+ Object(1:100, :line, zero_lines(direction = "TL", line_thickness = 10)),
 ...
 ```
 
 """
 function zero_lines(; direction::AbstractString = "TR", line_thickness = 10)
-    return (video, action, frame) -> _zero_lines(
+    return (video, object, frame) -> _zero_lines(
         video,
-        action,
+        object,
         frame;
         direction = direction,
         line_thickness = line_thickness,
@@ -125,7 +125,7 @@ end
 
 function _zero_lines(
     video::Video,
-    action::Action,
+    object::AbstractObject,
     frame::Int;
     direction::AbstractString,
     line_thickness,
@@ -140,7 +140,7 @@ function _zero_lines(
     setline(line_thickness)
 
     # This determines how quickly the animation is drawn
-    step = (frame - first(get_frames(action))) / (length(get_frames(action)) - 1)
+    step = (frame - first(get_frames(object))) / (length(get_frames(object)) - 1)
 
     if direction[1] == 'B'
         # Top to bottom motion for vertical line

@@ -17,15 +17,12 @@
     javis(
         video,
         [
-            BackgroundAction(1:35, latex_ground),
-            Action(
-                (args...) -> latex(L"\mathcal{O}(\log{n})");
-                subactions = [
-                    SubAction(1:15, appear(:draw_text)),
-                    SubAction(21:35, disappear(:draw_text)),
-                ],
-            ), # default fontsize 50
-            Action(
+            BackgroundObject(1:35, latex_ground),
+            # default fontsize 50
+            Object((args...) -> latex(L"\mathcal{O}(\log{n})");) +
+            Action(1:15, appear(:draw_text)) +
+            Action(21:35, disappear(:draw_text)),
+            Object(
                 (args...) -> latex_blend(L"\mathcal{O}\left(\frac{\log{x}}{2}\right)", 20),
             ),
         ],
@@ -52,8 +49,8 @@ end
     javis(
         video,
         [
-            BackgroundAction(1:1, latex_ground),
-            Action((args...) -> latex(L"8")), # default fontsize 50
+            BackgroundObject(1:1, latex_ground),
+            Object((args...) -> latex(L"8")), # default fontsize 50
         ],
         tempdirectory = "images",
         pathname = "",
@@ -74,8 +71,8 @@ end
     javis(
         video,
         [
-            BackgroundAction(1:1, latex_ground),
-            Action(
+            BackgroundObject(1:1, latex_ground),
+            Object(
                 (args...) ->
                     latex(L"$\begin{equation}\left[\begin{array}{ccc}1 & 2 & 3 \\4 & 5 & 6 \\7 & 8 & 9 \\\end{array}\right]\end{equation}$"),
             ),
@@ -103,8 +100,8 @@ end
     javis(
         video,
         [
-            BackgroundAction(1:1, latex_ground),
-            Action((args...) -> foreground(L"\mathcal{O}(\log{n})")),
+            BackgroundObject(1:1, latex_ground),
+            Object((args...) -> foreground(L"\mathcal{O}(\log{n})")),
         ],
         tempdirectory = "images",
         pathname = "",

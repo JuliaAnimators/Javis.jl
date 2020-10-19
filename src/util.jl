@@ -1,32 +1,33 @@
 """
-    compute_frames!(actions::Vector{AA}; last_frames=nothing) where AA <: AbstractAction
+    compute_frames!(elements::Vector{UA}; last_frames=nothing)
+        where UA<:Union{AbstractObject,AbstractAction}
 
-Set action.frames.frames to the computed frames for each action in actions.
+Set elem.frames.frames to the computed frames for each elem in elements.
 """
 function compute_frames!(
-    actions::Vector{AA};
+    elements::Vector{UA};
     last_frames = nothing,
-) where {AA<:AbstractAction}
-    for action in actions
-        if last_frames === nothing && get_frames(action) === nothing
+) where {UA<:Union{AbstractObject,AbstractAction}}
+    for elem in elements
+        if last_frames === nothing && get_frames(elem) === nothing
             throw(ArgumentError("Frames need to be defined explicitly in the initial
-            AbstractAction like Action/BackgroundAction or SubAction."))
+                Object/BackgroundObject or Action."))
         end
-        if get_frames(action) === nothing
-            set_frames!(action, last_frames)
+        if get_frames(elem) === nothing
+            set_frames!(elem, last_frames)
         end
-        last_frames = get_frames(action)
+        last_frames = get_frames(elem)
     end
 end
 
 """
     get_current_setting()
 
-Return the current setting of the current action
+Return the current setting of the current object
 """
 function get_current_setting()
-    action = CURRENT_ACTION[1]
-    return action.current_setting
+    object = CURRENT_OBJECT[1]
+    return object.current_setting
 end
 
 """

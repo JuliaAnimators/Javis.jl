@@ -4,13 +4,13 @@ function ground(args...)
 end
 
 @testset "Javis Viewer" begin
-    astar(args...) = star(O, 50)
-    acirc(args...) = circle(Point(100, 100), 50)
+    astar(args...; do_action = :stroke) = star(O, 50, 5, 0.5, 0, do_action)
+    acirc(args...; do_action = :stroke) = circle(Point(100, 100), 50, do_action)
 
     vid = Video(500, 500)
     action_list = [
-        BackgroundAction(1:100, ground),
-        Action(1:100, morph(astar, acirc; action = :fill)),
+        BackgroundObject(1:100, ground),
+        Object(1:100, astar) + Action(morph_to(acirc; draw_object = :fill)),
     ]
 
     javis(vid, action_list, pathname = "")
