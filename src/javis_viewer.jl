@@ -1,4 +1,5 @@
-using .GtkReactive
+import .GtkReactive
+import .GtkReactive: slider, signal
 using .GtkReactive.Gtk
 
 
