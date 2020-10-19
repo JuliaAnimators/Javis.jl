@@ -5,7 +5,7 @@ using GtkReactive
 using LaTeXStrings
 using ReferenceTests
 using Test
-using VideoIO 
+using VideoIO
 
 # @testset "Unit" begin
 #     include("unit.jl")
