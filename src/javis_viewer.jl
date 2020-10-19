@@ -1,12 +1,13 @@
+using .GtkReactive
+using .GtkReactive.Gtk
+
+
 """
     _draw_image(video::Video, actions::Vector, frame::Int, canvas::Gtk.Canvas,
     img_dims::Vector)
 
 Internal function to create an image that is drawn on a Gtk Canvas.
 """
-
-using .Gtk 
-
 function _draw_image(
     video::Video,
     actions::Vector,

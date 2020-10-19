@@ -29,3 +29,10 @@ Luxor = "2"
 ProgressMeter = "1"
 VideoIO = "0.6, 0.7, 0.8"
 julia = "1.4"
+
+[extras]
+Gtk = "4c0ca9eb-093a-5379-98c5-f87ac0bbbf44"
+GtkReactive= "27996c0f-39cd-5cc1-a27a-05f136f946b6"
+
+[targets]
+test = ["Gtk", "GtkReactive"]

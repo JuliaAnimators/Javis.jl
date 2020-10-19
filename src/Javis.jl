@@ -92,9 +92,7 @@ include("morphs.jl")
 include("subaction_animations.jl")
 
 function __init__()
-    @require Gtk="4c0ca9eb-093a-5379-98c5-f87ac0bbbf44" begin
-        @require GtkReactive="27996c0f-39cd-5cc1-a27a-05f136f946b6" include("javis_viewer.jl")
-    end
+    @require GtkReactive="27996c0f-39cd-5cc1-a27a-05f136f946b6" include("javis_viewer.jl")
 end
 
 include("latex.jl")
