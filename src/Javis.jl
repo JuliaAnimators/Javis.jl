@@ -282,11 +282,14 @@ It is a 4-step process:
 - translate to the start position
 - call the relevant actions
 - call the object function
+- save the result of the object if wanted inside `video.defs`
 """
 function draw_object(object, video, frame, origin_matrix)
-    # first compute and perform the global transformations of this object
+    # translate the object to it's starting position.
+    # It's better to draw the object always at the origin and use `star_pos` to shift it
     translate(object.start_pos)
 
+    # first compute and perform the global transformations of this object
     # relative frame number for actions
     rel_frame = frame - first(get_frames(object)) + 1
     # call currently active actions and their transformations
