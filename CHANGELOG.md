@@ -1,6 +1,9 @@
 # Javis.jl - Changelog
 
-## Unreleased
+## Unreleased v0.3
+- Ability to use `setopactity()` in an `Action`
+
+## Unreleased 
 - Ability to change a keyword using `change`
 
 ## v0.2.1 (11th of October 2020)
