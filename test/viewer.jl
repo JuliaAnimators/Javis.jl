@@ -8,12 +8,13 @@ end
     acirc(args...; do_action = :stroke) = circle(Point(100, 100), 50, do_action)
 
     vid = Video(500, 500)
-    action_list = [
-        BackgroundObject(1:100, ground),
-        Object(1:100, astar) + Action(morph_to(acirc; draw_object = :fill)),
-    ]
+    back = BackgroundObject(1:100, ground)
+    star_obj = Object(1:100, astar)
+    act!(star_obj, Action(morph_to(acirc; draw_object = :fill)))
 
-    javis(vid, action_list, pathname = "")
+    render(vid; pathname = "")
+
+    action_list = [back, star_obj]
 
     viewer_win, frame_dims, r_slide, tbox, canvas, actions, total_frames, video =
         Javis._javis_viewer(vid, 100, action_list, false)

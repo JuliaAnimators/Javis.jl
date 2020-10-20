@@ -14,21 +14,12 @@
     end
 
     video = Video(400, 200)
-    javis(
-        video,
-        [
-            BackgroundObject(1:35, latex_ground),
-            # default fontsize 50
-            Object((args...) -> latex(L"\mathcal{O}(\log{n})");) +
-            Action(1:15, appear(:draw_text)) +
-            Action(21:35, disappear(:draw_text)),
-            Object(
-                (args...) -> latex_blend(L"\mathcal{O}\left(\frac{\log{x}}{2}\right)", 20),
-            ),
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
+    BackgroundObject(1:35, latex_ground)
+    runtime = Object((args...) -> latex(L"\mathcal{O}(\log{n})"))
+    act!(runtime, Action(1:15, appear(:draw_text)))
+    act!(runtime, Action(21:35, disappear(:draw_text)))
+    Object((args...) -> latex_blend(L"\mathcal{O}\left(\frac{\log{x}}{2}\right)", 20))
+    render(video; tempdirectory = "images", pathname = "")
     @test_reference "refs/ologn.png" load("images/0000000016.png")
     @test_reference "refs/ologn_mid.png" load("images/0000000007.png")
     @test_reference "refs/ologn_dis_mid.png" load("images/0000000027.png")
@@ -46,15 +37,9 @@ end
     end
 
     video = Video(400, 200)
-    javis(
-        video,
-        [
-            BackgroundObject(1:1, latex_ground),
-            Object((args...) -> latex(L"8")), # default fontsize 50
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
+    BackgroundObject(1:1, latex_ground)
+    Object((args...) -> latex(L"8")) # default fontsize 50
+    render(video; tempdirectory = "images", pathname = "")
     @test_reference "refs/latex_8.png" load("images/0000000001.png")
     rm("images/0000000001.png")
 end
@@ -68,18 +53,12 @@ end
     end
 
     video = Video(400, 200)
-    javis(
-        video,
-        [
-            BackgroundObject(1:1, latex_ground),
-            Object(
-                (args...) ->
-                    latex(L"$\begin{equation}\left[\begin{array}{ccc}1 & 2 & 3 \\4 & 5 & 6 \\7 & 8 & 9 \\\end{array}\right]\end{equation}$"),
-            ),
-        ],
-        tempdirectory = "images",
-        pathname = "",
+    BackgroundObject(1:1, latex_ground)
+    Object(
+        (args...) ->
+            latex(L"$\begin{equation}\left[\begin{array}{ccc}1 & 2 & 3 \\4 & 5 & 6 \\7 & 8 & 9 \\\end{array}\right]\end{equation}$"),
     )
+    render(video; tempdirectory = "images", pathname = "")
     @test_reference "refs/latex_3x3_matrix.png" load("images/0000000001.png")
     rm("images/0000000001.png")
 end
@@ -97,15 +76,9 @@ end
     end
 
     video = Video(400, 200)
-    javis(
-        video,
-        [
-            BackgroundObject(1:1, latex_ground),
-            Object((args...) -> foreground(L"\mathcal{O}(\log{n})")),
-        ],
-        tempdirectory = "images",
-        pathname = "",
-    )
+    BackgroundObject(1:1, latex_ground)
+    Object((args...) -> foreground(L"\mathcal{O}(\log{n})"))
+    render(video; tempdirectory = "images", pathname = "")
     @test_reference "refs/ologn_circ.png" load("images/0000000001.png")
     rm("images/0000000001.png")
 end

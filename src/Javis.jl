@@ -170,14 +170,14 @@ This structure makes it possible to refer to positions of previous objects
 i.e :red_ball is an id for the position or the red ball which can be used in the
 rotation of the next ball.
 """
-function javis(
-    video::Video,
-    objects::Vector{AO};
+function render(
+    video::Video;
     framerate = 30,
     pathname = "javis_$(randstring(7)).gif",
     liveview = false,
     tempdirectory = "",
-) where {AO<:AbstractObject}
+)
+    objects = video.objects
     compute_frames!(objects)
 
     for object in objects
@@ -414,7 +414,7 @@ for func in names(Luxor; imported = true)
     end
 end
 
-export javis, latex
+export render, latex
 export Video, Object, BackgroundObject, Action, Rel
 export Line, Translation, Rotation, Transformation, Scaling
 export val, pos, ang, get_value, get_position, get_angle
@@ -422,7 +422,7 @@ export projection, morph_to
 export appear, disappear, rotate_around, follow_path, change
 export rev
 export scaleto
-export add!
+export act!
 
 # custom override of luxor extensions
 export setline, setopacity, fontsize, get_fontsize, scale, text
