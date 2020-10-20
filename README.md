@@ -100,7 +100,8 @@ We want to thank a couple of people who helped make this possible.
 
 ### Contributors 
 
-- @sudomaze for helping out with tutorials and feedback for v0.1.0.
-- @mythreyiramesh cleaning up tutorials 
-- @briochemc for spotting and cleaning up tutorial typos and grammar
-- @ric-cioffi for adding the Julia Logo example and for feedback
+- [@sudomaze](https://github.com/sudomaze) for helping out with tutorials and feedback for v0.1.0.
+- [@mythreyiramesh](https://github.com/mythreyiramesh) helping with cleaning up tutorials 
+- [@briochemc](https://github.com/briochemc) for spotting and cleaning up tutorial typos and grammar
+- [@ric-cioffi](https://github.com/ric-cioffi) for adding the Julia Logo example and for feedback
+- [@findmyway](https://github.com/findmyway) for fixing typos in documentation
