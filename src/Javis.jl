@@ -298,7 +298,7 @@ function draw_object(object, video, frame, origin_matrix)
             action.func(video, object, action, rel_frame)
             compute_transition!(action, video, rel_frame)
             perform_transformation(action)
-        elseif rel_frame > last(get_frames(action))
+        elseif rel_frame > last(get_frames(action)) && action.keep
             # call the action on the last frame i.e. disappeared things stay disappeared
             action.func(video, object, action, last(get_frames(action)))
             # have the transformation from the last active frame

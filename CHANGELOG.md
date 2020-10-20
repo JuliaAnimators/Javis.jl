@@ -1,5 +1,8 @@
 # Javis.jl - Changelog
 
+## Unreleased v0.3
+- Ability to disable an `Action` after its last defined frame. See `? Action` and the keyword `; keep`
+
 ## Unreleased
 - Ability to change a keyword using `change`
 
