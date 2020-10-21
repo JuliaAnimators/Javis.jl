@@ -266,8 +266,8 @@ function scale()
 end
 
 function _scale(video, object, action, rel_frame)
-    p = get_interpolation(action, rel_frame)
-    scale(p)
+    s = get_interpolation(action, rel_frame)
+    scale(s)
 end
 
 """

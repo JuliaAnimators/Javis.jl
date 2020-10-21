@@ -33,7 +33,7 @@ end
 val(x) = get_value(x)
 
 get_position(p::Point) = p
-get_position(t::Transformation) = t.p
+get_position(t::Transformation) = t.point
 
 """
     get_position(s::Symbol)
@@ -57,6 +57,8 @@ get_scale(x::Tuple{<:Number,<:Number}) = x
 
 # If just the number -> return it as a tuple
 get_scale(x::Number) = (x, x)
+
+get_scale(t::Transformation) = (t.scale.x, t.scale.y)
 
 """
     get_scale(s::Symbol)

@@ -107,6 +107,10 @@ function scale(scl::Number)
     scale(scl, scl)
 end
 
+function scale(scl::Scale)
+    scale(scl.x, scl.y)
+end
+
 """
     scale(scl_x, scl_y)
 
