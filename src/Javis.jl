@@ -99,7 +99,7 @@ include("morphs.jl")
 include("action_animations.jl")
 include("javis_viewer.jl")
 include("latex.jl")
-include("symbol_values.jl")
+include("object_values.jl")
 
 """
     projection(p::Point, l::Line)
@@ -194,13 +194,6 @@ function render(
         append!(frames, collect(get_frames(object)))
     end
     frames = unique(frames)
-
-    # create defs object
-    for object in objects
-        if object.id !== nothing
-            video.defs[object.id] = Transformation(O, 0.0, 1.0)
-        end
-    end
 
     if isempty(CURRENT_OBJECT)
         push!(CURRENT_OBJECT, objects[1])
@@ -351,21 +344,19 @@ function draw_object(object, video, frame, origin_matrix)
     !cs.show_object && return
 
     res = object.func(video, object, frame; collect(object.change_keywords)...)
-    if object.id !== nothing
-        current_global_matrix = cairotojuliamatrix(getmatrix())
-        # obtain current matrix without the initial matrix part
-        current_matrix = inv(origin_matrix) * current_global_matrix
+    current_global_matrix = cairotojuliamatrix(getmatrix())
+    # obtain current matrix without the initial matrix part
+    current_matrix = inv(origin_matrix) * current_global_matrix
 
-        # if a transformation let's save the global coordinates
-        if res isa Point
-            trans = current_matrix * Transformation(res, 0.0, 1.0)
-            video.defs[object.id] = trans
-        elseif res isa Transformation
-            trans = current_matrix * res
-            video.defs[object.id] = trans
-        else # just save the result such that it can be used as one wishes
-            video.defs[object.id] = res
-        end
+    # if a transformation let's save the global coordinates
+    if res isa Point
+        trans = current_matrix * Transformation(res, 0.0, 1.0)
+        object.result[1] = trans
+    elseif res isa Transformation
+        trans = current_matrix * res
+        object.result[1] = trans
+    else # just save the result such that it can be used as one wishes
+        object.result[1] = res
     end
 end
 

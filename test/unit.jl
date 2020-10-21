@@ -25,17 +25,17 @@
 
     @testset "translation" begin
         video = Video(500, 500)
-        object = Object(1:100, :object, (args...) -> O)
+        object = Object(1:100, (args...) -> O)
         act!(object, Action(1:100, anim_translate(Point(1, 1), Point(100, 100))))
         render(video; pathname = "")
         for f in [1, 50, 100]
             Javis.get_javis_frame(video, [object], f)
-            @test get_position(:object) == Point(f, f)
+            @test get_position(object) == Point(f, f)
         end
 
         # with easing function
         video = Video(500, 500)
-        object = Object(1:100, :object, (args...) -> O)
+        object = Object(1:100, (args...) -> O)
         act!(object, Action(1:100, sineio(), anim_translate(Point(1, 1), Point(100, 100))))
 
         action = object.actions[1]
@@ -45,7 +45,7 @@
         for f in [1, 50, 100]
             m = (f - 1) / 99
             Javis.get_javis_frame(video, [object], f)
-            @test get_position(:object) == Point(at(anim, m), at(anim, m))
+            @test get_position(object) == Point(at(anim, m), at(anim, m))
         end
     end
 
@@ -61,40 +61,40 @@
 
     @testset "translation from origin" begin
         video = Video(500, 500)
-        object = Object(1:100, :object, (args...) -> O)
+        object = Object(1:100, (args...) -> O)
         act!(object, Action(1:100, anim_translate(Point(99, 99))))
 
         render(video; pathname = "")
         for f in [1, 50, 100]
             Javis.get_javis_frame(video, [object], f)
-            @test get_position(:object) == Point(f - 1, f - 1)
+            @test get_position(object) == Point(f - 1, f - 1)
         end
 
         video = Video(500, 500)
-        object = Object(1:100, :object, (args...) -> O)
+        object = Object(1:100, (args...) -> O)
         act!(object, Action(1:100, anim_translate(99, 99)))
 
         render(video; pathname = "")
         for f in [1, 50, 100]
             Javis.get_javis_frame(video, [object], f)
-            @test get_position(:object) == Point(f - 1, f - 1)
+            @test get_position(object) == Point(f - 1, f - 1)
         end
     end
 
     @testset "rotations" begin
         video = Video(500, 500)
-        object = Object(1:100, :object, (args...) -> O)
+        object = Object(1:100, (args...) -> O)
         act!(object, Action(1:100, anim_rotate(2π)))
         anim = Animation([0.0, 1.0], [0.0, 2π], [linear()])
         render(video; pathname = "")
 
         for f in [1, 50, 100]
             Javis.get_javis_frame(video, [object], f)
-            @test get_angle(:object) ≈ at(anim, (f - 1) / 99)
+            @test get_angle(object) ≈ at(anim, (f - 1) / 99)
         end
 
         video = Video(500, 500)
-        object = Object(1:100, :object, (args...) -> O)
+        object = Object(1:100, (args...) -> O)
         rp = Point(2.0, 5.0)
         act!(object, Action(1:100, anim_rotate_around(2π, rp)))
         render(video; pathname = "")
@@ -109,26 +109,26 @@
 
         for f in [1, 50, 100]
             Javis.get_javis_frame(video, [object], f)
-            @test get_angle(:object) ≈ at(anim, (f - 1) / 99)
+            @test get_angle(object) ≈ at(anim, (f - 1) / 99)
             # rotate clockwise because Luxor is flipped
-            p = polar(r, start_angle - get_angle(:object))
+            p = polar(r, start_angle - get_angle(object))
             p1 = Point(p.x, -p.y)
-            @test get_position(:object) ≈ p1 + rp
+            @test get_position(object) ≈ p1 + rp
         end
     end
 
     @testset "scaling" begin
         video = Video(500, 500)
         # dummy object doesn't need a real function
-        object = Object(1:50, :object, (args...) -> O)
+        object = Object(1:50, (args...) -> O)
         act!(object, Action(1:50, anim_scale(1.0, 0.5)))
         render(video; pathname = "")
 
         anim = Animation([0.0, 1.0], [1.0, 0.5], [linear()])
         for f in [1, 50]
             Javis.get_javis_frame(video, [object], f)
-            @test get_scale(:object)[1] ≈ at(anim, (f - 1) / 49)
-            @test get_scale(:object)[2] ≈ at(anim, (f - 1) / 49)
+            @test get_scale(object)[1] ≈ at(anim, (f - 1) / 49)
+            @test get_scale(object)[2] ≈ at(anim, (f - 1) / 49)
         end
     end
 
@@ -145,32 +145,32 @@
 
     @testset "translation from origin" begin
         video = Video(500, 500)
-        object = Object(1:100, :object, (args...) -> O)
+        object = Object(1:100, (args...) -> O)
         act!(object, Action(1:100, anim_translate(Point(99, 99))))
         render(video; pathname = "")
         for f in [1, 50, 100]
             Javis.get_javis_frame(video, [object], f)
-            @test get_position(:object) == Point(f - 1, f - 1)
+            @test get_position(object) == Point(f - 1, f - 1)
         end
 
         video = Video(500, 500)
-        object = Object(1:100, :object, (args...) -> O)
+        object = Object(1:100, (args...) -> O)
         act!(object, Action(1:100, anim_translate(99, 99)))
         render(video; pathname = "")
         for f in [1, 50, 100]
             Javis.get_javis_frame(video, [object], f)
-            @test get_position(:object) == Point(f - 1, f - 1)
+            @test get_position(object) == Point(f - 1, f - 1)
         end
     end
 
     @testset "action with a single frame" begin
         video = Video(500, 500)
         # dummy object doesn't need a real function
-        object = Object(1:100, :object, (args...) -> O)
+        object = Object(1:100, (args...) -> O)
         act!(object, Action(1:1, anim_translate(Point(10, 10))))
         render(video; pathname = "")
         Javis.get_javis_frame(video, [object], 1)
-        @test get_position(:object) == Point(10, 10)
+        @test get_position(object) == Point(10, 10)
     end
 
     @testset "Frames errors" begin
@@ -189,14 +189,14 @@
 
         video = Video(500, 500)
         Object(1:100, (args...) -> 1)
-        Object(:some, :id, (args...) -> 1)
+        Object(:some, (args...) -> 1)
         # throws because :some is not supported as Symbol for `frames`
         @test_throws ArgumentError render(video)
     end
 
-    @testset "Unspecified symbol error" begin
+    @testset "Scaling internal variable not defined" begin
         video = Video(500, 500)
-        object = Object(1:100, :object, (args...) -> O)
+        object = Object(1:100, (args...) -> O)
         Object(1:100, (args...) -> line(O, pos(:non_existent), :stroke))
 
         # throws because `:non_existent` doesn't exist
@@ -213,7 +213,7 @@
     @testset "Frame computation" begin
         demo = Video(500, 500)
         back = BackgroundObject(1:50, (args...) -> 1)
-        obj = Object(:atom, (args...) -> 1)
+        obj = Object((args...) -> 1)
         act!(obj, Action(anim_scale(1, 2)))
 
         objects = [back, obj]
@@ -226,7 +226,7 @@
 
         demo = Video(500, 500)
         back = BackgroundObject(1:50, (args...) -> 1)
-        obj = Object(Rel(-19:0), :atom, (args...) -> 1)
+        obj = Object(Rel(-19:0), (args...) -> 1)
         act!(obj, Action(1:10, anim_scale(1, 2)))
         act!(obj, Action(Rel(10), anim_scale(1, 2)))
 
