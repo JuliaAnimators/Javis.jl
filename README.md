@@ -32,12 +32,10 @@ Check out our [documentation](https://wikunia.github.io/Javis.jl/dev/) for tutor
 
 ### Examples
 
-| Animation                                      |
-|------------------------------------------------|
-| ![](examples/gifs/follow_bezier_path.gif)      |
-| [Follow a Path](/examples/follow_path.jl)      |
-| ![](examples/gifs/julia_logo_dft.gif)                 |
-| [Draw the Julia Logo](/examples/julia_logo.jl) |
+| Animation                                      | Animation
+|------------------------------------------------|------------------------------------------------|
+| ![](examples/gifs/follow_bezier_path.gif)      | ![](examples/gifs/julia_logo_dft.gif)                 |
+| [Follow a Path](/examples/follow_path.jl)      |  [Draw the Julia Logo](/examples/julia_logo.jl) |
 
 ## Installation
 
@@ -102,7 +100,8 @@ We want to thank a couple of people who helped make this possible.
 
 ### Contributors 
 
-- @sudomaze for helping out with tutorials and feedback for v0.1.0.
-- @mythreyiramesh cleaning up tutorials 
-- @briochemc for spotting and cleaning up tutorial typos and grammar
-- @ric-cioffi for adding the Julia Logo example and for feedback
+- [@sudomaze](https://github.com/sudomaze) for helping out with tutorials and feedback for v0.1.0.
+- [@mythreyiramesh](https://github.com/mythreyiramesh) helping with cleaning up tutorials 
+- [@briochemc](https://github.com/briochemc) for spotting and cleaning up tutorial typos and grammar
+- [@ric-cioffi](https://github.com/ric-cioffi) for adding the Julia Logo example and for feedback
+- [@findmyway](https://github.com/findmyway) for fixing typos in documentation
