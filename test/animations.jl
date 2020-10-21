@@ -51,16 +51,16 @@ end
     act!(back, Action(1:1, Rotation(0.0)))
 
     Object(latex_title)
-    red_ball = Object(Rel(-24:0), :red_ball, (args...) -> circ(p1, "red"))
+    red_ball = Object(Rel(-24:0), (args...) -> circ(p1, "red"))
     act!(red_ball, Action(Rotation(from_rot, to_rot)))
 
-    blue_ball = Object(1:25, :blue_ball, (args...) -> circ(p2, "blue"))
-    act!(blue_ball, Action(Rotation(to_rot, from_rot, :red_ball)))
+    blue_ball = Object(1:25, (args...) -> circ(p2, "blue"))
+    act!(blue_ball, Action(Rotation(to_rot, from_rot, red_ball)))
     path_red =
-        Object(1:25, (video, args...) -> path!(path_of_red, get_position(:red_ball), "red"))
+        Object(1:25, (video, args...) -> path!(path_of_red, get_position(red_ball), "red"))
     path_blue =
-        Object(:same, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue"))
-    string = Object(1:25, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black"))
+        Object(:same, (video, args...) -> path!(path_of_blue, pos(blue_ball), "blue"))
+    string = Object(1:25, (args...) -> rad(pos(red_ball), pos(blue_ball), "black"))
 
     render(video; tempdirectory = "images", pathname = "dancing.gif")
 
@@ -86,16 +86,16 @@ end
     act!(back, Action(1:1, Rotation(0.0)))
 
     Object(latex_title)
-    red_ball = Object(Rel(-24:0), :red_ball, (args...) -> circ(p1, "red"))
+    red_ball = Object(Rel(-29:0), (args...) -> circ(p1, "red"))
     act!(red_ball, Action(Rotation(from_rot, to_rot)))
 
-    blue_ball = Object(1:30, :blue_ball, (args...) -> circ(p2, "blue"))
-    act!(blue_ball, Action(Rotation(to_rot, from_rot, :red_ball)))
+    blue_ball = Object(1:30, (args...) -> circ(p2, "blue"))
+    act!(blue_ball, Action(Rotation(to_rot, from_rot, red_ball)))
     path_red =
-        Object(1:30, (video, args...) -> path!(path_of_red, get_position(:red_ball), "red"))
+        Object(1:30, (video, args...) -> path!(path_of_red, get_position(red_ball), "red"))
     path_blue =
-        Object(:same, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue"))
-    string = Object(1:30, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black"))
+        Object(:same, (video, args...) -> path!(path_of_blue, pos(blue_ball), "blue"))
+    string = Object(1:30, (args...) -> rad(pos(red_ball), pos(blue_ball), "black"))
 
     render(video; tempdirectory = "images", pathname = "dancing.mp4", framerate = 1)
 
@@ -118,16 +118,16 @@ end
     act!(back, Action(Translation(Point(25, 25), Point(25, 25))))
 
     Object(latex_title)
-    red_ball = Object(Rel(-24:0), :red_ball, (args...) -> circ(p1, "red"))
+    red_ball = Object(Rel(-24:0), (args...) -> circ(p1, "red"))
     act!(red_ball, Action(Rotation(from_rot, to_rot)))
 
-    blue_ball = Object(1:25, :blue_ball, (args...) -> circ(p2, "blue"))
-    act!(blue_ball, Action(Rotation(to_rot, from_rot, :red_ball)))
+    blue_ball = Object(1:25, (args...) -> circ(p2, "blue"))
+    act!(blue_ball, Action(Rotation(to_rot, from_rot, red_ball)))
     path_red =
-        Object(1:25, (video, args...) -> path!(path_of_red, get_position(:red_ball), "red"))
+        Object(1:25, (video, args...) -> path!(path_of_red, get_position(red_ball), "red"))
     path_blue =
-        Object(:same, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue"))
-    string = Object(1:25, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black"))
+        Object(:same, (video, args...) -> path!(path_of_blue, pos(blue_ball), "blue"))
+    string = Object(1:25, (args...) -> rad(pos(red_ball), pos(blue_ball), "black"))
 
     render(video; tempdirectory = "images", pathname = "")
 
@@ -151,16 +151,16 @@ end
     act!(back, Action(Translation(Point(25, 25), Point(25, 25))))
 
     title = Object(1:25, latex_title)
-    red_ball = Object(1:25, :red_ball, (args...) -> circ_ret_trans(p1, "red"))
+    red_ball = Object(1:25, (args...) -> circ_ret_trans(p1, "red"))
     act!(red_ball, Action(Rotation(to_rot)))
 
-    blue_ball = Object(1:25, :blue_ball, (args...) -> circ_ret_trans(p2, "blue"))
-    act!(blue_ball, Action(Rotation(to_rot, from_rot, :red_ball)))
+    blue_ball = Object(1:25, (args...) -> circ_ret_trans(p2, "blue"))
+    act!(blue_ball, Action(Rotation(to_rot, from_rot, red_ball)))
 
-    path_red = Object(1:25, (video, args...) -> path!(path_of_red, pos(:red_ball), "red"))
+    path_red = Object(1:25, (video, args...) -> path!(path_of_red, pos(red_ball), "red"))
     path_blue =
-        Object(1:25, (video, args...) -> path!(path_of_blue, pos(:blue_ball), "blue"))
-    string = Object(1:25, (args...) -> rad(pos(:red_ball), pos(:blue_ball), "black"))
+        Object(1:25, (video, args...) -> path!(path_of_blue, pos(blue_ball), "blue"))
+    string = Object(1:25, (args...) -> rad(pos(red_ball), pos(blue_ball), "black"))
 
     render(video; tempdirectory = "images", pathname = "")
 
@@ -197,9 +197,9 @@ end
     p = Point(100, 0)
 
     Object(1:10, ground)
-    obj = Object(:circ, (args...) -> circ_ret_trans(p))
-    act!(obj, Action(Rotation(2π)))
-    Object((args...) -> line(Point(-200, 0), Point(-200, -10 * ang(:circ)), :stroke))
+    circ = Object((args...) -> circ_ret_trans(p))
+    act!(circ, Action(Rotation(2π)))
+    Object((args...) -> line(Point(-200, 0), Point(-200, -10 * ang(circ)), :stroke))
 
     render(video; tempdirectory = "images", pathname = "")
 
@@ -215,12 +215,8 @@ acirc(args...; do_action = :stroke) = circle(Point(100, 100), 30, do_action)
 @testset "morphing star2circle and back" begin
     video = Video(500, 500)
 
-    BackgroundObject(
-        1:20,
-        :framenumber,
-        (args...) -> ground_color("white", "black", args[3]),
-    )
-    Object(1:10, (args...) -> circle(Point(-100, 0), val(:framenumber), :fill))
+    back = BackgroundObject(1:20, (args...) -> ground_color("white", "black", args[3]))
+    Object(1:10, (args...) -> circle(Point(-100, 0), val(back), :fill))
     star_obj = Object(1:10, astar)
     act!(star_obj, Action(linear(), morph_to(acirc)))
     circle_obj = Object(11:20, acirc)
@@ -237,12 +233,8 @@ end
 
 @testset "morphing star2circle and back with fill" begin
     video = Video(500, 500)
-    BackgroundObject(
-        1:20,
-        :framenumber,
-        (args...) -> ground_color("white", "black", args[3]),
-    )
-    Object(1:10, (args...) -> circle(Point(-100, 0), val(:framenumber), :fill))
+    back = BackgroundObject(1:20, (args...) -> ground_color("white", "black", args[3]))
+    Object(1:10, (args...) -> circle(Point(-100, 0), val(back), :fill))
     star_obj = Object(1:10, astar)
     act!(star_obj, Action(morph_to(acirc; draw_object = :fill)))
 
@@ -306,11 +298,12 @@ end
 @testset "Squeezing a circle using scale" begin
     demo = Video(500, 500)
 
-    BackgroundObject(1:100, ground), Object(:start_scale, (args...) -> (1.0, 1.0))
+    BackgroundObject(1:100, ground)
+    start_scale = Object((args...) -> (1.0, 1.0))
     circle_obj = Object((args...) -> circ())
     act!(circle_obj, Action(1:25, Scaling((1.0, 1.5))))
     act!(circle_obj, Action(Rel(25), Scaling((2.0, 1.0))))
-    act!(circle_obj, Action(Rel(25), Scaling(:start_scale)))
+    act!(circle_obj, Action(Rel(25), Scaling(start_scale)))
     act!(circle_obj, Action(Rel(25), Scaling(2.0)))
     Object((args...) -> circ(Point(-100, 0)))
 
@@ -474,9 +467,9 @@ end
     video = Video(500, 500)
 
     BackgroundObject(1:50, ground)
-    Object(:set_scale, (args...) -> 2)
+    scale_obj = Object((args...) -> 2)
     circle_obj = Object((args...) -> circ())
-    act!(circle_obj, Action(1:15, Scaling(0.0, :set_scale)))
+    act!(circle_obj, Action(1:15, Scaling(0.0, scale_obj)))
     act!(circle_obj, Action(36:50, Scaling(0.0)))
 
     render(video; tempdirectory = "images", pathname = "")
