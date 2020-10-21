@@ -95,7 +95,7 @@ include("action_animations.jl")
 include("javis_viewer.jl")
 include("latex.jl")
 include("transition2transformation.jl")
-include("symbol_values.jl")
+include("object_values.jl")
 
 """
     projection(p::Point, l::Line)
