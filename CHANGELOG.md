@@ -1,6 +1,6 @@
 # Javis.jl - Changelog
 
-## Unreleased
+## v0.2.2 (20th of October 2020)
 - Ability to change a keyword using `change`
 
 ## v0.2.1 (11th of October 2020)
