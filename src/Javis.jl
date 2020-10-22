@@ -115,60 +115,26 @@ function projection(p::Point, l::Line)
 end
 
 """
-    javis(
-        video::Video,
-        objects::Vector{AbstractObject};
+    render(
+        video::Video;
         framerate=30,
-        pathname="",
+        pathname="javis_GIBBERISH.gif",
         tempdirectory="",
         liveview=false
     )
 
-Similar to `animate` in Luxor with a slightly different structure.
-Instead of using objects and a video instead of scenes in a movie.
+Renders all previously defined [`Object`](@ref) drawings to the user-defined `Video` as a gif or mp4.
 
 # Arguments
 - `video::Video`: The video which defines the dimensions of the output
-- `objects::Vector{Object}`: All objects that are performed
 
 # Keywords
 - `framerate::Int`: The frame rate of the video
 - `pathname::String`: The path for the rendered gif or mp4 (i.e `output.gif` or `output.mp4`)
+    - **Default:** The animation is rendered as a gif with the `javis_` prefix and some gibberish afterwards
 - `tempdirectory::String`: The folder where each frame is stored
     Defaults to a temporary directory when not set
 - `liveview::Bool`: Causes a live image viewer to appear to assist with animation development
-
-# Example
-```
-function ground(args...)
-    background("white")
-    sethue("black")
-end
-
-function circ(p=O, color="black")
-    sethue(color)
-    circle(p, 25, :fill)
-    return Transformation(p, 0.0)
-end
-
-from = Point(-200, -200)
-to = Point(-20, -130)
-p1 = Point(0,-100)
-p2 = Point(0,-50)
-from_rot = 0.0
-to_rot = 2π
-
-demo = Video(500, 500)
-javis(demo, [
-    Object(1:100, ground),
-    Object(1:100, :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
-    Object(1:100, (args...)->circ(p2, "blue"), Rotation(to_rot, from_rot, :red_ball))
-], tempdirectory="images", pathname="rotating.gif")
-```
-
-This structure makes it possible to refer to positions of previous objects
-i.e :red_ball is an id for the position or the red ball which can be used in the
-rotation of the next ball.
 """
 function render(
     video::Video;

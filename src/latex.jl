@@ -63,8 +63,9 @@ function draw_latex(video, object, frame)
 end
 
 demo = Video(500, 500)
-javis(demo, [BackgroundObject(1:2, ground), Object(draw_latex)],
-      pathname = "latex.gif")
+BackgroundObject(1:2, ground)
+Object(draw_latex)
+render(demo; pathname = "latex.gif")
 ```
 
 """
