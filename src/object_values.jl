@@ -1,25 +1,3 @@
-"""
-    get_value(s::Symbol)
-
-Get access to the value that got saved in `s` by a previous object.
-If you want to access a position or angle check out [`get_position`](@ref)
-and [`get_angle`](@ref).
-
-# Returns
-- `Any`: the value stored by a previous object.
-"""
-function get_value(s::Symbol)
-    is_internal = first(string(s)) == '_'
-    if is_internal
-        internal_sym = Symbol(string(s)[2:end])
-        if hasfield(ObjectSetting, internal_sym)
-            return getfield(get_current_setting(), internal_sym)
-        end
-    end
-
-    error("The internal symbol $s is not defined.")
-end
-
 function get_value(obj::AbstractObject)
     return obj.result[1]
 end
@@ -59,12 +37,19 @@ get_position(s::Symbol) = get_position(val(s))
 pos(x) = get_position(x)
 
 # As it is just the number tuple -> return it
-get_scale(x::Tuple{<:Number,<:Number}) = x
+get_scale(x::Tuple{<:Number,<:Number}) = Scale(x...)
 
 # If just the number -> return it as a tuple
-get_scale(x::Number) = (x, x)
+get_scale(x::Number) = Scale(x, x)
 
-get_scale(t::Transformation) = (t.scale.x, t.scale.y)
+get_scale(s::Scale) = s
+get_scale(t::Transformation) = Scale(t.scale.x, t.scale.y)
+
+function get_scale(s::Symbol)
+    @assert s == :current_scale
+    cs = get_current_setting()
+    return cs.current_scale
+end
 
 """
     get_scale(obj::AbstractObject)
@@ -77,8 +62,6 @@ Get access to the scaling that got saved in a previous object.
 function get_scale(obj::AbstractObject)
     return get_scale(obj.result[1])
 end
-
-get_scale(s::Symbol) = get_scale(val(s))
 
 """
     scl(x)
@@ -102,8 +85,6 @@ Get access to the angle that got saved in a previous object.
 function get_angle(obj::AbstractObject)
     return get_angle(obj.result[1])
 end
-
-get_angle(s::Symbol) = get_angle(val(s))
 
 """
     ang(x)

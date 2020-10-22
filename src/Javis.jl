@@ -1,7 +1,7 @@
 module Javis
 
 using Animations
-using Cairo: CairoImageSurface, image
+import Cairo: CairoImageSurface, image
 using ColorTypes: ARGB32
 using FFMPEG
 using Gtk
@@ -10,7 +10,7 @@ using Images
 using LaTeXStrings
 using LightXML
 import Luxor
-import Luxor: Point, @layer, translate, rotate, scale
+import Luxor: Point, @layer, translate, rotate
 using ProgressMeter
 using Random
 using VideoIO
@@ -26,7 +26,6 @@ include("structs/Easing.jl")
 include("structs/Rel.jl")
 include("structs/Frames.jl")
 include("structs/Scale.jl")
-include("structs/Transitions.jl")
 
 """
     Transformation
@@ -52,9 +51,10 @@ Transformation(p, a) = Transformation(p, a, 1.0)
 Transformation(p, a, s::Float64) = Transformation(p, a, (s, s))
 Transformation(p, a, s::Tuple{Float64,Float64}) = Transformation(p, a, Scale(s...))
 
-include("structs/Action.jl")
 include("structs/ObjectSetting.jl")
 include("structs/Object.jl")
+include("structs/Transitions.jl")
+include("structs/Action.jl")
 
 
 """
@@ -318,7 +318,7 @@ It is a 4-step process:
 function draw_object(object, video, frame, origin_matrix)
     # translate the object to it's starting position.
     # It's better to draw the object always at the origin and use `star_pos` to shift it
-    translate(object.start_pos)
+    translate(get_position(object.start_pos))
 
     # first compute and perform the global transformations of this object
     # relative frame number for actions
@@ -375,8 +375,8 @@ function set_object_defaults!(object)
     current_opacity = cs.opacity * cs.mul_opacity
     Luxor.setopacity(current_opacity)
 
-    desired_scale = cs.desired_scale .* cs.mul_scale
-    scaleto(desired_scale...)
+    desired_scale = cs.desired_scale * cs.mul_scale
+    scaleto(desired_scale)
 end
 
 const LUXOR_DONT_EXPORT = [

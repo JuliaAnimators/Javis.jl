@@ -11,12 +11,14 @@ A Action should not be created by hand but instead by using one of the construct
 - `anim::Animation`: defines the interpolation function for the transition
 - `func::Function`: the function that gets called in each of those frames.
     Takes the following arguments: `video, object, action, rel_frame`
+- `transition::Union{Nothing, AbstractTransition}`
 - `defs::Dict{Symbol, Any}` any kind of definitions that are relevant for the action.
 """
 mutable struct Action <: AbstractAction
     frames::Frames
     anim::Animation
     func::Function
+    transition::Union{Nothing,AbstractTransition}
     defs::Dict{Symbol,Any}
 end
 
@@ -68,18 +70,19 @@ Action(frames, easing::Union{ReversedEasing,Easing}, func::Function) =
     Action(frames, easing_to_animation(easing), func)
 
 function Action(frames, easing::Union{ReversedEasing,Easing}, translation::Translation)
-    anim = Animation([0.0, 1.0], [translation.from, translation.to], [easing])
-    Action(frames, anim, translate())
+    Action(frames, easing_to_animation(easing), translate(); transition = translation)
 end
 
 function Action(frames, easing::Union{ReversedEasing,Easing}, rotation::Rotation)
     anim = Animation([0.0, 1.0], [rotation.from, rotation.to], [easing])
+    if rotation.center === nothing
+        return Action(frames, anim, rotate())
+    end
     Action(frames, anim, rotate_around(rotation.center))
 end
 
 function Action(frames, easing::Union{ReversedEasing,Easing}, scaling::Scaling)
-    anim = Animation([0.0, 1.0], [scaling.from, scaling.to], [easing])
-    Action(frames, anim, scale())
+    Action(frames, easing_to_animation(easing), scale(); transition = scaling)
 end
 
 Action(anim::Animation, func::Function) = Action(:same, anim, func)
@@ -88,7 +91,7 @@ Action(easing::Union{ReversedEasing,Easing}, func::Function) =
 
 Action(frames, func::Union{Function,AbstractTransition}) = Action(frames, linear(), func)
 
-Action(frames, anim::Animation, func::Function) =
-    Action(frames, anim, func, Dict{Symbol,Any}())
+Action(frames, anim::Animation, func::Function; transition = nothing) =
+    Action(frames, anim, func, transition, Dict{Symbol,Any}())
 
-Base.copy(a::Action) = Action(copy(a.frames), a.anim, a.func, a.defs)
+Base.copy(a::Action) = Action(copy(a.frames), a.anim, a.func, a.transition, a.defs)

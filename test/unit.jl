@@ -127,8 +127,8 @@
         anim = Animation([0.0, 1.0], [1.0, 0.5], [linear()])
         for f in [1, 50]
             Javis.get_javis_frame(video, [object], f)
-            @test get_scale(object)[1] ≈ at(anim, (f - 1) / 49)
-            @test get_scale(object)[2] ≈ at(anim, (f - 1) / 49)
+            @test get_scale(object).x ≈ at(anim, (f - 1) / 49)
+            @test get_scale(object).y ≈ at(anim, (f - 1) / 49)
         end
     end
 
@@ -192,22 +192,6 @@
         Object(:some, (args...) -> 1)
         # throws because :some is not supported as Symbol for `frames`
         @test_throws ArgumentError render(video)
-    end
-
-    @testset "Scaling internal variable not defined" begin
-        video = Video(500, 500)
-        object = Object(1:100, (args...) -> O)
-        Object(1:100, (args...) -> line(O, pos(:non_existent), :stroke))
-
-        # throws because `:non_existent` doesn't exist
-        @test_throws ErrorException render(video)
-
-        video = Video(500, 500)
-        Object(1:100, (args...) -> 1)
-        Object(1:100, (args...) -> line(O, ang(:non_existent), :stroke))
-
-        # throws because `:non_existent` doesn't exist
-        @test_throws ErrorException render(video)
     end
 
     @testset "Frame computation" begin
