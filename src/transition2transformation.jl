@@ -42,9 +42,9 @@ function compute_transition!(
     t = get_interpolation(action, frame)
     from, to, center = rotation.from, rotation.to, rotation.center
 
-    center isa Symbol && (center = pos(center))
-    from isa Symbol && (from = angle(from))
-    to isa Symbol && (to = angle(to))
+    center = pos(center)
+    from = get_angle(from)
+    to = get_angle(to)
 
     internal_rotation.angle = from + t * (to - from)
     internal_rotation.center = center
@@ -69,8 +69,8 @@ function compute_transition!(
     t = get_interpolation(action, frame)
     from, to = translation.from, translation.to
 
-    from isa Symbol && (from = pos(from))
-    to isa Symbol && (to = pos(to))
+    from = pos(from)
+    to = pos(to)
 
     internal_translation.by = from + t * (to - from)
 end
@@ -95,12 +95,12 @@ function compute_transition!(
     from, to = scale.from, scale.to
 
     if !scale.compute_from_once || frame == first(get_frames(action))
-        from isa Symbol && (from = get_scale(from))
+        from = get_scale(from)
         if scale.compute_from_once
             scale.from = from
         end
     end
-    to isa Symbol && (to = get_scale(to))
+    to = get_scale(to)
     internal_scale.scale = from .+ t .* (to .- from)
 end
 

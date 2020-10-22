@@ -66,31 +66,32 @@ Stores the rotation similar to [`Translation`](@ref) with `from` and `to`
 but also the rotation point.
 
 # Fields
-- `from::Union{Float64, Symbol}`: The start rotation or a link to it
-- `to::Union{Float64, Symbol}`: The end rotation or a link to it
-- `center::Union{Point, Symbol}`: The center of the rotation or a link to it.
+- `from::Union{Float64, AbstractObject}`: The start rotation or a link to it
+- `to::Union{Float64, AbstractObject}`: The end rotation or a link to it
+- `center::Union{Point, AbstractObject}`: The center of the rotation or a link to it.
 """
 struct Rotation <: Transition
-    from::Union{Float64,Symbol}
-    to::Union{Float64,Symbol}
-    center::Union{Point,Symbol}
+    from::Union{Float64,AbstractObject}
+    to::Union{Float64,AbstractObject}
+    center::Union{Point,AbstractObject}
 end
 
 """
-    Rotation(r::Union{Float64, Symbol})
+    Rotation(r::Union{Float64, AbstractObject})
 
 Rotation as a transition from 0.0 to `r` .
 Can be used as a short-hand.
 """
-Rotation(r::Union{Float64,Symbol}) = Rotation(0.0, r)
+Rotation(r::Union{Float64,AbstractObject}) = Rotation(0.0, r)
 
 """
-    Rotation(r::Union{Float64, Symbol}, center::Union{Point, Symbol})
+    Rotation(r::Union{Float64, AbstractObject}, center::Union{Point, AbstractObject})
 
 Rotation as a transition from `0.0` to `r` around `center`.
 Can be used as a short-hand for rotating around a `center` point.
 """
-Rotation(r::Union{Float64,Symbol}, center::Union{Point,Symbol}) = Rotation(0.0, r, center)
+Rotation(r::Union{Float64,AbstractObject}, center::Union{Point,AbstractObject}) =
+    Rotation(0.0, r, center)
 
 """
     Rotation(from, to)
@@ -114,19 +115,20 @@ Scaling(10, (1,2)) -> Scaling((10.0, 10.0), (1.0, 2.0))
 ```
 
 # Fields
-- `from::Union{Tuple{Float64, Float64}, Symbol}`: The start scaling or a link to it
-- `to::Union{Tuple{Float64, Float64}, Symbol}`: The end scaling or a link to it
+- `from::Union{Tuple{Float64, Float64}, Symbol, AbstractObject}`: The start scaling or a link to it
+- `to::Union{Tuple{Float64, Float64}, Symbol, AbstractObject}`: The end scaling or a link to it
 - `compute_from_once::Bool`: Saves whether the from is computed for the first frame or
     every frame. Is true if from is `:_current_scale`.
 """
 mutable struct Scaling <: Transition
-    from::Union{Tuple{Float64,Float64},Symbol}
-    to::Union{Tuple{Float64,Float64},Symbol}
+    from::Union{Tuple{Float64,Float64},Symbol,AbstractObject}
+    to::Union{Tuple{Float64,Float64},Symbol,AbstractObject}
     compute_from_once::Bool
 end
 
 Scaling(to::Tuple) = Scaling(:_current_scale, to, true)
 Scaling(to::Real) = Scaling(:_current_scale, convert(Float64, to), true)
+Scaling(to::AbstractObject) = Scaling(:_current_scale, to, true)
 Scaling(to::Symbol) = Scaling(:_current_scale, to, true)
 
 function Scaling(from::Real, to::Real, compute_from_once = false)
