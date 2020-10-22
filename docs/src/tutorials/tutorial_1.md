@@ -88,7 +88,7 @@ end
 
 ## Let's Draw a Circle!
 
-Using our newly found `Javis` knowledge, we can now draw a circle!
+Using our newly found `Javis` knowledge, we can now draw a circle and render it!
 We do the following after importing the `Javis.jl` package and defining our own functions (don't worry if you don't understand the syntax here - it is too advanced for this tutorial but will be explained in future tutorials):
 
 ```julia
@@ -107,6 +107,11 @@ render(
 We used `BackgroundObject` instead of `Object` to specify that the ground function is applied to all objects afterwards.
 
 You did it! 🎉 You created your first drawing with `Javis`! 🔴
+
+The `render` command that you saw in the previous code snippet renders all the objects defined onto the `Video` object we defined (`myvideo`) and outputs it as a `gif` file.
+
+> **NOTE:** Other formats are supported besides `gif`.
+Check this out by running `julia> ?render` in your Julia REPL.
 
 Let's go crazy and draw another object:
 
@@ -139,7 +144,7 @@ red_ball = Object(1:70, (args...)->object(Point(100,0), "red"))
 act!(red_ball, Action(Rotation(0.0, 2π)))
 ```
 
-The `render function` stays the same for the rest of this tutorial. Same is true for the `myvideo = Video(500, 500)` line.
+The `render` function stays the same for the rest of this tutorial. Same is true for the `myvideo = Video(500, 500)` line.
 
 ![](assets/rotation.gif)
 
@@ -255,7 +260,7 @@ Object(1:70, (args...)->connector(pos(red_ball), pos(blue_ball), "black"))
 Object(1:70, (args...)->path!(path_of_red, pos(red_ball), "red"))
 Object(1:70, (args...)->path!(path_of_blue, pos(blue_ball), "blue"))
 
-render(myvideo; pathname="current/_tutorial1.gif")
+render(myvideo; pathname="tutorial_1.gif")
 ```
 
 ![](assets/dancing_circles.gif)
@@ -279,4 +284,4 @@ We wish you the best on your `Javis` journey!
 
 > **Author(s):** @sudomaze, Ole Kröger, Jacob Zelko \
 > **Date:** October 16th, 2020 \
-> **Tag(s):** action, rotation
+> **Tag(s):** action, rotation, object
