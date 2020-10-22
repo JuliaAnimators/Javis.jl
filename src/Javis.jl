@@ -95,7 +95,7 @@ include("action_animations.jl")
 include("javis_viewer.jl")
 include("latex.jl")
 include("transition2transformation.jl")
-include("symbol_values.jl")
+include("object_values.jl")
 
 """
     projection(p::Point, l::Line)
@@ -123,7 +123,7 @@ end
         liveview=false
     )
 
-Renders the previously defined video with all its [`Object`](@ref) to a gif or mp4 file.
+Renders all previously defined [`Object`](@ref) drawings to the user-defined `Video` as a gif or mp4.
 
 # Arguments
 - `video::Video`: The video which defines the dimensions of the output
@@ -131,8 +131,7 @@ Renders the previously defined video with all its [`Object`](@ref) to a gif or m
 # Keywords
 - `framerate::Int`: The frame rate of the video
 - `pathname::String`: The path for the rendered gif or mp4 (i.e `output.gif` or `output.mp4`)
-    - **Default:** The animation is rendered as a gif with the `javis_` prefix and some
-      gibberish afterwards
+    - **Default:** The animation is rendered as a gif with the `javis_` prefix and some gibberish afterwards
 - `tempdirectory::String`: The folder where each frame is stored
     Defaults to a temporary directory when not set
 - `liveview::Bool`: Causes a live image viewer to appear to assist with animation development
