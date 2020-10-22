@@ -1,7 +1,7 @@
 """
     appear(s::Symbol)
 
-Appear can be used inside an [`Action`](@ref) to let an [`Object`](@ref) appear.
+Appear can be used inside an [`Action`](@ref) to make an [`Object`](@ref) appear.
 
 # Example
 ```
@@ -50,7 +50,7 @@ end
 """
     disappear(s::Symbol)
 
-Disappear can be used inside an [`Action`](@ref)  to let an [`Object`](@ref) disappear.
+Disappear can be used inside an [`Action`](@ref) to make an [`Object`](@ref) disappear.
 
 # Example
 ```
@@ -215,7 +215,7 @@ end
 """
     rotate_around(p::Point)
 
-Royaye an [`Object`](@ref) using an [`Action`](@ref) and an Animation defined
+Rotate an [`Object`](@ref) using an [`Action`](@ref) and an Animation defined
 with Animations.jl around a point `p`. For [`rotate`](@ref) it rotates around the current origin.
 
 An example can be seen in [`rotate`](@ref).
@@ -287,9 +287,9 @@ end
 """
     follow_path(points::Vector{Point}; closed=true)
 
-Can be applied inside a action such that the parent object follows a path.
+Can be applied inside an action such that the parent object follows a path.
 It takes a vector of points which can be created as an example by calling
-`circle(O, 50)` <- notice that the object is set to `:none` the default.
+`circle(O, 50)`. Notice that the object is set to `:none`, the default.
 
 # Example
 ```julia
