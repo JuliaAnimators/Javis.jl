@@ -89,10 +89,6 @@ function Object(frames, func::Function, start_pos::Point; kwargs...)
     return object
 end
 
-function Base.convert(::Type{Point}, obj::AbstractObject)
-    return get_position(obj)
-end
-
 function act!(object::AbstractObject, action::AbstractAction)
     push!(object.actions, copy(action))
 end
