@@ -56,6 +56,15 @@ function get_interpolation(action::AbstractAction, frame)
     return interpolation_to_transition_val(at(action.anim, t), action.transition)
 end
 
+
+"""
+    interpolation_to_transition_val(interpolation_val, Transition)
+
+Returns the transition value for the given `interpolation_val`.
+If the interpolation value is already of the correct form it just gets returned.
+Otherwise the Transition function like `get_position` is called and the interpolated value
+is calculated.
+"""
 interpolation_to_transition_val(t, ::Nothing) = t
 interpolation_to_transition_val(t::Point, trans::Translation) = t
 interpolation_to_transition_val(t::Scale, trans::Scaling) = t

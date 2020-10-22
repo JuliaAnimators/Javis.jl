@@ -1,3 +1,9 @@
+#=
+
+    This file transforms `anim_X` to a structure that is than used inside `Action`
+
+=#
+
 struct Translation <: AbstractTransition
     from::Union{Object,Point}
     to::Union{Object,Point}

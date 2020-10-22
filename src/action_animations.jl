@@ -266,7 +266,7 @@ end
     scale()
 
 Scale a function defined inside a [`Action`](@ref) using an Animation defined
-with Animations.jl around the point `p`.
+with Animations.jl.
 
 An example can be seen in [`rotate`](@ref).
 """
