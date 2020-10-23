@@ -68,10 +68,10 @@ function add_points!(poly, missing_nodes)
 end
 
 """
-    morph(from_func, to_func; action=:stroke)
+    morph_to(to_func::Function; object=:stroke)
 
 A closure for the [`_morph`](@ref) function.
-This makes it easier to write the function inside an `Action`.
+This makes it easier to write the function inside an `Object`.
 
 Currently morphing is quite simple and only works for basic shapes.
 It especially does not work with functions which produce more than one polygon
@@ -82,71 +82,64 @@ Blending between fills of polygons is definitely coming at a later stage.
 i.e. use `circle(Point(100,100), 50)` instead of `circle(Point(100,100), 50, :stroke)`
 
 # Arguments
-- `from_func::Union{Vector{Vector{Point}}, Function}`:
-    The function that creates the path for the first polygons or the paths as vector of points.
-- `to_func::Union{Vector{Vector{Point}}, Function}`:
-    Same as `from_func` but it defines the "result" polygons,
-    which will be displayed at the end of the Action
+- `to_func::Function`: Same as `from_func` but it defines the "result" polygon,
+                       which will be displayed at the end of the Object
 
 # Keywords
-- `action::Symbol` defines whether the object has a fill or just a stroke. Defaults to stroke.
-
-# Keywords
-- `action::Symbol` defines whether the object has a fill or just a stroke. Defaults to stroke.
+- `object::Symbol` defines whether the object has a fill or just a stroke. Defaults to stroke.
 
 # Example
 
 This creates a star that morphs into a circle and back.
 
 ```
-using Javis
-
 astar(args...) = star(O, 50)
 acirc(args...) = circle(Point(100,100), 50)
 
 video = Video(500, 500)
-javis(video, [
-    Action(1:100, ground),
-    Action(1:50, morph(astar, acirc)),
-    Action(51:100, morph(acirc, astar))
-], creategif=true, tempdirectory="images",
-    pathname="star2circle.gif", deletetemp=true)
+back = BackgroundObject(1:20, ground)
+star_obj = Object(1:10, astar)
+act!(star_obj, Action(linear(), morph_to(acirc)))
+circle_obj = Object(11:20, acirc)
+act!(circle_obj, Action(:same, morph_to(astar)))
 ```
 """
-function morph(from_func::Function, to_func::Function; action = :stroke)
-    return (video, scene_action, frame) ->
-        _morph(video, scene_action, frame, from_func, to_func; draw_action = action)
+function morph_to(to_func::Function; do_action = :stroke)
+    return (video, object, action, frame) ->
+        _morph_to(video, object, action, frame, to_func; do_action = do_action)
 end
 
 
 """
-    _morph(video::Video, action::Action, frame, from_func::Function, to_func::Function; draw_action=:stroke)
+    _morph_to(video::Video, object::Object, action::Action, frame, to_func::Function; do_action=:stroke)
 
 Internal version of [`morph`](@ref) but described there.
 """
-function _morph(
+function _morph_to(
     video::Video,
+    object::Object,
     action::Action,
     frame,
-    from_func::Function,
     to_func::Function;
-    draw_action = :stroke,
+    do_action = :stroke,
 )
     newpath()
-    from_func()
+    object.func(video, object, frame; do_action = :none)
     closepath()
     from_polys = pathtopoly()
 
     newpath()
-    to_func()
+    to_func(video, object, frame; do_action = :none)
     closepath()
     to_polys = pathtopoly()
 
-    return _morph(video, action, frame, from_polys, to_polys; draw_action = draw_action)
+    return _morph(video, action, frame, from_polys, to_polys; do_action = do_action)
 end
 
 """
-    _morph(video::Video, action::Action, frame, from_func::Function, to_func::Function; draw_action=:stroke)
+    _morph(video::Video, action::Action, frame,
+        from_polys::Vector{Vector{Point}}, to_polys::Vector{Vector{Point}};
+        do_action=:stroke)
 
 Internal version of [`morph`](@ref) but described there.
 """
@@ -156,31 +149,34 @@ function _morph(
     frame,
     from_polys::Vector{Vector{Point}},
     to_polys::Vector{Vector{Point}};
-    draw_action = :stroke,
+    do_action = :stroke,
 )
+    cs = get_current_setting()
+    cs.show_object = false
+
     # computation of the polygons and the best way to morph in the first frame
     if frame == first(get_frames(action))
         save_morph_polygons!(action, from_polys, to_polys)
     end
 
     # obtain the computed polygons. These polygons have the same number of points.
-    number_of_shapes = length(action.opts[:from_shape])
+    number_of_shapes = length(action.defs[:from_shape])
     bool_move = ones(Bool, number_of_shapes)
     bool_appear = zeros(Bool, number_of_shapes)
 
     for si in 1:number_of_shapes
-        from_shape = action.opts[:from_shape][si]
-        to_shape = action.opts[:to_shape][si]
-        inter_shape = action.opts[:inter_shape][si]
+        from_shape = action.defs[:from_shape][si]
+        to_shape = action.defs[:to_shape][si]
+        inter_shape = action.defs[:inter_shape][si]
 
         # polygons[pi] = from_poly
         # println("#Points: $pi ", length(polygons[pi]))
         # continue
         if isempty(from_shape) || isempty(to_shape)
             if isempty(to_shape)
-                action.opts[:inter_shape][si] = from_shape
+                action.defs[:inter_shape][si] = from_shape
             else
-                action.opts[:inter_shape][si] = to_shape
+                action.defs[:inter_shape][si] = to_shape
                 bool_appear[si] = true
             end
             bool_move[si] = false
@@ -190,7 +186,7 @@ function _morph(
         # compute the interpolation variable `t` for the current frame
         t = get_interpolation(action, frame)
         interpolate_shape!(inter_shape, from_shape, to_shape, t)
-        draw_shape(inter_shape, draw_action)
+        draw_shape(inter_shape, do_action)
     end
 
     # let new paths appear
@@ -198,18 +194,18 @@ function _morph(
     setopacity(t)
 
     shape_ids = [si for si in 1:number_of_shapes if (!bool_move[si] && bool_appear[si])]
-    shapes = action.opts[:inter_shape][shape_ids]
+    shapes = action.defs[:inter_shape][shape_ids]
     # print_basic.(shapes)
     # error(1)
-    draw_shape.(shapes, draw_action)
+    draw_shape.(shapes, do_action)
 
     # let old paths disappear
     t = get_interpolation(action, frame)
     setopacity(1 - t)
 
     shape_ids = [si for si in 1:number_of_shapes if (!bool_move[si] && !bool_appear[si])]
-    shapes = action.opts[:inter_shape][shape_ids]
-    draw_shape.(shapes, draw_action)
+    shapes = action.defs[:inter_shape][shape_ids]
+    draw_shape.(shapes, do_action)
 
     setopacity(1)
 end
@@ -221,7 +217,7 @@ end
 Calls the functions to polygons and calls [`match_num_points!`](@ref)
 such that both polygons have the same number of points.
 This is done once inside [`_morph`](@ref).
-Saves the two polygons inside `action.opts[:from_poly]` and `action.opts[:to_poly]`.
+Saves the two polygons inside `action.defs[:from_poly]` and `action.defs[:to_poly]`.
 
 **Assumption:** Both functions create the same number of polygons.
 """
@@ -254,29 +250,29 @@ function save_morph_polygons!(
         from_shapes, to_shapes = reorder_match(from_shapes, to_shapes)
     end
 
-    action.opts[:from_shape] = Vector{Shape}()
-    action.opts[:to_shape] = Vector{Shape}()
-    action.opts[:inter_shape] = Vector{Shape}()
+    action.defs[:from_shape] = Vector{Shape}()
+    action.defs[:to_shape] = Vector{Shape}()
+    action.defs[:inter_shape] = Vector{Shape}()
 
     counter = 0
     for (from_shape, to_shape) in zip(from_shapes, to_shapes)
         counter += 1
         if isempty(from_shape) || isempty(to_shape)
             if isempty(from_shape)
-                push!(action.opts[:from_shape], EmptyShape())
-                push!(action.opts[:to_shape], to_shape)
+                push!(action.defs[:from_shape], EmptyShape())
+                push!(action.defs[:to_shape], to_shape)
                 push!(
-                    action.opts[:inter_shape],
+                    action.defs[:inter_shape],
                     Shape(
                         length(to_shape.points),
                         [length(subpath) for subpath in to_shape.subpaths],
                     ),
                 )
             else
-                push!(action.opts[:from_shape], from_shape)
-                push!(action.opts[:to_shape], EmptyShape())
+                push!(action.defs[:from_shape], from_shape)
+                push!(action.defs[:to_shape], EmptyShape())
                 push!(
-                    action.opts[:inter_shape],
+                    action.defs[:inter_shape],
                     Shape(
                         length(from_shape.points),
                         [length(subpath) for subpath in from_shape.subpaths],
@@ -286,10 +282,10 @@ function save_morph_polygons!(
         else
             from_shape, to_shape = prepare_to_interpolate(from_shape, to_shape)
 
-            push!(action.opts[:from_shape], from_shape)
-            push!(action.opts[:to_shape], to_shape)
+            push!(action.defs[:from_shape], from_shape)
+            push!(action.defs[:to_shape], to_shape)
             push!(
-                action.opts[:inter_shape],
+                action.defs[:inter_shape],
                 Shape(
                     length(from_shape.points),
                     [length(subpath) for subpath in from_shape.subpaths],

@@ -121,9 +121,8 @@ function scale(scl_x, scl_y)
     cs.desired_scale = (scl_x, scl_y)
     current_scale = cs.desired_scale .* cs.mul_scale
     if current_scale[1] ≈ 0.0 || current_scale[2] ≈ 0.0
-        cs.show_action = false
+        cs.show_object = false
     else
-        cs.show_action = true
         Luxor.scale(current_scale...)
         cs.current_scale = cs.current_scale .* current_scale
     end
@@ -144,10 +143,9 @@ function scaleto(x, y)
     # we divided by 0 but clearly we want to scale to 0
     # -> we want scaling to be 0 not Inf
     if x ≈ 0 || y ≈ 0
-        cs.show_action = false
+        cs.show_object = false
         return
     end
-    cs.show_action = true
     Luxor.scale(scaling...)
     cs.current_scale = (x, y)
 end
@@ -221,14 +219,9 @@ animate text with [`appear`](@ref).
 
 # Example
 ```julia
-Action(
-    1:100,
-    (args...) -> text("Hello Stream!"; halign = :center);
-    subactions = [
-        SubAction(1:15, sineio(), appear(:draw_text)),
-        SubAction(76:100, sineio(), disappear(:draw_text)),
-    ],
-)
+text_obj = Object(1:100, (args...) -> text("Hello Stream!"; halign = :center))
+act!(text_obj, Action(1:15, sineio(), appear(:draw_text)))
+act!(text_obj, Action(76:100, sineio(), disappear(:draw_text)))
 ```
 draws the text from left to right in the first 15 frames and in the last 15 frames it disappears.
 
@@ -242,8 +235,8 @@ draws the text from left to right in the first 15 frames and in the last 15 fram
 - `angle::Float64` defaults to `0.0` and specifies the angle of the text
 """
 function text(str, pos = O; valign = :baseline, halign = :left, angle = 0.0)
-    action = CURRENT_ACTION[1]
-    opts = action.opts
+    object = CURRENT_OBJECT[1]
+    opts = object.opts
     t = get(opts, :draw_text_t, 1.0)
     return animate_text(str, pos, valign, halign, angle, t)
 end

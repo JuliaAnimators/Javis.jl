@@ -3,7 +3,7 @@ using GtkReactive
 using Gtk: get_gtk_property, visible
 using Images
 using Javis
-using Latexify
+import Latexify: latexify
 using LaTeXStrings
 using ReferenceTests
 using Test
