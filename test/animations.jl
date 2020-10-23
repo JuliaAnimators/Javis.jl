@@ -245,13 +245,13 @@ end
 @testset "Squeezing a circle using scale" begin
     demo = Video(500, 500)
 
-    BackgroundObject(1:100, ground)
+    BackgroundObject(1:125, ground)
     start_scale = Object((args...) -> (1.0, 1.0))
     circle_obj = Object((args...) -> circ())
     act!(circle_obj, Action(1:25, Scaling((1.0, 1.5))))
     act!(circle_obj, Action(Rel(25), Scaling((2.0, 1.0))))
     act!(circle_obj, Action(Rel(25), Scaling(start_scale)))
-    act!(circle_obj, Action(Rel(25), Scaling(2.0)))
+    act!(circle_obj, Action(Rel(25), Scaling(2.0); keep = false))
     Object((args...) -> circ(Point(-100, 0)))
 
     render(demo; tempdirectory = "images", pathname = "")
@@ -261,7 +261,8 @@ end
     @test_reference "refs/squeeze35.png" load("images/0000000035.png")
     @test_reference "refs/squeeze65.png" load("images/0000000065.png")
     @test_reference "refs/squeeze85.png" load("images/0000000085.png")
-    for i in 1:100
+    @test_reference "refs/squeeze110.png" load("images/0000000110.png")
+    for i in 1:125
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end

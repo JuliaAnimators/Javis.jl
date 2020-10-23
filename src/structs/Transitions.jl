@@ -114,7 +114,8 @@ Scaling(10, 2) -> Scaling((10.0, 10.0), (2.0, 2.0))
 Scaling(10, (1,2)) -> Scaling((10.0, 10.0), (1.0, 2.0))
 ```
 
-**Attention:** This always scales from the origin. For direct mutation of objects you might want to use [`change`](@ref) instead to change an object's actual size.
+**Attention:** This always scales from the origin.
+For direct mutation of objects you might want to use [`change`](@ref) instead to change an object's actual size.
 
 # Fields
 - `from::Union{Tuple{Float64, Float64}, Symbol, AbstractObject}`: The start scaling or a link to it
