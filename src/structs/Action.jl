@@ -14,6 +14,7 @@ A Action should not be created by hand but instead by using one of the construct
 - `transition::Transition`: A [`Translation`](@ref)
 - `internal_transition::InternalTransition`:
     A transition which stores the current transition for a specific frame.
+- `keep::Bool` defines whether this Action is called even after the last frame it was defined on
 - `defs::Dict{Symbol, Any}` any kind of definitions that are relevant for the action.
 """
 mutable struct Action <: AbstractAction
@@ -22,11 +23,12 @@ mutable struct Action <: AbstractAction
     func::Function
     transition::Union{Nothing,Transition}
     internal_transition::Union{Nothing,InternalTransition}
+    keep::Bool
     defs::Dict{Symbol,Any}
 end
 
 """
-    Action([frames], [Animation], func::Union{Function, Transition})
+    Action([frames], [Animation], func::Union{Function, Transition}; keep=true)
 
 An `Action` gives an [`Object`](@ref) the opportunity to move, change color or much more.
 It can be defined in many different ways.
@@ -54,6 +56,13 @@ It can be defined in many different ways.
         - [`Rotation`](@ref)
         - [`Scaling`](@ref)
 
+# Keywords
+- `keep::Bool` defaults to `true` defines whether the [`Action`](@ref) is called
+    even for frames after it's last defined.
+    In more simple terms: If one has `Action(1:10, anim, translate())`
+    It will get translated to the last position on frame `11:END_OF_OBJECT`.
+    One can set `; keep = false` to turn off this behavior.
+
 # Example
 ```julia
 function ground(args...)
@@ -71,30 +80,46 @@ act!(obj, Action(81:100, disappear(:fade)))
 render(video; pathname="test.gif")
 ```
 """
-Action(func::Union{Function,Transition}) = Action(:same, func)
+Action(func::Union{Function,Transition}; keep = true) = Action(:same, func; keep = keep)
 
-Action(frames, easing::Union{ReversedEasing,Easing}, func::Union{Function,Transition}) =
-    Action(frames, easing_to_animation(easing), func)
+Action(
+    frames,
+    easing::Union{ReversedEasing,Easing},
+    func::Union{Function,Transition};
+    keep = true,
+) = Action(frames, easing_to_animation(easing), func; keep = keep)
 
-Action(frames, anim::Animation, transition::Transition) =
-    Action(frames, anim, (args...) -> 1, transition)
+Action(frames, anim::Animation, transition::Transition; keep = true) =
+    Action(frames, anim, (args...) -> 1, transition; keep = keep)
 
-Action(anim::Animation, func::Union{Function,Transition}) = Action(:same, anim, func)
-Action(easing::Union{ReversedEasing,Easing}, func::Union{Function,Transition}) =
-    Action(:same, easing_to_animation(easing), func)
+Action(anim::Animation, func::Union{Function,Transition}; keep = true) =
+    Action(:same, anim, func; keep = keep)
 
-Action(frames, func::Union{Function,Transition}) =
-    Action(frames, easing_to_animation(linear()), func)
+Action(
+    easing::Union{ReversedEasing,Easing},
+    func::Union{Function,Transition};
+    keep = true,
+) = Action(:same, easing_to_animation(easing), func; keep = keep)
 
-Action(frames, trans::Transition) =
-    Action(frames, easing_to_animation(linear()), (args...) -> 1, trans)
+Action(frames, func::Union{Function,Transition}; keep = true) =
+    Action(frames, easing_to_animation(linear()), func; keep = keep)
 
-Action(frames, anim::Animation, func::Function) =
-    Action(frames, anim, func, nothing, nothing, Dict{Symbol,Any}())
+Action(frames, trans::Transition; keep = true) =
+    Action(frames, easing_to_animation(linear()), (args...) -> 1, trans; keep = keep)
 
-Action(frames, anim::Animation, func::Function, transition::Transition) =
-    Action(frames, anim, func, transition, nothing, Dict{Symbol,Any}())
+Action(frames, anim::Animation, func::Function; keep = true) =
+    Action(frames, anim, func, nothing, nothing, keep, Dict{Symbol,Any}())
+
+Action(frames, anim::Animation, func::Function, transition::Transition; keep = true) =
+    Action(frames, anim, func, transition, nothing, keep, Dict{Symbol,Any}())
 
 
-Base.copy(a::Action) =
-    Action(copy(a.frames), a.anim, a.func, a.transition, a.internal_transition, a.defs)
+Base.copy(a::Action) = Action(
+    copy(a.frames),
+    a.anim,
+    a.func,
+    a.transition,
+    a.internal_transition,
+    a.keep,
+    a.defs,
+)

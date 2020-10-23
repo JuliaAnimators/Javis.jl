@@ -2,6 +2,7 @@
 
 ## Unreleased v0.3
 - Ability to use `setopactity()` in an `Action`
+- Ability to disable an `Action` after its last defined frame. See `? Action` and the keyword `; keep`
 
 ## v0.2.2 (20th of October 2020)
 - Ability to change a keyword using `change`
