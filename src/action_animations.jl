@@ -296,8 +296,8 @@ A possible animation would look like this:
 opacity_anim = Animation(
     [0, 0.5, 1], # must go from 0 to 1
     [
-        0.0
-        0.3
+        0.0,
+        0.3,
         0.7,
     ],
     [sineio(), sineio()],
