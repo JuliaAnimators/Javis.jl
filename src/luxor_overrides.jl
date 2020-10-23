@@ -224,14 +224,9 @@ animate text with [`appear`](@ref).
 
 # Example
 ```julia
-Object(
-    1:100,
-    (args...) -> text("Hello Stream!"; halign = :center);
-    actions = [
-        Action(1:15, sineio(), appear(:draw_text)),
-        Action(76:100, sineio(), disappear(:draw_text)),
-    ],
-)
+text_obj = Object(1:100, (args...) -> text("Hello Stream!"; halign = :center))
+act!(text_obj, Action(1:15, sineio(), appear(:draw_text)))
+act!(text_obj, Action(76:100, sineio(), disappear(:draw_text)))
 ```
 draws the text from left to right in the first 15 frames and in the last 15 frames it disappears.
 

@@ -60,10 +60,9 @@ function ground(args...)
 end
 
 video = Video(500, 500)
-javis(video, [
-    BackgroundObject(1:100, ground),
-    Object((args...)->circle(O, 50, :fill))
-]; pathname="test.gif")
+BackgroundObject(1:100, ground)
+Object((args...)->circle(O, 50, :fill))
+render(video; pathname="test.gif")
 ```
 
 Here the [`BackgroundObject`](@ref) uses the named way of defining the function whereas
@@ -121,10 +120,9 @@ function ground(args...)
 end
 
 video = Video(500, 500)
-javis(video, [
-    BackgroundObject(1:100, ground),
-    Object((args...)->circle(O, 50, :fill))
-]; pathname="test.gif")
+BackgroundObject(1:100, ground)
+Object((args...)->circle(O, 50, :fill))
+render(video; pathname="test.gif")
 ```
 
 This draws a white circle on a black background as `sethue` is defined for the global frame.

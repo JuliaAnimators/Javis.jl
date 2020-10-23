@@ -91,18 +91,15 @@ i.e. use `circle(Point(100,100), 50)` instead of `circle(Point(100,100), 50, :st
 This creates a star that morphs into a circle and back.
 
 ```
-using Javis
-
 astar(args...) = star(O, 50)
 acirc(args...) = circle(Point(100,100), 50)
 
 video = Video(500, 500)
-javis(video, [
-    Object(1:100, ground),
-    Object(1:50, morph(astar, acirc)),
-    Object(51:100, morph(acirc, astar))
-], creategif=true, tempdirectory="images",
-    pathname="star2circle.gif", deletetemp=true)
+back = BackgroundObject(1:20, ground)
+star_obj = Object(1:10, astar)
+act!(star_obj, Action(linear(), morph_to(acirc)))
+circle_obj = Object(11:20, acirc)
+act!(circle_obj, Action(:same, morph_to(astar)))
 ```
 """
 function morph_to(to_func::Function; draw_object = :stroke)

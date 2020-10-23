@@ -54,14 +54,13 @@ function ground(args...)
 end
 
 video = Video(500, 500)
-javis(video, [
-    BackgroundObject(1:100, ground),
-    Object((args...)->circle(O, 50, :fill)) +
-        Action(1:20, appear(:fade)) +
-        Action(21:50, Translation(50, 50)) +
-        Action(51:80, Translation(-50, -50)) +
-        Action(81:100, disappear(:fade))
-]; pathname="test.gif")
+BackgroundObject(1:100, ground)
+obj = Object((args...)->circle(O, 50, :fill))
+act!(obj, Action(1:20, appear(:fade)))
+act!(obj, Action(21:50, Translation(50, 50)))
+act!(obj, Action(51:80, Translation(-50, -50)))
+act!(obj, Action(81:100, disappear(:fade)))
+render(video; pathname="test.gif")
 ```
 """
 Action(func::Union{Function,AbstractTransition}) = Action(:same, func)
