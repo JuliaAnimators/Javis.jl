@@ -432,6 +432,9 @@ end
     act!(circle_obj, Action(141:150, rev(sineio()), scale()))
     act!(circle_obj, Action(1:150, color_anim, sethue()))
 
+    bot_circle = Object((args...) -> circle(O, 25, :fill), Point(0, 200))
+    act!(bot_circle, Action(sineio(), setopacity()))
+
     render(video; tempdirectory = "images", pathname = "")
 
     @test_reference "refs/animations_all_05.png" load("images/0000000005.png")

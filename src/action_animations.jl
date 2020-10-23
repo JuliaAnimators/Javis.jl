@@ -285,6 +285,38 @@ function _sethue(video, object, action, rel_frame)
 end
 
 """
+    setopacity()
+
+Set the color of an [`Object`](@ref) using an [`Action`](@ref) and an Animation defined
+with Animations.jl.
+
+# Example
+A possible animation would look like this:
+```julia
+opacity_anim = Animation(
+    [0, 0.5, 1], # must go from 0 to 1
+    [
+        0.0,
+        0.3,
+        0.7,
+    ],
+    [sineio(), sineio()],
+)
+```
+
+An example on how to integrate this into an [`Action`](@ref) can be seen in [`rotate`](@ref).
+Where this would be a valid Action: `Action(1:150, opacity_anim, setopacity())`.
+"""
+function setopacity()
+    (video, object, action, rel_frame) -> _setopacity(video, object, action, rel_frame)
+end
+
+function _setopacity(video, object, action, rel_frame)
+    opacity = get_interpolation(action, rel_frame)
+    setopacity(opacity)
+end
+
+"""
     follow_path(points::Vector{Point}; closed=true)
 
 Can be applied inside an action such that the parent object follows a path.
