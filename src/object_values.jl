@@ -27,8 +27,6 @@ function get_position(obj::Object)
     return get_position(obj.result[1])
 end
 
-get_position(s::Symbol) = get_position(val(s))
-
 """
     pos(x)
 

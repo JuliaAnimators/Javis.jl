@@ -221,4 +221,18 @@
         @test Javis.get_frames(objects[2].actions[1]) == 1:10
         @test Javis.get_frames(objects[2].actions[2]) == 11:20
     end
+
+    @testset "anim_" begin
+        s = anim_scale(1, 2)
+        @test s.from == Javis.Scale(1, 1)
+        @test s.to == Javis.Scale(2, 2)
+
+        s = anim_scale(Javis.Scale(1, 1), 2)
+        @test s.from == Javis.Scale(1, 1)
+        @test s.to == Javis.Scale(2, 2)
+
+        s = anim_scale(Javis.Scale(1, 1), (2, 1))
+        @test s.from == Javis.Scale(1, 1)
+        @test s.to == Javis.Scale(2, 1)
+    end
 end
