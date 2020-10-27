@@ -83,8 +83,8 @@ function Base.:*(m::Array{Float64,2}, transformation::Transformation)
     θ = transformation.angle
     s = transformation.scale
     trans_matrix = [
-        s.x * cos(θ) -sin(θ) p.x
-        sin(θ) s.y * cos(θ) p.y
+        s.x*cos(θ) -sin(θ) p.x
+        sin(θ) s.y*cos(θ) p.y
         0 0 1
     ]
     res = m * trans_matrix
