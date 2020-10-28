@@ -67,9 +67,14 @@ is calculated.
 """
 interpolation_to_transition_val(t, ::Nothing) = t
 interpolation_to_transition_val(t::Point, trans::Translation) = t
+interpolation_to_transition_val(t::Float64, trans::Rotation) = t
 interpolation_to_transition_val(t::Scale, trans::Scaling) = t
 
 function interpolation_to_transition_val(t, trans::Translation)
+    if !(t isa Number)
+        println(t)
+        println(typeof(t))
+    end
     from = get_position(trans.from)
     to = get_position(trans.to)
     return from + t * (to - from)

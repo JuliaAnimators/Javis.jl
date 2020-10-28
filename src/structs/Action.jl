@@ -101,7 +101,7 @@ function Action(
 )
     anim = Animation([0.0, 1.0], [rotation.from, rotation.to], [easing])
     if rotation.center === nothing
-        return Action(frames, anim, rotate())
+        return Action(frames, anim, rotate(), transition = rotation; keep = keep)
     end
     Action(frames, anim, rotate_around(rotation.center); keep = keep)
 end

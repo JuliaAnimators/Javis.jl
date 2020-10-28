@@ -238,5 +238,9 @@
         s = anim_scale((1, 1), Javis.Scale(2, 1))
         @test s.from == Javis.Scale(1, 1)
         @test s.to == Javis.Scale(2, 1)
+
+        s = anim_scale(Javis.Scale(2, 1))
+        @test s.from == :current_scale
+        @test s.to == Javis.Scale(2, 1)
     end
 end
