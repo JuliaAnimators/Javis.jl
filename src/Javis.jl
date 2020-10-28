@@ -1,7 +1,7 @@
 module Javis
 
 using Animations
-using Cairo: CairoImageSurface, image
+import Cairo: CairoImageSurface, image
 using ColorTypes: ARGB32
 using FFMPEG
 using Gtk
@@ -10,24 +10,22 @@ using Images
 using LaTeXStrings
 using LightXML
 import Luxor
-import Luxor: Point, @layer
+import Luxor: Point, @layer, translate, rotate
 using ProgressMeter
 using Random
 using VideoIO
 
 const FRAMES_SYMBOL = [:same]
 
-abstract type Transition end
-abstract type InternalTransition end
-
 abstract type AbstractAction end
 abstract type AbstractObject end
+abstract type AbstractTransition end
 
 include("structs/Video.jl")
 include("structs/Easing.jl")
 include("structs/Rel.jl")
 include("structs/Frames.jl")
-
+include("structs/Scale.jl")
 
 """
     Transformation
@@ -39,18 +37,24 @@ It can be accessed by another [`Object`])(@ref) using the symbol notation
 like `:red_ball` in the example.
 
 # Fields
-- `p::Point`: the translation part of the transformation
+- `point::Point`: the translation part of the transformation
 - `angle::Float64`: the angle component of the transformation (in radians)
+- `scale::Tuple{Float64, Float64}`: the scaling component of the transformation
 """
-mutable struct Transformation
-    p::Point
+struct Transformation
+    point::Point
     angle::Float64
+    scale::Scale
 end
 
-include("structs/Action.jl")
+Transformation(p, a) = Transformation(p, a, 1.0)
+Transformation(p, a, s::Float64) = Transformation(p, a, (s, s))
+Transformation(p, a, s::Tuple{Float64,Float64}) = Transformation(p, a, Scale(s...))
+
 include("structs/ObjectSetting.jl")
 include("structs/Object.jl")
 include("structs/Transitions.jl")
+include("structs/Action.jl")
 
 
 """
@@ -75,15 +79,16 @@ Convert the transformation to a matrix and multiplies m*trans_matrix.
 Return a new Transformation
 """
 function Base.:*(m::Array{Float64,2}, transformation::Transformation)
+    p = transformation.point
     θ = transformation.angle
-    p = transformation.p
+    s = transformation.scale
     trans_matrix = [
-        cos(θ) -sin(θ) p.x
-        sin(θ) cos(θ) p.y
+        s.x*cos(θ) -sin(θ) p.x
+        sin(θ) s.y*cos(θ) p.y
         0 0 1
     ]
     res = m * trans_matrix
-    return Transformation(Point(gettranslation(res)...), getrotation(res))
+    return Transformation(Point(gettranslation(res)...), getrotation(res), getscale(res))
 end
 
 include("util.jl")
@@ -94,7 +99,6 @@ include("morphs.jl")
 include("action_animations.jl")
 include("javis_viewer.jl")
 include("latex.jl")
-include("transition2transformation.jl")
 include("object_values.jl")
 
 """
@@ -156,12 +160,6 @@ function render(
         append!(frames, collect(get_frames(object)))
     end
     frames = unique(frames)
-
-    for object in objects
-        for action in object.actions
-            create_internal_transition!(action)
-        end
-    end
 
     if isempty(CURRENT_OBJECT)
         push!(CURRENT_OBJECT, objects[1])
@@ -286,7 +284,7 @@ It is a 4-step process:
 function draw_object(object, video, frame, origin_matrix)
     # translate the object to it's starting position.
     # It's better to draw the object always at the origin and use `star_pos` to shift it
-    translate(object.start_pos)
+    translate(get_position(object.start_pos))
 
     # first compute and perform the global transformations of this object
     # relative frame number for actions
@@ -295,14 +293,9 @@ function draw_object(object, video, frame, origin_matrix)
     for action in object.actions
         if rel_frame in get_frames(action)
             action.func(video, object, action, rel_frame)
-            compute_transition!(action, video, rel_frame)
-            perform_transformation(action)
         elseif rel_frame > last(get_frames(action)) && action.keep
             # call the action on the last frame i.e. disappeared things stay disappeared
             action.func(video, object, action, last(get_frames(action)))
-            # have the transformation from the last active frame
-            compute_transition!(action, video, last(get_frames(action)))
-            perform_transformation(action)
         end
     end
 
@@ -322,8 +315,8 @@ function draw_object(object, video, frame, origin_matrix)
 
     # if a transformation let's save the global coordinates
     if res isa Point
-        vec = current_matrix * [res.x, res.y, 1.0]
-        object.result[1] = Point(vec[1], vec[2])
+        trans = current_matrix * Transformation(res, 0.0, 1.0)
+        object.result[1] = trans
     elseif res isa Transformation
         trans = current_matrix * res
         object.result[1] = trans
@@ -347,8 +340,8 @@ function set_object_defaults!(object)
     current_opacity = cs.opacity * cs.mul_opacity
     Luxor.setopacity(current_opacity)
 
-    desired_scale = cs.desired_scale .* cs.mul_scale
-    scaleto(desired_scale...)
+    desired_scale = cs.desired_scale * cs.mul_scale
+    scaleto(desired_scale)
 end
 
 const LUXOR_DONT_EXPORT = [
@@ -373,13 +366,14 @@ end
 
 export render, latex
 export Video, Object, BackgroundObject, Action, Rel
-export Line, Translation, Rotation, Transformation, Scaling
-export val, pos, ang, get_value, get_position, get_angle
+export Line, Transformation
+export val, pos, ang, scl, get_value, get_position, get_angle, get_scale
 export projection, morph_to
 export appear, disappear, rotate_around, follow_path, change
 export rev
 export scaleto
 export act!
+export anim_translate, anim_rotate, anim_rotate_around, anim_scale
 
 # custom override of luxor extensions
 export setline, setopacity, fontsize, get_fontsize, scale, text

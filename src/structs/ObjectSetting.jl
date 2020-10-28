@@ -31,12 +31,13 @@ mutable struct ObjectSetting
     # see: https://github.com/JuliaGraphics/Luxor.jl/issues/114
     # in this case show will be set to false and the object will not be called
     show_object::Bool
-    current_scale::Tuple{Float64,Float64}
-    desired_scale::Tuple{Float64,Float64}
+    current_scale::Scale
+    desired_scale::Scale
     mul_scale::Float64 # the multiplier of scale is between 0 and 1
 end
 
-ObjectSetting() = ObjectSetting(1.0, 1.0, 1.0, 1.0, 10.0, true, (1.0, 1.0), (1.0, 1.0), 1.0)
+ObjectSetting() =
+    ObjectSetting(1.0, 1.0, 1.0, 1.0, 10.0, true, Scale(1.0, 1.0), Scale(1.0, 1.0), 1.0)
 
 """
     update_ObjectSetting!(as::ObjectSetting, by::ObjectSetting)

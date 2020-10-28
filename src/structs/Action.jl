@@ -11,9 +11,7 @@ A Action should not be created by hand but instead by using one of the construct
 - `anim::Animation`: defines the interpolation function for the transition
 - `func::Function`: the function that gets called in each of those frames.
     Takes the following arguments: `video, object, action, rel_frame`
-- `transition::Transition`: A [`Translation`](@ref)
-- `internal_transition::InternalTransition`:
-    A transition which stores the current transition for a specific frame.
+- `transition::Union{Nothing, AbstractTransition}`
 - `keep::Bool` defines whether this Action is called even after the last frame it was defined on
 - `defs::Dict{Symbol, Any}` any kind of definitions that are relevant for the action.
 """
@@ -21,14 +19,13 @@ mutable struct Action <: AbstractAction
     frames::Frames
     anim::Animation
     func::Function
-    transition::Union{Nothing,Transition}
-    internal_transition::Union{Nothing,InternalTransition}
+    transition::Union{Nothing,AbstractTransition}
     keep::Bool
     defs::Dict{Symbol,Any}
 end
 
 """
-    Action([frames], [Animation], func::Union{Function, Transition}; keep=true)
+    Action([frames], [Animation], func::Function; keep=true)
 
 An `Action` gives an [`Object`](@ref) the opportunity to move, change color or much more.
 It can be defined in many different ways.
@@ -44,17 +41,12 @@ It can be defined in many different ways.
     - **Default:** The default is `linear()`
     - Possible simple easing functions is `sineio()` for more check
         [Animations.jl](https://jkrumbiegel.github.io/Animations.jl/stable/)
-- func is either a `Function` or a `Transition`
-    - This is the actual action that is applied to the parent object.
-    - It can be either a general function which takes in the following four arguments
+- func is the function that describes the actual action
+    - It can be a general function which takes in the following four arguments
         - video, object, action, rel_frame
     - If you don't need them you can write `(args...)->your_function(arg1, arg2)`
     - You often don't need an own function and instead can use predefined functions like
         - [`appear`](@ref), [`disappear`](@ref), [`follow_path`](@ref)
-    - Another way is to define a transition with
-        - [`Translation`](@ref)
-        - [`Rotation`](@ref)
-        - [`Scaling`](@ref)
 
 # Keywords
 - `keep::Bool` defaults to `true` defines whether the [`Action`](@ref) is called
@@ -80,46 +72,52 @@ act!(obj, Action(81:100, disappear(:fade)))
 render(video; pathname="test.gif")
 ```
 """
-Action(func::Union{Function,Transition}; keep = true) = Action(:same, func; keep = keep)
+Action(func::Union{Function,AbstractTransition}; keep = true) =
+    Action(:same, func; keep = keep)
 
-Action(
+Action(frames, easing::Union{ReversedEasing,Easing}, func::Function; keep = true) =
+    Action(frames, easing_to_animation(easing), func; keep = keep)
+
+function Action(
     frames,
     easing::Union{ReversedEasing,Easing},
-    func::Union{Function,Transition};
+    translation::Translation;
     keep = true,
-) = Action(frames, easing_to_animation(easing), func; keep = keep)
-
-Action(frames, anim::Animation, transition::Transition; keep = true) =
-    Action(frames, anim, (args...) -> 1, transition; keep = keep)
-
-Action(anim::Animation, func::Union{Function,Transition}; keep = true) =
-    Action(:same, anim, func; keep = keep)
-
-Action(
-    easing::Union{ReversedEasing,Easing},
-    func::Union{Function,Transition};
-    keep = true,
-) = Action(:same, easing_to_animation(easing), func; keep = keep)
-
-Action(frames, func::Union{Function,Transition}; keep = true) =
-    Action(frames, easing_to_animation(linear()), func; keep = keep)
-
-Action(frames, trans::Transition; keep = true) =
-    Action(frames, easing_to_animation(linear()), (args...) -> 1, trans; keep = keep)
-
-Action(frames, anim::Animation, func::Function; keep = true) =
-    Action(frames, anim, func, nothing, nothing, keep, Dict{Symbol,Any}())
-
-Action(frames, anim::Animation, func::Function, transition::Transition; keep = true) =
-    Action(frames, anim, func, transition, nothing, keep, Dict{Symbol,Any}())
-
-
-Base.copy(a::Action) = Action(
-    copy(a.frames),
-    a.anim,
-    a.func,
-    a.transition,
-    a.internal_transition,
-    a.keep,
-    a.defs,
 )
+    Action(
+        frames,
+        easing_to_animation(easing),
+        translate();
+        transition = translation,
+        keep = keep,
+    )
+end
+
+function Action(
+    frames,
+    easing::Union{ReversedEasing,Easing},
+    rotation::Rotation;
+    keep = true,
+)
+    anim = Animation([0.0, 1.0], [rotation.from, rotation.to], [easing])
+    if rotation.center === nothing
+        return Action(frames, anim, rotate(), transition = rotation; keep = keep)
+    end
+    Action(frames, anim, rotate_around(rotation.center); keep = keep)
+end
+
+function Action(frames, easing::Union{ReversedEasing,Easing}, scaling::Scaling; keep = true)
+    Action(frames, easing_to_animation(easing), scale(); transition = scaling, keep = keep)
+end
+
+Action(anim::Animation, func::Function) = Action(:same, anim, func; keep = true)
+Action(easing::Union{ReversedEasing,Easing}, func::Function; keep = true) =
+    Action(:same, easing_to_animation(easing), func; keep = keep)
+
+Action(frames, func::Union{Function,AbstractTransition}; keep = true) =
+    Action(frames, linear(), func; keep = keep)
+
+Action(frames, anim::Animation, func::Function; transition = nothing, keep = true) =
+    Action(frames, anim, func, transition, keep, Dict{Symbol,Any}())
+
+Base.copy(a::Action) = Action(copy(a.frames), a.anim, a.func, a.transition, a.keep, a.defs)

@@ -53,7 +53,37 @@ function get_interpolation(action::AbstractAction, frame)
     if !(action.anim.frames[end].t ≈ 1)
         @warn "Animations should be defined from 0.0 to 1.0"
     end
-    return at(action.anim, t)
+    return interpolation_to_transition_val(at(action.anim, t), action.transition)
+end
+
+
+"""
+    interpolation_to_transition_val(interpolation_val, Transition)
+
+Returns the transition value for the given `interpolation_val`.
+If the interpolation value is already of the correct form it just gets returned.
+Otherwise the Transition function like `get_position` is called and the interpolated value
+is calculated.
+"""
+interpolation_to_transition_val(t, ::Nothing) = t
+interpolation_to_transition_val(t::Point, trans::Translation) = t
+interpolation_to_transition_val(t::Float64, trans::Rotation) = t
+interpolation_to_transition_val(t::Scale, trans::Scaling) = t
+
+function interpolation_to_transition_val(t, trans::Translation)
+    if !(t isa Number)
+        println(t)
+        println(typeof(t))
+    end
+    from = get_position(trans.from)
+    to = get_position(trans.to)
+    return from + t * (to - from)
+end
+
+function interpolation_to_transition_val(t, trans::Scaling)
+    from = get_scale(trans.from)
+    to = get_scale(trans.to)
+    return from + t * (to - from)
 end
 
 function isapprox_discrete(val; atol = 1e-4)

@@ -7,8 +7,8 @@ Defines what is drawn in a defined frame range.
 - `frames::Frames`: A range of frames for which the `Object` is called
 - `func::Function`: The drawing function which draws something on the canvas.
     It gets called with the arguments `video, object, frame`
-- `start_pos::Point` defines the origin of the object. It gets translated to this point
-- `actions::Vector{Action}` a list of actions applied to this object
+- `start_pos::Union{Object, Point}` defines the origin of the object. It gets translated to this point
+- `actions::Vector{AbstractAction}` a list of actions applied to this object
 - `current_setting`:: The current state of the object see [ObjectSetting](@ref)
 - `opts::Any` can hold any options defined by the user
 - `change_keywords::Dict{Symbol,Any}` the modified keywords changed by `change`
@@ -17,8 +17,8 @@ Defines what is drawn in a defined frame range.
 struct Object <: AbstractObject
     frames::Frames
     func::Function
-    start_pos::Point
-    actions::Vector{Action}
+    start_pos::Union{Object,Point}
+    actions::Vector{AbstractAction}
     current_setting::ObjectSetting
     opts::Dict{Symbol,Any}
     change_keywords::Dict{Symbol,Any}
@@ -69,7 +69,7 @@ Here the [`BackgroundObject`](@ref) uses the named way of defining the function 
 the circle object is defined in the anonymous function `(args...)->circle(O, 50, :fill)`.
 It basically depends whether you want to have a simple Luxor object or something more complex.
 """
-function Object(frames, func::Function, start_pos::Point; kwargs...)
+function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs...)
     if isempty(CURRENT_VIDEO)
         throw(ErrorException("A `Video` must be defined before an `Object`"))
     end
@@ -79,7 +79,7 @@ function Object(frames, func::Function, start_pos::Point; kwargs...)
         frames,
         func,
         start_pos,
-        Action[],
+        AbstractAction[],
         ObjectSetting(),
         opts,
         Dict{Symbol,Any}(),
