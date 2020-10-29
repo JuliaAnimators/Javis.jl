@@ -92,7 +92,12 @@ include("morphs.jl")
 include("subaction_animations.jl")
 
 function __init__()
-    @require GtkReactive = "27996c0f-39cd-5cc1-a27a-05f136f946b6" include("javis_viewer.jl")
+    @require GtkReactive = "27996c0f-39cd-5cc1-a27a-05f136f946b6" begin
+        import .GtkReactive
+        import .GtkReactive: slider, signal
+        using .GtkReactive.Gtk
+        include("javis_viewer.jl")
+    end
 end
 
 include("latex.jl")
@@ -214,9 +219,17 @@ function javis(
         CURRENT_ACTION[1] = actions[1]
     end
 
-    if liveview == true
-        _javis_viewer(video, length(frames), actions)
-        return "Live preview started."
+    if liveview
+        if !isdefined(@__MODULE__, :GTKReactive)
+            Base.require(@__MODULE__, :GtkReactive)
+            Base.invokelatest(_javis_viewer(video, length(frames), actions), liveview)
+            return "Live preview started."
+        elseif isdefined(@__MODULE__, :GTKReactive)
+            _javis_viewer(video, length(frames), actions)
+            return "Live preview started."
+        else
+            error("GTK not loaded. To support liveviewer first run using GTKReactive, before calling liveview = true")
+        end
     end
 
     path, ext = "", ""

@@ -1,8 +1,3 @@
-import .GtkReactive
-import .GtkReactive: slider, signal
-using .GtkReactive.Gtk
-
-
 """
     _draw_image(video::Video, actions::Vector, frame::Int, canvas::Gtk.Canvas,
     img_dims::Vector)
