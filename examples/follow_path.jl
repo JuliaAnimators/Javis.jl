@@ -35,52 +35,41 @@ points = [
 ]
 npoints = length(points)
 
+BackgroundObject(1:220, ground)
+
 # let the points appear one by one
-draw_points = [
-    Action(
-        frame_start:200,
-        (args...) -> circle(O, 10, :fill);
-        subactions = [
-            # easiest to move canvas to draw at origin
-            SubAction(1:1, Translation(points[i])),
-            SubAction(1:5, appear(:scale)),
-            SubAction((100 - frame_start):(100 - frame_start + 20), Scaling(0.5)),
-            SubAction((200 - frame_start - 10):(200 - frame_start), disappear(:scale)),
-        ],
-    ) for (frame_start, i) in zip(1:2:(2 * npoints), 1:npoints)
+objects = [
+    Object(frame_start:200, (args...) -> circle(O, 10, :fill), points[i])
+    for (frame_start, i) in zip(1:2:(2 * npoints), 1:npoints)
 ]
+
+# easiest to move canvas to draw at origin
+act!(objects, Action(1:5, appear(:scale)))
+for object in objects
+    # currently one needs to define the frames in an action relative but we work on #235
+    frame_start = first(object.frames.user)
+    act!(object, Action((100 - frame_start):(100 - frame_start + 20), anim_scale(0.5)))
+    act!(object, Action((200 - frame_start - 10):(200 - frame_start), disappear(:scale)))
+end
 
 # generate the bezier path
 bezierpath = makebezierpath(points)
 bezierpathpoly = bezierpathtopoly(bezierpath)
 
 # let the bezier path appear and disappear in the end
-draw_bezier = Action(
-    (2 * npoints + 10):200,
-    (args...) -> drawbezierpath(bezierpath, :stroke);
-    subactions = [
-        SubAction(1:10, appear(:fade)),
-        SubAction(
-            (200 - (2 * npoints + 10) - 10):(200 - (2 * npoints + 10)),
-            disappear(:fade),
-        ),
-    ],
+bezier_object =
+    Object((2 * npoints + 10):200, (args...) -> drawbezierpath(bezierpath, :stroke))
+
+act!(bezier_object, Action(1:10, appear(:fade)))
+act!(
+    bezier_object,
+    Action((200 - (2 * npoints + 10) - 10):(200 - (2 * npoints + 10)), disappear(:fade)),
 )
 
 # let a red circle appear and follow the bezier path polygon
-circle_action = Action(
-    120:220,
-    (args...) -> circle_with_color(first(points), 10, "red");
-    subactions = [
-        SubAction(1:20, appear(:fade)),
-        SubAction(21:70, sineio(), follow_path(bezierpathpoly .- first(points))),
-        SubAction(71:80, disappear(:fade)),
-    ],
-)
+red_circle = Object(120:220, (args...) -> circle_with_color(first(points), 10, "red"))
+act!(red_circle, Action(1:20, appear(:fade)))
+act!(red_circle, Action(21:70, sineio(), follow_path(bezierpathpoly .- first(points))))
+act!(red_circle, Action(71:80, disappear(:fade)))
 
-# render everything using javis
-javis(
-    video,
-    [BackgroundAction(1:220, ground), draw_points..., draw_bezier, circle_action];
-    pathname = "gifs/follow_bezier_path.gif",
-)
+render(video; pathname = "gifs/follow_bezier_path.gif")
