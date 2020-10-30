@@ -105,11 +105,12 @@ render(
 ![](assets/circle.gif)
 
 We used `Background` instead of `Object` to specify that the ground function is applied to all objects afterwards.
-The [`Object`](@ref) functionality gives us the option to define the frames it applies to here 1 to 70, a function and a starting position.
+The [`Object`](@ref) functionality gives us the option to define the frames it applies to.
+Here, it is applied to frames 1 to 70, a function and a starting position.
 
-> **NOTE** You might wonder why we don't use `Point(100, 0)` as the point given to the `object` function.
-> The reason it's often simpler to change the frame of reference in a way that we draw at the origin. 
-> As an example functions like [`anim_scale`](@ref) always scale from the origin.
+> **NOTE** One may wonder why we don't use `Point(100, 0)` as the point given to the `object` function.
+> The reason for this, is that it is often simpler to shift the original frame of reference to a new origin centered at the given point.
+> As an example, functions like [`anim_scale`](@ref) always scale from the origin.
 
 You did it! 🎉 You created your first drawing with `Javis`! 🔴
 
@@ -168,7 +169,7 @@ act!(blue_ball, Action(anim_rotate_around(2π, 0.0, red_ball)))
 
 ![](assets/dynamic_rotation.gif)
 
-This time we wanted to rotate around an existing object `red_ball` and in the opposite direction so from $2\pi$ to $0$.
+This time we wanted to rotate around an existing object `red_ball` and in the opposite direction from $2\pi$ to $0$.
 
 There we go! 
 
