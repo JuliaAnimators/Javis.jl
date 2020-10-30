@@ -4,6 +4,7 @@
 - Ability to use `setopactity()` in an `Action`
 - Ability to disable an `Action` after its last defined frame. See `? Action` and the keyword `; keep`
 - Moved from `Translation`, `Scaling` and `Rotation` to `anim_translate` etc
+- Changed `BackgroundObject` to `Background`
 
 ## v0.2.2 (20th of October 2020)
 - Ability to change a keyword using `change`
