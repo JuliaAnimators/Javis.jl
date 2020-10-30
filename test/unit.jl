@@ -59,6 +59,17 @@
         rm(test_file)
     end
 
+    @testset "Global frames" begin
+        video = Video(500, 500)
+        Object(1:100, (args...) -> 1)
+        # dummy object doesn't need a real function
+        object = Object(Rel(10), (args...) -> 1)
+        # defined globally but will be computed to local time frame -> 5:10
+        act!(object, Action(Glob(105:110), (args...) -> 1))
+        render(video; pathname = "")
+        @test Javis.get_frames(object.actions[1]) == 5:10
+    end
+
     @testset "translation from origin" begin
         video = Video(500, 500)
         object = Object(1:100, (args...) -> O)

@@ -19,10 +19,10 @@ Object(91:100, (args...)->circ("red"))
 ```
 
 # Fields
-- rel::UnitRange defines the frames in a relative fashion.
+- frames::UnitRange defines the frames in a relative fashion.
 """
 struct Rel
-    rel::UnitRange
+    frames::UnitRange
 end
 
 """

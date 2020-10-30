@@ -343,10 +343,13 @@ end
     square_obj = Object(5:50, (args...) -> square_opacity(Point(-100, 0), 60))
     act!(square_obj, Action(1:15, linear(), appear(:fade)))
     act!(square_obj, Action(Rel(20), linear(), anim_translate(100, 50)))
-    act!(square_obj, Action(Rel(5), disappear(:fade)))
-    # for global frames 46-50 it should still be disappeared
+    act!(square_obj, Action(Glob(40:44), disappear(:fade)))
+    # for global frames 45-50 it should still be disappeared
 
     render(demo; tempdirectory = "images", pathname = "")
+    @test Javis.get_frames(square_obj.actions[1]) == 1:15 # globally 5:19
+    @test Javis.get_frames(square_obj.actions[2]) == 16:35 # == 20:39
+    @test Javis.get_frames(square_obj.actions[3]) == 36:40 # == 40:44
 
     @test_reference "refs/circleSquare07opacity.png" load("images/0000000007.png")
     @test_reference "refs/circleSquare25opacity.png" load("images/0000000025.png")

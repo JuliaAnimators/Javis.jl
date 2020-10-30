@@ -24,6 +24,7 @@ abstract type AbstractTransition end
 include("structs/Video.jl")
 include("structs/Easing.jl")
 include("structs/Rel.jl")
+include("structs/Glob.jl")
 include("structs/Frames.jl")
 include("structs/Scale.jl")
 
@@ -151,7 +152,7 @@ function render(
     compute_frames!(objects)
 
     for object in objects
-        compute_frames!(object.actions; last_frames = get_frames(object))
+        compute_frames!(object.actions; parent = object)
     end
 
     # get all frames
@@ -365,7 +366,7 @@ for func in names(Luxor; imported = true)
 end
 
 export render, latex
-export Video, Object, BackgroundObject, Action, Rel
+export Video, Object, BackgroundObject, Action, Rel, Glob
 export Line, Transformation
 export val, pos, ang, scl, get_value, get_position, get_angle, get_scale
 export projection, morph_to
