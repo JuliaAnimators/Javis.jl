@@ -94,7 +94,7 @@ We do the following after importing the `Javis.jl` package and defining our own 
 ```julia
 myvideo = Video(500, 500)
 Background(1:70, ground)
-red_ball = Object(1:70, (args...) -> object(Point(100,0), "red"))
+red_ball = Object(1:70, (args...) -> object(O, "red"), Point(100, 0))
 
 render(
     myvideo;
@@ -105,6 +105,12 @@ render(
 ![](assets/circle.gif)
 
 We used `Background` instead of `Object` to specify that the ground function is applied to all objects afterwards.
+The [`Object`](@ref) functionality gives us the option to define the frames it applies to.
+Here, it is applied to frames 1 to 70, a function and a starting position.
+
+> **NOTE** One may wonder why we don't use `Point(100, 0)` as the point given to the `object` function.
+> The reason for this, is that it is often simpler to shift the original frame of reference to a new origin centered at the given point.
+> As an example, functions like [`anim_scale`](@ref) always scale from the origin.
 
 You did it! 🎉 You created your first drawing with `Javis`! 🔴
 
@@ -118,15 +124,14 @@ Let's go crazy and draw another object:
 ```julia
 myvideo = Video(500, 500)
 Background(1:70, ground)
-red_ball = Object(1:70, (args...) -> object(Point(100,0), "red"))
-blue_ball = Object(1:70, (args...) -> object(Point(100,80), "blue"))
+red_ball = Object(1:70, (args...) -> object(O, "red"), Point(100,0))
+blue_ball = Object(1:70, (args...) -> object(O, "blue"), Point(200,80))
 
 render(
     myvideo;
     pathname="circle.gif"
 )
 ```
-
 ![](assets/multiple_circles.gif)
 
 So, this drawing - it's all nice and all, but perhaps a little...
@@ -136,12 +141,12 @@ Let's make these balls dance. 💃
 
 ## It Takes Two to Tango 💃
 
-Let's use the special modifier, `Rotation`, to produce a ball that rotates in a circle:
+Let's use the function, [`anim_rotate_around`](@ref), to produce a ball that rotates in a circle around the origin.
 
 ```julia
 Background(1:70, ground)
-red_ball = Object(1:70, (args...)->object(Point(100,0), "red"))
-act!(red_ball, Action(Rotation(0.0, 2π)))
+red_ball = Object(1:70, (args...)->object(O, "red"), Point(100,0))
+act!(red_ball, Action(anim_rotate_around(2π, O)))
 ```
 
 The `render` function stays the same for the rest of this tutorial. Same is true for the `myvideo = Video(500, 500)` line.
@@ -156,13 +161,15 @@ To make another ball appear, execute the following code snippet:
 
 ```julia
 Background(1:70, ground)
-red_ball = Object(1:70, (args...)->object(Point(100,0), "red"))
-act!(red_ball, Action(Rotation(0.0, 2π)))
-blue_ball = Object(1:70, (args...)-> object(Point(100,80), "blue"))
-act!(blue_ball, Action(Rotation(2π, 0.0, red_ball)))
+red_ball = Object(1:70, (args...)->object(O, "red"), Point(100,0))
+act!(red_ball, Action(anim_rotate_around(2π, O)))
+blue_ball = Object(1:70, (args...)-> object(O, "blue"), Point(200,80))
+act!(blue_ball, Action(anim_rotate_around(2π, 0.0, red_ball)))
 ```
 
 ![](assets/dynamic_rotation.gif)
+
+This time we wanted to rotate around an existing object `red_ball` and in the opposite direction from $2\pi$ to $0$.
 
 There we go! 
 
@@ -180,14 +187,15 @@ function path!(points, pos, color)
 end
 ```
 
-> **NOTE:** The [`pos`](@ref) takes the **pos**ition of the `:red_ball` and passes it as an argument into the `path!` function. 
+> **NOTE:** The [`pos`](@ref) takes the **pos**ition of the `red_ball` and passes it as an argument into the `path!` function. 
 
 Then, using this function, we can execute the following block:
 
 ```julia
+path_of_red = Point[]
 Background(1:70, ground)
-red_ball = Object(1:70, (args...)->object(Point(100,0), "red"))
-act!(red_ball, Action(Rotation(0.0, 2π)))
+red_ball = Object(1:70, (args...)->object(O, "red"), Point(100,0))
+act!(red_ball, Action(anim_rotate_around(2π, O)))
 Object(1:70, (args...)->path!(path_of_red, pos(red_ball), "red"))
 ```
 
@@ -210,10 +218,10 @@ And to show this link:
 
 ```julia
 Background(1:70, ground)
-red_ball = Object(1:70, (args...)->object(Point(100,0), "red"))
-act!(red_ball, Action(Rotation(0.0, 2π)))
-blue_ball = Object(1:70, (args...)->object(Point(100,80), "blue"))
-act!(blue_ball, Action(Rotation(2π, 0.0, red_ball)))
+red_ball = Object(1:70, (args...)->object(O, "red"), Point(100,0))
+act!(red_ball, Action(anim_rotate_around(2π, O)))
+blue_ball = Object(1:70, (args...)->object(O, "blue"), Point(200,80))
+act!(blue_ball, Action(anim_rotate_around(2π, 0.0, red_ball)))
 Object(1:70, (args...)->connector(pos(red_ball), pos(blue_ball), "black"))
 ```
 
@@ -252,10 +260,10 @@ path_of_red = Point[]
 path_of_blue = Point[]
 
 Background(1:70, ground)
-red_ball = Object(1:70, (args...)->object(Point(100,0), "red"))
-act!(red_ball, Action(Rotation(0.0, 2π)))
-blue_ball = Object(1:70, (args...)->object(Point(100,80), "blue"))
-act!(blue_ball, Action(Rotation(2π, 0.0, red_ball)))
+red_ball = Object(1:70, (args...)->object(O, "red"), Point(100,0))
+act!(red_ball, Action(anim_rotate_around(2π, O)))
+blue_ball = Object(1:70, (args...)->object(O, "blue"), Point(200,80))
+act!(blue_ball, Action(anim_rotate_around(2π, 0.0, red_ball)))
 Object(1:70, (args...)->connector(pos(red_ball), pos(blue_ball), "black"))
 Object(1:70, (args...)->path!(path_of_red, pos(red_ball), "red"))
 Object(1:70, (args...)->path!(path_of_blue, pos(blue_ball), "blue"))
