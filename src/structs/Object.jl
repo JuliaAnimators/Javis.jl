@@ -60,12 +60,12 @@ function ground(args...)
 end
 
 video = Video(500, 500)
-BackgroundObject(1:100, ground)
+Background(1:100, ground)
 Object((args...)->circle(O, 50, :fill))
 render(video; pathname="test.gif")
 ```
 
-Here the [`BackgroundObject`](@ref) uses the named way of defining the function whereas
+Here the [`Background`](@ref) uses the named way of defining the function whereas
 the circle object is defined in the anonymous function `(args...)->circle(O, 50, :fill)`.
 It basically depends whether you want to have a simple Luxor object or something more complex.
 """
@@ -106,10 +106,10 @@ function act!(objects::Vector{<:AbstractObject}, action)
 end
 
 """
-    BackgroundObject(frames, func)
+    Background(frames, func)
 
-The BackgroundObject is internally just an [`Object`](@ref) and can be defined the same way.
-In contrast to an object this a `BackgroundObject` will change the global canvas and not just
+The Background is internally just an [`Object`](@ref) and can be defined the same way.
+In contrast to an object this a `Background` will change the global canvas and not just
 a layer. Normally it's used to define defaults and the `background` color. See Luxor.background
 
 # Example
@@ -120,13 +120,13 @@ function ground(args...)
 end
 
 video = Video(500, 500)
-BackgroundObject(1:100, ground)
+Background(1:100, ground)
 Object((args...)->circle(O, 50, :fill))
 render(video; pathname="test.gif")
 ```
 
 This draws a white circle on a black background as `sethue` is defined for the global frame.
 """
-function BackgroundObject(frames, func::Function, args...; kwargs...)
+function Background(frames, func::Function, args...; kwargs...)
     Object(frames, func, args...; in_global_layer = true, kwargs...)
 end
