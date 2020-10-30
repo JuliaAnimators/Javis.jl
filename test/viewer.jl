@@ -8,7 +8,7 @@ end
     acirc(args...; do_action = :stroke) = circle(Point(100, 100), 50, do_action)
 
     vid = Video(500, 500)
-    back = BackgroundObject(1:100, ground)
+    back = Background(1:100, ground)
     star_obj = Object(1:100, astar)
     act!(star_obj, Action(morph_to(acirc; draw_object = :fill)))
 

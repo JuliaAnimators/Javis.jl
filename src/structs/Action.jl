@@ -63,7 +63,7 @@ function ground(args...)
 end
 
 video = Video(500, 500)
-BackgroundObject(1:100, ground)
+Background(1:100, ground)
 obj = Object((args...)->circle(O, 50, :fill))
 act!(obj, Action(1:20, appear(:fade)))
 act!(obj, Action(21:50, Translation(50, 50)))
