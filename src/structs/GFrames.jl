@@ -14,7 +14,7 @@ is the same as
 red_circ = Object(1:90, (args...)->circ("red"))
 blue_circ = Object(21:90, (args...)->circ("blue"))
 act!(red_circ, Action(85:90, disappear(:fade)))
-act!(blue_circ, Action(65:70), disappear(:fade))
+act!(blue_circ, Action(65:70, disappear(:fade)))
 ```
 
 # Fields
