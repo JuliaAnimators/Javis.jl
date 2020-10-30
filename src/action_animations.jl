@@ -122,7 +122,7 @@ circle_anim = Animation(
     [sineio(), polyin(5), expin(8)],
 )
 
-BackgroundObject(1:150, ground)
+Background(1:150, ground)
 obj = Object((args...)->circle(O, 25, :fill))
 act!(obj, Action(1:150, circle_anim, translate()))
 
@@ -189,7 +189,7 @@ rotate_anim = Animation(
     [linear()],
 )
 
-BackgroundObject(1:150, ground)
+Background(1:150, ground)
 ball = Object((args...) -> circle(O, 25, :fill))
 act!(ball, Action(1:10, sineio(), scale()))
 act!(ball, Action(11:50, translate_anim, translate()))
@@ -401,7 +401,7 @@ in an animated way.
 
 # Example
 ```julia
-BackgroundObject(1:100, ground)
+Background(1:100, ground)
 obj = Object((args...; radius = 25) -> object(O, radius, "red"), Point(100, 0))
 act!(obj, Action(1:50, change(:radius, 25 => 0)))
 act!(Action(51:100, change(:radius, 0 => 25)))

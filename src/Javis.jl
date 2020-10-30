@@ -250,7 +250,7 @@ function get_javis_frame(video, objects, frame)
         update_object_settings!(object, background_settings)
         CURRENT_OBJECT[1] = object
         if frame in get_frames(object)
-            # check if the object should be part of the global layer (i.e BackgroundObject)
+            # check if the object should be part of the global layer (i.e Background)
             # or in its own layer (default)
             in_global_layer = get(object.opts, :in_global_layer, false)::Bool
             if !in_global_layer
@@ -365,7 +365,7 @@ for func in names(Luxor; imported = true)
 end
 
 export render, latex
-export Video, Object, BackgroundObject, Action, Rel
+export Video, Object, Background, Action, Rel
 export Line, Transformation
 export val, pos, ang, scl, get_value, get_position, get_angle, get_scale
 export projection, morph_to
