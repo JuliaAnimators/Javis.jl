@@ -49,7 +49,7 @@
         end
     end
 
-    @testset "RFramesative frames" begin
+    @testset "Relative frames" begin
         video = Video(500, 500)
         Object(1:100, (args...) -> 1)
         # dummy object doesn't need a real function
@@ -59,7 +59,7 @@
         rm(test_file)
     end
 
-    @testset "GFramesal frames" begin
+    @testset "Global frames" begin
         video = Video(500, 500)
         Object(1:100, (args...) -> 1)
         # dummy object doesn't need a real function
@@ -143,7 +143,7 @@
         end
     end
 
-    @testset "RFramesative frames" begin
+    @testset "Relative frames" begin
         video = Video(500, 500)
         o1 = Object(1:100, (args...) -> 1)
 
