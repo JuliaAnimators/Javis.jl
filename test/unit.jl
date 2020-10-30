@@ -53,10 +53,21 @@
         video = Video(500, 500)
         Object(1:100, (args...) -> 1)
         # dummy object doesn't need a real function
-        object = Object(Rel(10), (args...) -> 1)
+        object = Object(RFrames(10), (args...) -> 1)
         test_file = render(video)
         @test Javis.get_frames(object) == 101:110
         rm(test_file)
+    end
+
+    @testset "Global frames" begin
+        video = Video(500, 500)
+        Object(1:100, (args...) -> 1)
+        # dummy object doesn't need a real function
+        object = Object(RFrames(10), (args...) -> 1)
+        # defined globally but will be computed to local time frame -> 5:10
+        act!(object, Action(GFrames(105:110), (args...) -> 1))
+        render(video; pathname = "")
+        @test Javis.get_frames(object.actions[1]) == 5:10
     end
 
     @testset "translation from origin" begin
@@ -136,7 +147,7 @@
         video = Video(500, 500)
         o1 = Object(1:100, (args...) -> 1)
 
-        o2 = Object(Rel(10), (args...) -> 1)
+        o2 = Object(RFrames(10), (args...) -> 1)
         test_file = render(video)
 
         @test Javis.get_frames(o2) == 101:110
@@ -183,7 +194,7 @@
         @test_throws ArgumentError render(video)
 
         video = Video(500, 500)
-        Object(Rel(10), (args...) -> 1)
+        Object(RFrames(10), (args...) -> 1)
         # throws because the frames of the first object need to be defined explicitly
         @test_throws ArgumentError render(video)
 
@@ -210,9 +221,9 @@
 
         demo = Video(500, 500)
         back = Background(1:50, (args...) -> 1)
-        obj = Object(Rel(-19:0), (args...) -> 1)
+        obj = Object(RFrames(-19:0), (args...) -> 1)
         act!(obj, Action(1:10, anim_scale(1, 2)))
-        act!(obj, Action(Rel(10), anim_scale(1, 2)))
+        act!(obj, Action(RFrames(10), anim_scale(1, 2)))
 
         objects = [back, obj]
         render(demo; pathname = "")

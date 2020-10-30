@@ -42,7 +42,7 @@ Object(frames, func::Function; kwargs...) = Object(frames, func, O; kwargs...)
     Object([frames], func::Function, [start_pos]; kwargs...)
 
 # Arguments
-- frames can be a `Symbol`, a `UnitRange` or a relative way to define frames see [`Rel`](@ref)
+- frames can be a `Symbol`, a `UnitRange` or a relative way to define frames see [`RFrames`](@ref)
     - **Default:** If not defined it will be the same as the previous [`Object`](@ref).
     - **Important:** The first `Object` needs the frames specified as a `UnitRange`.
     - It defines for which frames the object is active
