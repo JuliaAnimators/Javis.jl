@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Tutorial 6: Using Animations.jl to Create something with more Pep! · Javis.jl</title><link rel="canonical" href="https://Wikunia.github.io/Javis.jl/tutorials/tutorial_6/"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">Javis.jl</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../"><strong>Information about Tutorials - Beginners Start Here!</strong></a></li><li><a class="tocitem" href="../tutorial_1/"><strong>Tutorial 1:</strong> Making Your First Javis Animation!</a></li><li><a class="tocitem" href="../tutorial_2/"><strong>Tutorial 2:</strong> What Are Actions?</a></li><li><a class="tocitem" href="../tutorial_3/"><strong>Tutorial 3:</strong> Rendering LaTeX with Javis!</a></li><li><a class="tocitem" href="../tutorial_4/"><strong>Tutorial 4:</strong> Do You Know Our Mascot? - Learn About Transitions And Subactions!</a></li><li><a class="tocitem" href="../tutorial_5/"><strong>Tutorial 5:</strong> Scaling the Elements</a></li><li class="is-active"><a class="tocitem" href><strong>Tutorial 6:</strong> Using Animations.jl to Create something with more Pep!</a><ul class="internal"><li><a class="tocitem" href="#Our-goal"><span>Our goal</span></a></li><li><a class="tocitem" href="#Learning-Outcomes"><span>Learning Outcomes</span></a></li><li><a class="tocitem" href="#Moving-with-Different-Speed"><span>Moving with Different Speed</span></a></li><li><a class="tocitem" href="#Precise-Movement"><span>Precise Movement</span></a></li><li><a class="tocitem" href="#Adding-more-Blobs!"><span>Adding more Blobs!</span></a></li><li><a class="tocitem" href="#How-about-Color?"><span>How about Color?</span></a></li><li><a class="tocitem" href="#Conclusion"><span>Conclusion</span></a></li><li><a class="tocitem" href="#The-Code"><span>The Code</span></a></li></ul></li></ul></li><li><a class="tocitem" href="../../howto/">HowTo</a></li><li><a class="tocitem" href="../../examples/">Examples</a></li><li><a class="tocitem" href="../../mission/">Mission</a></li><li><a class="tocitem" href="../../references/">References</a></li><li><a class="tocitem" href="../../contributing/">Contributing</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href><strong>Tutorial 6:</strong> Using Animations.jl to Create something with more Pep!</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href><strong>Tutorial 6:</strong> Using Animations.jl to Create something with more Pep!</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/Wikunia/Javis.jl/blob/master/docs/src/tutorials/tutorial_6.md#L" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="**Tutorial-6:**-Using-Animations.jl-to-Create-something-with-more-Pep!"><a class="docs-heading-anchor" href="#**Tutorial-6:**-Using-Animations.jl-to-Create-something-with-more-Pep!"><strong>Tutorial 6:</strong> Using Animations.jl to Create something with more Pep!</a><a id="**Tutorial-6:**-Using-Animations.jl-to-Create-something-with-more-Pep!-1"></a><a class="docs-heading-anchor-permalink" href="#**Tutorial-6:**-Using-Animations.jl-to-Create-something-with-more-Pep!" title="Permalink"></a></h1><p>In the last couple of tutorials you&#39;ve learned the basics of Javis and some of the more advanced stuff like <a href="tutorials/@ref"><code>SubAction</code></a>.</p><h2 id="Our-goal"><a class="docs-heading-anchor" href="#Our-goal">Our goal</a><a id="Our-goal-1"></a><a class="docs-heading-anchor-permalink" href="#Our-goal" title="Permalink"></a></h2><p>The goal of this tutorial is to explain a new feature we have added in v0.2 of Javis. Before this every animation was basically linear. What I mean by this is: If you move an object from <code>A</code> to <code>B</code> using <a href="tutorials/@ref"><code>Translation</code></a> it would do so in a linear and therefore boring fashion.</p><p>We&#39;ll create an interesting loading animation for this. It consists of five circles which move from the center to the outside rotate around the center and back to the origin. During this process they appear and disappear as well as changing color.</p><h2 id="Learning-Outcomes"><a class="docs-heading-anchor" href="#Learning-Outcomes">Learning Outcomes</a><a id="Learning-Outcomes-1"></a><a class="docs-heading-anchor-permalink" href="#Learning-Outcomes" title="Permalink"></a></h2><p>This tutorial shows some more power of subactions that we introduced in v0.2. Combined with the power of the awesome library <a href="https://github.com/jkrumbiegel/Animations.jl">Animations.jl</a> you have very fine grained control over the objects you animate and understand the ease of its easing functions. 😄</p><p>Today you&#39;ll learn how to</p><ul><li>use easing functions to have animations with pep</li><li>have full control over the animation of objects</li><li>create a beautiful (if I can say so myself) loading animation</li></ul><h2 id="Moving-with-Different-Speed"><a class="docs-heading-anchor" href="#Moving-with-Different-Speed">Moving with Different Speed</a><a id="Moving-with-Different-Speed-1"></a><a class="docs-heading-anchor-permalink" href="#Moving-with-Different-Speed" title="Permalink"></a></h2><p>The main point of this tutorial is to explain how to basically &quot;interact&quot; with objects with a non-linear speed. Our first step will be to rotate a circle around the origin at a increasing and then decreasing speed. </p><p>Let&#39;s start with the boring linear animation:</p><pre><code class="language-julia">using Javis
+
+function ground(args...)
+    background(&quot;black&quot;)
+    sethue(&quot;white&quot;)
+end
+
+video = Video(600, 400)
+
+actions = [
+    Action(
+        (args...) -&gt; circle(Point(150, 0), 20, :fill);
+        subactions = [
+            SubAction(Rotation(0.0, 2π)),
+        ],
+    )
+]
+
+javis(
+    video,
+    [BackgroundAction(1:200, ground), actions...],
+    pathname = &quot;loading.gif&quot;,
+)</code></pre><p><img src="../assets/loading_circle_linear.gif" alt="Linear movement"/></p><p>I would say that this looks a bit dull. Let us rotate it with varying speeds. For this I&#39;ll use the <code>sineio</code> easing function. You can try another easing function. They are all described <a href="https://jkrumbiegel.github.io/Animations.jl/stable/#Easings-1">here</a>. Easing functions basically describe how to interpolate between the values. If one goes from <code>0</code> to <code>5</code> in the time range of <code>0</code> to <code>1</code>. It can be at <code>2.5</code> at <code>t=0.5</code> or it can start slowly and speed up until it reaches the final value of <code>5</code> such that at <code>t=0.5</code> it is only at let say <code>1.5</code>.  This way one can describe the speed/acceleration of the object.</p><p>First of all we need <code>Animations</code> for this and I also load <code>Colors</code> here for later.</p><p>These can be installed via <code>] add Animations, Colors</code> inside the REPL.</p><ul><li><strong>Animations.jl</strong> defines easing functions such that we can have non-linear movement</li><li><strong>Colors.jl</strong> defines colors and gives access to different color spaces such that we can transition from a color to another by using Animations.jl.</li></ul><pre><code class="language-julia">using Javis, Animations, Colors
+
+function ground(args...)
+    background(&quot;black&quot;)
+    sethue(&quot;white&quot;)
+end
+
+rotate_anim = Animation(
+    [0, 1], # must go from 0 to 1
+    [0, 2π],
+    [sineio()],
+)
+
+video = Video(600, 400)
+
+actions = [
+    Action(
+        (args...) -&gt; circle(Point(150, 0), 20, :fill);
+        subactions = [
+            SubAction(rotate_anim, rotate()),
+        ],
+    )
+]
+
+javis(
+    video,
+    [BackgroundAction(1:200, ground), actions...],
+    pathname = &quot;loading.gif&quot;,
+)</code></pre><p><img src="../assets/loading_circle_sineio.gif" alt="Rotation with varying speed"/></p><p>I think that looks more interesting. The <a href="https://jkrumbiegel.github.io/Animations.jl/stable">Animations.jl</a> package is very powerful so you might wanna head over to their documentation and try different things.</p><p>Nevertheless, let me explain this part a bit and you can check out the documentation for more details.</p><pre><code class="language-none">rotate_anim = Animation(
+    [0, 1], # must go from 0 to 1
+    [0, 2π],
+    [sineio()],
+)</code></pre><p>The <code>Animation</code> function takes in three arguments which are all vectors. </p><ol><li>Describe the time stamps. They should always go from <code>0</code> to <code>1</code> inside Javis.</li><li>The values at the different time stamps. Here we start at 0 radians and end with 2π radians.</li><li>The easing functions describe how to move from one value to the next. It must be always one less than the number of time stamps/values</li></ol><p>We can actually have a look at this in a graphical plot:</p><pre><code class="language-julia">using Animations
+using Plots
+
+rotate_anim = Animations.Animation(
+    [0, 1], # must go from 0 to 1
+    [0, 2π],
+    [sineio()],
+)
+
+ts = 0:0.01:1
+ys = at.(rotate_anim, ts)
+
+plot(ts, ys; labels=false, xaxis=&quot;t&quot;, yaxis=&quot;value&quot;)</code></pre><p><img src="../assets/sineio_plot.png" alt="Sineio plot"/></p><h2 id="Precise-Movement"><a class="docs-heading-anchor" href="#Precise-Movement">Precise Movement</a><a id="Precise-Movement-1"></a><a class="docs-heading-anchor-permalink" href="#Precise-Movement" title="Permalink"></a></h2><p>Okay we now know how to rotate with a different speed but let&#39;s do what we actually wanted. Moving out from the center, rotate and then move back to the center. The code gets a bit longer from time to time so I&#39;ll only add changes from now on in the following way. If I add something called <code>_anim</code> you can put it directly after <code>rotate_anim</code>. I&#39;ll otherwise only change the <code>actions</code> array.</p><p>Our new animations:</p><p>One translating from the origin to the right </p><pre><code class="language-julia">translate_anim = Animation(
+    [0, 1], # must go from 0 to 1
+    [O, Point(150, 0)],
+    [sineio()],
+)</code></pre><p>and one translating back. One needs to make sure that it always starts at the origin (the current origin of the already translated view) to not introduce a break in the animation. More about that later.</p><pre><code class="language-julia">translate_back_anim = Animation(
+    [0, 1], # must go from 0 to 1
+    [O, Point(-150, 0)],
+    [sineio()],
+)</code></pre><p>and our <code>actions</code> (yes it&#39;s still a single <a href="../../references/#Javis.Action"><code>Action</code></a> but we add more soon)</p><pre><code class="language-julia">actions = [
+    Action(
+        (args...) -&gt; circle(O, 20, :fill);
+        subactions = [
+            SubAction(1:50, translate_anim, translate()),
+            SubAction(51:150, rotate_anim, rotate_around(Point(-150, 0))),
+            SubAction(151:200, translate_back_anim, translate()),
+        ],
+    )
+]</code></pre><p>I changed the starting position of the circle to <code>O</code> and we now have three subactions.</p><p>Let&#39;s walk through the steps Javis takes to create the animation:</p><ul><li>For the first 50 frames of the action the circle is translated from <code>O</code> to <code>(150, 0)</code> so just to the right. <ul><li>Remember the <code>O</code> is the same as <code>(0, 0)</code> and is at the center of the canvas at the beginning.</li><li>Then the circle is at position <code>(150, 0)</code>. Remember that it is still drawn at the origin so actually we shifted our whole view to the right.</li></ul></li><li>Therefore for the next 100 frames we need to specify that we actually want to rotate around the world origin which is at <code>Point(-150, 0)</code> from our current perspective. </li><li>Afterwards we are now again at <code>(150, 0)</code> but see it as our origin and therefore need to move our circle to the left to <code>Point(-150, 0)</code> which is the world origin. </li></ul><p>Hope that makes sense! Let&#39;s see it in action:</p><p><img src="../assets/loading_movement.gif" alt="The loading movement"/></p><h2 id="Adding-more-Blobs!"><a class="docs-heading-anchor" href="#Adding-more-Blobs!">Adding more Blobs!</a><a id="Adding-more-Blobs!-1"></a><a class="docs-heading-anchor-permalink" href="#Adding-more-Blobs!" title="Permalink"></a></h2><p>The blob does start to feel lonely a bit so let&#39;s give him some friends. They should all do the same movement but start at different times.</p><pre><code class="language-julia">actions = [
+    Action(
+        frame_start:frame_start+149,
+        (args...) -&gt; circle(O, 20, :fill);
+        subactions = [
+            SubAction(1:30, translate_anim, translate()),
+            SubAction(31:120, rotate_anim, rotate_around(Point(-150, 0))),
+            SubAction(121:150, translate_back_anim, translate()),
+        ],
+    ) for frame_start in 1:10:50
+]</code></pre><p>I&#39;ve basically added four more blobs by using <code>for frame_start in 1:10:50</code> inside the array definition. It&#39;s a basic list comprehension which might be hard to get at first as it&#39;s spreading over several lines. </p><p>Then I defined the start of the <code>Action</code> with: <code>frame_start:frame_start+149</code> such that every blob is there for 150 frames and reduced the number of frames in the subactions a bit to have 150 frames.</p><p><img src="../assets/loading_with_friends.gif" alt="The loading movement with some friends"/></p><h2 id="How-about-Color?"><a class="docs-heading-anchor" href="#How-about-Color?">How about Color?</a><a id="How-about-Color?-1"></a><a class="docs-heading-anchor-permalink" href="#How-about-Color?" title="Permalink"></a></h2><p>Okay everything is dull when we only use white and black. Let&#39;s make it such that our blobs change color from red over cyan to black which also make them disappear.</p><pre><code class="language-julia">color_anim = Animation(
+    [0, 0.5, 1], # must go from 0 to 1
+    [Lab(colorant&quot;red&quot;), Lab(colorant&quot;cyan&quot;), Lab(colorant&quot;black&quot;)],
+    [sineio(), sineio()],
+)</code></pre><p>This time we actually have not only a start and end point of our animation but a point in between. We therefore have three timestamps <code>0.0</code> , <code>0.5</code> and <code>1.0</code>. Our three colors red, cyan and black. You can play with different colors and color spaces if you want.  And we need two easing functions: One defines the movement from red to cyan and the second from cyan to black.</p><pre><code class="language-julia">actions = [
+    Action(
+        frame_start:frame_start+149,
+        (args...) -&gt; circle(O, 20, :fill);
+        subactions = [
+            SubAction(1:30, translate_anim, translate()),
+            SubAction(31:120, rotate_anim, rotate_around(Point(-150, 0))),
+            SubAction(121:150, translate_back_anim, translate()),
+            SubAction(1:150, color_anim, sethue()),
+        ],
+    ) for frame_start in 1:10:50
+]</code></pre><p>The change in color is over the entire action in this case.</p><p><img src="../assets/loading_color.gif" alt="Loading with color"/></p><p>I think that already looks quite nice. The appearance of the blobs is a bit off though. How about fading them in by scaling them up?</p><pre><code class="language-julia">actions = [
+    Action(
+        frame_start:frame_start+149,
+        (args...) -&gt; circle(O, 20, :fill);
+        subactions = [
+            SubAction(1:10, sineio(), appear(:scale)),
+            SubAction(11:40, translate_anim, translate()),
+            SubAction(41:120, rotate_anim, rotate_around(Point(-150, 0))),
+            SubAction(121:150, translate_back_anim, translate()),
+            SubAction(1:150, color_anim, sethue()),
+        ],
+    ) for frame_start in 1:10:50
+]</code></pre><p>A deeper look into the line we added?</p><pre><code class="language-julia">SubAction(1:10, sineio(), appear(:scale)),</code></pre><p>If we want to animate from <code>0</code> to <code>1</code> we don&#39;t need to write an <code>Animation</code> object for this and can simply specify the easing function.  Additionally we use the <code>appear(:scale)</code> which does the same thing as:</p><pre><code class="language-julia">SubAction(1:10, sineio(), scale()),</code></pre><p>but it might be easier to read when we attach the meaning of <code>appear</code> to it.</p><p>Maybe have a look at <a href="../../references/#Javis.appear-Tuple{Symbol}"><code>appear</code></a> and <a href="../../references/#Javis.disappear-Tuple{Symbol}"><code>disappear</code></a>.</p><p><img src="../assets/loading.gif" alt="The loading animation"/></p><h2 id="Conclusion"><a class="docs-heading-anchor" href="#Conclusion">Conclusion</a><a id="Conclusion-1"></a><a class="docs-heading-anchor-permalink" href="#Conclusion" title="Permalink"></a></h2><p>To recap, by working through this animation you should now:</p><ol><li>Understand how to make objects move in a non-linear way using Animations.jl</li><li>Be able to scale, translate, rotate objects in a finer control</li><li>Have fun with colors!</li></ol><h2 id="The-Code"><a class="docs-heading-anchor" href="#The-Code">The Code</a><a id="The-Code-1"></a><a class="docs-heading-anchor-permalink" href="#The-Code" title="Permalink"></a></h2><pre><code class="language-julia">using Javis, Animations, Colors
+
+function ground(args...)
+    background(&quot;black&quot;)
+    sethue(&quot;white&quot;)
+end
+
+rotate_anim = Animation(
+    [0, 1], # must go from 0 to 1
+    [0, 2π],
+    [sineio()],
+)
+
+translate_anim = Animation(
+    [0, 1], # must go from 0 to 1
+    [O, Point(150, 0)],
+    [sineio()],
+)
+
+translate_back_anim = Animation(
+    [0, 1], # must go from 0 to 1
+    [O, Point(-150, 0)],
+    [sineio()],
+)
+
+color_anim = Animation(
+    [0, 0.5, 1], # must go from 0 to 1
+    [Lab(colorant&quot;red&quot;), Lab(colorant&quot;cyan&quot;), Lab(colorant&quot;black&quot;)],
+    [sineio(), sineio()],
+)
+
+video = Video(600, 400)
+
+actions = [
+    Action(
+        frame_start:frame_start+149,
+        (args...) -&gt; circle(O, 20, :fill);
+        subactions = [
+            SubAction(1:10, sineio(), appear(:scale)),
+            SubAction(11:40, translate_anim, translate()),
+            SubAction(41:120, rotate_anim, rotate_around(Point(-150, 0))),
+            SubAction(121:150, translate_back_anim, translate()),
+            SubAction(1:150, color_anim, sethue()),
+        ],
+    ) for frame_start in 1:10:50
+]
+
+javis(
+    video,
+    [BackgroundAction(1:200, ground), actions...],
+    pathname = &quot;loading.gif&quot;,
+)</code></pre><blockquote><p><strong>Author(s):</strong> Ole Kröger <br/><strong>Date:</strong> September 10th, 2020 <br/><strong>Tag(s):</strong> loading, subactions, Animations.jl</p></blockquote></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tutorial_5/">« <strong>Tutorial 5:</strong> Scaling the Elements</a><a class="docs-footer-nextpage" href="../../howto/">HowTo »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 30 October 2020 13:02">Friday 30 October 2020</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
