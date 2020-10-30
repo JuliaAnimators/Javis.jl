@@ -186,7 +186,7 @@ function path!(points, pos, color)
 end
 ```
 
-> **NOTE:** The [`pos`](@ref) takes the **pos**ition of the `:red_ball` and passes it as an argument into the `path!` function. 
+> **NOTE:** The [`pos`](@ref) takes the **pos**ition of the `red_ball` and passes it as an argument into the `path!` function. 
 
 Then, using this function, we can execute the following block:
 
