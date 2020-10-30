@@ -1,5 +1,5 @@
 """
-    Rel
+    RFrames
 
 Ability to define frames in a relative fashion.
 
@@ -7,7 +7,7 @@ Ability to define frames in a relative fashion.
 ```
 Background(1:100, ground)
 Object(1:90, (args...)->circ("red"))
-Object(Rel(10), (args...)->circ("blue"))
+Object(RFrames(10), (args...)->circ("blue"))
 Object((args...)->circ("red"))
 ```
 is the same as
@@ -21,13 +21,13 @@ Object(91:100, (args...)->circ("red"))
 # Fields
 - frames::UnitRange defines the frames in a relative fashion.
 """
-struct Rel
+struct RFrames
     frames::UnitRange
 end
 
 """
-    Rel(i::Int)
+    RFrames(i::Int)
 
-Shorthand for Rel(1:i)
+Shorthand for RFrames(1:i)
 """
-Rel(i::Int) = Rel(1:i)
+RFrames(i::Int) = RFrames(1:i)

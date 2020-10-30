@@ -2,7 +2,7 @@
     Frames
 
 Stores the actual computed frames and the user input
-which can be `:same` or `Rel(10)`.
+which can be `:same` or `RFrames(10)`.
 The `frames` are computed in [`render`](@ref).
 """
 mutable struct Frames{T}
@@ -57,11 +57,17 @@ function get_frames(parent, elem, frames::Symbol, last_frames::UnitRange; is_fir
 end
 
 """
-    get_frames(parent, elem, relative::Rel, last_frames::UnitRang; is_first=falsee)
+    get_frames(parent, elem, relative::RFrames, last_frames::UnitRang; is_first=falsee)
 
-Return the frames based on a relative frames [`Rel`](@ref) object and the `last_frames`.
+Return the frames based on a relative frames [`RFrames`](@ref) object and the `last_frames`.
 """
-function get_frames(parent, elem, relative::Rel, last_frames::UnitRange; is_first = false)
+function get_frames(
+    parent,
+    elem,
+    relative::RFrames,
+    last_frames::UnitRange;
+    is_first = false,
+)
     start_frame = last(last_frames) + first(relative.frames)
     last_frame = last(last_frames) + last(relative.frames)
     return start_frame:last_frame
@@ -69,13 +75,13 @@ end
 
 
 """
-    get_frames(parent, elem, glob::Glob, last_frames::UnitRange)
+    get_frames(parent, elem, glob::GFrames, last_frames::UnitRange)
 
-Return the frames based on a global frames [`Glob`](@ref) object and the `last_frames`.
+Return the frames based on a global frames [`GFrames`](@ref) object and the `last_frames`.
 If `is_action` is false this is the same as defining the frames as just a unit range.
 Inside an action it's now defined globally though.
 """
-function get_frames(parent, elem, glob::Glob, last_frames::UnitRange; is_first = false)
+function get_frames(parent, elem, glob::GFrames, last_frames::UnitRange; is_first = false)
     if elem isa AbstractAction
         return glob.frames .- first(get_frames(parent)) .+ 1
     end

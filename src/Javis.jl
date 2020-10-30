@@ -23,8 +23,8 @@ abstract type AbstractTransition end
 
 include("structs/Video.jl")
 include("structs/Easing.jl")
-include("structs/Rel.jl")
-include("structs/Glob.jl")
+include("structs/RFrames.jl")
+include("structs/GFrames.jl")
 include("structs/Frames.jl")
 include("structs/Scale.jl")
 
@@ -366,7 +366,7 @@ for func in names(Luxor; imported = true)
 end
 
 export render, latex
-export Video, Object, Background, Action, Rel, Glob
+export Video, Object, Background, Action, RFrames, GFrames
 export Line, Transformation
 export val, pos, ang, scl, get_value, get_position, get_angle, get_scale
 export projection, morph_to

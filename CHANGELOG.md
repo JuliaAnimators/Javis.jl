@@ -5,7 +5,7 @@
 - Ability to use `setopactity()` in an `Action`
 - Ability to disable an `Action` after its last defined frame. See `? Action` and the keyword `; keep`
 - Moved from `Translation`, `Scaling` and `Rotation` to `anim_translate` etc
-- Actions can now be defined with global frames using `Glob`
+- Changed `Rel` to `RFrames` and added `GFrames` for defining actions with global frames
 
 ## v0.2.2 (20th of October 2020)
 - Ability to change a keyword using `change`
@@ -54,14 +54,14 @@
 - Updated testing scheme for `Javis.jl`
 
 ## 0.1.1 (21st of August 2020)
-- Define frames in `SubAction` with `Rel` and `Symbol`
+- Define frames in `SubAction` with `RFrames` and `Symbol`
 - `latex` now uses font size specified with `fontsize`
 - Ability to access font size with `get_fontsize`
 
 ## 0.1.0 (19th of August 2020)
 Initial implementation with
 - `BackgroundAction`, `Action` and `SubAction`
-- frames for `Action` can be defined using a `UnitRange`, `Symbol` or `Rel`
+- frames for `Action` can be defined using a `UnitRange`, `Symbol` or `RFrames`
 - `Translation`, `Rotation` 
 - `appear`/`disappear` using opacity and linewidth in `SubAction`
 - render `latex` using a basic svg parser

@@ -50,7 +50,7 @@ end
     back = Background(1:25, ground, Point(25, 25))
 
     Object(latex_title)
-    red_ball = Object(Rel(-24:0), (args...) -> circ(O, "red"), p1)
+    red_ball = Object(RFrames(-24:0), (args...) -> circ(O, "red"), p1)
     act!(red_ball, Action(anim_rotate_around(from_rot, to_rot, O)))
 
     blue_ball = Object(1:25, (args...) -> circ(O, "blue"), p2)
@@ -115,7 +115,7 @@ end
     act!(back, Action(anim_translate(Point(25, 25), Point(25, 25))))
 
     Object(latex_title)
-    red_ball = Object(Rel(-24:0), (args...) -> circ(O, "red"), p1)
+    red_ball = Object(RFrames(-24:0), (args...) -> circ(O, "red"), p1)
     act!(red_ball, Action(anim_rotate_around(from_rot, to_rot, O)))
 
     blue_ball = Object(1:25, (args...) -> circ(O, "blue"), p2)
@@ -148,7 +148,7 @@ end
     act!(back, Action(anim_translate(Point(25, 25), Point(25, 25))))
 
     Object(latex_title)
-    red_ball = Object(Rel(-24:0), (args...) -> circ_ret_trans(O, "red"), p1)
+    red_ball = Object(RFrames(-24:0), (args...) -> circ_ret_trans(O, "red"), p1)
     act!(red_ball, Action(anim_rotate_around(from_rot, to_rot, O)))
 
     blue_ball = Object(1:25, (args...) -> circ_ret_trans(O, "blue"), p2)
@@ -172,11 +172,11 @@ end
     Object(1:40, ground)
     Object(1:10, draw_grid(direction = "BL", line_gap = 25))
     Object(zero_lines(direction = "BL", line_thickness = 10))
-    Object(Glob(11:20), draw_grid(direction = "BR", line_gap = 25))
+    Object(GFrames(11:20), draw_grid(direction = "BR", line_gap = 25))
     Object(zero_lines(direction = "BR", line_thickness = 10))
-    Object(Rel(10), draw_grid(direction = "TL", line_gap = 25))
+    Object(RFrames(10), draw_grid(direction = "TL", line_gap = 25))
     Object(zero_lines(direction = "TL", line_thickness = 10))
-    Object(Rel(10), draw_grid(direction = "TR", line_gap = 25))
+    Object(RFrames(10), draw_grid(direction = "TR", line_gap = 25))
     Object(zero_lines(direction = "TR", line_thickness = 10))
 
     render(video; tempdirectory = "images", pathname = "")
@@ -281,7 +281,7 @@ end
     Background(1:50, ground_nicholas)
     house = Object((args...) -> house_of_nicholas())
     act!(house, Action(1:25, appear(:fade_line_width)))
-    act!(house, Action(Rel(25), disappear(:fade_line_width)))
+    act!(house, Action(RFrames(25), disappear(:fade_line_width)))
 
     render(demo; tempdirectory = "images", pathname = "")
 
@@ -300,9 +300,9 @@ end
     start_scale = Object((args...) -> Javis.Scale(1.0, 1.0))
     circle_obj = Object((args...) -> circ())
     act!(circle_obj, Action(1:25, anim_scale((1.0, 1.5))))
-    act!(circle_obj, Action(Rel(25), anim_scale(Javis.Scale(1.0, 1.5), (2.0, 1.0))))
-    act!(circle_obj, Action(Rel(25), anim_scale(start_scale)))
-    act!(circle_obj, Action(Rel(25), anim_scale(2.0); keep = false))
+    act!(circle_obj, Action(RFrames(25), anim_scale(Javis.Scale(1.0, 1.5), (2.0, 1.0))))
+    act!(circle_obj, Action(RFrames(25), anim_scale(start_scale)))
+    act!(circle_obj, Action(RFrames(25), anim_scale(2.0); keep = false))
     act!(circle_obj, Action(126:150, anim_scale(0.0)))
     Object((args...) -> circ(Point(-100, 0)))
 
@@ -343,8 +343,8 @@ end
 
     square_obj = Object(5:50, (args...) -> square_opacity(Point(-100, 0), 60))
     act!(square_obj, Action(1:15, linear(), appear(:fade)))
-    act!(square_obj, Action(Rel(20), linear(), anim_translate(100, 50)))
-    act!(square_obj, Action(Glob(40:44), disappear(:fade)))
+    act!(square_obj, Action(RFrames(20), linear(), anim_translate(100, 50)))
+    act!(square_obj, Action(GFrames(40:44), disappear(:fade)))
     # for global frames 45-50 it should still be disappeared
 
     render(demo; tempdirectory = "images", pathname = "")
