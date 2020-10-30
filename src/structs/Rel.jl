@@ -5,14 +5,14 @@ Ability to define frames in a relative fashion.
 
 # Example
 ```
-BackgroundObject(1:100, ground)
+Background(1:100, ground)
 Object(1:90, (args...)->circ("red"))
 Object(Rel(10), (args...)->circ("blue"))
 Object((args...)->circ("red"))
 ```
 is the same as
 ```
-BackgroundObject(1:100, ground)
+Background(1:100, ground)
 Object(1:90, (args...)->circ("red"))
 Object(91:100, (args...)->circ("blue"))
 Object(91:100, (args...)->circ("red"))

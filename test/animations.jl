@@ -47,7 +47,7 @@ end
     path_of_red = Point[]
 
     video = Video(500, 500)
-    back = BackgroundObject(1:25, ground, Point(25, 25))
+    back = Background(1:25, ground, Point(25, 25))
 
     Object(latex_title)
     red_ball = Object(Rel(-24:0), (args...) -> circ(O, "red"), p1)
@@ -81,7 +81,7 @@ end
     path_of_red = Point[]
 
     video = Video(500, 500)
-    back = BackgroundObject(1:30, ground, Point(25, 25))
+    back = Background(1:30, ground, Point(25, 25))
 
     Object(latex_title)
     red_ball = Object((args...) -> circ(O, "red"), p1)
@@ -213,7 +213,7 @@ acirc(args...; do_action = :stroke) = circle(Point(100, 100), 30, do_action)
 @testset "morphing star2circle and back" begin
     video = Video(500, 500)
 
-    back = BackgroundObject(1:20, (args...) -> ground_color("white", "black", args[3]))
+    back = Background(1:20, (args...) -> ground_color("white", "black", args[3]))
     Object(1:10, (args...) -> circle(Point(-100, 0), val(back), :fill))
     star_obj = Object(1:10, astar)
     act!(star_obj, Action(linear(), morph_to(acirc)))
@@ -231,7 +231,7 @@ end
 
 @testset "morphing star2circle and back with fill" begin
     video = Video(500, 500)
-    back = BackgroundObject(1:20, (args...) -> ground_color("white", "black", args[3]))
+    back = Background(1:20, (args...) -> ground_color("white", "black", args[3]))
     Object(1:10, (args...) -> circle(Point(-100, 0), val(back), :fill))
     star_obj = Object(1:10, astar)
     act!(star_obj, Action(morph_to(acirc; draw_object = :fill)))
@@ -278,7 +278,7 @@ end
 
 @testset "House of Nicholas line_width" begin
     demo = Video(500, 500)
-    BackgroundObject(1:50, ground_nicholas)
+    Background(1:50, ground_nicholas)
     house = Object((args...) -> house_of_nicholas())
     act!(house, Action(1:25, appear(:fade_line_width)))
     act!(house, Action(Rel(25), disappear(:fade_line_width)))
@@ -296,7 +296,7 @@ end
 @testset "Squeezing a circle using scale" begin
     demo = Video(500, 500)
 
-    BackgroundObject(1:150, ground)
+    Background(1:150, ground)
     start_scale = Object((args...) -> Javis.Scale(1.0, 1.0))
     circle_obj = Object((args...) -> circ())
     act!(circle_obj, Action(1:25, anim_scale((1.0, 1.5))))
@@ -336,7 +336,7 @@ end
 @testset "Circle/square appear opacity" begin
     demo = Video(500, 500)
 
-    BackgroundObject(1:50, ground_opacity)
+    Background(1:50, ground_opacity)
     circle_obj = Object(1:42, (args...) -> circ())
     act!(circle_obj, Action(1:25, appear(:fade)))
     act!(circle_obj, Action(26:42, disappear(:fade)))
@@ -371,7 +371,7 @@ end
         [sineio(), polyin(5), expin(8)],
     )
 
-    BackgroundObject(1:150, ground)
+    Background(1:150, ground)
     circle_obj = Object((args...) -> circle(O, 25, :fill))
     act!(circle_obj, Action(1:150, circle_anim, translate()))
 
@@ -392,7 +392,7 @@ end
         [sineio(), polyin(5), expin(8)],
     )
 
-    BackgroundObject(1:2, ground)
+    Background(1:2, ground)
     circle_obj = Object((args...) -> circle(O, 25, :fill))
     act!(circle_obj, Action(circle_anim, translate()))
 
@@ -427,7 +427,7 @@ end
     )
 
 
-    BackgroundObject(1:150, ground)
+    Background(1:150, ground)
     circle_obj = Object((args...) -> circle(O, 25, :fill))
     act!(circle_obj, Action(1:10, sineio(), scale()))
     act!(circle_obj, Action(11:50, translate_anim, translate()))
@@ -456,8 +456,8 @@ end
     rotate_anim = Animation([0.0, 1.0], [0.0, 2π], [sineio()])
 
     video = Video(500, 500)
-    BackgroundObject(1:50, ground)
-    BackgroundObject(1:50, (args...) -> scaleto(2))
+    Background(1:50, ground)
+    Background(1:50, (args...) -> scaleto(2))
     circle_obj = Object((args...) -> circ(Point(75, 0)))
     act!(circle_obj, Action(1:50, rotate_anim, rotate()))
 
@@ -474,7 +474,7 @@ end
 @testset "Scaling circle" begin
     video = Video(500, 500)
 
-    BackgroundObject(1:50, ground)
+    Background(1:50, ground)
     scale_obj = Object((args...) -> 2)
     circle_obj = Object((args...) -> circ())
     act!(circle_obj, Action(1:15, anim_scale(0.0, scale_obj)))
@@ -489,8 +489,8 @@ end
     # test using appear and disappear
     video = Video(500, 500)
 
-    BackgroundObject(1:50, ground)
-    BackgroundObject(1:50, (args...) -> scale(2))
+    Background(1:50, ground)
+    Background(1:50, (args...) -> scale(2))
     circle_obj = Object((args...) -> circ())
     act!(circle_obj, Action(1:15, appear(:scale)))
     act!(circle_obj, Action(36:50, disappear(:scale)))
@@ -513,8 +513,8 @@ end
     # with using reference tests
     video = Video(400, 300)
 
-    BackgroundObject(1:100, ground)
-    BackgroundObject(1:100, (args...) -> fontsize(30))
+    Background(1:100, ground)
+    Background(1:100, (args...) -> fontsize(30))
     title = Object(1:100, (args...) -> text("Hello Stream!", -50, 50; halign = :centre))
     act!(title, Action(1:15, sineio(), appear(:draw_text)))
     act!(title, Action(76:100, sineio(), disappear(:draw_text)))
@@ -535,8 +535,8 @@ end
     # with using reference tests
     video = Video(400, 300)
 
-    BackgroundObject(1:100, ground)
-    BackgroundObject(1:100, (args...) -> fontsize(30))
+    Background(1:100, ground)
+    Background(1:100, (args...) -> fontsize(30))
     title = Object(1:100, (args...) -> text("Hello Stream!", -50, 50; halign = :center))
     act!(title, Action(1:15, sineio(), appear(:draw_text)))
     act!(title, Action(76:100, sineio(), disappear(:draw_text)))
@@ -561,7 +561,7 @@ end
 
 @testset "Following a path" begin
     video = Video(800, 600)
-    BackgroundObject(1:180, ground)
+    Background(1:180, ground)
 
     anim = Animation([0, 1], [0.0, 2.0], [sineio()])
 
@@ -602,7 +602,7 @@ end
     end
 
     video = Video(800, 600)
-    BackgroundObject(1:180, ground)
+    Background(1:180, ground)
 
     anim = Animation([0, 1], [0.0, 1.0], [sineio()])
 
@@ -669,7 +669,7 @@ end
     myvideo = Video(500, 500)
     double_rotation = Animation([0.0, 1.0], [0.0, 4π], [linear()])
 
-    BackgroundObject(1:100, ground)
+    Background(1:100, ground)
     circ1 = Object((args...; radius = 25) -> object(Point(100, 0), radius, "red"))
     act!(circ1, Action(double_rotation, rotate()))
     act!(circ1, Action(1:50, change(:radius, 25 => 0)))

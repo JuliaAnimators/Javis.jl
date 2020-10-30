@@ -207,7 +207,7 @@
 
     @testset "Frame computation" begin
         demo = Video(500, 500)
-        back = BackgroundObject(1:50, (args...) -> 1)
+        back = Background(1:50, (args...) -> 1)
         obj = Object((args...) -> 1)
         act!(obj, Action(anim_scale(1, 2)))
 
@@ -220,7 +220,7 @@
 
 
         demo = Video(500, 500)
-        back = BackgroundObject(1:50, (args...) -> 1)
+        back = Background(1:50, (args...) -> 1)
         obj = Object(Rel(-19:0), (args...) -> 1)
         act!(obj, Action(1:10, anim_scale(1, 2)))
         act!(obj, Action(Rel(10), anim_scale(1, 2)))

@@ -14,7 +14,7 @@
     end
 
     video = Video(400, 200)
-    BackgroundObject(1:35, latex_ground)
+    Background(1:35, latex_ground)
     runtime = Object((args...) -> latex(L"\mathcal{O}(\log{n})"))
     act!(runtime, Action(1:15, appear(:draw_text)))
     act!(runtime, Action(21:35, disappear(:draw_text)))
@@ -37,7 +37,7 @@ end
     end
 
     video = Video(400, 200)
-    BackgroundObject(1:1, latex_ground)
+    Background(1:1, latex_ground)
     Object((args...) -> latex(L"8")) # default fontsize 50
     render(video; tempdirectory = "images", pathname = "")
     @test_reference "refs/latex_8.png" load("images/0000000001.png")
@@ -53,7 +53,7 @@ end
     end
 
     video = Video(400, 200)
-    BackgroundObject(1:1, latex_ground)
+    Background(1:1, latex_ground)
     Object(
         (args...) ->
             latex(L"$\begin{equation}\left[\begin{array}{ccc}1 & 2 & 3 \\4 & 5 & 6 \\7 & 8 & 9 \\\end{array}\right]\end{equation}$"),
@@ -76,7 +76,7 @@ end
     end
 
     video = Video(400, 200)
-    BackgroundObject(1:1, latex_ground)
+    Background(1:1, latex_ground)
     Object((args...) -> foreground(L"\mathcal{O}(\log{n})"))
     render(video; tempdirectory = "images", pathname = "")
     @test_reference "refs/ologn_circ.png" load("images/0000000001.png")

@@ -5,7 +5,6 @@ Ability to define frames in a gloabl fashion inside [`Action`](@ref).
 
 # Example
 ```
-BackgroundObject(1:100, ground)
 red_circ = Object(1:90, (args...)->circ("red"))
 blue_circ = Object(21:90, (args...)->circ("blue"))
 act!([red_circ, blue_circ], Action(Glob(85:90), disappear(:fade)))
