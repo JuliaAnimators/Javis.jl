@@ -108,7 +108,7 @@ end
 """
     Background(frames, func)
 
-The Background is internally just an [`Object`](@ref) and can be defined the same way.
+The `Background` is internally just an [`Object`](@ref) and can be defined the same way.
 In contrast to an object this a `Background` will change the global canvas and not just
 a layer. Normally it's used to define defaults and the `background` color. See Luxor.background
 
