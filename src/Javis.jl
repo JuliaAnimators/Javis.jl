@@ -119,6 +119,37 @@ function projection(p::Point, l::Line)
 end
 
 """
+    preprocess_frames!(objects::Vector{<:AbstractObject})
+
+Computes the frames for each object and action based on the user defined frames that the
+user can provide like `Rel` and `:same`.
+
+# Returns
+- `frames::Array{Int}` - list of all frames normally 1:...
+"""
+function preprocess_frames!(objects::Vector{<:AbstractObject})
+    compute_frames!(objects)
+
+    for object in objects
+        compute_frames!(object.actions; last_frames = get_frames(object))
+    end
+
+    # get all frames
+    frames = Int[]
+    for object in objects
+        append!(frames, collect(get_frames(object)))
+    end
+    frames = unique(frames)
+
+    if isempty(CURRENT_OBJECT)
+        push!(CURRENT_OBJECT, objects[1])
+    else
+        CURRENT_OBJECT[1] = objects[1]
+    end
+    return frames
+end
+
+"""
     render(
         video::Video;
         framerate=30,
@@ -148,24 +179,7 @@ function render(
     tempdirectory = "",
 )
     objects = video.objects
-    compute_frames!(objects)
-
-    for object in objects
-        compute_frames!(object.actions; last_frames = get_frames(object))
-    end
-
-    # get all frames
-    frames = Int[]
-    for object in objects
-        append!(frames, collect(get_frames(object)))
-    end
-    frames = unique(frames)
-
-    if isempty(CURRENT_OBJECT)
-        push!(CURRENT_OBJECT, objects[1])
-    else
-        CURRENT_OBJECT[1] = objects[1]
-    end
+    frames = preprocess_frames!(objects)
 
     if liveview == true
         _javis_viewer(video, length(frames), objects)

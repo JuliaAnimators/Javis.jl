@@ -27,7 +27,8 @@
         video = Video(500, 500)
         object = Object(1:100, (args...) -> O)
         act!(object, Action(1:100, anim_translate(Point(1, 1), Point(100, 100))))
-        render(video; pathname = "")
+        Javis.preprocess_frames!(video.objects)
+
         for f in [1, 50, 100]
             Javis.get_javis_frame(video, [object], f)
             @test get_position(object) == Point(f, f)
@@ -41,7 +42,8 @@
         action = object.actions[1]
 
         anim = Animation([0.0, 1.0], [1.0, 100.0], [sineio()])
-        render(video; pathname = "")
+        Javis.preprocess_frames!(video.objects)
+
         for f in [1, 50, 100]
             m = (f - 1) / 99
             Javis.get_javis_frame(video, [object], f)
@@ -64,7 +66,8 @@
         object = Object(1:100, (args...) -> O)
         act!(object, Action(1:100, anim_translate(Point(99, 99))))
 
-        render(video; pathname = "")
+        Javis.preprocess_frames!(video.objects)
+
         for f in [1, 50, 100]
             Javis.get_javis_frame(video, [object], f)
             @test get_position(object) == Point(f - 1, f - 1)
@@ -74,7 +77,8 @@
         object = Object(1:100, (args...) -> O)
         act!(object, Action(1:100, anim_translate(99, 99)))
 
-        render(video; pathname = "")
+        Javis.preprocess_frames!(video.objects)
+
         for f in [1, 50, 100]
             Javis.get_javis_frame(video, [object], f)
             @test get_position(object) == Point(f - 1, f - 1)
@@ -86,7 +90,7 @@
         object = Object(1:100, (args...) -> O)
         act!(object, Action(1:100, anim_rotate(2π)))
         anim = Animation([0.0, 1.0], [0.0, 2π], [linear()])
-        render(video; pathname = "")
+        Javis.preprocess_frames!(video.objects)
 
         for f in [1, 50, 100]
             Javis.get_javis_frame(video, [object], f)
@@ -97,7 +101,7 @@
         object = Object(1:100, (args...) -> O)
         rp = Point(2.0, 5.0)
         act!(object, Action(1:100, anim_rotate_around(2π, rp)))
-        render(video; pathname = "")
+        Javis.preprocess_frames!(video.objects)
 
         # compute radius
         r = sqrt(rp.x^2 + rp.y^2)
@@ -105,7 +109,6 @@
         shifted_X = Point(r, 0)
         # compute start angle of O and rotation point
         start_angle = acos(dotproduct(shifted_X, shifted_start) / r^2)
-
 
         for f in [1, 50, 100]
             Javis.get_javis_frame(video, [object], f)
@@ -122,7 +125,7 @@
         # dummy object doesn't need a real function
         object = Object(1:50, (args...) -> O)
         act!(object, Action(1:50, anim_scale(1.0, 0.5)))
-        render(video; pathname = "")
+        Javis.preprocess_frames!(video.objects)
 
         anim = Animation([0.0, 1.0], [1.0, 0.5], [linear()])
         for f in [1, 50]
@@ -147,7 +150,8 @@
         video = Video(500, 500)
         object = Object(1:100, (args...) -> O)
         act!(object, Action(1:100, anim_translate(Point(99, 99))))
-        render(video; pathname = "")
+        Javis.preprocess_frames!(video.objects)
+
         for f in [1, 50, 100]
             Javis.get_javis_frame(video, [object], f)
             @test get_position(object) == Point(f - 1, f - 1)
@@ -156,7 +160,8 @@
         video = Video(500, 500)
         object = Object(1:100, (args...) -> O)
         act!(object, Action(1:100, anim_translate(99, 99)))
-        render(video; pathname = "")
+        Javis.preprocess_frames!(video.objects)
+
         for f in [1, 50, 100]
             Javis.get_javis_frame(video, [object], f)
             @test get_position(object) == Point(f - 1, f - 1)
@@ -168,7 +173,8 @@
         # dummy object doesn't need a real function
         object = Object(1:100, (args...) -> O)
         act!(object, Action(1:1, anim_translate(Point(10, 10))))
-        render(video; pathname = "")
+        Javis.preprocess_frames!(video.objects)
+
         Javis.get_javis_frame(video, [object], 1)
         @test get_position(object) == Point(10, 10)
     end
@@ -202,7 +208,7 @@
 
         objects = [back, obj]
 
-        render(demo; pathname = "")
+        Javis.preprocess_frames!(demo.objects)
         @test Javis.get_frames(objects[1]) == 1:50
         @test Javis.get_frames(objects[2]) == 1:50
         @test Javis.get_frames(objects[2].actions[1]) == 1:50
@@ -215,7 +221,7 @@
         act!(obj, Action(Rel(10), anim_scale(1, 2)))
 
         objects = [back, obj]
-        render(demo; pathname = "")
+        Javis.preprocess_frames!(demo.objects)
         @test Javis.get_frames(objects[1]) == 1:50
         @test Javis.get_frames(objects[2]) == 31:50
         @test Javis.get_frames(objects[2].actions[1]) == 1:10
