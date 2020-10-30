@@ -11,7 +11,7 @@ function compute_frames!(
     for elem in elements
         if last_frames === nothing && get_frames(elem) === nothing
             throw(ArgumentError("Frames need to be defined explicitly in the initial
-                Object/BackgroundObject or Action."))
+                Object/Background or Action."))
         end
         if get_frames(elem) === nothing
             set_frames!(elem, last_frames)
