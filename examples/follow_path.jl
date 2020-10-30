@@ -35,7 +35,7 @@ points = [
 ]
 npoints = length(points)
 
-BackgroundObject(1:220, ground)
+Background(1:220, ground)
 
 # let the points appear one by one
 objects = [
