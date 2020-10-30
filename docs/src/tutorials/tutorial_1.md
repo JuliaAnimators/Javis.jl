@@ -93,7 +93,7 @@ We do the following after importing the `Javis.jl` package and defining our own 
 
 ```julia
 myvideo = Video(500, 500)
-BackgroundObject(1:70, ground)
+Background(1:70, ground)
 red_ball = Object(1:70, (args...) -> object(Point(100,0), "red"))
 
 render(
@@ -104,7 +104,7 @@ render(
 
 ![](assets/circle.gif)
 
-We used `BackgroundObject` instead of `Object` to specify that the ground function is applied to all objects afterwards.
+We used `Background` instead of `Object` to specify that the ground function is applied to all objects afterwards.
 
 You did it! 🎉 You created your first drawing with `Javis`! 🔴
 
@@ -117,7 +117,7 @@ Let's go crazy and draw another object:
 
 ```julia
 myvideo = Video(500, 500)
-BackgroundObject(1:70, ground)
+Background(1:70, ground)
 red_ball = Object(1:70, (args...) -> object(Point(100,0), "red"))
 blue_ball = Object(1:70, (args...) -> object(Point(100,80), "blue"))
 
@@ -139,7 +139,7 @@ Let's make these balls dance. 💃
 Let's use the special modifier, `Rotation`, to produce a ball that rotates in a circle:
 
 ```julia
-BackgroundObject(1:70, ground)
+Background(1:70, ground)
 red_ball = Object(1:70, (args...)->object(Point(100,0), "red"))
 act!(red_ball, Action(Rotation(0.0, 2π)))
 ```
@@ -155,7 +155,7 @@ It needs a partner!
 To make another ball appear, execute the following code snippet:
 
 ```julia
-BackgroundObject(1:70, ground)
+Background(1:70, ground)
 red_ball = Object(1:70, (args...)->object(Point(100,0), "red"))
 act!(red_ball, Action(Rotation(0.0, 2π)))
 blue_ball = Object(1:70, (args...)-> object(Point(100,80), "blue"))
@@ -185,7 +185,7 @@ end
 Then, using this function, we can execute the following block:
 
 ```julia
-BackgroundObject(1:70, ground)
+Background(1:70, ground)
 red_ball = Object(1:70, (args...)->object(Point(100,0), "red"))
 act!(red_ball, Action(Rotation(0.0, 2π)))
 Object(1:70, (args...)->path!(path_of_red, pos(red_ball), "red"))
@@ -209,7 +209,7 @@ end
 And to show this link:
 
 ```julia
-BackgroundObject(1:70, ground)
+Background(1:70, ground)
 red_ball = Object(1:70, (args...)->object(Point(100,0), "red"))
 act!(red_ball, Action(Rotation(0.0, 2π)))
 blue_ball = Object(1:70, (args...)->object(Point(100,80), "blue"))
@@ -251,7 +251,7 @@ myvideo = Video(500, 500)
 path_of_red = Point[]
 path_of_blue = Point[]
 
-BackgroundObject(1:70, ground)
+Background(1:70, ground)
 red_ball = Object(1:70, (args...)->object(Point(100,0), "red"))
 act!(red_ball, Action(Rotation(0.0, 2π)))
 blue_ball = Object(1:70, (args...)->object(Point(100,80), "blue"))
@@ -276,7 +276,7 @@ I hope you feel like you accomplished something!
 To recap, by working through this animation you should now:
 
 1. Know how to make a simple animation in Javis
-2. Understand the difference between `Object` and `BackgroundObject`
+2. Understand the difference between `Object` and `Background`
 3. Be able to connect actions together using the object variable
 
 If you want to know more and experiment with `Javis`, go onto the following tutorials!
