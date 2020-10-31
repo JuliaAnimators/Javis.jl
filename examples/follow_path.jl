@@ -45,12 +45,8 @@ objects = [
 
 # easiest to move canvas to draw at origin
 act!(objects, Action(1:5, appear(:scale)))
-for object in objects
-    # currently one needs to define the frames in an action relative but we work on #235
-    frame_start = first(object.frames.user)
-    act!(object, Action((100 - frame_start):(100 - frame_start + 20), anim_scale(0.5)))
-    act!(object, Action((200 - frame_start - 10):(200 - frame_start), disappear(:scale)))
-end
+act!(objects, Action(GFrames(100:120), anim_scale(0.5)))
+act!(objects, Action(GFrames(190:200), disappear(:scale)))
 
 # generate the bezier path
 bezierpath = makebezierpath(points)
@@ -61,10 +57,7 @@ bezier_object =
     Object((2 * npoints + 10):200, (args...) -> drawbezierpath(bezierpath, :stroke))
 
 act!(bezier_object, Action(1:10, appear(:fade)))
-act!(
-    bezier_object,
-    Action((200 - (2 * npoints + 10) - 10):(200 - (2 * npoints + 10)), disappear(:fade)),
-)
+act!(bezier_object, Action(GFrames(190:200), disappear(:fade)))
 
 # let a red circle appear and follow the bezier path polygon
 red_circle = Object(120:220, (args...) -> circle_with_color(first(points), 10, "red"))
@@ -72,4 +65,4 @@ act!(red_circle, Action(1:20, appear(:fade)))
 act!(red_circle, Action(21:70, sineio(), follow_path(bezierpathpoly .- first(points))))
 act!(red_circle, Action(71:80, disappear(:fade)))
 
-render(video; pathname = "gifs/follow_bezier_path.gif")
+render(video; pathname = "gifs/follow_bezier_path_1.gif")
