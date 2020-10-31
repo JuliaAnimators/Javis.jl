@@ -65,4 +65,4 @@ act!(red_circle, Action(1:20, appear(:fade)))
 act!(red_circle, Action(21:70, sineio(), follow_path(bezierpathpoly .- first(points))))
 act!(red_circle, Action(71:80, disappear(:fade)))
 
-render(video; pathname = "gifs/follow_bezier_path_1.gif")
+render(video; pathname = "gifs/follow_bezier_path.gif")
