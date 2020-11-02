@@ -125,7 +125,7 @@ end
 Computes the frames for each object and action based on the user defined frames that the
 user can provide like [`RFrames`](@ref), [`GFrames`](@ref) and `:same`.
 
-This function needs to be called before calling [`get_javis_frame`](@ref) as computes
+This function needs to be called before calling [`get_javis_frame`](@ref) as it computes
 the actual frames for objects and actions.
 
 # Returns
