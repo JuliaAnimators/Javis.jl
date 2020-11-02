@@ -22,7 +22,13 @@ render(video, liveview = true)
 ```
 
 Setting `liveview` to true in the `render` function causes the Viewer to appear in a separate window.
-Here is an example of how that looks altogether
+Here is an example of how that looks altogether:
+
+![](assets/viewer_workflow.gif)
+
+Sometimes the Viewer can be slow on some computers if it is handling a large animation or a frame performing complicated actions with many objects.
+If this is the case, currently, the best way to handle this is to fully render the animation and save it to a file for previewing.
+In the future, we will add a caching feature for the Viewer such that all frames a pre-rendered for the Viewer so one can quickly view each frame.
 
 ## Workflow for Jupyter Notebooks
 
