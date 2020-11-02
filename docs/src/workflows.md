@@ -12,6 +12,18 @@ Supported Platforms: Windows*, OSX, Linux
 > This is because the viewer is built on top of GTK which is not immensely performant on Windows machines.
 > If the viewer is does not perform well on Windows for you, we encourage you to try out one of the other workflows.
 
+Javis provides a built-in viewer called the "Javis Live Viewer" which allows one to preview animated graphics without having to save the animation to a file.
+This works by the viewer calculating each individual frame for an animation as it is called.
+The viewer can be activated for any animation one renders by doing this:
+
+```julia
+...
+render(video, liveview = true)
+```
+
+Setting `liveview` to true in the `render` function causes the Viewer to appear in a separate window.
+Here is an example of how that looks altogether
+
 ## Workflow for Jupyter Notebooks
 
 [Coming Soon!]
