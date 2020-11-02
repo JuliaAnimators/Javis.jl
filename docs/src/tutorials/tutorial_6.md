@@ -1,17 +1,17 @@
 # **Tutorial 6:** Using Animations.jl to Create something with more Pep!
 
-In the last couple of tutorials you've learned the basics of Javis and some of the more advanced stuff like [`SubAction`](@ref).
+In the last couple of tutorials you've learned the basics of Javis and some of the more advanced stuff like [`Action`](@ref).
 
 ## Our goal
 
 The goal of this tutorial is to explain a new feature we have added in v0.2 of Javis. Before this every animation was basically linear.
-What I mean by this is: If you move an object from `A` to `B` using [`Translation`](@ref) it would do so in a linear and therefore boring fashion.
+What I mean by this is: If you move an object from `A` to `B` using [`anim_translate`](@ref) it would do so in a linear and therefore boring fashion.
 
 We'll create an interesting loading animation for this. It consists of five circles which move from the center to the outside rotate around the center and back to the origin. During this process they appear and disappear as well as changing color.
 
 ## Learning Outcomes
 
-This tutorial shows some more power of subactions that we introduced in v0.2. Combined with the power of the awesome library [Animations.jl](https://github.com/jkrumbiegel/Animations.jl) you have very fine grained control over the objects you animate and understand the ease of its easing functions. 😄
+This tutorial shows some more power of actions that we introduced in v0.2. Combined with the power of the awesome library [Animations.jl](https://github.com/jkrumbiegel/Animations.jl) you have very fine grained control over the objects you animate and understand the ease of its easing functions. 😄
 
 Today you'll learn how to
 - use easing functions to have animations with pep
@@ -33,19 +33,13 @@ function ground(args...)
 end
 
 video = Video(600, 400)
+Background(1:200, ground)
 
-actions = [
-    Action(
-        (args...) -> circle(Point(150, 0), 20, :fill);
-        subactions = [
-            SubAction(Rotation(0.0, 2π)),
-        ],
-    )
-]
+blob = Object((args...) -> circle(O, 20, :fill), Point(150, 0))
+act!(blob, Action(anim_rotate_around(0.0, 2π, O)))
 
-javis(
+render(
     video,
-    [BackgroundAction(1:200, ground), actions...],
     pathname = "loading.gif",
 )
 ```
@@ -54,12 +48,12 @@ javis(
 
 I would say that this looks a bit dull. Let us rotate it with varying speeds. For this I'll use the `sineio` easing function. You can try another easing function.
 They are all described [here](https://jkrumbiegel.github.io/Animations.jl/stable/#Easings-1).
-Easing functions basically describe how to interpolate between the values. If one goes from `0` to `5` in the time range of `0` to `1`. It can be at `2.5` at `t=0.5` or it can start slowly and speed up until it reaches the final value of `5` such that at `t=0.5` it is only at let say `1.5`. 
+Easing functions basically describe how to interpolate between the values. If one goes from `0` to `5` in the time range of `0` to `1`. It can be `2.5` at `t=0.5` or it can start slowly and speed up until it reaches the final value of `5` such that at `t=0.5` it is only at let say `1.5`. 
 This way one can describe the speed/acceleration of the object.
 
 First of all we need `Animations` for this and I also load `Colors` here for later.
 
-These can be installed via `] add Animations, Colors` inside the REPL.
+These can be installed via `] add Animations` and `] add Colors` inside the REPL.
 
 - **Animations.jl** defines easing functions such that we can have non-linear movement
 - **Colors.jl** defines colors and gives access to different color spaces such that we can transition from a color to another by using Animations.jl.
@@ -79,19 +73,14 @@ rotate_anim = Animation(
 )
 
 video = Video(600, 400)
+Background(1:200, ground)
 
-actions = [
-    Action(
-        (args...) -> circle(Point(150, 0), 20, :fill);
-        subactions = [
-            SubAction(rotate_anim, rotate()),
-        ],
-    )
-]
+blob = Object((args...) -> circle(O, 20, :fill), Point(150, 0))
+act!(blob, Action(rotate_anim, rotate_around(O)))
 
-javis(
+render(
     video,
-    [BackgroundAction(1:200, ground), actions...],
+    liveview=true,
     pathname = "loading.gif",
 )
 ```
@@ -140,7 +129,7 @@ plot(ts, ys; labels=false, xaxis="t", yaxis="value")
 
 Okay we now know how to rotate with a different speed but let's do what we actually wanted. Moving out from the center, rotate and then move back to the center.
 The code gets a bit longer from time to time so I'll only add changes from now on in the following way.
-If I add something called `_anim` you can put it directly after `rotate_anim`. I'll otherwise only change the `actions` array.
+If I add something called `_anim` you can put it directly after `rotate_anim`. I'll otherwise only add some more objects and actions.
 
 Our new animations:
 
@@ -164,22 +153,16 @@ translate_back_anim = Animation(
 )
 ```
 
-and our `actions` (yes it's still a single [`Action`](@ref) but we add more soon)
+and or object and actions:
 
 ```julia
-actions = [
-    Action(
-        (args...) -> circle(O, 20, :fill);
-        subactions = [
-            SubAction(1:50, translate_anim, translate()),
-            SubAction(51:150, rotate_anim, rotate_around(Point(-150, 0))),
-            SubAction(151:200, translate_back_anim, translate()),
-        ],
-    )
-]
+blob = Object((args...) -> circle(O, 20, :fill))
+act!(blob, Action(1:50, translate_anim, translate()))
+act!(blob, Action(51:150, rotate_anim, rotate_around(Point(-150, 0))))
+act!(blob, Action(151:200, translate_back_anim, translate()))
 ```
 
-I changed the starting position of the circle to `O` and we now have three subactions.
+I changed the starting position of the circle to `O` and we now have three actions.
 
 Let's walk through the steps Javis takes to create the animation:
 - For the first 50 frames of the action the circle is translated from `O` to `(150, 0)` so just to the right. 
@@ -197,22 +180,17 @@ Hope that makes sense! Let's see it in action:
 The blob does start to feel lonely a bit so let's give him some friends. They should all do the same movement but start at different times.
 
 ```julia
-actions = [
-    Action(
-        frame_start:frame_start+149,
-        (args...) -> circle(O, 20, :fill);
-        subactions = [
-            SubAction(1:30, translate_anim, translate()),
-            SubAction(31:120, rotate_anim, rotate_around(Point(-150, 0))),
-            SubAction(121:150, translate_back_anim, translate()),
-        ],
-    ) for frame_start in 1:10:50
-]
+for frame_start in 1:10:50
+    blob = Object(frame_start:frame_start+149, (args...) -> circle(O, 20, :fill))
+    act!(blob, Action(1:30, translate_anim, translate()))
+    act!(blob, Action(31:120, rotate_anim, rotate_around(Point(-150, 0))))
+    act!(blob, Action(121:150, translate_back_anim, translate()))
+end
 ```
 
-I've basically added four more blobs by using `for frame_start in 1:10:50` inside the array definition. It's a basic list comprehension which might be hard to get at first as it's spreading over several lines. 
+I've basically added four more blobs by using `for frame_start in 1:10:50`. 
 
-Then I defined the start of the `Action` with: `frame_start:frame_start+149` such that every blob is there for 150 frames and reduced the number of frames in the subactions a bit to have 150 frames.
+Then I defined the start of each object with: `frame_start:frame_start+149` such that every blob is there for 150 frames and reduced the number of frames in the actions a bit to have 150 frames.
 
 ![The loading movement with some friends](assets/loading_with_friends.gif)
 
@@ -233,18 +211,13 @@ Our three colors red, cyan and black. You can play with different colors and col
 And we need two easing functions: One defines the movement from red to cyan and the second from cyan to black.
 
 ```julia
-actions = [
-    Action(
-        frame_start:frame_start+149,
-        (args...) -> circle(O, 20, :fill);
-        subactions = [
-            SubAction(1:30, translate_anim, translate()),
-            SubAction(31:120, rotate_anim, rotate_around(Point(-150, 0))),
-            SubAction(121:150, translate_back_anim, translate()),
-            SubAction(1:150, color_anim, sethue()),
-        ],
-    ) for frame_start in 1:10:50
-]
+for frame_start in 1:10:50
+    blob = Object(frame_start:frame_start+149, (args...) -> circle(O, 20, :fill))
+    act!(blob, Action(1:30, translate_anim, translate()))
+    act!(blob, Action(31:120, rotate_anim, rotate_around(Point(-150, 0))))
+    act!(blob, Action(121:150, translate_back_anim, translate()))
+    act!(blob, Action(1:150, color_anim, sethue())) # new line
+end
 ```
 
 The change in color is over the entire action in this case.
@@ -254,31 +227,26 @@ The change in color is over the entire action in this case.
 I think that already looks quite nice. The appearance of the blobs is a bit off though. How about fading them in by scaling them up?
 
 ```julia
-actions = [
-    Action(
-        frame_start:frame_start+149,
-        (args...) -> circle(O, 20, :fill);
-        subactions = [
-            SubAction(1:10, sineio(), appear(:scale)),
-            SubAction(11:40, translate_anim, translate()),
-            SubAction(41:120, rotate_anim, rotate_around(Point(-150, 0))),
-            SubAction(121:150, translate_back_anim, translate()),
-            SubAction(1:150, color_anim, sethue()),
-        ],
-    ) for frame_start in 1:10:50
-]
+for frame_start in 1:10:50
+    blob = Object(frame_start:frame_start+149, (args...) -> circle(O, 20, :fill))
+    act!(blob, Action(1:10, sineio(), appear(:scale))) # new line
+    act!(blob, Action(1:30, translate_anim, translate()))
+    act!(blob, Action(31:120, rotate_anim, rotate_around(Point(-150, 0))))
+    act!(blob, Action(121:150, translate_back_anim, translate()))
+    act!(blob, Action(1:150, color_anim, sethue()))
+end
 ```
 
 A deeper look into the line we added?
 ```julia
-SubAction(1:10, sineio(), appear(:scale)),
+act!(blob, Action(1:10, sineio(), appear(:scale)))
 ```
 
 If we want to animate from `0` to `1` we don't need to write an `Animation` object for this and can simply specify the easing function. 
 Additionally we use the `appear(:scale)` which does the same thing as:
 
 ```julia
-SubAction(1:10, sineio(), scale()),
+act!(blob, Action(1:10, sineio(), scale()))
 ```
 
 but it might be easier to read when we attach the meaning of `appear` to it.
@@ -330,28 +298,23 @@ color_anim = Animation(
 )
 
 video = Video(600, 400)
+Background(1:200, ground)
 
-actions = [
-    Action(
-        frame_start:frame_start+149,
-        (args...) -> circle(O, 20, :fill);
-        subactions = [
-            SubAction(1:10, sineio(), appear(:scale)),
-            SubAction(11:40, translate_anim, translate()),
-            SubAction(41:120, rotate_anim, rotate_around(Point(-150, 0))),
-            SubAction(121:150, translate_back_anim, translate()),
-            SubAction(1:150, color_anim, sethue()),
-        ],
-    ) for frame_start in 1:10:50
-]
+for frame_start in 1:10:50
+    blob = Object(frame_start:frame_start+149, (args...) -> circle(O, 20, :fill))
+    act!(blob, Action(1:10, sineio(), appear(:scale))) # new line
+    act!(blob, Action(1:30, translate_anim, translate()))
+    act!(blob, Action(31:120, rotate_anim, rotate_around(Point(-150, 0))))
+    act!(blob, Action(121:150, translate_back_anim, translate()))
+    act!(blob, Action(1:150, color_anim, sethue()))
+end
 
-javis(
-    video,
-    [BackgroundAction(1:200, ground), actions...],
+render(
+    video;
     pathname = "loading.gif",
 )
 ```
 
 > **Author(s):** Ole Kröger \
 > **Date:** September 10th, 2020 \
-> **Tag(s):** loading, subactions, Animations.jl
+> **Tag(s):** loading, action, Animations.jl, easing
