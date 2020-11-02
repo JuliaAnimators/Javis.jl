@@ -120,6 +120,40 @@ function projection(p::Point, l::Line)
 end
 
 """
+    preprocess_frames!(objects::Vector{<:AbstractObject})
+
+Computes the frames for each object and action based on the user defined frames that the
+user can provide like [`RFrames`](@ref), [`GFrames`](@ref) and `:same`.
+
+This function needs to be called before calling [`get_javis_frame`](@ref) as it computes
+the actual frames for objects and actions.
+
+# Returns
+- `frames::Array{Int}` - list of all frames normally 1:...
+"""
+function preprocess_frames!(objects::Vector{<:AbstractObject})
+    compute_frames!(objects)
+
+    for object in objects
+        compute_frames!(object.actions; parent = object)
+    end
+
+    # get all frames
+    frames = Int[]
+    for object in objects
+        append!(frames, collect(get_frames(object)))
+    end
+    frames = unique(frames)
+
+    if isempty(CURRENT_OBJECT)
+        push!(CURRENT_OBJECT, objects[1])
+    else
+        CURRENT_OBJECT[1] = objects[1]
+    end
+    return frames
+end
+
+"""
     render(
         video::Video;
         framerate=30,
@@ -149,24 +183,7 @@ function render(
     tempdirectory = "",
 )
     objects = video.objects
-    compute_frames!(objects)
-
-    for object in objects
-        compute_frames!(object.actions; parent = object)
-    end
-
-    # get all frames
-    frames = Int[]
-    for object in objects
-        append!(frames, collect(get_frames(object)))
-    end
-    frames = unique(frames)
-
-    if isempty(CURRENT_OBJECT)
-        push!(CURRENT_OBJECT, objects[1])
-    else
-        CURRENT_OBJECT[1] = objects[1]
-    end
+    frames = preprocess_frames!(objects)
 
     if liveview == true
         _javis_viewer(video, length(frames), objects)
@@ -230,6 +247,10 @@ end
     get_javis_frame(video, objects, frame)
 
 Get a frame from an animation given a video object, its objects, and frame.
+
+If one wants to use this without calling [`render`](@ref), [`preprocess_frames!`](@ref)
+needs to be called before. That way each object and action has the correct frames it should
+be applied to.
 
 # Arguments
 - `video::Video`: The video which defines the dimensions of the output
