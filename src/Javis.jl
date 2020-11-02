@@ -123,7 +123,10 @@ end
     preprocess_frames!(objects::Vector{<:AbstractObject})
 
 Computes the frames for each object and action based on the user defined frames that the
-user can provide like `Rel` and `:same`.
+user can provide like [`RFrames`](@ref), [`GFrames`](@ref) and `:same`.
+
+This function needs to be called before calling [`get_javis_frame`](@ref) as computes
+the actual frames for objects and actions.
 
 # Returns
 - `frames::Array{Int}` - list of all frames normally 1:...
@@ -244,6 +247,10 @@ end
     get_javis_frame(video, objects, frame)
 
 Get a frame from an animation given a video object, its objects, and frame.
+
+If one wants to use this without calling [`render`](@ref), [`preprocess_frames!`](@ref)
+needs to be called before. That way each object and action has the correct frames it should
+be applied to.
 
 # Arguments
 - `video::Video`: The video which defines the dimensions of the output
