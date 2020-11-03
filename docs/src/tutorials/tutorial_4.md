@@ -1,10 +1,12 @@
 # **Tutorial 4:** Do You Know Our Mascot? - Learn About Transitions And Actions!
 
-You have learned a couple of cool features of Javis already. Now you're ready to finally meet our little mascot. Well actually you can't just see him, we have to create him first. 😄
+You have learned a couple of cool features of Javis already. 
+Now you're ready to finally meet our little mascot. 
+Well actually you can't see him just yet - we have to create him first. 😄
 
 ## Our goal
 
-Let's create a list of what we want first
+Let's create a list of what we want first:
 - a circular head
 - some hair
 - eyes
@@ -54,31 +56,35 @@ end
 > **NOTE:** For an `Object` you can leave the frames arg blank. 
 > The frames from the previous action are used. 
 
-A function of an `Action` is normally either [`appear`](@ref) or [`disappear`](@ref) at the moment or one of these transformations: [`anim_translate`](@ref), [`anim_rotate`](@ref)/[`anim_rotate_around`](@ref) and [`anim_scale`](@ref).
+A function of an `Action` is normally either [`appear`](@ref) or [`disappear`](@ref) or one of these transformations: [`anim_translate`](@ref), [`anim_rotate`](@ref)/[`anim_rotate_around`](@ref) and [`anim_scale`](@ref).
 
 In theory you can define your own but that is way outside of this tutorial.
 
 **Let's summarize the functionality:**
 
-We have created a [`Background`](@ref) as usual and an [`Object`](@ref) with the same number of frames. The object is saved in a variable `the_title` such that we can [`act!`](@ref) on it with an [`Action`](@ref). In this case we let the title fade in for the first five frames.
+We have created a [`Background`](@ref) as usual and an [`Object`](@ref) with the same number of frames. 
+The object is saved in a variable `the_title` such that we can [`act!`](@ref) on it with an [`Action`](@ref).
+In this case we let the title fade in for the first five frames.
 
 ## The Upper Part of the Head
 
 Let's continue with a bit more before we draw part of the mascot.
 
-The following actions will just be added below the last action.
+The following actions will be added below the last action.
 
 ```julia
 head = Object(16:150, (args...)->circle(O, 100, :stroke))
 act!(head, Action(1:15, appear(:fade)))
 ```
 
-This is very similar to the previous code. Here we can see that the `Action` uses relative frame numbers such that the head appears in the frames `16:30` and then is at full opacity afterwards.
+This is very similar to the previous code.
+Here we can see that the `Action` uses relative frame numbers such that the head appears in the frames `16:30` and then is at full opacity afterwards.
 
 > **NOTE:** Just a small refresher: We need the anonymous function `(args...)->circle(O, 100, :stroke)` as each function gets called with the three arguments `video, action, frame`.
 
-### Let's not be to bald
+### Javis Regrows Hair!
 
+Jarvis is bald currently!
 Okay let's add some hair shall we?
 
 I want to have some randomness in his hair so let's define:
@@ -113,9 +119,11 @@ end
 act!(hair, Action(1:25, appear(:fade)))
 ```
 
-We first create a vector where we define that its a vector of `Object` and then push new objects to it. Afterwards we can apply an action to the whole group.
+We first create a vector where we define that its a vector of `Object` and then push new objects to it.
+Afterwards we can apply an action to the whole group.
 
-I think you get the idea of how to use `appear` now. Let's add some eyes and a nose quickly before we draw our first gif.
+I think you get the idea of how to use `appear` now.
+Let's add some eyes and a nose quickly before we draw our first gif.
 
 ```julia
 the_eyes = Object(30:150, (args...)->eyes(eye_centers, 10, "darkblue"))
@@ -145,7 +153,7 @@ end
 
 ![Up to the nose](./assets/jarvis_nose.gif)
 
-## Using Transformations
+## Talk to Me, Jarvis
 
 Let's give him some moving lips so he can communicate with us:
 
@@ -169,7 +177,7 @@ end
 
 This function uses some more functions of the awesome Luxor package.
 
-The lips should be a little thicker than the other lines that we have drawn so far so let's set `setline(2)`. (default is 1).
+The lips should be a little thicker than the other lines that we have drawn so far so let's set `setline(2)` (default is 1).
 First we move to the starting point of the lip and create two control points a bit below and to the vertical center.
 
 The `curve` function is used to draw a cubic [Bézier curve](https://en.wikipedia.org/wiki/B%C3%A9zier_curve). 
