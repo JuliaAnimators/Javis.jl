@@ -28,6 +28,8 @@ It is a great package that can be installed via the following command:
 julia> ] add LaTeXStrings
 ```
 
+Now that it is installed, we need to use the following packages for this tutorial: 
+
 ```julia
 using Javis
 using LaTeXStrings
