@@ -140,8 +140,8 @@ All objects that return a list of points can be used directly like `star` and `p
 An action can look like this:
 
 ```julia
-my_star = Object(1:150, (args...) -> star(O, 20, 5, 0.5, 0, :fill))
-act!(my_star, Action(1:150, follow_path(star(O, 300))))
+my_star = Object(1:100, (args...) -> star(O, 20, 5, 0.5, 0, :fill))
+act!(my_star, Action(1:100, follow_path(star(O, 200))))
 ```
 
 in this case a star is following the path of a bigger star. 
@@ -164,39 +164,29 @@ function luxor2poly(func::Function)
 end
 
 video = Video(600, 400)
-javis(video, [
-    BackgroundAction(1:150, ground),
-    Action(
-        1:150,
-        (args...) -> star(O, 20, 5, 0.5, 0, :fill);
-        subactions = [
-            SubAction(1:150, follow_path(luxor2poly(()->rect(O, 100, 100, :path))))
-        ]
-    )
-]; pathname="follow_path.gif")
+Background(1:100, ground)
+my_star = Object(1:100, (args...) -> star(O, 20, 5, 0.5, 0, :fill))
+act!(my_star, Action(1:100, follow_path(luxor2poly(()->rect(O, 100, 100, :path)))))
+render(video; pathname="follow_path.gif")
 ```
 
 
 Another possibility is to specify a vector of points like this:
 
 ```julia
-Action(
-    1:150
-    (args...) -> star(O, 20, 5, 0.5, 0, :fill);
-    subactions = [
-        SubAction(1:150, sineio(), follow_path([Point(100, 200), Point(-20, -250), Point(-80, -10)]; closed=false)),
-    ],
-)
+act!(my_star, Action(1:100, sineio(), follow_path([Point(100, 100), Point(-20, -150), Point(-80, -10)]; closed=false)))
 ```
 
 In this case I want the star to follow a path consisting of two edges and I use `; closed=false` to specify that it's just two edges and not a closed triangle.
 
 An interesting possibility is to define paths using Bézier curves which can be defined with Luxor see: [Polygons to Bézier paths and back again](https://juliagraphics.github.io/Luxor.jl/stable/polygons/#Polygons-to-B%C3%A9zier-paths-and-back-again)
 
+One example of this can be seen in our [example section](../examples.md)
+
 ## How can I see a live view of the animation?
 
 A live view of the animation can be useful for creating an animation where one doesn't need the overhead of building a gif or mp4 all the time. It also has the advantage that it's very easy to jump to a specific frame.
 
-The live viewer can be called with adding `; liveview=true` to the [`javis`](@ref) call.
+The live viewer can be called with adding `; liveview=true` to the [`render`](@ref) call.
 
 > **NOTE:** If `liveview=true` the `tempdirectory` and `pathname` arguments are ignored.
