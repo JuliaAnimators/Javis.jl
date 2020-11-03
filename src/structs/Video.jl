@@ -7,12 +7,14 @@ Defines the video canvas for an animation.
 - `width::Int` the width in pixel
 - `height::Int` the height in pixel
 - `objects::Vector{AbstractObject}` the objects defined in this video
+- `background_frames::Vector{Int}` saves for which frames a background is defined
 - `defs::Dict{Symbol, Any}` Some definitions which should be accessible throughout the video.
 """
 mutable struct Video
     width::Int
     height::Int
     objects::Vector{AbstractObject}
+    background_frames::Vector{Int}
     defs::Dict{Symbol,Any}
 end
 
@@ -34,7 +36,7 @@ This also sets `CURRENT_VIDEO`.
 function Video(width, height)
     # some luxor functions need a drawing ;)
     Drawing()
-    video = Video(width, height, AbstractObject[], Dict{Symbol,Any}())
+    video = Video(width, height, AbstractObject[], Int[], Dict{Symbol,Any}())
     if isempty(CURRENT_VIDEO)
         push!(CURRENT_VIDEO, video)
     else

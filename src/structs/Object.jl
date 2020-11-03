@@ -75,6 +75,10 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
     end
     CURRENT_VIDEO[1].defs[:last_frames] = frames
     opts = Dict(kwargs...)
+
+    if get(opts, :in_global_layer, false) && frames isa UnitRange
+        CURRENT_VIDEO[1].background_frames = union(CURRENT_VIDEO[1].background_frames, frames)
+    end
     object = Object(
         frames,
         func,

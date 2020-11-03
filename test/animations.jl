@@ -4,6 +4,12 @@ function ground(video, action, framenumber)
     return framenumber
 end
 
+function ground_black_on_white(video, action, framenumber)
+    background("white")
+    sethue("black")
+    return framenumber
+end
+
 function ground_color(color_bg, color_pen, framenumber)
     background(color_bg)
     sethue(color_pen)
@@ -169,7 +175,7 @@ end
 
 @testset "Drawing grid" begin
     video = Video(500, 500)
-    Object(1:40, ground)
+    Object(1:40, ground_black_on_white; in_global_layer=true)
     Object(1:10, draw_grid(direction = "BL", line_gap = 25))
     Object(zero_lines(direction = "BL", line_thickness = 10))
     Object(GFrames(11:20), draw_grid(direction = "BR", line_gap = 25))
@@ -194,7 +200,7 @@ end
     video = Video(500, 500)
     p = Point(100, 0)
 
-    Object(1:10, ground)
+    Background(1:10, ground_black_on_white)
     circ = Object((args...) -> circ_ret_trans(), p)
     act!(circ, Action(anim_rotate_around(0.0, 2π, O)))
     Object((args...) -> line(Point(-200, 0), Point(-200, -10 * ang(circ)), :stroke))
@@ -653,7 +659,6 @@ end
 end
 
 @testset "Change" begin
-
     function object(p, radius, color = "black")
         sethue(color)
         circle(p, radius, :fill)
@@ -695,7 +700,7 @@ end
 
 @testset "test default kwargs" begin
     video = Video(500, 500)
-    Object(1:10, ground)
+    Background(1:10, ground)
     Object(1:10, (args...) -> circle(O, 50, :fill))
     pathname = render(video)
     path, ext = splitext(pathname)
@@ -706,7 +711,7 @@ end
 
 @testset "test @error .mp3" begin
     video = Video(500, 500)
-    Object(1:10, ground)
+    Background(1:10, ground)
     Object(1:10, (args...) -> circle(O, 50, :fill))
     @test_logs (:error,) render(video; pathname = "test.mp3")
 end

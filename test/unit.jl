@@ -25,6 +25,7 @@
 
     @testset "translation" begin
         video = Video(500, 500)
+        Background(1:100, (args...)->1)
         object = Object(1:100, (args...) -> O)
         act!(object, Action(1:100, anim_translate(Point(1, 1), Point(100, 100))))
         Javis.preprocess_frames!(video.objects)
@@ -36,6 +37,7 @@
 
         # with easing function
         video = Video(500, 500)
+        Background(1:100, (args...)->1)
         object = Object(1:100, (args...) -> O)
         act!(object, Action(1:100, sineio(), anim_translate(Point(1, 1), Point(100, 100))))
 
@@ -53,6 +55,7 @@
 
     @testset "Relative frames" begin
         video = Video(500, 500)
+        Background(1:110, (args...)->1)
         Object(1:100, (args...) -> 1)
         # dummy object doesn't need a real function
         object = Object(RFrames(10), (args...) -> 1)
@@ -63,6 +66,7 @@
 
     @testset "Global frames" begin
         video = Video(500, 500)
+        Background(1:110, (args...)->1)
         Object(1:100, (args...) -> 1)
         # dummy object doesn't need a real function
         object = Object(RFrames(10), (args...) -> 1)
@@ -74,6 +78,7 @@
 
     @testset "translation from origin" begin
         video = Video(500, 500)
+        Background(1:100, (args...)->1)
         object = Object(1:100, (args...) -> O)
         act!(object, Action(1:100, anim_translate(Point(99, 99))))
 
@@ -85,6 +90,7 @@
         end
 
         video = Video(500, 500)
+        Background(1:100, (args...)->1)
         object = Object(1:100, (args...) -> O)
         act!(object, Action(1:100, anim_translate(99, 99)))
 
@@ -98,6 +104,7 @@
 
     @testset "rotations" begin
         video = Video(500, 500)
+        Background(1:100, (args...)->1)
         object = Object(1:100, (args...) -> O)
         act!(object, Action(1:100, anim_rotate(2π)))
         anim = Animation([0.0, 1.0], [0.0, 2π], [linear()])
@@ -109,6 +116,7 @@
         end
 
         video = Video(500, 500)
+        Background(1:100, (args...)->1)
         object = Object(1:100, (args...) -> O)
         rp = Point(2.0, 5.0)
         act!(object, Action(1:100, anim_rotate_around(2π, rp)))
@@ -133,6 +141,7 @@
 
     @testset "scaling" begin
         video = Video(500, 500)
+        Background(1:100, (args...)->1)
         # dummy object doesn't need a real function
         object = Object(1:50, (args...) -> O)
         act!(object, Action(1:50, anim_scale(1.0, 0.5)))
@@ -148,6 +157,7 @@
 
     @testset "Relative frames" begin
         video = Video(500, 500)
+        Background(1:110, (args...)->1)
         o1 = Object(1:100, (args...) -> 1)
 
         o2 = Object(RFrames(10), (args...) -> 1)
@@ -159,6 +169,7 @@
 
     @testset "translation from origin" begin
         video = Video(500, 500)
+        Background(1:100, (args...)->1)
         object = Object(1:100, (args...) -> O)
         act!(object, Action(1:100, anim_translate(Point(99, 99))))
         Javis.preprocess_frames!(video.objects)
@@ -169,6 +180,7 @@
         end
 
         video = Video(500, 500)
+        Background(1:100, (args...)->1)
         object = Object(1:100, (args...) -> O)
         act!(object, Action(1:100, anim_translate(99, 99)))
         Javis.preprocess_frames!(video.objects)
@@ -181,6 +193,7 @@
 
     @testset "action with a single frame" begin
         video = Video(500, 500)
+        Background(1:100, (args...)->1)
         # dummy object doesn't need a real function
         object = Object(1:100, (args...) -> O)
         act!(object, Action(1:1, anim_translate(Point(10, 10))))
@@ -200,11 +213,12 @@
         @test_throws ArgumentError render(video)
 
         video = Video(500, 500)
-        Object(RFrames(10), (args...) -> 1)
+        Background(RFrames(10), (args...) -> 1)
         # throws because the frames of the first object need to be defined explicitly
         @test_throws ArgumentError render(video)
 
         video = Video(500, 500)
+        Background(1:100, (args...)->1)
         Object(1:100, (args...) -> 1)
         Object(:some, (args...) -> 1)
         # throws because :some is not supported as Symbol for `frames`
@@ -259,5 +273,12 @@
         s = anim_scale(Javis.Scale(2, 1))
         @test s.from == :current_scale
         @test s.to == Javis.Scale(2, 1)
+    end
+
+    @testset "Test warning if background not defined" begin
+        video = Video(100, 100)
+        Background(1:10, (args...)->1)
+        Object(1:11, (args...)->2)
+        @test_logs (:warn,) render(video; pathname = "")
     end
 end
