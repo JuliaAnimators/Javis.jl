@@ -2,7 +2,7 @@
 
 This is a rather brief tutorial about an exciting functionality of `Javis.jl`: the ability to render $\LaTeX$!
 
-If you have never heard of `LaTeX` before, we highly recommend the following resources:
+If you have never heard of `LaTeX` before, we highly recommend these resources:
 
 - [What Is `LaTeX`?](https://www.wikiwand.com/en/LaTeX?wprov=srpw1_0)
 - [Learn `LaTeX` in 30 minutes](https://www.overleaf.com/learn/latex/Learn_LaTeX_in_30_minutes)
@@ -20,13 +20,17 @@ From this project tutorial you will:
 ## Set Up
 
 As demonstrated in prior tutorials, we will use `Javis` to create a `Video` object. 
-However, we also have one more package included this time - `LaTeXStrings.jl`! 
+However, we also have one more package included this time - [`LaTeXStrings`](https://github.com/stevengj/LaTeXStrings.jl)!
+
+It is a great package that can be installed via the following command:
+
+```
+julia> ] add LaTeXStrings
+```
 
 ```julia
 using Javis
 using LaTeXStrings
-
-video = Video(500, 500)
 ```
 
 `LaTeXStrings.jl` is a tool that allows for the convenient input and display of `LaTeX` equations using Julia `String` objects.
@@ -52,8 +56,9 @@ end
 Since we are making a visualization, we will only generate one frame and set the framerate to 1:
 
 ```julia
-demo = Video(500, 500)
-javis(demo, [BackgroundAction(1:2, ground)], pathname = "latex.gif", framerate = 1)
+demo = Video(300, 200)
+Background(1:1, ground)
+render(demo; pathname = "latex.gif", framerate = 1)
 ```
 
 Finally, we need to install a node package and additional Julia package for this tutorial.
@@ -71,13 +76,6 @@ npm install -g mathjax-node-cli
 Currently, Julia does not have the ability (yet) to render `LaTeX` natively. 
 Therefore, we must install an additional node package.
 Sadly. 😭
-
-Furthermore, we do need to install an additional Julia package called [`LaTeXStrings`](https://github.com/stevengj/LaTeXStrings.jl).
-It is a great package that can be installed via the following command:
-
-```
-julia> ] add LaTeXStrings
-```
 
 ## The Writing on the Wall 📝 
 
@@ -108,10 +106,10 @@ in the top left corner.
 
 > **NOTE:** The default position is the origin (default: the center of the canvas)
 
-We can run this code block to render the `LaTeX`:
+We can run this code block to render the `LaTeX` by adding an `Object` under the `Background` line
 
 ```julia
-javis(demo, [BackgroundAction(1:2, ground), Action(draw_latex)], pathname = "latex.gif")
+Object(draw_latex)
 ```
 
 Which produces the following visualization:
@@ -194,8 +192,10 @@ function draw_latex(video, action, frame)
     )
 end
 
-demo = Video(500, 500)
-javis(demo, [BackgroundAction(1:2, ground), Action(draw_latex)], pathname = "latex.gif")
+demo = Video(300, 200)
+Background(1:1, ground)
+Object(draw_latex)
+render(demo; pathname = "latex.gif", framerate=1)
 ```
 
 ---
