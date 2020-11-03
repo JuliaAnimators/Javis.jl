@@ -23,7 +23,7 @@ makedocs(;
             "tutorials/tutorial_6.md",
         ],
         "HowTo" => "howto.md",
-	"Workflows" => "workflows.md",
+        "Workflows" => "workflows.md",
         "Examples" => "examples.md",
         "Mission" => "mission.md",
         "References" => "references.md",
