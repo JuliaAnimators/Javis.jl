@@ -174,12 +174,19 @@ render(video; pathname="follow_path.gif")
 Another possibility is to specify a vector of points like this:
 
 ```julia
-act!(my_star, Action(1:100, sineio(), follow_path([Point(100, 100), Point(-20, -150), Point(-80, -10)]; closed=false)))
+act!(
+    my_star,
+    Action(
+        1:100,
+        sineio(),
+        follow_path([Point(100, 100), Point(-20, -150), Point(-80, -10)]; closed = false),
+    ),
+)
 ```
 
 In this case I want the star to follow a path consisting of two edges and I use `; closed=false` to specify that it's just two edges and not a closed triangle.
 
-An interesting possibility is to define paths using Bézier curves which can be defined with Luxor see: [Polygons to Bézier paths and back again](https://juliagraphics.github.io/Luxor.jl/stable/polygons/#Polygons-to-B%C3%A9zier-paths-and-back-again)
+An interesting possibility is to define paths using Bézier curves which can be defined with Luxor (see: [Polygons to Bézier paths and back again](https://juliagraphics.github.io/Luxor.jl/stable/polygons/#Polygons-to-B%C3%A9zier-paths-and-back-again))
 
 One example of this can be seen in our [example section](../examples.md)
 
@@ -189,4 +196,4 @@ A live view of the animation can be useful for creating an animation where one d
 
 The live viewer can be called with adding `; liveview=true` to the [`render`](@ref) call.
 
-> **NOTE:** If `liveview=true` the `tempdirectory` and `pathname` arguments are ignored.
+> **NOTE:** If `liveview=true` the `tempdirectory` and `pathname` arguments are ignored and no file is created.
