@@ -175,7 +175,7 @@ end
 
 @testset "Drawing grid" begin
     video = Video(500, 500)
-    Object(1:40, ground_black_on_white; in_global_layer=true)
+    Object(1:40, ground_black_on_white; in_global_layer = true)
     Object(1:10, draw_grid(direction = "BL", line_gap = 25))
     Object(zero_lines(direction = "BL", line_thickness = 10))
     Object(GFrames(11:20), draw_grid(direction = "BR", line_gap = 25))
