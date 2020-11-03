@@ -40,14 +40,15 @@ If we were to execute the `javis` command now, this is what would appear as an o
 
 ```julia
 video = Video(500, 500)
-javis(video, [BackgroundAction(1:30, ground)], pathname = "eeg.gif", framerate = 1)
+anim_background = Background(1:10, ground)
+render(video, pathname = "eeg.gif", framerate = 1)
 ```
 
 ![](assets/blank.gif)
 
 As you can see, we have generated a blank gif.
 Not exactly what we want but it is a start!
-We used a special type of action called [`BackgroundAction`](@ref).
+We used a special type of action called [`Background`](@ref).
 This applies whatever function that is provided to it as the default background of any future animations produced by a future action.
 
 > **NOTE:** For this animation, we will be using a framerate of 1 frame per second.
@@ -55,7 +56,7 @@ This applies whatever function that is provided to it as the default background 
 
 ## Getting A - _head_
 
-Now that we have created our default background via the `BackgroundAction`, let's move onto making the head that we will attach our electrodes to!
+Now that we have created our default background via the `Background`, let's move onto making the head that we will attach our electrodes to!
 
 First, we define an additional function that allows us to draw a circle.
 This will be used extensively later:
@@ -68,43 +69,36 @@ function circ(p = O, color = "black", action = :fill, radius = 25, edge = "solid
 end
 ```
 
-We can now do the exciting part -- using an [`Action`](@ref)!
-Actions are at the very heart of the entire `Javis` library and are the foundational building blocks to make animations.
-Actions are what is used to draw objects on a frame, animate objects, or change objects altogether!
+We can now do the exciting part -- using an [`Object`](@ref)!
+Objects are at the very heart of the entire `Javis` library and are the foundational building blocks to make animations.
+Objects are what is used to draw on a frame!
 
-Using the `circ` function we defined, we can execute an `Action` inside of the `javis` function to draw a head.
+Using the `circ` function we defined, we can use an `Object` to draw a head.
 The following invocation will create the head:
 
 ```julia
 ...
-    Action(:same, :head, (args...) -> circ(O, "black", :stroke, 170)),
+head = Object((args...) -> circ(O, "black", :stroke, 170))
 ...
 ```
 
-`Action` objects consist of at least one part, namely calling a function which draws something on to the canvas. 
-`Action` objects are fully comprised of `Frames` (which can be optional), an optional `id::Symbol`, a drawing function `func`, an optional `Animation`, an optional `Movement`, and optional `SubAction` definitions.
+An `Object` consist of at least one part, namely calling a function which draws something on to the canvas. 
+`Objects` are comprised of `Frames` (which can be optionally defined), a drawing function `func`, and an optional `Animation`.
 
 ### Frames
 
-The default of an `Action` is to use the same frames as a previous `Action`. 
+The default of an `Object` is to use the same frames as a previous `Object`. 
 Besides that there are three other options:
 
-- Define the range explicitly i.e `1:100`.
+- Define the range explicitly i.e. `1:100`.
 - Use the default or explicitly write `:same` into the unit range location which means the same frames as before
-- Use [`Rel`](@ref) to specify it relative to the previous frame
-  - `Rel(10)` which is short for `Rel(1:10)` after an `Action` which is defined for `1:100` would mean `101:110`.
-  You just want to make sure that you don't use frame numbers higher than the `BackgroundAction`.
-
-### Action ID
-
-The action id which in the above example is `:head` can be used to store a return value from the drawing function you call. 
-This can be used in later actions such that two actions can interact.
-One example was shown in the [previous tutorial](tutorial_1.md) where one object rotated around another one.
-In this tutorial it's basically used as a comment to keep track of what each `Action` is creating.
+- Use [`RFrames`](@ref) to specify it relative to the previously defined frame range
+  - `RFrames(10)` which is short for `RFrames(1:10)` after an `Object` which is defined for `1:100` would mean `101:110`.
+  You just want to make sure that you don't define a frame range greater than the frame range defined for `Background`.
 
 ### Function
 
-The most important part of each [`Action`](@ref) is the drawing function `func` that defines what should be drawn in these frames. 
+The most important part of each [`Object`](@ref) is the drawing function `func` that defines what should be drawn in these frames. 
 Under the hood, Javis calls `func` with three arguments (`video`, `action`, and `framenumber`) but you do not need to preoccupy yourself with these.
 Just make `func` an anonymous function and define the output being drawn in the canvas:
 
@@ -123,25 +117,13 @@ An example for this was shown in the [previous tutorial](tutorial_1.md) where ob
 This movement is normally linear which is rather dull. 
 Therefore, it's possible to define the speed using so called easing functions (for more info, see [Tutorial 6](tutorial_6.md).
 
-### Movement
-
-It's possible to give an `Action`, a movement that persists over the entirety of its frames.
-This can be done using [`Translation`](@ref), [`Rotation`](@ref) and [`Scaling`](@ref). 
-However, it is suggested, and for more complex movements required, to use [`SubAction`](@ref)s to steer the animation of an `Action`. 
-
-### SubAction
-
-Actions have one more additional keyword argument called `subactions`.
-A `SubAction` is used to have fine grained control of how an objects can move  from frame to frame. 
-[Tutorial 4](tutorial_4.md) and [tutorial 6](tutorial_6.md) explain more about a `SubAction`.
-
 Now that those explanations are out of the way, back to the brain! 
 
 The code
 
 ```julia
 ...
-    Action(:same, :head, (args...) -> circ(O, "black", :stroke, 170)),
+head = Object((args...) -> circ(O, "black", :stroke, 170))
 ...
 ```
 
@@ -151,12 +133,12 @@ creates
 
 Now we are getting a - _head_! 😃
 
-> **NOTE:** The ellipses, `...`, in the code block to produce the head represents putting the action inside of the [`javis`](@ref) function.
+> **NOTE:** The ellipses, `...`, in the code block to produce the head represents putting the action inside of the [`render`](@ref) function.
 > So, the above block actually turns out to look like this:
 > ``````julia
-> javis(video, [
->     Action(:same, :head, (args...) -> circ(O, "black", :stroke, 170))],
->     pathname = "eeg.gif", framerate = 1)
+> ...
+> head = Object((args...) -> circ(O, "black", :stroke, 170))
+> render(video, pathname = "eeg.gif", framerate = 1)
 > ``````
 
 ## Placing the Electrodes
@@ -180,22 +162,15 @@ The following code places a vertical and horizontal axis as well as an inscribed
 
 ```julia
 ...
-        Action(
-            :same,
-            :inside_circle,
-            (args...) -> circ(O, "black", :stroke, 140, "longdashed"),
-        ),
-        Action(
-            :same,
-            :vert_line,
-            (args...) ->
-                draw_line(Point(0, -170), Point(0, 170), "black", :stroke, "longdashed"),
-        ),
-        Action(
-            :same,
-            :horiz_line,
-            (args...) ->
-		draw_line(Point(-170, 0), Point(170, 0), "black", :stroke, "longdashed")),
+inside_circle = Object((args...) -> circ(O, "black", :stroke, 170))
+vert_line = Object(
+    (args...) ->
+        draw_line(Point(0, -170), Point(0, 170), "black", :stroke, "longdashed"),
+)
+horiz_line = Object(
+    (args...) ->
+        draw_line(Point(-170, 0), Point(170, 0), "black", :stroke, "longdashed"),
+)
 ...
 ```
 
@@ -203,11 +178,6 @@ The following code places a vertical and horizontal axis as well as an inscribed
 
 Great!
 Now that we have the gridlines, let's add in our electrode!
-
-> **NOTE:** If you noticed, we used Symbols to mark each `Action`.
-> `id`'s can actually be used to store the returns of a function called via an `Action`.
-> This functionality was introduced in [Tutorial 1](tutorial_1.md) and will be further explored in future tutorials.
-> An alternative syntax that is valid is to leave out the `id` and instead use a comment to mark what `Action` does what. 
 
 We have to define our own function to create an electrode.
 The following code accomplishes this goal:
@@ -296,19 +266,18 @@ Also, we need to define the radius of our electrodes; we will set that to 15:
 
 ```julia
 ...
-    radius = 15 # needs to be defined before calling `javis`
-	Action(
-            :electrodes,
-            (args...) ->
-                electrode.(
-                    electrode_locations,
-                    "white",
-                    "black",
-                    :fill,
-                    radius,
-                    electrode_names,
-                ),
+radius = 15 # needs to be defined before calling `render`
+electrodes = Object(
+    (args...) ->
+        electrode.(
+            electrode_locations,
+            "white",
+            "black",
+            :fill,
+            radius,
+            electrode_names,
         ),
+)
 ...
 ```
 
@@ -343,18 +312,17 @@ The previous electrode code looked like this
 
 ```julia
 ...
-        Action(
-            :electrodes,
-            (args...) ->
-                electrode.(
-                    electrode_locations,
-                    "white",
-                    "black",
-                    :fill,
-                    radius,
-                    electrode_names,
-                ),
+electrodes = Object(
+    (args...) ->
+        electrode.(
+            electrode_locations,
+            "white",
+            "black",
+            :fill,
+            radius,
+            electrode_names,
         ),
+)
 ...
 ```
 
@@ -367,18 +335,17 @@ An example resulting electrode configuration with random colors looks like this:
 
 ```julia
 ...
-        Action(
-            :electrodes,
-            (args...) ->
-                electrode.(
-                    electrode_locations,
-                    rand(indicators, length(electrode_locations)),
-                    "black",
-                    :fill,
-                    radius,
-                    electrode_names,
-                ),
+electrodes = Object(
+    (args...) ->
+        electrode.(
+            electrode_locations,
+            rand(indicators, length(electrode_locations)),
+            "black",
+            :fill,
+            radius,
+            electrode_names,
         ),
+)
 ...
 ```
 
@@ -407,12 +374,12 @@ It's invocation in the code looks like this:
 
 ```julia
 ...
-Action(:same, :info, info_box),
+info = Object(info_box)
 ...
 ```
 
 > **NOTE:** The function for `info_box` is a little different!
-> Each `Action` inside of the `javis` function automatically receives three objects being a `Video` object, which was previously defined outside of the `javis` function, the `Action` object, and the current frame number. 
+> Each `Action` inside of the `render` function automatically receives three objects being a `Video` object, which was previously defined outside of the `render` function, the `Object`, and the current frame number. 
 
 Once everything is executed, we get this very nice and clean looking animation which shows what this animation is and when parts of the brain are activated:
 
@@ -424,8 +391,8 @@ Congratulations! 🎉 🎉 🎉
 You made a brain! 
 To recap, by working through this animation you should now:
 
-1. Clearly understand how to use an `Action` 
-2. Be able to create your own `Action`
+1. Clearly understand how to use an `Object` 
+2. Be able to create your own `Object`
 3. Know how to approach complex animations
 4. Make meaningful information displayed easily on your animations
 
@@ -529,43 +496,32 @@ electrode_names = [
 radius = 15
 indicators = ["tomato", "darkolivegreen1", "gold1", "white"]
 demo = Video(500, 500)
-javis(
-    demo,
-    [
-        BackgroundAction(1:10, ground),
-        Action(
-            :inside_circle,
-            (args...) -> circ(O, "black", :stroke, 140, "longdashed"),
-        ),
-        Action(:head, (args...) -> circ(O, "black", :stroke, 170)),
-        Action(
-            :vert_line,
-            (args...) ->
-                draw_line(Point(0, -170), Point(0, 170), "black", :stroke, "longdashed"),
-        ),
-        Action(
-            :horiz_line,
-            (args...) ->
-                draw_line(Point(-170, 0), Point(170, 0), "black", :stroke, "longdashed"),
-        ),
-        Action(
-            :electrodes,
-            (args...) ->
-                electrode.(
-                    electrode_locations,
-                    rand(indicators, length(electrode_locations)),
-                    "black",
-                    :fill,
-                    radius,
-                    electrode_names,
-                ),
-        ),
-        Action(:info, info_box),
-    ],
-    pathname = "eeg.gif",
-    framerate = 1,
-)
 
+anim_background = Background(1:10, ground)
+head = Object((args...) -> circ(O, "black", :stroke, 170))
+inside_circle = Object((args...) -> circ(O, "black", :stroke, 170))
+vert_line = Object(
+    (args...) ->
+        draw_line(Point(0, -170), Point(0, 170), "black", :stroke, "longdashed"),
+)
+horiz_line = Object(
+    (args...) ->
+        draw_line(Point(-170, 0), Point(170, 0), "black", :stroke, "longdashed"),
+)
+electrodes = Object(
+    (args...) ->
+        electrode.(
+            electrode_locations,
+            rand(indicators, length(electrode_locations)),
+            "black",
+            :fill,
+            radius,
+            electrode_names,
+        ),
+)
+info = Object(info_box)
+
+render(demo, pathname = "eeg.gif", framerate = 1)
 ```
 
 ---
