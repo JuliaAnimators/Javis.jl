@@ -71,7 +71,7 @@ function draw_latex(video, object, frame)
 end
 
 demo = Video(500, 500)
-BackgroundObject(1:2, ground)
+Background(1:2, ground)
 Object(draw_latex)
 render(demo; pathname = "latex.gif")
 ```

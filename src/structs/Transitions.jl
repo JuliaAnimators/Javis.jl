@@ -1,151 +1,41 @@
-"""
-    InternalTranslation <: InternalTransition
+#=
 
-Saves a translation as described by [`Translation`](@ref) for the current frame.
-Is part of the [`Object`](@ref) struct.
-"""
-mutable struct InternalTranslation <: InternalTransition
-    by::Point
+    This file transforms `anim_X` to a structure that is than used inside `Action`
+
+=#
+
+struct Translation <: AbstractTransition
+    from::Union{Object,Point}
+    to::Union{Object,Point}
 end
 
-"""
-    InternalRotation <: InternalTransition
+anim_translate(x::Real, y::Real) = anim_translate(Point(x, y))
+anim_translate(tp::Union{Object,Point}) = Translation(O, tp)
+anim_translate(fp::Union{Object,Point}, tp::Union{Object,Point}) = Translation(fp, tp)
 
-Saves a rotation as described by [`Rotation`](@ref) for the current frame.
-Is part of the [`Object`](@ref) struct.
-"""
-mutable struct InternalRotation <: InternalTransition
-    angle::Float64
-    center::Point
+struct Rotation{T<:Real} <: AbstractTransition
+    from::T
+    to::T
+    center::Union{Nothing,Point,AbstractObject}
 end
 
-"""
-    InternalScaling <: InternalTransition
+anim_rotate(ta::Real) = Rotation(0.0, ta, nothing)
+anim_rotate(fa::T, ta::T) where {T<:Real} = Rotation(fa, ta, nothing)
 
-Saves a scaling as described by [`Scaling`](@ref) for the current frame.
-Is part of the [`Object`](@ref) struct.
-"""
-mutable struct InternalScaling <: InternalTransition
-    scale::Tuple{Float64,Float64}
+anim_rotate_around(ta::Real, p) = Rotation(0.0, ta, p)
+anim_rotate_around(fa::T, ta::T, p) where {T<:Real} = Rotation(fa, ta, p)
+
+struct Scaling <: AbstractTransition
+    from::Union{Object,Scale,Symbol}
+    to::Union{Object,Scale,Symbol}
 end
 
-"""
-    Translation <: Transition
+Scaling(fs::Union{Object,Scale,Symbol}, ts) = Scaling(fs, ts)
+Scaling(fs::Real, ts) = Scaling(Scale(fs, fs), ts)
+Scaling(fs::Tuple, ts) = Scaling(Scale(fs...), ts)
 
-Stores the `Point` or a link for the start and end position of the translation
+Scaling(fs::Union{Object,Scale,Symbol}, ts::Real) = Scaling(fs, Scale(ts, ts))
+Scaling(fs::Union{Object,Scale,Symbol}, ts::Tuple) = Scaling(fs, Scale(ts...))
 
-# Fields
-`from::Union{Point, Symbol}`: The start position or a link to the start position.
-    See `:red_ball` in [`javis`](@ref)
-`to::Union{Point, Symbol}`: The end position or a link to the end position
-"""
-struct Translation <: Transition
-    from::Union{Point,Symbol}
-    to::Union{Point,Symbol}
-end
-
-"""
-    Translation(p::Union{Point, Symbol})
-
-Create a `Translation(O, p)` such that a translation is done from the origin.
-"""
-Translation(p::Union{Point,Symbol}) = Translation(O, p)
-
-"""
-    Translation(x::Real, y::Real)
-
-Create a `Translation(O, Point(x,y))` such that a translation is done from the origin.
-Shorthand for writing `Translation(Point(x,y))`.
-"""
-Translation(x::Real, y::Real) = Translation(Point(x, y))
-
-"""
-    Rotation <: Transition
-
-Stores the rotation similar to [`Translation`](@ref) with `from` and `to`
-but also the rotation point.
-
-# Fields
-- `from::Union{Float64, AbstractObject}`: The start rotation or a link to it
-- `to::Union{Float64, AbstractObject}`: The end rotation or a link to it
-- `center::Union{Point, AbstractObject}`: The center of the rotation or a link to it.
-"""
-struct Rotation <: Transition
-    from::Union{Float64,AbstractObject}
-    to::Union{Float64,AbstractObject}
-    center::Union{Point,AbstractObject}
-end
-
-"""
-    Rotation(r::Union{Float64, AbstractObject})
-
-Rotation as a transition from 0.0 to `r` .
-Can be used as a short-hand.
-"""
-Rotation(r::Union{Float64,AbstractObject}) = Rotation(0.0, r)
-
-"""
-    Rotation(r::Union{Float64, AbstractObject}, center::Union{Point, AbstractObject})
-
-Rotation as a transition from `0.0` to `r` around `center`.
-Can be used as a short-hand for rotating around a `center` point.
-"""
-Rotation(r::Union{Float64,AbstractObject}, center::Union{Point,AbstractObject}) =
-    Rotation(0.0, r, center)
-
-"""
-    Rotation(from, to)
-
-Rotation as a transition from `from` to `to` (in radians) around the origin.
-"""
-Rotation(from, to) = Rotation(from, to, O)
-
-"""
-    Scaling <: Transition
-
-Stores the scaling similar to [`Translation`](@ref) with `from` and `to`.
-
-# Example
-- Can be called with different constructors like:
-```
-Scaling(10) -> Scaling(CURRENT_SCALING, (10.0, 10.0))
-Scaling(10, :my-scale) -> Scaling((10.0, 10.0), :my_scale)
-Scaling(10, 2) -> Scaling((10.0, 10.0), (2.0, 2.0))
-Scaling(10, (1,2)) -> Scaling((10.0, 10.0), (1.0, 2.0))
-```
-
-**Attention:** This always scales from the origin.
-For direct mutation of objects you might want to use [`change`](@ref) instead to change an object's actual size.
-
-# Fields
-- `from::Union{Tuple{Float64, Float64}, Symbol, AbstractObject}`: The start scaling or a link to it
-- `to::Union{Tuple{Float64, Float64}, Symbol, AbstractObject}`: The end scaling or a link to it
-- `compute_from_once::Bool`: Saves whether the from is computed for the first frame or
-    every frame. Is true if from is `:_current_scale`.
-"""
-mutable struct Scaling <: Transition
-    from::Union{Tuple{Float64,Float64},Symbol,AbstractObject}
-    to::Union{Tuple{Float64,Float64},Symbol,AbstractObject}
-    compute_from_once::Bool
-end
-
-Scaling(to::Tuple) = Scaling(:_current_scale, to, true)
-Scaling(to::Real) = Scaling(:_current_scale, convert(Float64, to), true)
-Scaling(to::AbstractObject) = Scaling(:_current_scale, to, true)
-Scaling(to::Symbol) = Scaling(:_current_scale, to, true)
-
-function Scaling(from::Real, to::Real, compute_from_once = false)
-    from_flt = convert(Float64, from)
-    to_flt = convert(Float64, to)
-    Scaling((from_flt, from_flt), (to_flt, to_flt), compute_from_once)
-end
-
-function Scaling(from::Real, to, compute_from_once = false)
-    flt = convert(Float64, from)
-    Scaling((flt, flt), to, compute_from_once)
-end
-
-function Scaling(from, to::Real, compute_from_once = false)
-    flt = convert(Float64, to)
-    Scaling(from, (flt, flt), compute_from_once)
-end
+anim_scale(ts) = Scaling(:current_scale, ts)
+anim_scale(fs, ts) = Scaling(fs, ts)

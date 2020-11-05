@@ -122,7 +122,7 @@ circle_anim = Animation(
     [sineio(), polyin(5), expin(8)],
 )
 
-BackgroundObject(1:150, ground)
+Background(1:150, ground)
 obj = Object((args...)->circle(O, 25, :fill))
 act!(obj, Action(1:150, circle_anim, translate()))
 
@@ -189,7 +189,7 @@ rotate_anim = Animation(
     [linear()],
 )
 
-BackgroundObject(1:150, ground)
+Background(1:150, ground)
 ball = Object((args...) -> circle(O, 25, :fill))
 act!(ball, Action(1:10, sineio(), scale()))
 act!(ball, Action(11:50, translate_anim, translate()))
@@ -208,12 +208,12 @@ function Luxor.rotate()
 end
 
 function _rotate(video, object, action, rel_frame)
-    p = get_interpolation(action, rel_frame)
-    Luxor.rotate(p)
+    a = get_interpolation(action, rel_frame)
+    Luxor.rotate(a)
 end
 
 """
-    rotate_around(p::Point)
+    rotate_around(p)
 
 Rotate an [`Object`](@ref) using an [`Action`](@ref) and an Animation defined
 with Animations.jl around a point `p`. For [`rotate`](@ref) it rotates around the current origin.
@@ -221,25 +221,34 @@ with Animations.jl around a point `p`. For [`rotate`](@ref) it rotates around th
 An example can be seen in [`rotate`](@ref).
 
 # Arguments
-- `p::Point`: the point to rotate around
+- `p`: the point to rotate around
 """
-function rotate_around(p::Point)
+function rotate_around(p)
     (video, object, action, rel_frame) ->
-        _rotate_around(video, object, action, rel_frame, p)
+        _rotate_around(video, object, action, rel_frame, get_position(p))
 end
 
 function _rotate_around(video, object, action, rel_frame, p)
+    # p should be global so without the translated start_pos
+    p = p - object.start_pos
+    # save the radius and start angle
+    r = get(action.defs, :rotate_radius, distance(p, O))
+    pnormed = get(action.defs, :pnormed, p / r)
+    if !haskey(action.defs, :rotate_radius)
+        action.defs[:rotate_radius] = r
+        action.defs[:pnormed] = pnormed
+    end
     i = get_interpolation(action, rel_frame)
     Luxor.translate(p)
     Luxor.rotate(i)
-    Luxor.translate(-p)
+    Luxor.translate(-r * pnormed)
 end
 
 """
     scale()
 
 Scale a function defined inside a [`Action`](@ref) using an Animation defined
-with Animations.jl around the point `p`.
+with Animations.jl.
 
 An example can be seen in [`rotate`](@ref).
 """
@@ -248,8 +257,8 @@ function scale()
 end
 
 function _scale(video, object, action, rel_frame)
-    p = get_interpolation(action, rel_frame)
-    scale(p)
+    s = get_interpolation(action, rel_frame)
+    scaleto(s)
 end
 
 """
@@ -386,7 +395,7 @@ in an animated way.
 
 # Example
 ```julia
-BackgroundObject(1:100, ground)
+Background(1:100, ground)
 obj = Object((args...; radius = 25) -> object(O, radius, "red"), Point(100, 0))
 act!(obj, Action(1:50, change(:radius, 25 => 0)))
 act!(Action(51:100, change(:radius, 0 => 25)))

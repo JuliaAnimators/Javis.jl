@@ -107,6 +107,10 @@ function scale(scl::Number)
     scale(scl, scl)
 end
 
+function scale(scl::Scale)
+    scale(scl.x, scl.y)
+end
+
 """
     scale(scl_x, scl_y)
 
@@ -118,16 +122,17 @@ Same as [`scale`](@ref) but the x scale and y scale can be changed independently
 """
 function scale(scl_x, scl_y)
     cs = get_current_setting()
-    cs.desired_scale = (scl_x, scl_y)
-    current_scale = cs.desired_scale .* cs.mul_scale
-    if current_scale[1] ≈ 0.0 || current_scale[2] ≈ 0.0
+    cs.desired_scale = Scale(scl_x, scl_y)
+    scale_by = cs.desired_scale * cs.mul_scale
+    if scale_by.x ≈ 0.0 || scale_by.y ≈ 0.0
         cs.show_object = false
     else
-        Luxor.scale(current_scale...)
-        cs.current_scale = cs.current_scale .* current_scale
+        Luxor.scale(scale_by.x, scale_by.y)
+        cs.current_scale = cs.current_scale * scale_by
     end
 end
 
+scaleto(s::Scale) = scaleto(s.x, s.y)
 scaleto(xy) = scaleto(xy, xy)
 
 """
@@ -138,16 +143,16 @@ For scaling on top of the current scale have a look at [`scale`](@ref).
 """
 function scaleto(x, y)
     cs = get_current_setting()
-    cs.desired_scale = (x, y)
-    scaling = (x, y) ./ cs.current_scale
+    cs.desired_scale = Scale(x, y)
+    scaling = Scale(x, y) / cs.current_scale
     # we divided by 0 but clearly we want to scale to 0
     # -> we want scaling to be 0 not Inf
     if x ≈ 0 || y ≈ 0
         cs.show_object = false
         return
     end
-    Luxor.scale(scaling...)
-    cs.current_scale = (x, y)
+    Luxor.scale(scaling.x, scaling.y)
+    cs.current_scale = Scale(x, y)
 end
 
 """

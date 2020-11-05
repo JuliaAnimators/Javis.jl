@@ -1,10 +1,12 @@
-# **Tutorial 4:** Do You Know Our Mascot? - Learn About Transitions And Subactions!
+# **Tutorial 4:** Do You Know Our Mascot? - Learn About Transitions And Actions!
 
-You have learned a couple of cool features of Javis already. Now you're ready to finally meet our little mascot. Well actually you can't just see him, we have to create him first. 😄
+You have learned a couple of cool features of Javis already. 
+Now you're ready to finally meet our little mascot. 
+Well actually you can't see him just yet - we have to create him first. 😄
 
 ## Our goal
 
-Let's create a list of what we want first
+Let's create a list of what we want first:
 - a circular head
 - some hair
 - eyes
@@ -14,19 +16,19 @@ Let's create a list of what we want first
 
 ## Learning Outcomes
 
-This tutorial demonstrates the power of subactions.
-A `SubAction` can be used to finely manipulate objects in your animation or visualization. 
+This tutorial demonstrates the power of actions a bit more than the previous tutorials.
+An [`Action`](@ref) can be used to finely manipulate objects in your animation or visualization. 
 
 From this tutorial, you will learn how to:
 
-1. Finely control objects by making them appear and disappear using a `SubAction`.
-2. Move objects using a `SubAction`.
-3. Learn Julia splatting syntax (the `...`) to create multiple actions quickly.
+1. Finely control objects by making them appear and disappear using an `Action`.
+2. Move objects using an `Action`.
+3. Learn how to create several objects quickly
 
 ## Starting with the Basics of SubAction
 
-The `ground` function should be familiar to you as well as the general structure of the `javis` function if you have seen the first [tutorial](tutorial_1.md).
-In this tutorial, rather than calling the `javis` function by itself, we are going to be calling it from the function we are creating to create our mascot, `face`: 
+The `ground` function should be familiar to you as well as the general structure of the code if you have seen the first [tutorial](tutorial_1.md).
+In this tutorial, rather than calling the `render` function in the global space, we are going to be calling it from the function we are creating to create our mascot, `face`: 
 
 ```julia
 using Javis
@@ -44,54 +46,45 @@ end
 
 function face()
     video = Video(500, 500)
-    javis(video, [
-        BackgroundAction(1:150, ground),
-        Action(title; subactions=[
-            SubAction(1:5, appear(:fade)),
-        ]),
-    ], pathname="jarvis.gif", framerate=15)
+    Background(1:150, ground)
+    the_title = Object(title)
+    act!(the_title, Action(1:5, appear(:fade)))
+    render(video; pathname="jarvis.gif", framerate=15)
 end
 ```
 
-A new component introduced in this tutorial is shown in the second `Action`.
-It is the kwarg `subactions` followed by the object `SubAction`.
-A `SubAction` is invoked when you want to apply an additional action or provide an additional functionality to the original `Action`.
-Although one could use standard an `Action` to achieve the same functionality, `subactions` provide a much easier and more organized method that also improves readability.
-
-> **NOTE:** For an `Action` you can leave the frames arg blank. 
+> **NOTE:** For an `Object` you can leave the frames arg blank. 
 > The frames from the previous action are used. 
 
-The `subactions` keyword uses a list of [`SubAction`](@ref) structs which are defined in a similar fashion as `Action` with `frames` and a `function` but are in some sense simpler than the `Action`. 
-
-A function of a `SubAction` is normally either [`appear`](@ref) or [`disappear`](@ref) at the moment or one of these transformations: [`Translation`](@ref), [`Rotation`](@ref) and [`Scaling`](@ref).
+A function of an `Action` is normally either [`appear`](@ref) or [`disappear`](@ref) or one of these transformations: [`anim_translate`](@ref), [`anim_rotate`](@ref)/[`anim_rotate_around`](@ref) and [`anim_scale`](@ref).
 
 In theory you can define your own but that is way outside of this tutorial.
 
 **Let's summarize the functionality:**
 
-With the invocation of `SubAction` in the `face` function, the `javis` function can be broken down as follows:
-- We define our set, the background, for the animation using a `BackgroundAction`.
-- Using the `title` function, we invoke an `Action` and then provide a `SubAction`.
-  - The `SubAction` utilizes the `Javis.jl` provided function, `appear` to cause the title to slowly appear in the first 5 frames of the `Action`. 
+We have created a [`Background`](@ref) as usual and an [`Object`](@ref) with the same number of frames. 
+The object is saved in a variable `the_title` such that we can [`act!`](@ref) on it with an [`Action`](@ref).
+In this case we let the title fade in for the first five frames.
 
 ## The Upper Part of the Head
 
 Let's continue with a bit more before we draw part of the mascot.
 
-The following actions will just be added to the `javis` function.
+The following actions will be added below the last action.
 
 ```julia
-Action(16:150, (args...)->circle(O, 100, :stroke); subactions=[
-    SubAction(1:15, appear(:fade)),
-]),
+head = Object(16:150, (args...)->circle(O, 100, :stroke))
+act!(head, Action(1:15, appear(:fade)))
 ```
 
-This is very similar to the previous action. Here we can see that `SubAction` uses relative frame numbers such that the head appears in the frames `16:30` and then is at full opacity afterwards.
+This is very similar to the previous code.
+Here we can see that the `Action` uses relative frame numbers such that the head appears in the frames `16:30` and then is at full opacity afterwards.
 
 > **NOTE:** Just a small refresher: We need the anonymous function `(args...)->circle(O, 100, :stroke)` as each function gets called with the three arguments `video, action, frame`.
 
-### The Power of Splatting
+### Javis Regrows Hair!
 
+Jarvis is bald currently!
 Okay let's add some hair shall we?
 
 I want to have some randomness in his hair so let's define:
@@ -116,29 +109,28 @@ It draws one brown hair blob given the angle. We basically rotate the whole canv
 
 Now how do we draw the hair without creating an action for each blob?
 
-Well we actually create an Action for each blob but we can use a for loop for this.
-
-We can use splatting for that :wink:
+Well we actually create an Action for each blob but only internally. You can use the [`act!`](@ref) function.
 
 ```julia
-[
-    Action(26:150, (args...)->hair_blob(hair_angle[i]); subactions=[
-        SubAction(1:25, appear(:fade)),
-    ]) for i=1:20
-]...,
+hair = Object[]
+for i = 1:20
+    push!(hair, Object(26:150, (args...)->hair_blob(hair_angle[i])))
+end
+act!(hair, Action(1:25, appear(:fade)))
 ```
 
-We first create a vector using the `[foobar for i=1:20]` notation but as the javis function expects `foobar, foobar, ..., foobar` without the vector we use splatting like `[foobar for i=1:20]...`
+We first create a vector where we define that its a vector of `Object` and then push new objects to it.
+Afterwards we can apply an action to the whole group.
 
-I think you get the idea of how to use `appear` now. Let's add some eyes and a nose quickly before we draw our first gif.
+I think you get the idea of how to use `appear` now.
+Let's add some eyes and a nose quickly before we draw our first gif.
 
 ```julia
-Action(30:150, (args...)->eyes(eye_centers, 10, "darkblue"); subactions=[
-    SubAction(1:15, appear(:fade)),
-]),
-Action(45:150, (args...)->poly(nose, :fill); subactions=[
-    SubAction(1:15, appear(:fade)),
-]),
+the_eyes = Object(30:150, (args...)->eyes(eye_centers, 10, "darkblue"))
+act!(the_eyes, Action(1:15, appear(:fade)))
+
+the_nose = Object(45:150, (args...)->poly(nose, :fill))
+act!(the_nose, Action(1:15, appear(:fade)))
 ```
 
 with:
@@ -161,7 +153,7 @@ end
 
 ![Up to the nose](./assets/jarvis_nose.gif)
 
-## Using Transformations
+## Talk to Me, Jarvis
 
 Let's give him some moving lips so he can communicate with us:
 
@@ -185,7 +177,7 @@ end
 
 This function uses some more functions of the awesome Luxor package.
 
-The lips should be a little thicker than the other lines that we have drawn so far so let's set `setline(2)`. (default is 1).
+The lips should be a little thicker than the other lines that we have drawn so far so let's set `setline(2)` (default is 1).
 First we move to the starting point of the lip and create two control points a bit below and to the vertical center.
 
 The `curve` function is used to draw a cubic [Bézier curve](https://en.wikipedia.org/wiki/B%C3%A9zier_curve). 
@@ -194,21 +186,22 @@ It unfortunately doesn't support the `:stroke` at the end so we have to do this 
 Now our two actions:
 
 ```julia
-Action(60:150, (args...)->lip(upper_lip...); subactions=[
-    SubAction(1:15, appear(:fade)),
-    [SubAction(20i:20i+10, Translation(0, -5)) for i in 1:5]...,
-    [SubAction(20i+10:20i+20, Translation(0, 5)) for i in 1:5]...
-]),
-Action(60:150, (args...)->lip(lower_lip...); subactions=[
-    SubAction(1:15, appear(:fade)),
-    [SubAction(20i:20i+10, Translation(0, 5)) for i in 1:5]...,
-    [SubAction(20i+10:20i+20, Translation(0, -5)) for i in 1:5]...
-]),
+lip_fade_in = Action(1:15, appear(:fade))
+the_upper_lip = Object(60:150, (args...)->lip(upper_lip...))
+act!(the_upper_lip, lip_fade_in)
+act!(the_upper_lip, [Action(20i:20i+10, anim_translate(0, -5)) for i in 1:5])
+act!(the_upper_lip, [Action(20i+10:20i+20, anim_translate(0, 5)) for i in 1:5])
+
+the_lower_lip = Object(60:150, (args...)->lip(lower_lip...))
+act!(the_lower_lip, lip_fade_in)
+act!(the_lower_lip, [Action(20i:20i+10, anim_translate(0, 5)) for i in 1:5])
+act!(the_lower_lip, [Action(20i+10:20i+20, anim_translate(0, -5)) for i in 1:5])
 ```
 
-Yeah I like those `...` splatting 😄
-
 We fade them in at the beginning and then they shall move up and down a couple of times.
+
+In this snippet you can see that we can define a more general action which isn't applied to an object at the stage of creation.
+You can also use the `act!` function to apply a list of actions to an object like. 
 
 Finally let him speak:
 
@@ -221,19 +214,18 @@ end
 
 
 ```julia
-Action(80:120, (args...)->speak("I'm Jarvis"); subactions=[
-    SubAction(1:5, appear(:fade)),
-    SubAction(36:40, disappear(:fade)),
-]),
-Action(120:150, (args...)->speak("How are you?"); subactions=[
-    SubAction(1:5, appear(:fade)),
-    SubAction(36:40, disappear(:fade)),
-])
+speaking1 = Object(80:120, (args...)->speak("I'm Jarvis"))
+act!(speaking1, Action(1:5, appear(:draw_text)))
+act!(speaking1, Action(36:40, disappear(:draw_text)))
+
+speaking2 = Object(120:150, (args...)->speak("How are you?"))
+act!(speaking2, Action(1:5, appear(:draw_text)))
+act!(speaking2, Action(36:40, disappear(:draw_text)))  
 ```
 
-This time we also use the [`disappear`](@ref) function to fade out the text.
+This time we also use the [`disappear`](@ref) function to fade out the text. Additionally, it shows you a new input into [`appear`](@ref) and [`disappear`](@ref) which only works for text namely `:draw_text` which draws the text from left to right.
 
-Now, with everything properly defined using the `javis` function within the `face` function one can simply execute the following from your Julia REPL:
+Now, with everything properly defined within the `face` function one can simply execute the following from your Julia REPL:
 
 ```
 julia> face()
@@ -249,9 +241,9 @@ Jarvis is alive!
 
 To recap, by working through this animation you should now:
 
-1. Understand how to make objects appear and disappear using subactions
-2. Be able to move objects inside subactions to have a finer control of the movement
-3. Know how to use splatting (the `...`) to create actions in a loop
+1. Understand how to make objects appear and disappear using actions
+2. Be able to move objects inside actions to have a finer control of the movement
+3. Know how to use apply several actions to an object
 
 Hope you had as much fun reading this tutorial as I had creating our mascot.
 
@@ -308,47 +300,48 @@ function face()
     hair_angle = rand(-0.9:0.1:0.9, 20)
 
     video = Video(500, 500)
-    javis(video, [
-        BackgroundAction(1:150, ground),
-        Action(title; subactions=[
-            SubAction(1:5, appear(:fade)),
-        ]),
-        Action(16:150, (args...)->circle(O, 100, :stroke); subactions=[
-            SubAction(1:15, appear(:fade)),
-        ]),
-        [
-            Action(26:150, (args...)->hair_blob(hair_angle[i]); subactions=[
-                SubAction(1:25, appear(:fade)),
-            ]) for i=1:20
-        ]...,
-        Action(30:150, (args...)->eyes(eye_centers, 10, "darkblue"); subactions=[
-            SubAction(1:15, appear(:fade)),
-        ]),
-        Action(45:150, (args...)->poly(nose, :fill); subactions=[
-            SubAction(1:15, appear(:fade)),
-        ]),
-        Action(60:150, (args...)->lip(upper_lip...); subactions=[
-            SubAction(1:15, appear(:fade)),
-            [SubAction(20i:20i+10, Translation(0, -5)) for i in 1:5]...,
-            [SubAction(20i+10:20i+20, Translation(0, 5)) for i in 1:5]...
-        ]),
-        Action(60:150, (args...)->lip(lower_lip...); subactions=[
-            SubAction(1:15, appear(:fade)),
-            [SubAction(20i:20i+10, Translation(0, 5)) for i in 1:5]...,
-            [SubAction(20i+10:20i+20, Translation(0, -5)) for i in 1:5]...
-        ]),
-        Action(80:120, (args...)->speak("I'm Jarvis"); subactions=[
-            SubAction(1:5, appear(:fade)),
-            SubAction(36:40, disappear(:fade)),
-        ]),
-        Action(120:150, (args...)->speak("How are you?"); subactions=[
-            SubAction(1:5, appear(:fade)),
-            SubAction(36:40, disappear(:fade)),
-        ])
-    ], pathname="jarvis.gif", framerate=15)
+    Background(1:150, ground)
+    the_title = Object(title)
+    act!(the_title, Action(1:5, appear(:fade)))
+    a = Object(16:150, (args...)->circle(O, 100, :stroke))
+    act!(a, Action(1:15, appear(:fade)))
+    
+    hair = Object[]
+    for i = 1:20
+        push!(hair, Object(26:150, (args...)->hair_blob(hair_angle[i])))
+    end
+    act!(hair, Action(1:25, appear(:fade)))
+    
+    the_eyes = Object(30:150, (args...)->eyes(eye_centers, 10, "darkblue"))
+    act!(the_eyes, Action(1:15, appear(:fade)))
+
+    the_nose = Object(45:150, (args...)->poly(nose, :fill))
+    act!(the_nose, Action(1:15, appear(:fade)))
+    
+    lip_fade_in = Action(1:15, appear(:fade))
+    the_upper_lip = Object(60:150, (args...)->lip(upper_lip...))
+    act!(the_upper_lip, lip_fade_in)
+    act!(the_upper_lip, [Action(20i:20i+10, anim_translate(0, -5)) for i in 1:5])
+    act!(the_upper_lip, [Action(20i+10:20i+20, anim_translate(0, 5)) for i in 1:5])
+
+    the_lower_lip = Object(60:150, (args...)->lip(lower_lip...))
+    act!(the_lower_lip, lip_fade_in)
+    act!(the_lower_lip, [Action(20i:20i+10, anim_translate(0, 5)) for i in 1:5])
+    act!(the_lower_lip, [Action(20i+10:20i+20, anim_translate(0, -5)) for i in 1:5])
+
+    speaking1 = Object(80:120, (args...)->speak("I'm Jarvis"))
+    act!(speaking1, Action(1:5, appear(:draw_text)))
+    act!(speaking1, Action(36:40, disappear(:draw_text)))
+
+    speaking2 = Object(120:150, (args...)->speak("How are you?"))
+    act!(speaking2, Action(1:5, appear(:draw_text)))
+    act!(speaking2, Action(36:40, disappear(:draw_text)))    
+    render(video; pathname="jarvis.gif", framerate=15)
 end
+
+face()
 ```
 
 > **Author(s):** Ole Kröger, Jacob Zelko \
 > **Date:** August 14th, 2020 \
-> **Tag(s):** jarvis, subactions, fade, transformations
+> **Tag(s):** jarvis, actions, fade, transformations

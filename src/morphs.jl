@@ -97,7 +97,7 @@ astar(args...) = star(O, 50)
 acirc(args...) = circle(Point(100,100), 50)
 
 video = Video(500, 500)
-back = BackgroundObject(1:20, ground)
+back = Background(1:20, ground)
 star_obj = Object(1:10, astar)
 act!(star_obj, Action(linear(), morph_to(acirc)))
 circle_obj = Object(11:20, acirc)

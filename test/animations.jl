@@ -28,22 +28,21 @@ end
 
 @testset "Dancing circles (gif)" begin
     p1 = Point(100, 0)
-    p2 = Point(100, 80)
+    p2 = Point(200, 80)
     from_rot = 0.0
     to_rot = 2π
     path_of_blue = Point[]
     path_of_red = Point[]
 
     video = Video(500, 500)
-    back = BackgroundObject(1:25, ground, Point(25, 25))
-    act!(back, Action(1:1, Rotation(0.0)))
+    back = Background(1:25, ground, Point(25, 25))
 
     Object(latex_title)
-    red_ball = Object(Rel(-24:0), (args...) -> circ(p1, "red"))
-    act!(red_ball, Action(Rotation(from_rot, to_rot)))
+    red_ball = Object(RFrames(-24:0), (args...) -> circ(O, "red"), p1)
+    act!(red_ball, Action(anim_rotate_around(from_rot, to_rot, O)))
 
-    blue_ball = Object(1:25, (args...) -> circ(p2, "blue"))
-    act!(blue_ball, Action(Rotation(to_rot, from_rot, red_ball)))
+    blue_ball = Object(1:25, (args...) -> circ(O, "blue"), p2)
+    act!(blue_ball, Action(anim_rotate_around(to_rot, from_rot, red_ball)))
     path_red =
         Object(1:25, (video, args...) -> path!(path_of_red, get_position(red_ball), "red"))
     path_blue =
@@ -63,27 +62,25 @@ end
 
 @testset "Dancing circles (mp4)" begin
     p1 = Point(100, 0)
-    p2 = Point(100, 80)
+    p2 = Point(200, 80)
     from_rot = 0.0
     to_rot = 2π
     path_of_blue = Point[]
     path_of_red = Point[]
 
     video = Video(500, 500)
-    back = BackgroundObject(1:30, ground, Point(25, 25))
-    act!(back, Action(1:1, Rotation(0.0)))
+    back = Background(1:30, ground, Point(25, 25))
 
     Object(latex_title)
-    red_ball = Object(Rel(-29:0), (args...) -> circ(p1, "red"))
-    act!(red_ball, Action(Rotation(from_rot, to_rot)))
+    red_ball = Object((args...) -> circ(O, "red"), p1)
+    act!(red_ball, Action(anim_rotate_around(from_rot, to_rot, O)))
 
-    blue_ball = Object(1:30, (args...) -> circ(p2, "blue"))
-    act!(blue_ball, Action(Rotation(to_rot, from_rot, red_ball)))
-    path_red =
-        Object(1:30, (video, args...) -> path!(path_of_red, get_position(red_ball), "red"))
+    blue_ball = Object(1:30, (args...) -> circ(O, "blue"), p2)
+    act!(blue_ball, Action(anim_rotate_around(to_rot, from_rot, red_ball)))
+    path_red = Object((video, args...) -> path!(path_of_red, get_position(red_ball), "red"))
     path_blue =
         Object(:same, (video, args...) -> path!(path_of_blue, pos(blue_ball), "blue"))
-    string = Object(1:30, (args...) -> rad(pos(red_ball), pos(blue_ball), "black"))
+    string = Object((args...) -> rad(pos(red_ball), pos(blue_ball), "black"))
 
     render(video; tempdirectory = "images", pathname = "dancing.mp4", framerate = 1)
 
@@ -94,7 +91,7 @@ end
 
 @testset "Dancing circles layered" begin
     p1 = Point(100, 0)
-    p2 = Point(100, 80)
+    p2 = Point(200, 80)
     from_rot = 0.0
     to_rot = 2π
     path_of_blue = Point[]
@@ -102,15 +99,15 @@ end
 
     video = Video(500, 500)
     back = Object(1:25, ground, in_global_layer = true)
-    act!(back, Action(Rotation(π / 2, π / 2, O)))
-    act!(back, Action(Translation(Point(25, 25), Point(25, 25))))
+    act!(back, Action(anim_rotate(π / 2, π / 2)))
+    act!(back, Action(anim_translate(Point(25, 25), Point(25, 25))))
 
     Object(latex_title)
-    red_ball = Object(Rel(-24:0), (args...) -> circ(p1, "red"))
-    act!(red_ball, Action(Rotation(from_rot, to_rot)))
+    red_ball = Object(RFrames(-24:0), (args...) -> circ(O, "red"), p1)
+    act!(red_ball, Action(anim_rotate_around(from_rot, to_rot, O)))
 
-    blue_ball = Object(1:25, (args...) -> circ(p2, "blue"))
-    act!(blue_ball, Action(Rotation(to_rot, from_rot, red_ball)))
+    blue_ball = Object(1:25, (args...) -> circ(O, "blue"), p2)
+    act!(blue_ball, Action(anim_rotate_around(to_rot, from_rot, red_ball)))
     path_red =
         Object(1:25, (video, args...) -> path!(path_of_red, get_position(red_ball), "red"))
     path_blue =
@@ -127,7 +124,7 @@ end
 
 @testset "Dancing circles layered return Transformation" begin
     p1 = Point(100, 0)
-    p2 = Point(100, 80)
+    p2 = Point(200, 80)
     from_rot = 0.0
     to_rot = 2π
     path_of_blue = Point[]
@@ -135,19 +132,19 @@ end
 
     video = Video(500, 500)
     back = Object(1:25, ground, in_global_layer = true)
-    act!(back, Action(Rotation(π / 2, π / 2, O)))
-    act!(back, Action(Translation(Point(25, 25), Point(25, 25))))
+    act!(back, Action(anim_rotate(π / 2, π / 2)))
+    act!(back, Action(anim_translate(Point(25, 25), Point(25, 25))))
 
-    title = Object(1:25, latex_title)
-    red_ball = Object(1:25, (args...) -> circ_ret_trans(p1, "red"))
-    act!(red_ball, Action(Rotation(to_rot)))
+    Object(latex_title)
+    red_ball = Object(RFrames(-24:0), (args...) -> circ_ret_trans(O, "red"), p1)
+    act!(red_ball, Action(anim_rotate_around(from_rot, to_rot, O)))
 
-    blue_ball = Object(1:25, (args...) -> circ_ret_trans(p2, "blue"))
-    act!(blue_ball, Action(Rotation(to_rot, from_rot, red_ball)))
-
-    path_red = Object(1:25, (video, args...) -> path!(path_of_red, pos(red_ball), "red"))
+    blue_ball = Object(1:25, (args...) -> circ_ret_trans(O, "blue"), p2)
+    act!(blue_ball, Action(anim_rotate_around(to_rot, from_rot, red_ball)))
+    path_red =
+        Object(1:25, (video, args...) -> path!(path_of_red, get_position(red_ball), "red"))
     path_blue =
-        Object(1:25, (video, args...) -> path!(path_of_blue, pos(blue_ball), "blue"))
+        Object(:same, (video, args...) -> path!(path_of_blue, pos(blue_ball), "blue"))
     string = Object(1:25, (args...) -> rad(pos(red_ball), pos(blue_ball), "black"))
 
     render(video; tempdirectory = "images", pathname = "")
@@ -160,13 +157,14 @@ end
 
 @testset "Drawing grid" begin
     video = Video(500, 500)
-    Object(1:40, ground), Object(1:10, draw_grid(direction = "BL", line_gap = 25))
+    Object(1:40, ground)
+    Object(1:10, draw_grid(direction = "BL", line_gap = 25))
     Object(zero_lines(direction = "BL", line_thickness = 10))
-    Object(Rel(10), draw_grid(direction = "BR", line_gap = 25))
+    Object(GFrames(11:20), draw_grid(direction = "BR", line_gap = 25))
     Object(zero_lines(direction = "BR", line_thickness = 10))
-    Object(Rel(10), draw_grid(direction = "TL", line_gap = 25))
+    Object(RFrames(10), draw_grid(direction = "TL", line_gap = 25))
     Object(zero_lines(direction = "TL", line_thickness = 10))
-    Object(Rel(10), draw_grid(direction = "TR", line_gap = 25))
+    Object(RFrames(10), draw_grid(direction = "TR", line_gap = 25))
     Object(zero_lines(direction = "TR", line_thickness = 10))
 
     render(video; tempdirectory = "images", pathname = "")
@@ -185,8 +183,8 @@ end
     p = Point(100, 0)
 
     Object(1:10, ground)
-    circ = Object((args...) -> circ_ret_trans(p))
-    act!(circ, Action(Rotation(2π)))
+    circ = Object((args...) -> circ_ret_trans(), p)
+    act!(circ, Action(anim_rotate_around(0.0, 2π, O)))
     Object((args...) -> line(Point(-200, 0), Point(-200, -10 * ang(circ)), :stroke))
 
     render(video; tempdirectory = "images", pathname = "")
@@ -227,10 +225,10 @@ end
 
 @testset "House of Nicholas line_width" begin
     demo = Video(500, 500)
-    BackgroundObject(1:50, ground_nicholas)
+    Background(1:50, ground_nicholas)
     house = Object((args...) -> house_of_nicholas())
     act!(house, Action(1:25, appear(:fade_line_width)))
-    act!(house, Action(Rel(25), disappear(:fade_line_width)))
+    act!(house, Action(RFrames(25), disappear(:fade_line_width)))
 
     render(demo; tempdirectory = "images", pathname = "")
 
@@ -245,13 +243,14 @@ end
 @testset "Squeezing a circle using scale" begin
     demo = Video(500, 500)
 
-    BackgroundObject(1:125, ground)
-    start_scale = Object((args...) -> (1.0, 1.0))
+    Background(1:150, ground)
+    start_scale = Object((args...) -> Javis.Scale(1.0, 1.0))
     circle_obj = Object((args...) -> circ())
-    act!(circle_obj, Action(1:25, Scaling((1.0, 1.5))))
-    act!(circle_obj, Action(Rel(25), Scaling((2.0, 1.0))))
-    act!(circle_obj, Action(Rel(25), Scaling(start_scale)))
-    act!(circle_obj, Action(Rel(25), Scaling(2.0); keep = false))
+    act!(circle_obj, Action(1:25, anim_scale((1.0, 1.5))))
+    act!(circle_obj, Action(RFrames(25), anim_scale(Javis.Scale(1.0, 1.5), (2.0, 1.0))))
+    act!(circle_obj, Action(RFrames(25), anim_scale(start_scale)))
+    act!(circle_obj, Action(RFrames(25), anim_scale(2.0); keep = false))
+    act!(circle_obj, Action(126:150, anim_scale(0.0)))
     Object((args...) -> circ(Point(-100, 0)))
 
     render(demo; tempdirectory = "images", pathname = "")
@@ -262,7 +261,9 @@ end
     @test_reference "refs/squeeze65.png" load("images/0000000065.png")
     @test_reference "refs/squeeze85.png" load("images/0000000085.png")
     @test_reference "refs/squeeze110.png" load("images/0000000110.png")
-    for i in 1:125
+    @test_reference "refs/squeeze150.png" load("images/0000000150.png")
+
+    for i in 1:150
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
@@ -282,18 +283,21 @@ end
 @testset "Circle/square appear opacity" begin
     demo = Video(500, 500)
 
-    BackgroundObject(1:50, ground_opacity)
+    Background(1:50, ground_opacity)
     circle_obj = Object(1:42, (args...) -> circ())
     act!(circle_obj, Action(1:25, appear(:fade)))
     act!(circle_obj, Action(26:42, disappear(:fade)))
 
     square_obj = Object(5:50, (args...) -> square_opacity(Point(-100, 0), 60))
     act!(square_obj, Action(1:15, linear(), appear(:fade)))
-    act!(square_obj, Action(Rel(20), linear(), Translation(100, 50)))
-    act!(square_obj, Action(Rel(5), disappear(:fade)))
-    # for global frames 46-50 it should still be disappeared
+    act!(square_obj, Action(RFrames(20), linear(), anim_translate(100, 50)))
+    act!(square_obj, Action(GFrames(40:44), disappear(:fade)))
+    # for global frames 45-50 it should still be disappeared
 
     render(demo; tempdirectory = "images", pathname = "")
+    @test Javis.get_frames(square_obj.actions[1]) == 1:15 # globally 5:19
+    @test Javis.get_frames(square_obj.actions[2]) == 16:35 # == 20:39
+    @test Javis.get_frames(square_obj.actions[3]) == 36:40 # == 40:44
 
     @test_reference "refs/circleSquare07opacity.png" load("images/0000000007.png")
     @test_reference "refs/circleSquare25opacity.png" load("images/0000000025.png")
@@ -314,7 +318,7 @@ end
         [sineio(), polyin(5), expin(8)],
     )
 
-    BackgroundObject(1:150, ground)
+    Background(1:150, ground)
     circle_obj = Object((args...) -> circle(O, 25, :fill))
     act!(circle_obj, Action(1:150, circle_anim, translate()))
 
@@ -335,7 +339,7 @@ end
         [sineio(), polyin(5), expin(8)],
     )
 
-    BackgroundObject(1:2, ground)
+    Background(1:2, ground)
     circle_obj = Object((args...) -> circle(O, 25, :fill))
     act!(circle_obj, Action(circle_anim, translate()))
 
@@ -370,7 +374,7 @@ end
     )
 
 
-    BackgroundObject(1:150, ground)
+    Background(1:150, ground)
     circle_obj = Object((args...) -> circle(O, 25, :fill))
     act!(circle_obj, Action(1:10, sineio(), scale()))
     act!(circle_obj, Action(11:50, translate_anim, translate()))
@@ -399,8 +403,8 @@ end
     rotate_anim = Animation([0.0, 1.0], [0.0, 2π], [sineio()])
 
     video = Video(500, 500)
-    BackgroundObject(1:50, ground)
-    BackgroundObject(1:50, (args...) -> scaleto(2))
+    Background(1:50, ground)
+    Background(1:50, (args...) -> scaleto(2))
     circle_obj = Object((args...) -> circ(Point(75, 0)))
     act!(circle_obj, Action(1:50, rotate_anim, rotate()))
 
@@ -417,11 +421,11 @@ end
 @testset "Scaling circle" begin
     video = Video(500, 500)
 
-    BackgroundObject(1:50, ground)
+    Background(1:50, ground)
     scale_obj = Object((args...) -> 2)
     circle_obj = Object((args...) -> circ())
-    act!(circle_obj, Action(1:15, Scaling(0.0, scale_obj)))
-    act!(circle_obj, Action(36:50, Scaling(0.0)))
+    act!(circle_obj, Action(1:15, anim_scale(0.0, scale_obj)))
+    act!(circle_obj, Action(36:50, anim_scale(0.0)))
 
     render(video; tempdirectory = "images", pathname = "")
 
@@ -432,8 +436,8 @@ end
     # test using appear and disappear
     video = Video(500, 500)
 
-    BackgroundObject(1:50, ground)
-    BackgroundObject(1:50, (args...) -> scale(2))
+    Background(1:50, ground)
+    Background(1:50, (args...) -> scale(2))
     circle_obj = Object((args...) -> circ())
     act!(circle_obj, Action(1:15, appear(:scale)))
     act!(circle_obj, Action(36:50, disappear(:scale)))
@@ -456,8 +460,8 @@ end
     # with using reference tests
     video = Video(400, 300)
 
-    BackgroundObject(1:100, ground)
-    BackgroundObject(1:100, (args...) -> fontsize(30))
+    Background(1:100, ground)
+    Background(1:100, (args...) -> fontsize(30))
     title = Object(1:100, (args...) -> text("Hello Stream!", -50, 50; halign = :centre))
     act!(title, Action(1:15, sineio(), appear(:draw_text)))
     act!(title, Action(76:100, sineio(), disappear(:draw_text)))
@@ -478,8 +482,8 @@ end
     # with using reference tests
     video = Video(400, 300)
 
-    BackgroundObject(1:100, ground)
-    BackgroundObject(1:100, (args...) -> fontsize(30))
+    Background(1:100, ground)
+    Background(1:100, (args...) -> fontsize(30))
     title = Object(1:100, (args...) -> text("Hello Stream!", -50, 50; halign = :center))
     act!(title, Action(1:15, sineio(), appear(:draw_text)))
     act!(title, Action(76:100, sineio(), disappear(:draw_text)))
@@ -504,7 +508,7 @@ end
 
 @testset "Following a path" begin
     video = Video(800, 600)
-    BackgroundObject(1:180, ground)
+    Background(1:180, ground)
 
     anim = Animation([0, 1], [0.0, 2.0], [sineio()])
 
@@ -545,7 +549,7 @@ end
     end
 
     video = Video(800, 600)
-    BackgroundObject(1:180, ground)
+    Background(1:180, ground)
 
     anim = Animation([0, 1], [0.0, 1.0], [sineio()])
 
@@ -557,7 +561,6 @@ end
 
     actions =
         (frame_start) -> [
-            Action(1:1, Translation(simple_bezier()[1] + Point(0, 3 * frame_start))),
             Action(1:10, appear(:fade)),
             Action(
                 11:150,
@@ -571,7 +574,11 @@ end
         ]
 
     objects = [
-        Object(frame_start:(frame_start + 149), (args...) -> star(O, 20, 5, 0.5, 0, :fill)) for frame_start in 1:7:22
+        Object(
+            frame_start:(frame_start + 149),
+            (args...) -> star(O, 20, 5, 0.5, 0, :fill),
+            simple_bezier()[1] + Point(0, 3 * frame_start),
+        ) for frame_start in 1:7:22
     ]
 
     for (object, frame_start) in zip(objects, 1:7:22)
@@ -592,7 +599,6 @@ end
     end
 end
 
-
 @testset "Change" begin
 
     function object(p, radius, color = "black")
@@ -610,7 +616,7 @@ end
     myvideo = Video(500, 500)
     double_rotation = Animation([0.0, 1.0], [0.0, 4π], [linear()])
 
-    BackgroundObject(1:100, ground)
+    Background(1:100, ground)
     circ1 = Object((args...; radius = 25) -> object(Point(100, 0), radius, "red"))
     act!(circ1, Action(double_rotation, rotate()))
     act!(circ1, Action(1:50, change(:radius, 25 => 0)))

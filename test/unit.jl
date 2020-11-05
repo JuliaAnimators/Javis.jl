@@ -25,163 +25,132 @@
 
     @testset "translation" begin
         video = Video(500, 500)
-        # dummy action doesn't need a real function
-        object = Object(1:100, () -> 1)
-        act!(object, Action(1:100, Translation(Point(1, 1), Point(100, 100))))
+        object = Object(1:100, (args...) -> O)
+        act!(object, Action(1:100, anim_translate(Point(1, 1), Point(100, 100))))
+        Javis.preprocess_frames!(video.objects)
 
-        action = object.actions[1]
-
-        # needs internal translation as well
-        action.internal_transition = Javis.InternalTranslation(O)
-        Javis.compute_transition!(action, video, 1)
-        @test action.internal_transition.by == Point(1, 1)
-        Javis.compute_transition!(action, video, 50)
-        @test action.internal_transition.by == Point(50, 50)
-        Javis.compute_transition!(action, video, 100)
-        @test action.internal_transition.by == Point(100, 100)
+        for f in [1, 50, 100]
+            Javis.get_javis_frame(video, [object], f)
+            @test get_position(object) == Point(f, f)
+        end
 
         # with easing function
         video = Video(500, 500)
-        # dummy action doesn't need a real function
-        object = Object(1:100, () -> 1)
-        act!(object, Action(1:100, sineio(), Translation(Point(1, 1), Point(100, 100))))
+        object = Object(1:100, (args...) -> O)
+        act!(object, Action(1:100, sineio(), anim_translate(Point(1, 1), Point(100, 100))))
 
         action = object.actions[1]
 
         anim = Animation([0.0, 1.0], [1.0, 100.0], [sineio()])
-        m = 49 / 99
-        # needs internal translation as well
-        action.internal_transition = Javis.InternalTranslation(O)
-        Javis.compute_transition!(action, video, 1)
-        @test action.internal_transition.by == Point(1, 1)
-        Javis.compute_transition!(action, video, 50)
-        @test action.internal_transition.by == Point(at(anim, m), at(anim, m))
-        Javis.compute_transition!(action, video, 100)
-        @test action.internal_transition.by == Point(100, 100)
+        Javis.preprocess_frames!(video.objects)
 
-        # with animation function
-        anim_01 = Animation([0.0, 1.0], [0.0, 1.0], [sineio()])
-        video = Video(500, 500)
-        # dummy action doesn't need a real function
-        object = Object(1:100, () -> 1)
-        act!(object, Action(1:100, anim_01, Translation(Point(1, 1), Point(100, 100))))
-
-        action = object.actions[1]
-
-        anim = Animation([0.0, 1.0], [1.0, 100.0], [sineio()])
-        m = 49 / 99
-        # needs internal translation as well
-        action.internal_transition = Javis.InternalTranslation(O)
-        Javis.compute_transition!(action, video, 1)
-        @test action.internal_transition.by == Point(1, 1)
-        Javis.compute_transition!(action, video, 50)
-        @test action.internal_transition.by == Point(at(anim, m), at(anim, m))
-        Javis.compute_transition!(action, video, 100)
-        @test action.internal_transition.by == Point(100, 100)
+        for f in [1, 50, 100]
+            m = (f - 1) / 99
+            Javis.get_javis_frame(video, [object], f)
+            @test get_position(object) == Point(at(anim, m), at(anim, m))
+        end
     end
 
     @testset "Relative frames" begin
         video = Video(500, 500)
         Object(1:100, (args...) -> 1)
-        object = Object(Rel(10), (args...) -> 1)
         # dummy object doesn't need a real function
+        object = Object(RFrames(10), (args...) -> 1)
         test_file = render(video)
         @test Javis.get_frames(object) == 101:110
         rm(test_file)
     end
 
+    @testset "Global frames" begin
+        video = Video(500, 500)
+        Object(1:100, (args...) -> 1)
+        # dummy object doesn't need a real function
+        object = Object(RFrames(10), (args...) -> 1)
+        # defined globally but will be computed to local time frame -> 5:10
+        act!(object, Action(GFrames(105:110), (args...) -> 1))
+        render(video; pathname = "")
+        @test Javis.get_frames(object.actions[1]) == 5:10
+    end
+
     @testset "translation from origin" begin
         video = Video(500, 500)
-        # dummy object doesn't need a real function
-        object = Object(1:100, () -> 1)
-        act!(object, Action(1:100, Translation(Point(99, 99))))
+        object = Object(1:100, (args...) -> O)
+        act!(object, Action(1:100, anim_translate(Point(99, 99))))
 
-        action = object.actions[1]
+        Javis.preprocess_frames!(video.objects)
 
-        # needs internal translation as well
-        action.internal_transition = Javis.InternalTranslation(O)
-
-        Javis.compute_transition!(action, video, 1)
-        @test action.internal_transition.by == O
-        Javis.compute_transition!(action, video, 50)
-        @test action.internal_transition.by == Point(49, 49)
-        Javis.compute_transition!(action, video, 100)
-        @test action.internal_transition.by == Point(99, 99)
+        for f in [1, 50, 100]
+            Javis.get_javis_frame(video, [object], f)
+            @test get_position(object) == Point(f - 1, f - 1)
+        end
 
         video = Video(500, 500)
-        # dummy object doesn't need a real function
-        object = Object(1:100, () -> 1)
-        act!(object, Action(1:100, Translation(99, 99)))
-        action = object.actions[1]
+        object = Object(1:100, (args...) -> O)
+        act!(object, Action(1:100, anim_translate(99, 99)))
 
-        # needs internal translation as well
-        action.internal_transition = Javis.InternalTranslation(O)
+        Javis.preprocess_frames!(video.objects)
 
-        Javis.compute_transition!(action, video, 1)
-        @test action.internal_transition.by == O
-        Javis.compute_transition!(action, video, 50)
-        @test action.internal_transition.by == Point(49, 49)
-        Javis.compute_transition!(action, video, 100)
-        @test action.internal_transition.by == Point(99, 99)
+        for f in [1, 50, 100]
+            Javis.get_javis_frame(video, [object], f)
+            @test get_position(object) == Point(f - 1, f - 1)
+        end
     end
 
     @testset "rotations" begin
         video = Video(500, 500)
-        # dummy object doesn't need a real function
-        object = Object(1:100, () -> 1)
-        act!(object, Action(1:100, Rotation(2π)))
+        object = Object(1:100, (args...) -> O)
+        act!(object, Action(1:100, anim_rotate(2π)))
+        anim = Animation([0.0, 1.0], [0.0, 2π], [linear()])
+        Javis.preprocess_frames!(video.objects)
 
-        action = object.actions[1]
-        # needs internal translation as well
-        action.internal_transition = Javis.InternalRotation(0.0, O)
-
-        Javis.compute_transition!(action, video, 1)
-        @test action.internal_transition.angle == 0.0
-        Javis.compute_transition!(action, video, 100)
-        @test action.internal_transition.angle == 2π
+        for f in [1, 50, 100]
+            Javis.get_javis_frame(video, [object], f)
+            @test get_angle(object) ≈ at(anim, (f - 1) / 99)
+        end
 
         video = Video(500, 500)
-        # dummy object doesn't need a real function
-        object = Object(1:100, () -> 1)
-        act!(object, Action(1:100, Rotation(2π, Point(2.0, 5.0))))
+        object = Object(1:100, (args...) -> O)
+        rp = Point(2.0, 5.0)
+        act!(object, Action(1:100, anim_rotate_around(2π, rp)))
+        Javis.preprocess_frames!(video.objects)
 
-        action = object.actions[1]
+        # compute radius
+        r = sqrt(rp.x^2 + rp.y^2)
+        shifted_start = -rp
+        shifted_X = Point(r, 0)
+        # compute start angle of O and rotation point
+        start_angle = acos(dotproduct(shifted_X, shifted_start) / r^2)
 
-        # needs internal translation as well
-        action.internal_transition = Javis.InternalRotation(0.0, O)
-
-        Javis.compute_transition!(action, video, 1)
-        @test action.internal_transition.angle == 0.0
-        @test action.internal_transition.center == Point(2.0, 5.0)
-        Javis.compute_transition!(action, video, 100)
-        @test action.internal_transition.angle == 2π
-        @test action.internal_transition.center == Point(2.0, 5.0)
+        for f in [1, 50, 100]
+            Javis.get_javis_frame(video, [object], f)
+            @test get_angle(object) ≈ at(anim, (f - 1) / 99)
+            # rotate clockwise because Luxor is flipped
+            p = polar(r, start_angle - get_angle(object))
+            p1 = Point(p.x, -p.y)
+            @test get_position(object) ≈ p1 + rp
+        end
     end
 
     @testset "scaling" begin
         video = Video(500, 500)
         # dummy object doesn't need a real function
-        object = Object(0:100, () -> 1)
-        act!(object, Action(0:100, Scaling(0.0, 1.0)))
-        action = object.actions[1]
+        object = Object(1:50, (args...) -> O)
+        act!(object, Action(1:50, anim_scale(1.0, 0.5)))
+        Javis.preprocess_frames!(video.objects)
 
-        # needs internal scaling as well
-        action.internal_transition = Javis.InternalScaling((0, 0))
-        Javis.compute_transition!(action, video, 0)
-        @test action.internal_transition.scale == (0.0, 0.0)
-        Javis.compute_transition!(action, video, 50)
-        @test action.internal_transition.scale == (0.5, 0.5)
-        Javis.compute_transition!(action, video, 100)
-        @test action.internal_transition.scale == (1.0, 1.0)
+        anim = Animation([0.0, 1.0], [1.0, 0.5], [linear()])
+        for f in [1, 50]
+            Javis.get_javis_frame(video, [object], f)
+            @test get_scale(object).x ≈ at(anim, (f - 1) / 49)
+            @test get_scale(object).y ≈ at(anim, (f - 1) / 49)
+        end
     end
 
     @testset "Relative frames" begin
         video = Video(500, 500)
         o1 = Object(1:100, (args...) -> 1)
-        act!(o1, Action(1:100, Translation(Point(1, 1), Point(100, 100))))
 
-        o2 = Object(Rel(10), (args...) -> 1)
-        act!(o2, Action(1:10, Translation(Point(1, 1), Point(100, 100))))
+        o2 = Object(RFrames(10), (args...) -> 1)
         test_file = render(video)
 
         @test Javis.get_frames(o2) == 101:110
@@ -190,77 +159,35 @@
 
     @testset "translation from origin" begin
         video = Video(500, 500)
-        # dummy object doesn't need a real function
-        object = Object(1:100, () -> 1)
-        act!(object, Action(1:100, Translation(Point(99, 99))))
-        action = object.actions[1]
+        object = Object(1:100, (args...) -> O)
+        act!(object, Action(1:100, anim_translate(Point(99, 99))))
+        Javis.preprocess_frames!(video.objects)
 
-        # needs internal translation as well
-        action.internal_transition = Javis.InternalTranslation(O)
-
-        Javis.compute_transition!(action, video, 1)
-        @test action.internal_transition.by == O
-        Javis.compute_transition!(action, video, 50)
-        @test action.internal_transition.by == Point(49, 49)
-        Javis.compute_transition!(action, video, 100)
-        @test action.internal_transition.by == Point(99, 99)
+        for f in [1, 50, 100]
+            Javis.get_javis_frame(video, [object], f)
+            @test get_position(object) == Point(f - 1, f - 1)
+        end
 
         video = Video(500, 500)
-        # dummy object doesn't need a real function
-        object = Object(1:100, () -> 1)
-        act!(object, Action(1:100, Translation(99, 99)))
-        action = object.actions[1]
-        # needs internal translation as well
-        action.internal_transition = Javis.InternalTranslation(O)
+        object = Object(1:100, (args...) -> O)
+        act!(object, Action(1:100, anim_translate(99, 99)))
+        Javis.preprocess_frames!(video.objects)
 
-        Javis.compute_transition!(action, video, 1)
-        @test action.internal_transition.by == O
-        Javis.compute_transition!(action, video, 50)
-        @test action.internal_transition.by == Point(49, 49)
-        Javis.compute_transition!(action, video, 100)
-        @test action.internal_transition.by == Point(99, 99)
-    end
-
-    @testset "rotations" begin
-        video = Video(500, 500)
-        # dummy object doesn't need a real function
-        object = Object(1:100, () -> 1)
-        act!(object, Action(1:100, Rotation(2π)))
-        action = object.actions[1]
-        # needs internal translation as well
-        action.internal_transition = Javis.InternalRotation(0.0, O)
-
-        Javis.compute_transition!(action, video, 1)
-        @test action.internal_transition.angle == 0.0
-        Javis.compute_transition!(action, video, 100)
-        @test action.internal_transition.angle == 2π
-
-        video = Video(500, 500)
-        # dummy object doesn't need a real function
-        object = Object(1:100, () -> 1)
-        act!(object, Action(1:100, Rotation(2π, Point(2.0, 5.0))))
-        action = object.actions[1]
-        # needs internal translation as well
-        action.internal_transition = Javis.InternalRotation(0.0, O)
-
-        Javis.compute_transition!(action, video, 1)
-        @test action.internal_transition.angle == 0.0
-        @test action.internal_transition.center == Point(2.0, 5.0)
-        Javis.compute_transition!(action, video, 100)
-        @test action.internal_transition.angle == 2π
-        @test action.internal_transition.center == Point(2.0, 5.0)
+        for f in [1, 50, 100]
+            Javis.get_javis_frame(video, [object], f)
+            @test get_position(object) == Point(f - 1, f - 1)
+        end
     end
 
     @testset "action with a single frame" begin
         video = Video(500, 500)
         # dummy object doesn't need a real function
-        object = Object(1:1, () -> 1)
-        act!(object, Action(1:1, Translation(Point(10, 10))))
-        action = object.actions[1]
-        # needs internal translation as well
-        action.internal_transition = Javis.InternalTranslation(O)
-        Javis.compute_transition!(action, video, 1)
-        @test action.internal_transition.by == Point(10, 10)
+        object = Object(1:100, (args...) -> O)
+        act!(object, Action(1:1, anim_translate(Point(10, 10))))
+        Javis.preprocess_frames!(video.objects)
+
+        Javis.get_javis_frame(video, [object], 1)
+        @test get_position(object) == Point(10, 10)
     end
 
     @testset "Frames errors" begin
@@ -273,7 +200,7 @@
         @test_throws ArgumentError render(video)
 
         video = Video(500, 500)
-        Object(Rel(10), (args...) -> 1)
+        Object(RFrames(10), (args...) -> 1)
         # throws because the frames of the first object need to be defined explicitly
         @test_throws ArgumentError render(video)
 
@@ -284,39 +211,53 @@
         @test_throws ArgumentError render(video)
     end
 
-    @testset "Scaling internal variable not defined" begin
-        video = Video(500, 500)
-        obj = Object(1:100, (args...) -> 1)
-        act!(obj, Action(Scaling(:_test)))
-        @test_throws ErrorException render(video)
-    end
-
     @testset "Frame computation" begin
-
         demo = Video(500, 500)
-        back = BackgroundObject(1:50, (args...) -> 1)
+        back = Background(1:50, (args...) -> 1)
         obj = Object((args...) -> 1)
-        act!(obj, Action(Scaling(1, 2)))
+        act!(obj, Action(anim_scale(1, 2)))
 
         objects = [back, obj]
 
-        render(demo; pathname = "")
+        Javis.preprocess_frames!(demo.objects)
         @test Javis.get_frames(objects[1]) == 1:50
         @test Javis.get_frames(objects[2]) == 1:50
         @test Javis.get_frames(objects[2].actions[1]) == 1:50
 
 
         demo = Video(500, 500)
-        back = BackgroundObject(1:50, (args...) -> 1)
-        obj = Object(Rel(-19:0), (args...) -> 1)
-        act!(obj, Action(1:10, Scaling(1, 2)))
-        act!(obj, Action(Rel(10), Scaling(1, 2)))
+        back = Background(1:50, (args...) -> 1)
+        obj = Object(RFrames(-19:0), (args...) -> 1)
+        act!(obj, Action(1:10, anim_scale(1, 2)))
+        act!(obj, Action(RFrames(10), anim_scale(1, 2)))
 
         objects = [back, obj]
-        render(demo; pathname = "")
+        Javis.preprocess_frames!(demo.objects)
         @test Javis.get_frames(objects[1]) == 1:50
         @test Javis.get_frames(objects[2]) == 31:50
         @test Javis.get_frames(objects[2].actions[1]) == 1:10
         @test Javis.get_frames(objects[2].actions[2]) == 11:20
+    end
+
+    @testset "anim_" begin
+        s = anim_scale(1, 2)
+        @test s.from == Javis.Scale(1, 1)
+        @test s.to == Javis.Scale(2, 2)
+
+        s = anim_scale(Javis.Scale(1, 1), 2)
+        @test s.from == Javis.Scale(1, 1)
+        @test s.to == Javis.Scale(2, 2)
+
+        s = anim_scale(Javis.Scale(1, 1), Javis.Scale(2, 2))
+        @test s.from == Javis.Scale(1, 1)
+        @test s.to == Javis.Scale(2, 2)
+
+        s = anim_scale((1, 1), Javis.Scale(2, 1))
+        @test s.from == Javis.Scale(1, 1)
+        @test s.to == Javis.Scale(2, 1)
+
+        s = anim_scale(Javis.Scale(2, 1))
+        @test s.from == :current_scale
+        @test s.to == Javis.Scale(2, 1)
     end
 end
