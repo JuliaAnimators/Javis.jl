@@ -1,73 +1,6 @@
 include("Shape.jl")
 
 """
-    match_num_points(poly_1::Vector{Point}, poly_2::Vector{Point})
-
-This is a helper function for [`morph`](@ref).
-Given two polygons `poly_1` and `poly_2` points are added to the polygon with less points
-until both polygons have the same number of points.
-The polygon with less points gets mutated during this process.
-
-# Arguments
-- `poly_1::Vector{Point}`: The points which define the first polygon
-- `poly_2::Vector{Point}`: The points which define the second polygon
-"""
-function match_num_points(poly_1::Vector{Point}, poly_2::Vector{Point})
-    l1 = length(poly_1)
-    l2 = length(poly_2)
-    # if both have the same number of points => we are done
-    l1 == l2 && return poly_1, poly_2
-
-    new_poly_1 = simplify(poly_1)
-    new_poly_2 = simplify(poly_2)
-    l1 = length(new_poly_1)
-    l2 = length(new_poly_2)
-
-    # poly_1 should have less points than poly_2 so we flip if this is not the case
-    flipped = false
-    if l1 > l2
-        new_poly_1, new_poly_2 = new_poly_2, new_poly_1
-        l1, l2 = l2, l1
-        flipped = true
-    end
-    # the difference of the length of points
-    missing_nodes = l2 - l1
-
-    add_points!(new_poly_1, missing_nodes)
-
-    if flipped
-        new_poly_1, new_poly_2 = new_poly_2, new_poly_1
-    end
-    @assert length(new_poly_1) == length(new_poly_2)
-    return new_poly_1, new_poly_2
-end
-
-function add_points!(poly, missing_nodes)
-    pdists = polydistances(poly)
-    every_dist = pdists[end] / missing_nodes
-    pdiffs = diff(pdists)
-
-    ct = 0.0
-    poly_orig = copy(poly)
-    npi = 1
-    for pi in 1:length(poly_orig)
-        add_nodes = convert(Int, round(pdiffs[pi] / every_dist))
-        t = pdiffs[pi] / (add_nodes + 1)
-        ct_local = ct
-        for i in 1:add_nodes
-            ct_local += t
-            new_point = get_polypoint_at(poly_orig, ct_local / pdists[end]; pdist = pdists)
-            npi += 1
-            insert!(poly, npi, new_point)
-        end
-        npi += 1
-        missing_nodes -= add_nodes
-        ct += pdiffs[pi]
-        every_dist = (pdists[end] - ct) / missing_nodes
-    end
-end
-
-"""
     morph_to(to_func::Function; object=:stroke)
 
 A closure for the [`_morph`](@ref) function.
@@ -133,17 +66,17 @@ function _morph_to(
     closepath()
     to_polys = pathtopoly()
 
-    return _morph(video, action, frame, from_polys, to_polys; do_action = do_action)
+    return morph_between(video, action, frame, from_polys, to_polys; do_action = do_action)
 end
 
 """
-    _morph(video::Video, action::Action, frame,
+    morph_between(video::Video, action::Action, frame,
         from_polys::Vector{Vector{Point}}, to_polys::Vector{Vector{Point}};
         do_action=:stroke)
 
 Internal version of [`morph`](@ref) but described there.
 """
-function _morph(
+function morph_between(
     video::Video,
     action::Action,
     frame,
@@ -169,9 +102,6 @@ function _morph(
         to_shape = action.defs[:to_shape][si]
         inter_shape = action.defs[:inter_shape][si]
 
-        # polygons[pi] = from_poly
-        # println("#Points: $pi ", length(polygons[pi]))
-        # continue
         if isempty(from_shape) || isempty(to_shape)
             if isempty(to_shape)
                 action.defs[:inter_shape][si] = from_shape
@@ -195,8 +125,6 @@ function _morph(
 
     shape_ids = [si for si in 1:number_of_shapes if (!bool_move[si] && bool_appear[si])]
     shapes = action.defs[:inter_shape][shape_ids]
-    # print_basic.(shapes)
-    # error(1)
     draw_shape.(shapes, do_action)
 
     # let old paths disappear
@@ -208,6 +136,79 @@ function _morph(
     draw_shape.(shapes, do_action)
 
     setopacity(1)
+end
+
+
+"""
+    match_num_points(poly_1::Vector{Point}, poly_2::Vector{Point})
+
+This is a helper function for [`morph`](@ref).
+Given two polygons `poly_1` and `poly_2` points are added to the polygon with less points
+until both polygons have the same number of points.
+The polygon with less points gets mutated during this process.
+
+# Arguments
+- `poly_1::Vector{Point}`: The points which define the first polygon
+- `poly_2::Vector{Point}`: The points which define the second polygon
+"""
+function match_num_points(poly_1::Vector{Point}, poly_2::Vector{Point})
+    l1 = length(poly_1)
+    l2 = length(poly_2)
+    # if both have the same number of points => we are done
+    l1 == l2 && return poly_1, poly_2
+
+    new_poly_1 = simplify(poly_1)
+    new_poly_2 = simplify(poly_2)
+    l1 = length(new_poly_1)
+    l2 = length(new_poly_2)
+
+    # poly_1 should have less points than poly_2 so we flip if this is not the case
+    flipped = false
+    if l1 > l2
+        new_poly_1, new_poly_2 = new_poly_2, new_poly_1
+        l1, l2 = l2, l1
+        flipped = true
+    end
+    # the difference of the length of points
+    missing_nodes = l2 - l1
+
+    add_points!(new_poly_1, missing_nodes)
+
+    if flipped
+        new_poly_1, new_poly_2 = new_poly_2, new_poly_1
+    end
+    @assert length(new_poly_1) == length(new_poly_2)
+    return new_poly_1, new_poly_2
+end
+
+"""
+    add_points!(poly, missing_nodes)
+
+Add #`missing_nodes` to poly.
+"""
+function add_points!(poly, missing_nodes)
+    pdists = polydistances(poly)
+    every_dist = pdists[end] / missing_nodes
+    pdiffs = diff(pdists)
+
+    ct = 0.0
+    poly_orig = copy(poly)
+    npi = 1
+    for pi in 1:length(poly_orig)
+        add_nodes = convert(Int, round(pdiffs[pi] / every_dist))
+        t = pdiffs[pi] / (add_nodes + 1)
+        ct_local = ct
+        for i in 1:add_nodes
+            ct_local += t
+            new_point = get_polypoint_at(poly_orig, ct_local / pdists[end]; pdist = pdists)
+            npi += 1
+            insert!(poly, npi, new_point)
+        end
+        npi += 1
+        missing_nodes -= add_nodes
+        ct += pdiffs[pi]
+        every_dist = (pdists[end] - ct) / missing_nodes
+    end
 end
 
 """
@@ -233,10 +234,6 @@ function save_morph_polygons!(
     for i in length(to_polys):-1:1
         length(to_polys[i]) <= 1 && splice!(to_polys, i)
     end
-
-    # println("Number of non empty polygons")
-    # println("#From ", length(from_polys))
-    # println("#To ", length(to_polys))
 
     if length(from_polys) != length(to_polys)
         try_merge_polygons(from_polys)
@@ -362,6 +359,12 @@ function try_merge_polygons(polys)
     end
 end
 
+"""
+    compute_shortest_morphing_dist(from_poly::Vector{Point}, to_poly::Vector{Point})
+
+Rotates `from_poly` internally to check which mapping produces the smallest morphing distance.
+It returns the start index of the rotation of `from_poly` as well as the smallest distance.
+"""
 function compute_shortest_morphing_dist(from_poly::Vector{Point}, to_poly::Vector{Point})
     # find the smallest morphing distance to match the points in a more natural way
     # smallest_i holds the best starting point of from_path
@@ -383,6 +386,19 @@ function compute_shortest_morphing_dist(from_poly::Vector{Point}, to_poly::Vecto
     return smallest_i, smallest_distance
 end
 
+"""
+    reorder_match(from_shapes::Vector{Shape}, to_shapes::Vector{Shape})
+
+Computes the similiarty of the shapes and finds the best mapping such that the sum of similiarty
+is maximized.
+
+Additionally it creates empty shapes when needed such that
+`reordered_from` and `reordered_to` contain the same number of shapes.
+
+# Returns
+- `reordered_from::Vector{Shape}`
+- `reordered_to::Vector{Shape}`
+"""
 function reorder_match(from_shapes::Vector{Shape}, to_shapes::Vector{Shape})
     num_shapes = max(length(from_shapes), length(to_shapes))
 
