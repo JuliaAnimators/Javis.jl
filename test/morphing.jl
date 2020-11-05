@@ -4,7 +4,7 @@ acirc(args...; do_action = :stroke) = circle(Point(100, 100), 30, do_action)
 @testset "morphing star2circle and back" begin
     video = Video(500, 500)
 
-    back = BackgroundObject(1:20, (args...) -> ground_color("white", "black", args[3]))
+    back = Background(1:20, (args...) -> ground_color("white", "black", args[3]))
     Object(1:10, (args...) -> circle(Point(-100, 0), val(back), :fill))
     star_obj = Object(1:10, astar)
     act!(star_obj, Action(linear(), morph_to(acirc)))
@@ -22,7 +22,7 @@ end
 
 @testset "morphing star2circle and back with fill" begin
     video = Video(500, 500)
-    back = BackgroundObject(1:20, (args...) -> ground_color("white", "black", args[3]))
+    back = Background(1:20, (args...) -> ground_color("white", "black", args[3]))
     Object(1:10, (args...) -> circle(Point(-100, 0), val(back), :fill))
     star_obj = Object(1:10, astar)
     act!(star_obj, Action(morph_to(acirc; do_action = :fill)))
@@ -41,7 +41,7 @@ end
 
 @testset "test default kwargs" begin
     video = Video(500, 500)
-    back = BackgroundObject(1:10, (args...) -> ground_color("white", "black", args[3]))
+    back = Background(1:10, (args...) -> ground_color("white", "black", args[3]))
     Object(1:10, (args...) -> circle(Point(-100, 0), val(back), :fill))
     star_obj = Object(1:10, astar)
     act!(star_obj, Action(morph_to(acirc)))
@@ -73,7 +73,7 @@ end
     end
 
     video = Video(600, 400)
-    BackgroundObject(1:62, latex_ground)
+    Background(1:62, latex_ground)
     m = Object(1:60, matrix)
     act!(
         m,
@@ -114,7 +114,7 @@ end
     end
 
     video = Video(600, 400)
-    BackgroundObject(1:120, ground)
+    Background(1:120, ground)
     seq = Object(1:60, sequence)
     act!(
         seq,
