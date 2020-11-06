@@ -115,6 +115,9 @@ function polywh(polygon::Vector{Vector{Point}})
 end
 
 function get_polypoint_at(points, t; pdist = polydistances(points))
+    if t ≈ 0
+        return points[1]
+    end
     ind, surplus = nearestindex(pdist, t * pdist[end])
 
     nextind = mod1(ind + 1, length(points))
