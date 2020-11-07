@@ -82,7 +82,7 @@ head = Object((args...) -> circ(O, "black", :stroke, 170))
 ```
 
 An `Object` consists of at least one part, namely calling a function which draws something on to the canvas. 
-`Objects` are comprised of `Frames` (which can be optionally defined), a drawing function `func`, and an optional `Animation`.
+`Objects` are comprised of `Frames` (which can be optionally defined), a drawing function `func`, and an optional `Animation` (this functionality is explained more in future tutorials).
 
 ### Frames
 
@@ -108,13 +108,6 @@ Just make `func` an anonymous function and define the output being drawn in the 
 (The `args...` don't even need to be part of the output!)
 
 In [Tutorial 1](tutorial_1.md), we saw that `my_drawing_function` could either be a Luxor function or a function which calls some Luxor functions to draw on the canvas. 
-
-### Animation
-
-An `Action` can be used to define a simple movement of what can be drawn. 
-An example for this was shown in the [previous tutorial](tutorial_1.md) where objects rotate. 
-This movement is normally linear which is rather dull. 
-Therefore, it's possible to define the speed using so called easing functions (for more info, see [Tutorial 6](tutorial_6.md)).
 
 Now that those explanations are out of the way, back to the brain! 
 
