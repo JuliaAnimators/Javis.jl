@@ -118,7 +118,7 @@ function animate_fourier(options)
     # solve tsp to reduce length of extra edges
     distmat = [distance(points[i], points[j]) for i in 1:npoints, j in 1:npoints]
 
-    path, cost = solve_tsp(distmat; quality_factor = 40)
+    path, cost = solve_tsp(distmat; quality_factor = options.tsp_quality_factor)
     println("TSP cost: $cost")
     points = points[path] # tsp saves the last point again
 
@@ -164,6 +164,7 @@ function main()
         width = 1920,
         height = 1080,
         shape_scale = 2.5, # scale factor for the logo
+        tsp_quality_factor = 50,
         filename = "julia_hd.mp4",
     )
 
@@ -175,9 +176,22 @@ function main()
         width = 1000,
         height = 768,
         shape_scale = 1.5, # scale factor for the logo
+        tsp_quality_factor = 40,
         filename = "julia_fast.mp4",
     )
-    animate_fourier(fast_options)
+
+    gif_options = (
+        npoints = 651, # rough number of points for the shape => number of circles
+        nplay_frames = 600, # number of frames for the animation of fourier
+        nruns = 2, # how often it's drawn
+        nend_frames = 0,  # number of frames in the end
+        width = 350,
+        height = 219,
+        shape_scale = 0.8, # scale factor for the logo
+        tsp_quality_factor = 80,
+        filename = "gifs/julia_logo_dft.gif",
+    )
+    animate_fourier(gif_options)
 end
 
 main()
