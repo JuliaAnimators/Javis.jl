@@ -3,7 +3,6 @@
 In this tutorial, we are going to learn how to make a brain! 🧠 
 Well, not _exactly_ making a brain. 
 Instead, we are going to animate brain activity by simulating a [10-20 EEG Electrode Array](https://en.wikipedia.org/wiki/10%E2%80%9320_system_(EEG)?oldformat=true) using random data. 
-This Project Tutorial builds on prior tutorials and serves as a cumulative test of your understanding about `Javis`.
 
 When you are done with this tutorial, you will have created the following animation:
 
@@ -13,7 +12,7 @@ When you are done with this tutorial, you will have created the following animat
 
 From this project tutorial you will:
 
-- Clearly understand how to use Actions to create an animation
+- Clearly understand how to use `Object` types to create an animation
 - Be able to create more complex animations
 - Display meaningful information on your animations
 
@@ -36,7 +35,7 @@ function ground(args...)
 end
 ```
 
-If we were to execute the `javis` command now, this is what would appear as an output of the following execution:
+If we were to execute the `render` command now, this is what would appear as an output of the following execution:
 
 ```julia
 video = Video(500, 500)
@@ -52,7 +51,7 @@ We used a special type of action called [`Background`](@ref).
 This applies whatever function that is provided to it as the default background of any future animations produced by a future action.
 
 > **NOTE:** For this animation, we will be using a framerate of 1 frame per second.
-> Thus, why `framerate` is set to the value of `1` in `javis`.
+> Thus, why `framerate` is set to the value of `1` in `render`.
 
 ## Getting A - _head_
 
@@ -82,7 +81,7 @@ head = Object((args...) -> circ(O, "black", :stroke, 170))
 ...
 ```
 
-An `Object` consist of at least one part, namely calling a function which draws something on to the canvas. 
+An `Object` consists of at least one part, namely calling a function which draws something on to the canvas. 
 `Objects` are comprised of `Frames` (which can be optionally defined), a drawing function `func`, and an optional `Animation`.
 
 ### Frames
@@ -115,7 +114,7 @@ In [Tutorial 1](tutorial_1.md), we saw that `my_drawing_function` could either b
 An `Action` can be used to define a simple movement of what can be drawn. 
 An example for this was shown in the [previous tutorial](tutorial_1.md) where objects rotate. 
 This movement is normally linear which is rather dull. 
-Therefore, it's possible to define the speed using so called easing functions (for more info, see [Tutorial 6](tutorial_6.md).
+Therefore, it's possible to define the speed using so called easing functions (for more info, see [Tutorial 6](tutorial_6.md)).
 
 Now that those explanations are out of the way, back to the brain! 
 
@@ -177,7 +176,7 @@ horiz_line = Object(
 ![](assets/head_gridlines.gif)
 
 Great!
-Now that we have the gridlines, let's add in our electrode!
+Now that we have the gridlines, let's add in our electrodes!
 
 We have to define our own function to create an electrode.
 The following code accomplishes this goal:
@@ -203,61 +202,34 @@ Essentially, all the `electrode` function does is draws two circles on top of ea
 One circle creates a white circle for the backdrop of text provided to it and the other circle provides a black outline. 
 
 From there, we need to position our electrodes!
-I already went through and created two lists: 
-- `electrode_locations` is a list of `Point` objects that defines where an electrode should be placed.
-- `electrode_names` are the names of each electrode.
+I already went through and created a named tuple which defines an electrode's name and its position. 
 
 Go ahead and copy this to save yourself the time to place these perfectly.
 I already did this for you - aren't I great? 😉
 
 ```julia
-electrode_locations = [
-    O,
-    Point(-70, 0),
-    Point(70, 0),
-    Point(-140, 0),
-    Point(140, 0),
-    Point(0, 70),
-    Point(-50, 70),
-    Point(50, 70),
-    Point(0, -70),
-    Point(-50, -70),
-    Point(50, -70),
-    Point(115, -80),
-    Point(-115, -80),
-    Point(115, 80),
-    Point(-115, 80),
-    Point(40, -135),
-    Point(-40, -135),
-    Point(-190, -10),
-    Point(190, -10),
-    Point(-40, 135),
-    Point(40, 135),
-]
-
-
-electrode_names = [
-    "Cz",
-    "C3",
-    "C4",
-    "T3",
-    "T4",
-    "Pz",
-    "P3",
-    "P4",
-    "Fz",
-    "F3",
-    "F4",
-    "F8",
-    "F7",
-    "T6",
-    "T5",
-    "Fp2",
-    "Fp1",
-    "A1",
-    "A2",
-    "O1",
-    "O2",
+electrodes_list = [
+    (name = "Cz", position = O),
+    (name = "C3", position = Point(-70, 0)),
+    (name = "C4", position = Point(70, 0)),
+    (name = "T3", position = Point(-140, 0)),
+    (name = "T4", position = Point(140, 0)),
+    (name = "Pz", position = Point(0, 70)),
+    (name = "P3", position = Point(-50, 70)),
+    (name = "P4", position = Point(50, 70)),
+    (name = "Fz", position = Point(0, -70)),
+    (name = "F3", position = Point(-50, -70)),
+    (name = "F4", position = Point(50, -70)),
+    (name = "F8", position = Point(115, -80)),
+    (name = "F7", position = Point(-115, -80)),
+    (name = "T6", position = Point(115, 80)),
+    (name = "T5", position = Point(-115, 80)),
+    (name = "Fp2", position = Point(40, -135)),
+    (name = "Fp1", position = Point(-40, -135)),
+    (name = "A1", position = Point(-190, -10)),
+    (name = "A2", position = Point(190, -10)),
+    (name = "O1", position = Point(-40, 135)),
+    (name = "O2", position = Point(40, 135)),
 ]
 ```
 
@@ -267,17 +239,19 @@ Also, we need to define the radius of our electrodes; we will set that to 15:
 ```julia
 ...
 radius = 15 # needs to be defined before calling `render`
-electrodes = Object(
-    (args...) ->
-        electrode.(
-            electrode_locations,
-            "white",
-            "black",
-            :fill,
-            radius,
-            electrode_names,
-        ),
-)
+for num in 1:length(electrodes_list)
+    Object(
+        (args...) ->
+            electrode.(
+                electrodes_list[num].position,
+                "white",
+                "black",
+                :fill,
+                radius,
+                electrodes_list[num].name,
+            ),
+    )
+end
 ...
 ```
 
@@ -304,7 +278,7 @@ Feel free to change up the colors!
 I chose these colors that need to be added to your code:
 
 ```julia
-indicators = ["tomato", "darkolivegreen1", "gold1", "white"]
+indicators = ["white", "gold1", "darkolivegreen1", "tomato"]
 ```
 
 From there, we also need to change the code block that defined the electrode locations.
@@ -312,40 +286,44 @@ The previous electrode code looked like this
 
 ```julia
 ...
-electrodes = Object(
-    (args...) ->
-        electrode.(
-            electrode_locations,
-            "white",
-            "black",
-            :fill,
-            radius,
-            electrode_names,
-        ),
-)
+for num in 1:length(electrodes_list)
+    Object(
+        (args...) ->
+            electrode.(
+                electrodes_list[num].position,
+                rand(indicators, length(electrodes_list)),
+                "black",
+                :fill,
+                radius,
+                electrodes_list[num].name,
+            ),
+    )
+end
 ...
 ```
 
-However, what we now need to change is `"white"` to `rand(indicators, length(electrode_locations))` for each electrode.
+However, what we now need to change is `"white"` to `rand(indicators, length(electrodes_list))` for each electrode.
 The `rand` function allows proper broadcasting such that a new color is chosen for each electrode between frames.
-Without having the `length(electrode_locations)` random colors would be generated but only for the first frame.
+Without having the `length(electrodes_list)` random colors would be generated but only for the first frame.
 The next frame would then keep these colors for the rest of the animation.
 
 An example resulting electrode configuration with random colors looks like this:
 
 ```julia
 ...
-electrodes = Object(
-    (args...) ->
-        electrode.(
-            electrode_locations,
-            rand(indicators, length(electrode_locations)),
-            "black",
-            :fill,
-            radius,
-            electrode_names,
-        ),
-)
+for num in 1:length(electrodes_list)
+    Object(
+        (args...) ->
+            electrode.(
+                electrodes_list[num].position,
+                rand(indicators, length(electrodes_list)),
+                "black",
+                :fill,
+                radius,
+                electrodes_list[num].name,
+            ),
+    )
+end
 ...
 ```
 
@@ -445,56 +423,32 @@ function electrode(
     text(circ_text, p, valign = :middle, halign = :center)
 end
 
-electrode_locations = [
-    O,
-    Point(-70, 0),
-    Point(70, 0),
-    Point(-140, 0),
-    Point(140, 0),
-    Point(0, 70),
-    Point(-50, 70),
-    Point(50, 70),
-    Point(0, -70),
-    Point(-50, -70),
-    Point(50, -70),
-    Point(115, -80),
-    Point(-115, -80),
-    Point(115, 80),
-    Point(-115, 80),
-    Point(40, -135),
-    Point(-40, -135),
-    Point(-190, -10),
-    Point(190, -10),
-    Point(-40, 135),
-    Point(40, 135),
-]
-
-electrode_names = [
-    "Cz",
-    "C3",
-    "C4",
-    "T3",
-    "T4",
-    "Pz",
-    "P3",
-    "P4",
-    "Fz",
-    "F3",
-    "F4",
-    "F8",
-    "F7",
-    "T6",
-    "T5",
-    "Fp2",
-    "Fp1",
-    "A1",
-    "A2",
-    "O1",
-    "O2",
+electrodes_list = [
+    (name = "Cz", position = O),
+    (name = "C3", position = Point(-70, 0)),
+    (name = "C4", position = Point(70, 0)),
+    (name = "T3", position = Point(-140, 0)),
+    (name = "T4", position = Point(140, 0)),
+    (name = "Pz", position = Point(0, 70)),
+    (name = "P3", position = Point(-50, 70)),
+    (name = "P4", position = Point(50, 70)),
+    (name = "Fz", position = Point(0, -70)),
+    (name = "F3", position = Point(-50, -70)),
+    (name = "F4", position = Point(50, -70)),
+    (name = "F8", position = Point(115, -80)),
+    (name = "F7", position = Point(-115, -80)),
+    (name = "T6", position = Point(115, 80)),
+    (name = "T5", position = Point(-115, 80)),
+    (name = "Fp2", position = Point(40, -135)),
+    (name = "Fp1", position = Point(-40, -135)),
+    (name = "A1", position = Point(-190, -10)),
+    (name = "A2", position = Point(190, -10)),
+    (name = "O1", position = Point(-40, 135)),
+    (name = "O2", position = Point(40, 135)),
 ]
 
 radius = 15
-indicators = ["tomato", "darkolivegreen1", "gold1", "white"]
+indicators = ["white", "gold1", "darkolivegreen1", "tomato"]
 demo = Video(500, 500)
 
 anim_background = Background(1:10, ground)
@@ -508,17 +462,20 @@ horiz_line = Object(
     (args...) ->
         draw_line(Point(-170, 0), Point(170, 0), "black", :stroke, "longdashed"),
 )
-electrodes = Object(
-    (args...) ->
-        electrode.(
-            electrode_locations,
-            rand(indicators, length(electrode_locations)),
-            "black",
-            :fill,
-            radius,
-            electrode_names,
-        ),
-)
+
+for num in 1:length(electrodes_list)
+    Object(
+        (args...) ->
+            electrode.(
+                electrodes_list[num].position,
+                rand(indicators, length(electrodes_list)),
+                "black",
+                :fill,
+                radius,
+                electrodes_list[num].name,
+            ),
+    )
+end
 info = Object(info_box)
 
 render(demo, pathname = "eeg.gif", framerate = 1)
