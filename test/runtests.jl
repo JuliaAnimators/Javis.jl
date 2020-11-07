@@ -15,6 +15,12 @@ function ground(video, action, framenumber)
     return framenumber
 end
 
+function ground_black_on_white(video, action, framenumber)
+    background("white")
+    sethue("black")
+    return framenumber
+end
+
 function ground_color(color_bg, color_pen, framenumber)
     background(color_bg)
     sethue(color_pen)
