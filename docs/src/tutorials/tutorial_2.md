@@ -132,14 +132,6 @@ creates
 
 Now we are getting a - _head_! 😃
 
-> **NOTE:** The ellipses, `...`, in the code block to produce the head represents putting the action inside of the [`render`](@ref) function.
-> So, the above block actually turns out to look like this:
-> ``````julia
-> ...
-> head = Object((args...) -> circ(O, "black", :stroke, 170))
-> render(video, pathname = "eeg.gif", framerate = 1)
-> ``````
-
 ## Placing the Electrodes
 
 To draw our electrodes, it would be useful to have a frame of reference for where the electrodes are supposed to go.
@@ -238,7 +230,7 @@ Also, we need to define the radius of our electrodes; we will set that to 15:
 
 ```julia
 ...
-radius = 15 # needs to be defined before calling `render`
+radius = 15 # Radius of the electrodes
 for num in 1:length(electrodes_list)
     Object(
         (args...) ->
@@ -357,7 +349,7 @@ info = Object(info_box)
 ```
 
 > **NOTE:** The function for `info_box` is a little different!
-> Each `Action` inside of the `render` function automatically receives three objects being a `Video` object, which was previously defined outside of the `render` function, the `Object`, and the current frame number. 
+> Each `Object` receives three additional variables being a `Video` object, which was previously defined outside of the `render` function, an `Object`, and the current frame number. 
 
 Once everything is executed, we get this very nice and clean looking animation which shows what this animation is and when parts of the brain are activated:
 
