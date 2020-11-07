@@ -391,7 +391,7 @@ in an animated way.
 - `s::Symbol` Change the keyword with the name `s`
 - `vals::Pair` If vals is given i.e `0 => 25` it will be animated from 0 to 25.
     - The default is to use `0 => 1` or use the value given by the animation
-    defined in the [`SubAction`](@ref)
+    defined in the [`Action`](@ref)
 
 # Example
 ```julia
