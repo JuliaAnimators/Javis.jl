@@ -94,6 +94,34 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
     return object
 end
 
+"""
+    act!
+
+Adds an [`Action`] or a list of actions to an [`Object`](@ref) or a list of objects.
+
+
+# Example
+```julia
+Background(1:100, ground)
+obj = Object((args...)) -> rect(O, 50, 50, :fill), Point(100, 0))
+act!(obj, Action(1:50, anim_scale(1.5)))
+```
+
+Here the scaling is applied to the rectangle for the first fifty frames.
+
+# Possibilities
+1. A single object and action
+- `object::AbstractObject` - the object the action is applied to
+- `action::AbstractAction` - the action that is applied
+
+2. A single object and a list of actions
+- `object::AbstractObject` - the object the action is applied to
+- `action::Vector{<:AbstractAction}` - the actions that are applied to the object
+
+3. A list of objects and a list of actions
+- `object::Vector{<:AbstractObject}` - the objects that the list of actions is applied to
+- `action::Vector{<:AbstractAction}` - the actions that are applied to the objects
+"""
 function act!(object::AbstractObject, action::AbstractAction)
     push!(object.actions, copy(action))
 end
