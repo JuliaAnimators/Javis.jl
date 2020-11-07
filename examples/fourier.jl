@@ -54,6 +54,7 @@ function draw_path!(path, pos, color)
 end
 
 function get_points(npoints, options)
+    Drawing() # julialogo needs a drawing
     julialogo(action = :path, centered = true)
     shapes = pathtopoly()
     new_shapes = shapes[1:6]
