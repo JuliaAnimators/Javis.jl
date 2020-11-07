@@ -46,7 +46,7 @@ end
 """
     _morph_to(video::Video, object::Object, action::Action, frame, to_func::Function; do_action=:stroke)
 
-Internal version of [`morph`](@ref) but described there.
+Internal version of [`morph_to`](@ref) but described there.
 """
 function _morph_to(
     video::Video,
@@ -74,7 +74,7 @@ end
         from_polys::Vector{Vector{Point}}, to_polys::Vector{Vector{Point}};
         do_action=:stroke)
 
-Internal version of [`morph`](@ref) but described there.
+Internal version of [`morph_to`](@ref) after the from poly is defined.
 """
 function morph_between(
     video::Video,
@@ -142,7 +142,7 @@ end
 """
     match_num_points(poly_1::Vector{Point}, poly_2::Vector{Point})
 
-This is a helper function for [`morph`](@ref).
+This is a helper function for [`morph_to`](@ref).
 Given two polygons `poly_1` and `poly_2` points are added to the polygon with less points
 until both polygons have the same number of points.
 The polygon with less points gets mutated during this process.
