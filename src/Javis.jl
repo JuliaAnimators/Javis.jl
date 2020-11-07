@@ -132,6 +132,9 @@ the actual frames for objects and actions.
 
 # Returns
 - `frames::Array{Int}` - list of all frames normally 1:...
+
+# Warning
+Shows a warning if some frames don't have a background.
 """
 function preprocess_frames!(objects::Vector{<:AbstractObject})
     compute_frames!(objects)
@@ -146,6 +149,9 @@ function preprocess_frames!(objects::Vector{<:AbstractObject})
         append!(frames, collect(get_frames(object)))
     end
     frames = unique(frames)
+    if !(frames ⊆ CURRENT_VIDEO[1].background_frames)
+        @warn("Some of the frames don't have a background. In this case: $(setdiff(frames, CURRENT_VIDEO[1].background_frames)))")
+    end
 
     if isempty(CURRENT_OBJECT)
         push!(CURRENT_OBJECT, objects[1])
