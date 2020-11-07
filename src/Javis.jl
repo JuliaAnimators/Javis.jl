@@ -1,7 +1,5 @@
 module Javis
 
-using Requires 
-
 using Animations
 using Cairo: CairoImageSurface, image
 using ColorTypes: ARGB32
@@ -13,6 +11,7 @@ import Luxor
 import Luxor: Point, @layer
 using ProgressMeter
 using Random
+using Requires
 using VideoIO
 
 const FRAMES_SYMBOL = [:same]
@@ -442,9 +441,5 @@ export scaleto
 
 # custom override of luxor extensions
 export setline, setopacity, fontsize, get_fontsize, scale, text
-
-function __init__()
-    @require Gtk="4c0ca9eb-093a-5379-98c5-f87ac0bbbf44" include("javis_viewer.jl")
-end
 
 end
