@@ -28,12 +28,11 @@
     end
 end
 
-@testset "LaTeX 8" begin
+@testset "latex pos in function" begin
     function latex_ground(args...)
-        translate(-200, -100)
         background("white")
         sethue("black")
-        fontsize(50)
+        fontsize(30)
     end
 
     video = Video(400, 200)
@@ -63,21 +62,17 @@ end
     rm("images/0000000001.png")
 end
 
-@testset "latex pos in function" begin
+@testset "LaTeX 8" begin
     function latex_ground(args...)
+        translate(-200, -100)
         background("white")
         sethue("black")
-        fontsize(30)
-    end
-
-    function foreground(latex_string)
-        latex(latex_string, Point(50, 40))
-        circle(O, 20, :fill) # should be in the center and not affected by latex
+        fontsize(50)
     end
 
     video = Video(400, 200)
     Background(1:1, latex_ground)
-    Object((args...) -> foreground(L"\mathcal{O}(\log{n})"))
+    Object((args...) -> latex(L"\mathcal{O}(\log{n})"))
     render(video; tempdirectory = "images", pathname = "")
     @test_reference "refs/ologn_circ.png" load("images/0000000001.png")
     rm("images/0000000001.png")

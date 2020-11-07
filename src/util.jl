@@ -113,3 +113,18 @@ function polywh(polygon::Vector{Vector{Point}})
     end
     return max_x - min_x, max_y - min_y
 end
+
+function get_polypoint_at(points, t; pdist = polydistances(points))
+    if t ≈ 0
+        return points[1]
+    end
+    ind, surplus = nearestindex(pdist, t * pdist[end])
+
+    nextind = mod1(ind + 1, length(points))
+    overshootpoint = between(
+        points[ind],
+        points[nextind],
+        surplus / distance(points[ind], points[nextind]),
+    )
+    return overshootpoint
+end

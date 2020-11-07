@@ -10,7 +10,7 @@ end
     vid = Video(500, 500)
     back = Background(1:100, ground)
     star_obj = Object(1:100, astar)
-    act!(star_obj, Action(morph_to(acirc; draw_object = :fill)))
+    act!(star_obj, Action(morph_to(acirc; do_action = :fill)))
 
     render(vid; pathname = "")
 
