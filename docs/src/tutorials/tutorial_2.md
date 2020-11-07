@@ -332,7 +332,7 @@ Let's add some information to our animation.
 We can create an info box using the following function:
 
 ```julia
-function info_box(video, action, frame)
+function info_box(video, object, frame)
     fontsize(12)
     box(140, -210, 170, 40, :stroke)
     text("10-20 EEG Array Readings", 140, -220, valign = :middle, halign = :center)
@@ -393,7 +393,7 @@ function circ(p = O, color = "black", action = :fill, radius = 25, edge = "solid
     circle(p, radius, action)
 end
 
-function info_box(video, action, frame)
+function info_box(video, object, frame)
     fontsize(12)
     box(140, -210, 170, 40, :stroke)
     text("10-20 EEG Array Readings", 140, -220, valign = :middle, halign = :center)
