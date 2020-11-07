@@ -58,3 +58,20 @@ end
 function isapprox_discrete(val; atol = 1e-4)
     return isapprox(val, round(val); atol = atol)
 end
+
+function polywh(polygon::Vector{Vector{Point}})
+    T = typeof(polygon[1][1].x)
+    min_x = typemax(T)
+    min_y = typemax(T)
+    max_x = typemin(T)
+    max_y = typemin(T)
+    for poly in polygon
+        for p in poly
+            min_x = min(min_x, p.x)
+            min_y = min(min_y, p.y)
+            max_x = max(max_x, p.x)
+            max_y = max(max_y, p.y)
+        end
+    end
+    return max_x - min_x, max_y - min_y
+end

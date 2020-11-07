@@ -1,3 +1,5 @@
+const gt = GtkReactive.Gtk # It needs this qualification for some reason
+
 function ground(args...)
     background("white")
     sethue("black")
@@ -17,9 +19,9 @@ end
 
     viewer_win, frame_dims, r_slide, tbox, canvas, actions, total_frames, video =
         Javis._javis_viewer(vid, 100, action_list, false)
-    visible(viewer_win, false)
+    gt.visible(viewer_win, false)
 
-    @test get_gtk_property(viewer_win, :title, String) == "Javis Viewer"
+    @test gt.get_gtk_property(viewer_win, :title, String) == "Javis Viewer"
 
     Javis._increment(video, [r_slide, tbox], actions, frame_dims, canvas, total_frames)
     sleep(0.1)

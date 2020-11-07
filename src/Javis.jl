@@ -6,8 +6,6 @@ using Animations
 using Cairo: CairoImageSurface, image
 using ColorTypes: ARGB32
 using FFMPEG
-# using Gtk
-# using GtkReactive
 using Images
 using LaTeXStrings
 using LightXML
@@ -93,7 +91,16 @@ include("backgrounds.jl")
 include("svg2luxor.jl")
 include("morphs.jl")
 include("subaction_animations.jl")
-# include("javis_viewer.jl")
+
+function __init__()
+    @require GtkReactive = "27996c0f-39cd-5cc1-a27a-05f136f946b6" begin
+        import .GtkReactive
+        import .GtkReactive: slider, signal
+        using .GtkReactive.Gtk
+        include("javis_viewer.jl")
+    end
+end
+
 include("latex.jl")
 include("transition2transformation.jl")
 include("symbol_values.jl")
@@ -213,9 +220,17 @@ function javis(
         CURRENT_ACTION[1] = actions[1]
     end
 
-    if liveview == true
-        _javis_viewer(video, length(frames), actions)
-        return "Live preview started."
+    if liveview
+        if !isdefined(@__MODULE__, :GTKReactive)
+            Base.require(@__MODULE__, :GtkReactive)
+            Base.invokelatest(_javis_viewer(video, length(frames), actions), liveview)
+            return "Live preview started."
+        elseif isdefined(@__MODULE__, :GTKReactive)
+            _javis_viewer(video, length(frames), actions)
+            return "Live preview started."
+        else
+            error("GTK not loaded. To support liveviewer first run using GTKReactive, before calling liveview = true")
+        end
     end
 
     path, ext = "", ""
@@ -358,7 +373,7 @@ function perform_action(action, video, frame, origin_matrix)
     cs = get_current_setting()
     !cs.show_action && return
 
-    res = action.func(video, action, frame)
+    res = action.func(video, action, frame; collect(action.change_keywords)...)
     if action.id !== nothing
         current_global_matrix = cairotojuliamatrix(getmatrix())
         # obtain current matrix without the initial matrix part
@@ -421,7 +436,7 @@ export Video, Action, BackgroundAction, SubAction, Rel
 export Line, Translation, Rotation, Transformation, Scaling
 export val, pos, ang, get_value, get_position, get_angle
 export projection, morph
-export appear, disappear, rotate_around, follow_path
+export appear, disappear, rotate_around, follow_path, change
 export rev
 export scaleto
 

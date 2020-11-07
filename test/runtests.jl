@@ -1,13 +1,11 @@
 using Animations
-using GtkReactive
-using Gtk: get_gtk_property, visible
 using Images
 using Javis
+using GtkReactive
 using LaTeXStrings
 using ReferenceTests
 using Test
 using VideoIO
-
 
 @testset "Unit" begin
     include("unit.jl")
