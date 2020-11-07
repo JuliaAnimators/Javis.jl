@@ -1,4 +1,4 @@
-# **Tutorial 2:** What Are Actions?
+# **Tutorial 2:** What Are Objects?
 
 In this tutorial, we are going to learn how to make a brain! 🧠 
 Well, not _exactly_ making a brain. 
@@ -47,8 +47,8 @@ render(video, pathname = "eeg.gif", framerate = 1)
 
 As you can see, we have generated a blank gif.
 Not exactly what we want but it is a start!
-We used a special type of action called [`Background`](@ref).
-This applies whatever function that is provided to it as the default background of any future animations produced by a future action.
+We used a special type of object called [`Background`](@ref).
+This applies whatever function that is provided to it as the default background of any future animations produced by a future object.
 
 > **NOTE:** For this animation, we will be using a framerate of 1 frame per second.
 > Thus, why `framerate` is set to the value of `1` in `render`.
@@ -98,7 +98,7 @@ Besides that there are three other options:
 ### Function
 
 The most important part of each [`Object`](@ref) is the drawing function `func` that defines what should be drawn in these frames. 
-Under the hood, Javis calls `func` with three arguments (`video`, `action`, and `framenumber`) but you do not need to preoccupy yourself with these.
+Under the hood, Javis calls `func` with three arguments (`video`, `object`, and `framenumber`) but you do not need to preoccupy yourself with these.
 Just make `func` an anonymous function and define the output being drawn in the canvas:
 
 ```julia
@@ -478,4 +478,4 @@ render(demo, pathname = "eeg.gif", framerate = 1)
 
 > **Author(s):** Jacob Zelko, Ole Kröger \
 > **Date:** August 11th, 2020 \
-> **Tag(s):** brain, EEG, project, tutorial, electrodes, Action, BackgroundAction
+> **Tag(s):** brain, EEG, project, tutorial, electrodes, Object, Background
