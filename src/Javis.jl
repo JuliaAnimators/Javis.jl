@@ -150,7 +150,7 @@ function preprocess_frames!(objects::Vector{<:AbstractObject})
     end
     frames = unique(frames)
     if !(frames ⊆ CURRENT_VIDEO[1].background_frames)
-        @warn("Some of the frames don't have a background: In this case: $(setdiff(frames, CURRENT_VIDEO[1].background_frames)))")
+        @warn("Some of the frames don't have a background. In this case: $(setdiff(frames, CURRENT_VIDEO[1].background_frames)))")
     end
 
     if isempty(CURRENT_OBJECT)
