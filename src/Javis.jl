@@ -6,6 +6,7 @@ using ColorTypes: ARGB32
 using FFMPEG
 using Gtk
 using GtkReactive
+using Hungarian
 using Images
 using LaTeXStrings
 using LightXML
@@ -13,6 +14,7 @@ import Luxor
 import Luxor: Point, @layer, translate, rotate
 using ProgressMeter
 using Random
+using Statistics
 using VideoIO
 
 const FRAMES_SYMBOL = [:same]

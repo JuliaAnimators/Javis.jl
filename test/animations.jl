@@ -1,21 +1,3 @@
-function ground(video, action, framenumber)
-    background("white")
-    sethue("blue")
-    return framenumber
-end
-
-function ground_black_on_white(video, action, framenumber)
-    background("white")
-    sethue("black")
-    return framenumber
-end
-
-function ground_color(color_bg, color_pen, framenumber)
-    background(color_bg)
-    sethue(color_pen)
-    return framenumber
-end
-
 function latex_title(args...)
     fontsize(20)
     latex(L"E=mc^2", 0, -200)
@@ -209,47 +191,6 @@ end
 
     @test_reference "refs/circle_angle.png" load("images/0000000008.png")
     for i in 1:10
-        rm("images/$(lpad(i, 10, "0")).png")
-    end
-end
-
-astar(args...; do_action = :stroke) = star(Point(-100, -100), 30, 5, 0.5, 0, do_action)
-acirc(args...; do_action = :stroke) = circle(Point(100, 100), 30, do_action)
-
-@testset "morphing star2circle and back" begin
-    video = Video(500, 500)
-
-    back = Background(1:20, (args...) -> ground_color("white", "black", args[3]))
-    Object(1:10, (args...) -> circle(Point(-100, 0), val(back), :fill))
-    star_obj = Object(1:10, astar)
-    act!(star_obj, Action(linear(), morph_to(acirc)))
-    circle_obj = Object(11:20, acirc)
-    act!(circle_obj, Action(:same, morph_to(astar)))
-
-    render(video; tempdirectory = "images", pathname = "")
-
-    @test_reference "refs/star2circle5.png" load("images/0000000005.png")
-    @test_reference "refs/star2circle15.png" load("images/0000000015.png")
-    for i in 1:20
-        rm("images/$(lpad(i, 10, "0")).png")
-    end
-end
-
-@testset "morphing star2circle and back with fill" begin
-    video = Video(500, 500)
-    back = Background(1:20, (args...) -> ground_color("white", "black", args[3]))
-    Object(1:10, (args...) -> circle(Point(-100, 0), val(back), :fill))
-    star_obj = Object(1:10, astar)
-    act!(star_obj, Action(morph_to(acirc; draw_object = :fill)))
-
-    circle_obj = Object(11:20, acirc)
-    act!(circle_obj, Action(morph_to(astar; draw_object = :fill)))
-
-    render(video; tempdirectory = "images", pathname = "")
-
-    @test_reference "refs/star2circle_fill5.png" load("images/0000000005.png")
-    @test_reference "refs/star2circle_fill15.png" load("images/0000000015.png")
-    for i in 1:20
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
