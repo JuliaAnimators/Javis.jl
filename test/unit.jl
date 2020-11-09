@@ -281,4 +281,11 @@
         Object(1:11, (args...) -> 2)
         @test_logs (:warn,) render(video; pathname = "")
     end
+
+    @testset "Test warning if action outside frame range" begin
+        video = Video(100, 100)
+        Background(1:20, (args...) -> 1)
+        act!(Object(1:11, (args...) -> 2), Action(1:20, anim_translate(0, 10)))
+        @test_logs (:warn,) render(video; pathname = "")
+    end
 end

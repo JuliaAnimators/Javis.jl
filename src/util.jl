@@ -12,7 +12,7 @@ function compute_frames!(
     available_subframes = typemin(Int):typemax(Int)
     if parent !== nothing
         last_frames = get_frames(parent)
-        available_subframes = get_frames(parent)
+        available_subframes = 1:length(get_frames(parent))
     else
         last_frames = nothing
     end
@@ -30,7 +30,7 @@ function compute_frames!(
         if !(get_frames(elem) ⊆ available_subframes)
             @warn("An Action defines frames outside the range of the parental object.
             In particular Action #$counter for Object #$parent_counter is defined for frames
-            $(get_frames(elem)) but the object exists only for $(available_subframes).
+            $(get_frames(elem)) but the object exists only for $(length(available_subframes)) frames.
             (Info: the Background is counted as Object #1)")
         end
         is_first = false

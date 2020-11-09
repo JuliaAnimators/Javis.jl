@@ -140,7 +140,7 @@ function preprocess_frames!(objects::Vector{<:AbstractObject})
     compute_frames!(objects)
 
     for (i, object) in enumerate(objects)
-        compute_frames!(object.actions; parent = object, parent_counter=i)
+        compute_frames!(object.actions; parent = object, parent_counter = i)
     end
 
     # get all frames
