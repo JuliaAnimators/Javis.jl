@@ -34,7 +34,7 @@ include("structs/Scale.jl")
     Transformation
 
 Defines a transformation which can be returned by an object to be accessible later.
-This is explained in the first tutorial where one circle is rotated around another.
+This is further explained in the Javis tutorials.
 
 # Fields
 - `point::Point`: the translation part of the transformation
