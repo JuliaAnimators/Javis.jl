@@ -66,7 +66,7 @@ Animate the rotation of the attached object (see [`act!`](@ref)) around a point.
 ```julia
 Background(1:100, ground)
 obj = Object((args...)) -> rect(O, 50, 50, :fill), Point(100, 0))
-act!(obj, Action(1:50, anim_rotate_around(2π)))
+act!(obj, Action(1:50, anim_rotate_around(2π, O)))
 ```
 
 # Possibilities
@@ -106,6 +106,9 @@ act!(obj, Action(1:50, anim_scale(1.5)))
 # Possibilities
 - `anim_scale(ts)` scales from the current scale to `ts`.
 - `anim_scale(fs, ts)` scales from `fs` to `ts`.
+
+The scales itself should be either a Float64 or a tuple of Float64 or a reference to an object
+if the object itself returns a value like that.
 """
 anim_scale(ts) = Scaling(:current_scale, ts)
 anim_scale(fs, ts) = Scaling(fs, ts)
