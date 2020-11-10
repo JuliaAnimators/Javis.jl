@@ -34,10 +34,7 @@ include("structs/Scale.jl")
     Transformation
 
 Defines a transformation which can be returned by an object to be accessible later.
-See the `circ` function inside the [`javis`](@ref) as an example.
-
-It can be accessed by another [`Object`])(@ref) using the symbol notation
-like `:red_ball` in the example.
+This is further explained in the Javis tutorials.
 
 # Fields
 - `point::Point`: the translation part of the transformation
@@ -304,7 +301,7 @@ end
 """
     draw_object(object, video, frame, origin_matrix)
 
-Is called inside the `javis` and does everything handled for an `AbstractObject`.
+Is called inside the [`render`](@ref) and does everything handled for an `AbstractObject`.
 It is a 4-step process:
 - translate to the start position
 - call the relevant actions
