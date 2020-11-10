@@ -8,6 +8,7 @@
 - Moved from `Translation`, `Scaling` and `Rotation` to `anim_translate` etc
 - Changed `Rel` to `RFrames` and added `GFrames` for defining actions with global frames
 - A warning is shown if some frames don't have a background
+- A warning is shown if an `Action` is defined outside the parental `Object`
 
 ## v0.2.2 (20th of October 2020)
 - Ability to change a keyword using `change`
