@@ -114,7 +114,7 @@ Finally, let's get started with creating our `render` function:
 ```julia
 demo = Video(500, 500)
 Background(1:550, ground)
-render(demo, liveview = true, framerate = 10)
+render(demo, pathname="tutorial5.gif", framerate = 10)
 ```
 
 As you can see, the animation we are creating is going to have many frames!
@@ -313,7 +313,7 @@ act!(info, Action(420:450, sineio(), appear(:fade)))
 act!(info, Action(490:521, sineio(), disappear(:fade)))
 act!(info, Action(520:550, change(:elem, 7 => 1)))
 
-render(demo, liveview = true, framerate = 10)
+render(demo, pathname="tutorial5.gif", framerate = 10)
 ```
 
 > **Author(s):** Jacob Zelko \
