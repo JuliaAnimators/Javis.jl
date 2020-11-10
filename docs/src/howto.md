@@ -188,7 +188,7 @@ In this case I want the star to follow a path consisting of two edges and I use 
 
 An interesting possibility is to define paths using Bézier curves which can be defined with Luxor (see: [Polygons to Bézier paths and back again](https://juliagraphics.github.io/Luxor.jl/stable/polygons/#Polygons-to-B%C3%A9zier-paths-and-back-again))
 
-One example of this can be seen in our [example section](../examples.md)
+One example of this can be seen in our [example section](examples.md)
 
 ## How can I see a live view of the animation?
 

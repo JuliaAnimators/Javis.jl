@@ -9,7 +9,7 @@ Defines what is drawn in a defined frame range.
     It gets called with the arguments `video, object, frame`
 - `start_pos::Union{Object, Point}` defines the origin of the object. It gets translated to this point
 - `actions::Vector{AbstractAction}` a list of actions applied to this object
-- `current_setting`:: The current state of the object see [ObjectSetting](@ref)
+- `current_setting`:: The current state of the object see [`ObjectSetting`](@ref)
 - `opts::Any` can hold any options defined by the user
 - `change_keywords::Dict{Symbol,Any}` the modified keywords changed by `change`
 - `result::Vector` the result of the object (if something gets returned)
@@ -110,18 +110,18 @@ act!(obj, Action(1:50, anim_scale(1.5)))
 Here the scaling is applied to the rectangle for the first fifty frames.
 
 # Options
-1. A single object and action: 
-   
+1. A single object and action:
+
    `act!(object::AbstractObject, action::AbstractAction)`
    - `object::AbstractObject` - the object the action is applied to
    - `action::AbstractAction` - the action applied to the object
-  
+
 2. A single object and a list of actions:
 
    `act!(object::AbstractObject, action::Vector{<:AbstractAction})`
    - `object::AbstractObject` - the object actions are applied to
    - `action::Vector{<:AbstractAction}` - the actions applied to an object
-  
+
 3. A list of objects and a list of actions:
 
    `act!(object::Vector{<:AbstractObject}, action::Vector{<:AbstractAction})`

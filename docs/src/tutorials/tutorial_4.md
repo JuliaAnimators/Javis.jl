@@ -25,7 +25,7 @@ From this tutorial, you will learn how to:
 2. Move objects using an `Action`.
 3. Learn how to create several objects quickly
 
-## Starting with the Basics of SubAction
+## Starting with the Basics of Action
 
 The `ground` function should be familiar to you as well as the general structure of the code if you have seen the first [tutorial](tutorial_1.md).
 In this tutorial, rather than calling the `render` function in the global space, we are going to be calling it from the function we are creating to create our mascot, `face`: 

@@ -1,3 +1,8 @@
+"""
+    get_value(obj::AbstractObject)
+
+Returns the value saved by `obj`
+"""
 function get_value(obj::AbstractObject)
     return obj.result[1]
 end

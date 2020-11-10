@@ -3,7 +3,7 @@ include("Shape.jl")
 """
     morph_to(to_func::Function; object=:stroke)
 
-A closure for the [`_morph`](@ref) function.
+A closure for the [`_morph_to`](@ref) function.
 This makes it easier to write the function inside an `Object`.
 
 Currently morphing is quite simple and only works for basic shapes.
@@ -215,9 +215,9 @@ end
     save_morph_polygons!(action::Action, from_func::Vector{Vector{Point}},
                                          to_func::Vector{Vector{Point}})
 
-Calls the functions to polygons and calls [`match_num_points!`](@ref)
+Calls the functions to polygons and calls [`match_num_points`](@ref)
 such that both polygons have the same number of points.
-This is done once inside [`_morph`](@ref).
+This is done once inside [`_morph_to`](@ref).
 Saves the two polygons inside `action.defs[:from_poly]` and `action.defs[:to_poly]`.
 
 **Assumption:** Both functions create the same number of polygons.
