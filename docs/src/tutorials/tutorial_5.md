@@ -1,4 +1,4 @@
-# **Tutorial 5:** Scaling the Elements
+# **Tutorial 5:** Taming the Elements
 
 ## Introduction
 
@@ -10,7 +10,7 @@ Let's visualize these atoms and show their uniqueness!
 
 In this tutorial you'll learn:
 
-- How to use `change` to change a variable inside of an animation.
+- How to use [`change`](@ref) to change a variable inside of an animation.
 - To use `Javis.jl` to interact with the following Julia packages:
     - [`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl)
     - [`PeriodicTable.jl`](https://github.com/JuliaPhysics/PeriodicTable.jl)
@@ -127,7 +127,7 @@ Think of it as your directoral debut! 🎬 🎥
 
 Each element has a different atomic mass.
 This atomic mass is measured in the unit called a "Dalton" (symbol: u) which is equivalent to 1/12 of the mass of a stationary carbon-12 atom.
-We can use the `change` functionality that `Javis.jl` provides to visualize different elements!
+We can use the [`change`](@ref) functionality that `Javis.jl` provides to visualize different elements!
 
 To accomplish this, we need to make a function that shows our currently viewed element:
 
@@ -157,9 +157,9 @@ act!(
 ...
 ```
 
-`change` is used here to change the given radius of the circle in `element` from `1` to `12`, from `12` to `20`, `20` to `7`, and finally `7` to `1`.
+[`change`](@ref) is used here to change the given radius of the circle in `element` from `1` to `12`, from `12` to `20`, `20` to `7`, and finally `7` to `1`.
 This updates the circle being drawn and gives a growing or shrinking effect.
-`change` interpolates the values in between what we want to change the value from to what the value we want to change to. 
+[`change`](@ref) interpolates the values in between what we want to change the value from to what the value we want to change to. 
 
 That scaling looks like this:
 
@@ -220,7 +220,7 @@ act!(info, Action(520:550, change(:elem, 7 => 1)))
 ...
 ```
 
-Here, `change` is being used to change the element, `elem`, being queried from `PeriodicTable.jl` over one frame.
+Here, [`change`](@ref) is being used to change the element, `elem`, being queried from `PeriodicTable.jl` over one frame.
 This gives us the updated information about each atom!
 Furthermore, using the method `appear(:fade)` and `disappear(:fade)` and `sineio()`, we get a nice fading effect to easily transition between each element.
 
@@ -240,7 +240,7 @@ We are basically physicists at this point. 😉
 Great work getting through this tutorial!
 This tutorial was a little more complicated as you learned the following:
 
-- Using `Javis.jl` to `change` animations in progress
+- Using `Javis.jl` to [`change`](@ref) animations in progress
 - Having `Javis.jl` interact with other Julia packages
 - Creating extended animations for use in education
 
