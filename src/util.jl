@@ -28,10 +28,10 @@ function compute_frames!(
         end
         last_frames = get_frames(elem)
         if !(get_frames(elem) ⊆ available_subframes)
-            @warn("An Action defines frames outside the range of the parental object.
-            In particular Action #$counter for Object #$parent_counter is defined for frames
-            $(get_frames(elem)) but the object exists only for $(length(available_subframes)) frames.
-            (Info: the Background is counted as Object #1)")
+            @warn("Action defined outside the frame range of the parent object.
+            Action #$counter for Object #$parent_counter is defined for frames
+            $(get_frames(elem)) but Object #$parent_counter exists only for $(available_subframes).
+            (Info: Background is counted as Object #1)")
         end
         is_first = false
         counter += 1
