@@ -34,10 +34,9 @@ mutable struct ObjectSetting
     current_scale::Scale
     desired_scale::Scale
     mul_scale::Float64 # the multiplier of scale is between 0 and 1
-end
 
-ObjectSetting() =
-    ObjectSetting(1.0, 1.0, 1.0, 1.0, 10.0, true, Scale(1.0, 1.0), Scale(1.0, 1.0), 1.0)
+    ObjectSetting() = new(1.0, 1.0, 1.0, 1.0, 10.0, true, Scale(1.0, 1.0), Scale(1.0, 1.0), 1.0)
+end
 
 """
     update_ObjectSetting!(as::ObjectSetting, by::ObjectSetting)
