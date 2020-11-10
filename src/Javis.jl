@@ -1,55 +1,60 @@
 module Javis
 
 using Animations
-using Cairo: CairoImageSurface, image
+import Cairo: CairoImageSurface, image
 using ColorTypes: ARGB32
 using FFMPEG
 using Gtk
 using GtkReactive
+using Hungarian
 using Images
 using LaTeXStrings
 using LightXML
 import Luxor
-import Luxor: Point, @layer
+import Luxor: Point, @layer, translate, rotate
 using ProgressMeter
 using Random
+using Statistics
 using VideoIO
 
 const FRAMES_SYMBOL = [:same]
 
-abstract type Transition end
-abstract type InternalTransition end
-
 abstract type AbstractAction end
+abstract type AbstractObject end
+abstract type AbstractTransition end
 
 include("structs/Video.jl")
 include("structs/Easing.jl")
-include("structs/Rel.jl")
+include("structs/RFrames.jl")
+include("structs/GFrames.jl")
 include("structs/Frames.jl")
-
+include("structs/Scale.jl")
 
 """
     Transformation
 
-Defines a transformation which can be returned by an action to be accessible later.
-See the `circ` function inside the [`javis`](@ref) as an example.
-
-It can be accessed by another [`Action`])(@ref) using the symbol notation
-like `:red_ball` in the example.
+Defines a transformation which can be returned by an object to be accessible later.
+This is further explained in the Javis tutorials.
 
 # Fields
-- `p::Point`: the translation part of the transformation
+- `point::Point`: the translation part of the transformation
 - `angle::Float64`: the angle component of the transformation (in radians)
+- `scale::Tuple{Float64, Float64}`: the scaling component of the transformation
 """
-mutable struct Transformation
-    p::Point
+struct Transformation
+    point::Point
     angle::Float64
+    scale::Scale
 end
 
-include("structs/SubAction.jl")
-include("structs/ActionSetting.jl")
-include("structs/Action.jl")
+Transformation(p, a) = Transformation(p, a, 1.0)
+Transformation(p, a, s::Float64) = Transformation(p, a, (s, s))
+Transformation(p, a, s::Tuple{Float64,Float64}) = Transformation(p, a, Scale(s...))
+
+include("structs/ObjectSetting.jl")
+include("structs/Object.jl")
 include("structs/Transitions.jl")
+include("structs/Action.jl")
 
 
 """
@@ -74,15 +79,16 @@ Convert the transformation to a matrix and multiplies m*trans_matrix.
 Return a new Transformation
 """
 function Base.:*(m::Array{Float64,2}, transformation::Transformation)
+    p = transformation.point
     θ = transformation.angle
-    p = transformation.p
+    s = transformation.scale
     trans_matrix = [
-        cos(θ) -sin(θ) p.x
-        sin(θ) cos(θ) p.y
+        s.x*cos(θ) -sin(θ) p.x
+        sin(θ) s.y*cos(θ) p.y
         0 0 1
     ]
     res = m * trans_matrix
-    return Transformation(Point(gettranslation(res)...), getrotation(res))
+    return Transformation(Point(gettranslation(res)...), getrotation(res), getscale(res))
 end
 
 include("util.jl")
@@ -90,11 +96,10 @@ include("luxor_overrides.jl")
 include("backgrounds.jl")
 include("svg2luxor.jl")
 include("morphs.jl")
-include("subaction_animations.jl")
+include("action_animations.jl")
 include("javis_viewer.jl")
 include("latex.jl")
-include("transition2transformation.jl")
-include("symbol_values.jl")
+include("object_values.jl")
 
 """
     projection(p::Point, l::Line)
@@ -114,105 +119,79 @@ function projection(p::Point, l::Line)
 end
 
 """
-    javis(
-        video::Video,
-        actions::Vector{AbstractAction};
-        framerate=30,
-        pathname="",
-        tempdirectory="",
-        liveview=false
-    )
+    preprocess_frames!(objects::Vector{<:AbstractObject})
 
-Similar to `animate` in Luxor with a slightly different structure.
-Instead of using actions and a video instead of scenes in a movie.
+Computes the frames for each object and action based on the user defined frames that the
+user can provide like [`RFrames`](@ref), [`GFrames`](@ref) and `:same`.
 
-# Arguments
-- `video::Video`: The video which defines the dimensions of the output
-- `actions::Vector{Action}`: All actions that are performed
+This function needs to be called before calling [`get_javis_frame`](@ref) as it computes
+the actual frames for objects and actions.
 
-# Keywords
-- `framerate::Int`: The frame rate of the video
-- `pathname::String`: The path for the rendered gif or mp4 (i.e `output.gif` or `output.mp4`)
-- `tempdirectory::String`: The folder where each frame is stored
-    Defaults to a temporary directory when not set
-- `liveview::Bool`: Causes a live image viewer to appear to assist with animation development
+# Returns
+- `frames::Array{Int}` - list of all frames normally 1:...
 
-# Example
-```
-function ground(args...)
-    background("white")
-    sethue("black")
-end
-
-function circ(p=O, color="black")
-    sethue(color)
-    circle(p, 25, :fill)
-    return Transformation(p, 0.0)
-end
-
-from = Point(-200, -200)
-to = Point(-20, -130)
-p1 = Point(0,-100)
-p2 = Point(0,-50)
-from_rot = 0.0
-to_rot = 2π
-
-demo = Video(500, 500)
-javis(demo, [
-    Action(1:100, ground),
-    Action(1:100, :red_ball, (args...)->circ(p1, "red"), Rotation(from_rot, to_rot)),
-    Action(1:100, (args...)->circ(p2, "blue"), Rotation(to_rot, from_rot, :red_ball))
-], tempdirectory="images", pathname="rotating.gif")
-```
-
-This structure makes it possible to refer to positions of previous actions
-i.e :red_ball is an id for the position or the red ball which can be used in the
-rotation of the next ball.
+# Warning
+Shows a warning if some frames don't have a background.
 """
-function javis(
-    video::Video,
-    actions::Vector{AA};
-    framerate = 30,
-    pathname = "javis_$(randstring(7)).gif",
-    liveview = false,
-    tempdirectory = "",
-) where {AA<:AbstractAction}
-    compute_frames!(actions)
+function preprocess_frames!(objects::Vector{<:AbstractObject})
+    compute_frames!(objects)
 
-    for action in actions
-        compute_frames!(action.subactions; last_frames = get_frames(action))
+    for (i, object) in enumerate(objects)
+        compute_frames!(object.actions; parent = object, parent_counter = i)
     end
 
     # get all frames
     frames = Int[]
-    for action in actions
-        append!(frames, collect(get_frames(action)))
+    for object in objects
+        append!(frames, collect(get_frames(object)))
     end
     frames = unique(frames)
-
-    # create internal transition objects
-    for action in actions
-        create_internal_transitions!(action)
-        for subaction in action.subactions
-            create_internal_transitions!(subaction)
-        end
+    if !(frames ⊆ CURRENT_VIDEO[1].background_frames)
+        @warn("Some of the frames don't have a background. In this case: $(setdiff(frames, CURRENT_VIDEO[1].background_frames)))")
     end
 
-    # create defs object
-    for action in actions
-        if action.id !== nothing
-            video.defs[action.id] = Transformation(O, 0.0)
-        end
-    end
-
-    if isempty(CURRENT_ACTION)
-        push!(CURRENT_ACTION, actions[1])
+    if isempty(CURRENT_OBJECT)
+        push!(CURRENT_OBJECT, objects[1])
     else
-        CURRENT_ACTION[1] = actions[1]
+        CURRENT_OBJECT[1] = objects[1]
     end
+    return frames
+end
+
+"""
+    render(
+        video::Video;
+        framerate=30,
+        pathname="javis_GIBBERISH.gif",
+        tempdirectory="",
+        liveview=false
+    )
+
+Renders all previously defined [`Object`](@ref) drawings to the user-defined `Video` as a gif or mp4.
+
+# Arguments
+- `video::Video`: The video which defines the dimensions of the output
+
+# Keywords
+- `framerate::Int`: The frame rate of the video
+- `pathname::String`: The path for the rendered gif or mp4 (i.e `output.gif` or `output.mp4`)
+    - **Default:** The animation is rendered as a gif with the `javis_` prefix and some gibberish afterwards
+- `tempdirectory::String`: The folder where each frame is stored
+    Defaults to a temporary directory when not set
+- `liveview::Bool`: Causes a live image viewer to appear to assist with animation development
+"""
+function render(
+    video::Video;
+    framerate = 30,
+    pathname = "javis_$(randstring(7)).gif",
+    liveview = false,
+    tempdirectory = "",
+)
+    objects = video.objects
+    frames = preprocess_frames!(objects)
 
     if liveview == true
-        _javis_viewer(video, length(frames), actions)
+        _javis_viewer(video, length(frames), objects)
         return "Live preview started."
     end
 
@@ -233,7 +212,7 @@ function javis(
 
     filecounter = 1
     @showprogress 1 "Rendering frames..." for frame in frames
-        frame_image = convert.(RGB, get_javis_frame(video, actions, frame))
+        frame_image = convert.(RGB, get_javis_frame(video, objects, frame))
         if !isempty(tempdirectory)
             Images.save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
         end
@@ -270,45 +249,49 @@ function javis(
 end
 
 """
-    get_javis_frame(video, actions, frame)
+    get_javis_frame(video, objects, frame)
 
-Get a frame from an animation given a video object, its actions, and frame.
+Get a frame from an animation given a video object, its objects, and frame.
+
+If one wants to use this without calling [`render`](@ref), [`preprocess_frames!`](@ref)
+needs to be called before. That way each object and action has the correct frames it should
+be applied to.
 
 # Arguments
 - `video::Video`: The video which defines the dimensions of the output
-- `actions::Vector{Action}`: All actions that are performed
+- `objects::Vector{Object}`: All objects that are performed
 - `frame::Int`: Specific frame to be returned
 
 # Returns
 - `Array{ARGB32, 2}` - request frame as a matrix
 """
-function get_javis_frame(video, actions, frame)
-    background_settings = ActionSetting()
+function get_javis_frame(video, objects, frame)
+    background_settings = ObjectSetting()
     Drawing(video.width, video.height, :image)
     origin()
     origin_matrix = cairotojuliamatrix(getmatrix())
     # this frame needs doing, see if each of the scenes defines it
-    for action in actions
-        # if action is not in global layer this sets the background_settings
-        # from the parent background action
-        update_action_settings!(action, background_settings)
-        CURRENT_ACTION[1] = action
-        if frame in get_frames(action)
-            # check if the action should be part of the global layer (i.e BackgroundAction)
+    for object in objects
+        # if object is not in global layer this sets the background_settings
+        # from the parent background object
+        update_object_settings!(object, background_settings)
+        CURRENT_OBJECT[1] = object
+        if frame in get_frames(object)
+            # check if the object should be part of the global layer (i.e Background)
             # or in its own layer (default)
-            in_global_layer = get(action.opts, :in_global_layer, false)::Bool
+            in_global_layer = get(object.opts, :in_global_layer, false)::Bool
             if !in_global_layer
                 @layer begin
-                    perform_action(action, video, frame, origin_matrix)
+                    draw_object(object, video, frame, origin_matrix)
                 end
             else
-                perform_action(action, video, frame, origin_matrix)
+                draw_object(object, video, frame, origin_matrix)
                 # update origin_matrix as it's inside the global layer
                 origin_matrix = cairotojuliamatrix(getmatrix())
             end
         end
-        # if action is in global layer this changes the background settings
-        update_background_settings!(background_settings, action)
+        # if object is in global layer this changes the background settings
+        update_background_settings!(background_settings, object)
     end
     img = image_as_matrix()
     finish()
@@ -316,82 +299,76 @@ function get_javis_frame(video, actions, frame)
 end
 
 """
-    perform_action(action, video, frame, origin_matrix)
+    draw_object(object, video, frame, origin_matrix)
 
-Is called inside the `javis` and does everything handled for an `AbstractAction`.
+Is called inside the [`render`](@ref) and does everything handled for an `AbstractObject`.
 It is a 4-step process:
-- compute the transformation for this action (translation, rotation, scale)
-- do the transformation
-- call the action function
-- save the result of the action if wanted inside `video.defs`
+- translate to the start position
+- call the relevant actions
+- call the object function
+- save the result of the object if wanted inside `video.defs`
 """
-function perform_action(action, video, frame, origin_matrix)
-    # first compute and perform the global transformations of this action
-    compute_transition!(action, video, frame)
-    perform_transformation(action)
+function draw_object(object, video, frame, origin_matrix)
+    # translate the object to it's starting position.
+    # It's better to draw the object always at the origin and use `star_pos` to shift it
+    translate(get_position(object.start_pos))
 
-    # relative frame number for subactions
-    rel_frame = frame - first(get_frames(action)) + 1
-    # call currently active subactions and their transformations
-    for subaction in action.subactions
-        if rel_frame in get_frames(subaction)
-            subaction.func(video, action, subaction, rel_frame)
-            compute_transition!(subaction, video, rel_frame)
-            perform_transformation(subaction)
-        elseif rel_frame > last(get_frames(subaction))
-            # call the subaction on the last frame i.e. disappeared things stay disappeared
-            subaction.func(video, action, subaction, last(get_frames(subaction)))
-            # have the transformation from the last active frame
-            compute_transition!(subaction, video, last(get_frames(subaction)))
-            perform_transformation(subaction)
+    # first compute and perform the global transformations of this object
+    # relative frame number for actions
+    rel_frame = frame - first(get_frames(object)) + 1
+    # call currently active actions and their transformations
+    for action in object.actions
+        if rel_frame in get_frames(action)
+            action.func(video, object, action, rel_frame)
+        elseif rel_frame > last(get_frames(action)) && action.keep
+            # call the action on the last frame i.e. disappeared things stay disappeared
+            action.func(video, object, action, last(get_frames(action)))
         end
     end
 
     # set the defaults for the frame like setline() and setopacity()
-    # which can depend on the subactions
-    set_action_defaults!(action)
+    # which can depend on the actions
+    set_object_defaults!(object)
 
-    # if the scale would be 0.0 `show_action` is set to false => don't show the action
+    # if the scale would be 0.0 `show_object` is set to false => don't show the object
     # (it wasn't actually scaled to 0 because it would break Cairo :D)
     cs = get_current_setting()
-    !cs.show_action && return
+    !cs.show_object && return
 
-    res = action.func(video, action, frame; collect(action.change_keywords)...)
-    if action.id !== nothing
-        current_global_matrix = cairotojuliamatrix(getmatrix())
-        # obtain current matrix without the initial matrix part
-        current_matrix = inv(origin_matrix) * current_global_matrix
+    res = object.func(video, object, frame; collect(object.change_keywords)...)
+    current_global_matrix = cairotojuliamatrix(getmatrix())
+    # obtain current matrix without the initial matrix part
+    current_matrix = inv(origin_matrix) * current_global_matrix
 
-        # if a transformation let's save the global coordinates
-        if res isa Point
-            vec = current_matrix * [res.x, res.y, 1.0]
-            video.defs[action.id] = Point(vec[1], vec[2])
-        elseif res isa Transformation
-            trans = current_matrix * res
-            video.defs[action.id] = trans
-        else # just save the result such that it can be used as one wishes
-            video.defs[action.id] = res
-        end
+    # if a transformation let's save the global coordinates
+    if res isa Point
+        trans = current_matrix * Transformation(res, 0.0, 1.0)
+        object.result[1] = trans
+    elseif res isa Transformation
+        trans = current_matrix * res
+        object.result[1] = trans
+    else # just save the result such that it can be used as one wishes
+        object.result[1] = res
     end
 end
 
 """
-    set_action_defaults!(action)
+    set_object_defaults!(object)
 
-Set the default action values
+Set the default object values
 - line_width and calls `Luxor.setline`.
 - opacity and calls `Luxor.opacity`.
 - scale and calls `Luxor.scale`.
 """
-function set_action_defaults!(action)
-    cs = action.current_setting
+function set_object_defaults!(object)
+    cs = object.current_setting
     current_line_width = cs.line_width * cs.mul_line_width
     Luxor.setline(current_line_width)
     current_opacity = cs.opacity * cs.mul_opacity
     Luxor.setopacity(current_opacity)
 
-    desired_scale = cs.desired_scale .* cs.mul_scale
-    scaleto(desired_scale...)
+    desired_scale = cs.desired_scale * cs.mul_scale
+    scaleto(desired_scale)
 end
 
 const LUXOR_DONT_EXPORT = [
@@ -414,14 +391,16 @@ for func in names(Luxor; imported = true)
     end
 end
 
-export javis, latex
-export Video, Action, BackgroundAction, SubAction, Rel
-export Line, Translation, Rotation, Transformation, Scaling
-export val, pos, ang, get_value, get_position, get_angle
-export projection, morph
+export render, latex
+export Video, Object, Background, Action, RFrames, GFrames
+export Line, Transformation
+export val, pos, ang, scl, get_value, get_position, get_angle, get_scale
+export projection, morph_to
 export appear, disappear, rotate_around, follow_path, change
 export rev
 export scaleto
+export act!
+export anim_translate, anim_rotate, anim_rotate_around, anim_scale
 
 # custom override of luxor extensions
 export setline, setopacity, fontsize, get_fontsize, scale, text

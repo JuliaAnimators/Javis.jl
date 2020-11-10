@@ -35,7 +35,7 @@ Check out our [documentation](https://wikunia.github.io/Javis.jl/dev/) for tutor
 | Animation                                      | Animation
 |------------------------------------------------|------------------------------------------------|
 | ![](examples/gifs/follow_bezier_path.gif)      | ![](examples/gifs/julia_logo_dft.gif)                 |
-| [Follow a Path](/examples/follow_path.jl)      |  [Draw the Julia Logo](/examples/julia_logo.jl) |
+| [Follow a Path](/examples/follow_path.jl)      |  [Draw the Julia Logo](/examples/fourier.jl) |
 
 ## Installation
 

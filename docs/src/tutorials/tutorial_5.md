@@ -1,4 +1,4 @@
-# **Tutorial 5:** Scaling the Elements
+# **Tutorial 5:** Taming the Elements
 
 ## Introduction
 
@@ -6,13 +6,11 @@ The world is built up of tiny tiny building blocks known as atoms. ⚛️
 These atoms come in many different sizes and each has different properties.
 Let's visualize these atoms and show their uniqueness!
 
-> P.S. This tutorial is not 100% representative of real life. If you spot the inaccuracy, feel free to open a PR. 😉
-
 ## Learning Outcomes 📚
 
 In this tutorial you'll learn:
 
-- How to apply scaling to an arbitrary shape
+- How to use [`change`](@ref) to change a variable inside of an animation.
 - To use `Javis.jl` to interact with the following Julia packages:
     - [`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl)
     - [`PeriodicTable.jl`](https://github.com/JuliaPhysics/PeriodicTable.jl)
@@ -20,6 +18,8 @@ In this tutorial you'll learn:
 - Ways of creating educational gifs
 
 By the end of this tutorial, you will have made the following animation:
+
+![](assets/atomic.gif)
 
 ## `PeriodicTable.jl` and `Unitful.jl`
 
@@ -81,7 +81,7 @@ e⁻-configuration: 1s² 2s² 2p⁴
 ```
 
 As fellow Julian, Johann-Tobias Schäg, said, one should learn `Unitful.jl` if they want to interact with the real world.
-`Unitful.jl` handles physical quantites such as pounds, meters, mols, etc. with minimal overhead in Julia.
+`Unitful.jl` handles physical quantities such as pounds, meters, mols, etc. with minimal overhead in Julia.
 Further, it helps one to keep track of units and easily convert between different measurement systems.
 
 ## Setting Up Our Animation
@@ -106,23 +106,15 @@ This background function will also write the current frame being drawn:
 function ground(video, action, frame)
     background("white")
     sethue("black")
-    text("$frame / 550", -240, -230)
 end
 ```
 
-Finally, let's get started with creating our `javis` function:
+Finally, let's get started with creating our `render` function:
 
 ```julia
 demo = Video(500, 500)
-javis(
-    demo,
-    [
-        BackgroundAction(1:550, ground),
-	...
-    ],
-    pathname = "atomic.gif",
-    framerate = 10,
-)
+Background(1:550, ground)
+render(demo, pathname="tutorial5.gif", framerate = 10)
 ```
 
 As you can see, the animation we are creating is going to have many frames!
@@ -135,55 +127,39 @@ Think of it as your directoral debut! 🎬 🎥
 
 Each element has a different atomic mass.
 This atomic mass is measured in the unit called a "Dalton" (symbol: u) which is equivalent to 1/12 of the mass of a stationary carbon-12 atom.
-We can use the `Scaling` functionality that `Javis.jl` provides to visualize these different masses!
+We can use the [`change`](@ref) functionality that `Javis.jl` provides to visualize different elements!
 
 To accomplish this, we need to make a function that shows our currently viewed element:
 
 ```julia
-function element(;color = "black")
+function element(; radius = 1, color = "black")
     sethue(color)
-    circle(O, 4, :fill)
+    circle(O, radius + 4, :fill) # The 4 is to make the circle not so small
 end
 ```
 
-Essentially, all the `element` function does is create a circle in the middle of the frame with the initial size of 1.
+Essentially, all the `element` function does is create a circle in the middle of the frame with a radius of 5.
 
-From there, we need to define more `Action` objects for our `javis` function for the element we are viewing to scale:
+From there, we need to define one `Object` for our animation to display the element we are viewing and scaling:
 
 ```julia
 ...
-        Action(1:550,
-            (args...) -> element(),
-            subactions = [ 
-                SubAction(101:140, Scaling(1, 12)),
-                SubAction(241:280, Scaling(12, 20)),
-                SubAction(381:420, Scaling(20, 7)),
-                SubAction(521:550, Scaling(7, 1))
-            ]
-        ),
-	...
-        pathname = "atomic.gif",
-        framerate = 10
-    )
+atom = Object(1:550, (args...; radius = 1) -> element(; radius = radius, color = "black"))
+act!(
+    atom,
+    [
+        Action(101:140, change(:radius, 1 => 12)),
+        Action(241:280, change(:radius, 12 => 20)),
+        Action(381:420, change(:radius, 20 => 7)),
+        Action(521:550, change(:radius, 7 => 1)),
+    ],
+)
 ...
 ```
 
-This will grow our element from `1` to `12`, from `12` to `20`, `20` to `7`, and finally `7` to `1`.
-
-> **IMPORTANT:** `Scaling` does not really scale an object but instead the entire canvas the object is drawn on. 
-> This produces the desired effect for two reasons:
-> 1. The `Action` is inside a Luxor layer which means that scaling inside this layer does not scale elements outside the layer (e.g. the frame counter in the upper right corner).
-> 2. As it scales the canvas and not the `Action`, scaling only works nicely if the action is defined at the origin. 
-If you want to display the element somewhere else, for example, you should **not** change in the following snippet
-> ```julia
-> function element(;color = "black")
->    sethue(color)
->    circle(O, 4, :fill)
-> end
-> ```
-> the point where the circle appears by changing `O` to the desired `Point(x, y)`.
-> Instead use another `SubAction`, like  `SubAction(1:1, Translation(x, y))`, to move the origin of the object to the desired location.
-> Then scaling will work fine as it is defined on the first frame only. 
+[`change`](@ref) is used here to change the given radius of the circle in `element` from `1` to `12`, from `12` to `20`, `20` to `7`, and finally `7` to `1`.
+This updates the circle being drawn and gives a growing or shrinking effect.
+[`change`](@ref) interpolates the values in between what we want to change the value from to what the value we want to change to. 
 
 That scaling looks like this:
 
@@ -197,141 +173,17 @@ Let's add some more information to this animation! 📝
 ## How Much Does an Atom Weigh? ⚖️
 
 To get the information about an element that we are currently previewing, we need to get information about our element.
-The first thing we need to get is the atomic mass of the element.
 So, how do we do that?
 
-First, we must modify our `javis` function slightly to store information about the circle object we draw by using the symbol `:atom`:
-
-```julia
-...
-        Action(1:550,
-            :atom,
-            (args...) -> element(),
-            subactions = [ 
-                SubAction(101:140, Scaling(1, 12)),
-                SubAction(241:280, Scaling(12, 20)),
-                SubAction(381:420, Scaling(20, 7)),
-                SubAction(521:550, Scaling(7, 1))
-            ]
-        ),
-	...
-```
-
-Now, we must update the `element` function to return the current scale of the circle being drawn.
-The reason why we want the scale of the object is that the scale of the circle represents its atomic mass.
-At this time, `Javis.jl` does not allow a user to get the current scale of an object directly.
-This will most likely be changed in future versions.
-The following changes need to be made to the `element` function:
-
-```julia
-function element(;color = "black")
-    sethue(color)
-    circle(O, 4, :fill)
-    return val(:_current_scale)[1]
-end
-```
-
-The `val` method is shorthand for the [`get_value`](@ref) method used inside of `Javis` (which gets the value saved into the `:_current_scale` symbol by the prior action).
-Since we are getting the current scale value, we have to access an internal object called `:_current_scale`.
-Technically, we should not be accessing this object, but right now, we have no other method.
-Hopefully this will be fixed in future versions!
-
-Now, whenever the `Action` executes in `javis`, to draw the circle, the current scale of the circle object is stored into the `:atom` symbol.
-Great! But... How do we know what element it is we are looking at?
-
-To answer that question, we need to create another function to display this information!
-
-## What's That Element? 🔍
-
 To identify the element and display its information properly, let's create an info box similar to what we made in [Tutorial 2](tutorial_2.md#As-You-Can-See-Here...)!
-We do this by creating an `info_box` function that takes in a value:
+We do this by creating an `info_box` function that takes in an element:
 
 ```julia
-function info_box(args...; value = 0)
+function info_box(element)
     fontsize(12)
     box(140, -210, 170, 40, :stroke)
-    for element in elements
-        if value == round(ustrip(element.atomic_mass))
-            text(
-                "Element name: $(element.name)",
-                140,
-                -220,
-                valign = :middle,
-                halign = :center,
-            )
-            text(
-                "Atomic Mass: $(round(ustrip(element.atomic_mass)))",
-                140,
-                -200,
-                valign = :middle,
-                halign = :center,
-            )
-        end
-    end
-end
-```
-
-Whenever a mass is measured that corresponds to a known element, the name of that element will now be displayed.
-Of course, we need to further update our `javis` function to this:
-
-```julia
-...
-        Action(1:550,
-            :atom,
-            (args...) -> element(),
-            subactions = [ 
-                SubAction(101:140, Scaling(1, 12)),
-                SubAction(241:280, Scaling(12, 20)),
-                SubAction(381:420, Scaling(20, 7)),
-                SubAction(521:550, Scaling(7, 1))
-            ]
-        ),
-        Action(
-            1:100,
-            (args...) -> info_box(value = val(:atom)),
-            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
-        ),
-        Action(
-            141:240,
-            (args...) -> info_box(value = val(:atom)),
-            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
-        ),
-        Action(
-            281:380,
-            (args...) -> info_box(value = val(:atom)),
-            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
-        ),
-        Action(
-            421:520,
-            (args...) -> info_box(value = val(:atom)),
-            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
-        ),
-...
-```
-
-The current scale of the circle object is now passed to the `info_box` function via the `:atom` symbol.
-Furthermore, we use a `SubAction` to have the text appear using the method `appear(:draw_text)` and we control the speed at which is appears using `sineio()`.
-
-> **NOTE:** `sineio()` comes from `Animations.jl` and is an easing function.
-More on this in [Tutorial 6](tutorial_6.md).
-
-This produces the following animation:
-
-![](assets/min_atomic_info.gif)
-
-We can now see what element is being viewed!
-Hooray!
-However, it doesn't tell us much about the element - let's change that!
-
-All one needs to do is update the `info_box` function with the following two lines:
-
-```julia
-function info_box(args...; value = 0)
-    fontsize(12)
-    box(140, -210, 170, 40, :stroke)
-    # Add the following line to your code
-    box(0, 175, 450, 100, :stroke)     
-    ...
+    box(0, 175, 450, 100, :stroke)
+    text("Element name: $(element.name)", 140, -220, valign = :middle, halign = :center)
     text(
         "Atomic Mass: $(round(ustrip(element.atomic_mass)))",
         140,
@@ -339,12 +191,43 @@ function info_box(args...; value = 0)
         valign = :middle,
         halign = :center,
     )
-    # Add the following line to your code
-    textwrap("Description: $(element.summary)", 400, Point(-200, 125)) 
+    textwrap("Description: $(element.summary)", 400, Point(-200, 125))
+end
+```
+
+To pass the element into the `info_box` function, we need to define an `Object` command to create our boxes.
+Then, we can change the element being passed in:
+
+```julia
+...
+info = Object(1:550, (args...; elem = 1) -> info_box(element = elements[round(Int, elem)]))
+
+act!(info, Action(1:30, sineio(), appear(:fade)))
+act!(info, Action(71:100, sineio(), disappear(:fade)))
+act!(info, Action(101:101, change(:elem, 1 => 12)))
+
+act!(info, Action(140:170, sineio(), appear(:fade)))
+act!(info, Action(210:241, sineio(), disappear(:fade)))
+act!(info, Action(280:280, change(:elem, 12 => 20)))
+
+act!(info, Action(280:310, sineio(), appear(:fade)))
+act!(info, Action(350:381, sineio(), disappear(:fade)))
+act!(info, Action(381:420, change(:elem, 20 => 7)))
+
+act!(info, Action(420:450, sineio(), appear(:fade)))
+act!(info, Action(490:521, sineio(), disappear(:fade)))
+act!(info, Action(520:550, change(:elem, 7 => 1)))
 ...
 ```
 
-Which now produces this fully comprehensive animation that tells us all about the element at hand:
+Here, [`change`](@ref) is being used to change the element, `elem`, being queried from `PeriodicTable.jl` over one frame.
+This gives us the updated information about each atom!
+Furthermore, using the method `appear(:fade)` and `disappear(:fade)` and `sineio()`, we get a nice fading effect to easily transition between each element.
+
+> **NOTE:** `sineio()` comes from `Animations.jl` and is an easing function.
+More on this in [Tutorial 6](tutorial_6.md).
+
+Now, let's look at that gif shall we?
 
 ![](assets/atomic.gif)
 
@@ -357,7 +240,7 @@ We are basically physicists at this point. 😉
 Great work getting through this tutorial!
 This tutorial was a little more complicated as you learned the following:
 
-- Using `Javis.jl` to scale objects
+- Using `Javis.jl` to [`change`](@ref) animations in progress
 - Having `Javis.jl` interact with other Julia packages
 - Creating extended animations for use in education
 
@@ -375,82 +258,64 @@ using Unitful
 function ground(video, action, frame)
     background("white")
     sethue("black")
-    text("$frame / 550", -240, -230)
 end
 
-function element(; color = "black")
+function element(; radius = 1, color = "black")
     sethue(color)
-    circle(O, 4, :fill)
-    return val(:_current_scale)[1]
+    circle(O, radius + 4, :fill)
 end
 
-function info_box(args...; value = 0)
+function info_box(element)
     fontsize(12)
     box(140, -210, 170, 40, :stroke)
     box(0, 175, 450, 100, :stroke)
-    for element in elements
-        if value == round(ustrip(element.atomic_mass))
-            text(
-                "Element name: $(element.name)",
-                140,
-                -220,
-                valign = :middle,
-                halign = :center,
-            )
-            text(
-                "Atomic Radius: $(round(ustrip(element.atomic_mass)))",
-                140,
-                -200,
-                valign = :middle,
-                halign = :center,
-            )
-            textwrap("Description: $(element.summary)", 400, Point(-200, 125))
-        end
-    end
+    text("Element name: $(element.name)", 140, -220, valign = :middle, halign = :center)
+    text(
+        "Atomic Mass: $(round(ustrip(element.atomic_mass)))",
+        140,
+        -200,
+        valign = :middle,
+        halign = :center,
+    )
+    textwrap("Description: $(element.summary)", 400, Point(-200, 125))
 end
 
 demo = Video(500, 500)
-javis(
-    demo,
+
+Background(1:550, ground)
+
+atom = Object(1:550, (args...; radius = 1) -> element(; radius = radius, color = "black"))
+act!(
+    atom,
     [
-        BackgroundAction(1:550, ground),
-        Action(
-            1:550,
-            :atom,
-            (args...) -> element(),
-            subactions = [
-                SubAction(101:140, Scaling(1, 12)),
-                SubAction(241:280, Scaling(12, 20)),
-                SubAction(381:420, Scaling(20, 7)),
-                SubAction(521:550, Scaling(7, 1)),
-            ],
-        ),
-        Action(
-            1:100,
-            (args...) -> info_box(value = val(:atom)),
-            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
-        ),
-        Action(
-            141:240,
-            (args...) -> info_box(value = val(:atom)),
-            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
-        ),
-        Action(
-            281:380,
-            (args...) -> info_box(value = val(:atom)),
-            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
-        ),
-        Action(
-            421:520,
-            (args...) -> info_box(value = val(:atom)),
-            subactions = [SubAction(1:30, sineio(), appear(:draw_text))],
-        ),
+        Action(101:140, change(:radius, 1 => 12)),
+        Action(241:280, change(:radius, 12 => 20)),
+        Action(381:420, change(:radius, 20 => 7)),
+        Action(521:550, change(:radius, 7 => 1)),
     ],
-    pathname = "min_atomic.gif",
-    framerate = 10,
 )
+
+info = Object(1:550, (args...; elem = 1) -> info_box(element = elements[round(Int, elem)]))
+
+act!(info, Action(1:30, sineio(), appear(:fade)))
+act!(info, Action(71:100, sineio(), disappear(:fade)))
+act!(info, Action(101:101, change(:elem, 1 => 12)))
+
+act!(info, Action(140:170, sineio(), appear(:fade)))
+act!(info, Action(210:241, sineio(), disappear(:fade)))
+act!(info, Action(280:280, change(:elem, 12 => 20)))
+
+act!(info, Action(280:310, sineio(), appear(:fade)))
+act!(info, Action(350:381, sineio(), disappear(:fade)))
+act!(info, Action(381:420, change(:elem, 20 => 7)))
+
+act!(info, Action(420:450, sineio(), appear(:fade)))
+act!(info, Action(490:521, sineio(), disappear(:fade)))
+act!(info, Action(520:550, change(:elem, 7 => 1)))
+
+render(demo, pathname="tutorial5.gif", framerate = 10)
 ```
 
 > **Author(s):** Jacob Zelko \
 > **Date:** September 10, 2020 \
-> **Tag(s):** scaling, atoms, elements, unitful, periodictable
+> **Tag(s):** change, atoms, elements, appear, disappear, fade, unitful, periodictable
