@@ -7,13 +7,17 @@ Set elem.frames.frames to the computed frames for each elem in elements.
 function compute_frames!(
     elements::Vector{UA};
     parent = nothing,
+    parent_counter = 0,
 ) where {UA<:Union{AbstractObject,AbstractAction}}
+    available_subframes = typemin(Int):typemax(Int)
     if parent !== nothing
         last_frames = get_frames(parent)
+        available_subframes = 1:length(get_frames(parent))
     else
         last_frames = nothing
     end
     is_first = true
+    counter = 1
     for elem in elements
         if last_frames === nothing && get_frames(elem) === nothing
             throw(ArgumentError("Frames need to be defined explicitly in the initial
@@ -23,7 +27,14 @@ function compute_frames!(
             set_frames!(parent, elem, last_frames; is_first = is_first)
         end
         last_frames = get_frames(elem)
+        if !(get_frames(elem) ⊆ available_subframes)
+            @warn("Action defined outside the frame range of the parent object.
+            Action #$counter for Object #$parent_counter is defined for frames
+            $(get_frames(elem)) but Object #$parent_counter exists only for $(available_subframes).
+            (Info: Background is counted as Object #1)")
+        end
         is_first = false
+        counter += 1
     end
 end
 
