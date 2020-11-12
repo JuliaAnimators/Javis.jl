@@ -105,3 +105,4 @@ We want to thank a couple of people who helped make this possible.
 - [@briochemc](https://github.com/briochemc) for spotting and cleaning up tutorial typos and grammar
 - [@ric-cioffi](https://github.com/ric-cioffi) for adding the Julia Logo example and for feedback
 - [@findmyway](https://github.com/findmyway) for fixing typos in documentation
+- [@ArbitRandomUser](https://github.com/ArbitRandomUser) for cleaning up the LaTeX code base
