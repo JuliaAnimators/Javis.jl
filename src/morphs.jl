@@ -19,15 +19,15 @@ i.e. use `circle(Point(100,100), 50)` instead of `circle(Point(100,100), 50, :st
                        which will be displayed at the end of the Object
 
 # Keywords
-- `object::Symbol` defines whether the object has a fill or just a stroke. Defaults to stroke.
+- `do_action::Symbol` defines whether the object has a fill or just a stroke. Defaults to `:stroke`.
 
 # Example
 
 This creates a star that morphs into a circle and back.
 
 ```
-astar(args...) = star(O, 50)
-acirc(args...) = circle(Point(100,100), 50)
+astar(args...; do_action=:stroke) = star(O, 50, 5, 0.5, 0, do_action)
+acirc(args...; do_action=:stroke) = circle(Point(100,100), 50, do_action)
 
 video = Video(500, 500)
 back = Background(1:20, ground)
