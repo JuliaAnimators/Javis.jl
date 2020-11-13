@@ -27,7 +27,12 @@ function draw_obj(::Val{:rect}, o, defs)
     height = float_attribute(o, "height")
     x = float_attribute(o, "x")
     y = float_attribute(o, "y")
-    rect(Point(x, y), width, height, :path)
+    # TODO: draw it anti clockwise as it gets scaled to clockwise :/
+    move(Point(x + width, y))
+    line(Point(x, y))
+    line(Point(x, y + height))
+    line(Point(x + width, y + height))
+    closepath()
 end
 
 """
@@ -75,15 +80,20 @@ Currently supports only a subset of possible SVG commands.
 function draw_obj(::Val{:path}, o, defs)
     set_attrs(o)
     data = attribute(o, "d")
+    counter = 0
 
     # split without loosing the command
     data_parts = split(data, r"(?=[A-Za-z])")
     # needs to keep track of the current point `c_pt` and the last point `l_pt`
     l_pt = O
     c_pt = O
+    circle_pts = []
     for pi in 1:length(data_parts)
         p = data_parts[pi]
         command, args = p[1], p[2:end]
+        if command != 'T'
+            counter = 0
+        end
         # using if else statements instead of dispatching here. Maybe it's faster :D
         if command == 'M'
             c_pt = path_move(parse.(Float64, split(args))...)
@@ -96,6 +106,8 @@ function draw_obj(::Val{:path}, o, defs)
             control_pt = l_pt + 2 * (c_pt - l_pt)
             l_pt, c_pt =
                 path_quadratic(c_pt, control_pt..., parse.(Float64, split(args))...)
+            push!(circle_pts, Point(parse.(Float64, split(args))...))
+            counter += 1
         elseif command == 'L'
             new_pt = Point(parse.(Float64, split(args))...)
             line(new_pt)
@@ -165,7 +177,7 @@ function set_attrs(o)
 end
 
 """
-    set_attr(::Val{:transform}, transform_str)
+    set_attr(::Val{:transform}, transform_strs)
 
 Call the corresponding `set_transform` method i.e `matrix`, `scale` and `translate`
 """
