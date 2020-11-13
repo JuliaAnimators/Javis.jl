@@ -1,32 +1,51 @@
 """
-    compute_frames!(actions::Vector{AA}; last_frames=nothing) where AA <: AbstractAction
+    compute_frames!(elements::Vector{UA}; parent=nothing)
+        where UA<:Union{AbstractObject,AbstractAction}
 
-Set action.frames.frames to the computed frames for each action in actions.
+Set elem.frames.frames to the computed frames for each elem in elements.
 """
 function compute_frames!(
-    actions::Vector{AA};
-    last_frames = nothing,
-) where {AA<:AbstractAction}
-    for action in actions
-        if last_frames === nothing && get_frames(action) === nothing
+    elements::Vector{UA};
+    parent = nothing,
+    parent_counter = 0,
+) where {UA<:Union{AbstractObject,AbstractAction}}
+    available_subframes = typemin(Int):typemax(Int)
+    if parent !== nothing
+        last_frames = get_frames(parent)
+        available_subframes = 1:length(get_frames(parent))
+    else
+        last_frames = nothing
+    end
+    is_first = true
+    counter = 1
+    for elem in elements
+        if last_frames === nothing && get_frames(elem) === nothing
             throw(ArgumentError("Frames need to be defined explicitly in the initial
-            AbstractAction like Action/BackgroundAction or SubAction."))
+                Object/Background or Action."))
         end
-        if get_frames(action) === nothing
-            set_frames!(action, last_frames)
+        if get_frames(elem) === nothing
+            set_frames!(parent, elem, last_frames; is_first = is_first)
         end
-        last_frames = get_frames(action)
+        last_frames = get_frames(elem)
+        if !(get_frames(elem) ⊆ available_subframes)
+            @warn("Action defined outside the frame range of the parent object.
+            Action #$counter for Object #$parent_counter is defined for frames
+            $(get_frames(elem)) but Object #$parent_counter exists only for $(available_subframes).
+            (Info: Background is counted as Object #1)")
+        end
+        is_first = false
+        counter += 1
     end
 end
 
 """
     get_current_setting()
 
-Return the current setting of the current action
+Return the current setting of the current object
 """
 function get_current_setting()
-    action = CURRENT_ACTION[1]
-    return action.current_setting
+    object = CURRENT_OBJECT[1]
+    return object.current_setting
 end
 
 """
@@ -52,7 +71,33 @@ function get_interpolation(action::AbstractAction, frame)
     if !(action.anim.frames[end].t ≈ 1)
         @warn "Animations should be defined from 0.0 to 1.0"
     end
-    return at(action.anim, t)
+    return interpolation_to_transition_val(at(action.anim, t), action.transition)
+end
+
+
+"""
+    interpolation_to_transition_val(interpolation_val, Transition)
+
+Returns the transition value for the given `interpolation_val`.
+If the interpolation value is already of the correct form it just gets returned.
+Otherwise the Transition function like `get_position` is called and the interpolated value
+is calculated.
+"""
+interpolation_to_transition_val(t, ::Nothing) = t
+interpolation_to_transition_val(t::Point, trans::Translation) = t
+interpolation_to_transition_val(t::Float64, trans::Rotation) = t
+interpolation_to_transition_val(t::Scale, trans::Scaling) = t
+
+function interpolation_to_transition_val(t, trans::Translation)
+    from = get_position(trans.from)
+    to = get_position(trans.to)
+    return from + t * (to - from)
+end
+
+function interpolation_to_transition_val(t, trans::Scaling)
+    from = get_scale(trans.from)
+    to = get_scale(trans.to)
+    return from + t * (to - from)
 end
 
 function isapprox_discrete(val; atol = 1e-4)
@@ -74,4 +119,19 @@ function polywh(polygon::Vector{Vector{Point}})
         end
     end
     return max_x - min_x, max_y - min_y
+end
+
+function get_polypoint_at(points, t; pdist = polydistances(points))
+    if t ≈ 0
+        return points[1]
+    end
+    ind, surplus = nearestindex(pdist, t * pdist[end])
+
+    nextind = mod1(ind + 1, length(points))
+    overshootpoint = between(
+        points[ind],
+        points[nextind],
+        surplus / distance(points[ind], points[nextind]),
+    )
+    return overshootpoint
 end
