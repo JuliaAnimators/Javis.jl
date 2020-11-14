@@ -8,7 +8,8 @@ using Gtk
 using GtkReactive
 using Hungarian
 using Images
-import Interact: @map, Widget, Widgets, @layout!, hbox, vbox
+import Interact
+import Interact: @map, Widget, Widgets, @layout!, hbox, vbox # not exporting textbox & slider due to possible conflicts with Gtk & luxor
 using LaTeXStrings
 using LightXML
 import Luxor
