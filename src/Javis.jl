@@ -193,9 +193,9 @@ function render(
 
     if liveview == true
         if isdefined(Main, :IJulia) && Main.IJulia.inited
-            return not_repl(video, length(frames), actions)
+            return not_repl(video, length(frames), objects)
         else
-            _javis_viewer(video, length(frames), actions)
+            _javis_viewer(video, length(frames), objects)
             return "Live Preview Started"
         end
     end
