@@ -1,6 +1,7 @@
 [deps]
 Animations = "27a7e980-b3e6-11e9-2bcd-0b925532e340"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+Hungarian = "e91730f6-4275-51fb-a7a0-7064cfbd3b39"
 Javis = "78b212ba-a7f9-42d4-b726-60726080707e"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 LightXML = "9c8b4983-aa76-5018-a973-4c85ecc9e179"

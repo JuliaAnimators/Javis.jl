@@ -1,19 +1,19 @@
 """
-    _draw_image(video::Video, actions::Vector, frame::Int, canvas::Gtk.Canvas,
+    _draw_image(video::Video, objects::Vector, frame::Int, canvas::Gtk.Canvas,
     img_dims::Vector)
 
 Internal function to create an image that is drawn on a Gtk Canvas.
 """
 function _draw_image(
     video::Video,
-    actions::Vector,
+    objects::Vector,
     frame::Int,
     canvas::Gtk.Canvas,
     img_dims::Vector,
 )
     @guarded draw(canvas) do widget
         # Gets a specific frame from graphic; transposed due to returned matrix
-        frame_mat = transpose(get_javis_frame(video, actions, frame))
+        frame_mat = transpose(get_javis_frame(video, objects, frame))
 
         # Gets the correct Canvas context to draw on
         context = getgc(canvas)
@@ -24,7 +24,7 @@ function _draw_image(
 end
 
 """
-    _increment(video::Video, widgets::Vector, actions::Vector, dims::Vector,
+    _increment(video::Video, widgets::Vector, objects::Vector, dims::Vector,
         canvas::Gtk.Canvas, frames::Int)
 
 Increments a given value and returns the associated frame.
@@ -32,7 +32,7 @@ Increments a given value and returns the associated frame.
 function _increment(
     video::Video,
     widgets::Vector,
-    actions::Vector,
+    objects::Vector,
     dims::Vector,
     canvas::Gtk.Canvas,
     frames::Int,
@@ -42,16 +42,16 @@ function _increment(
     if frames > curr_frame
         # `widgets[1]` represents the GtkReactive slider widget
         push!(widgets[1], curr_frame + 1)
-        _draw_image(video, actions, curr_frame + 1, canvas, dims)
+        _draw_image(video, objects, curr_frame + 1, canvas, dims)
     else
         # `widgets[2]` represents the GtkReactive textboxwidget
         push!(widgets[2], 1) # Sets the first frame shown to one
-        _draw_image(video, actions, 1, canvas, dims)
+        _draw_image(video, objects, 1, canvas, dims)
     end
 end
 
 """
-    _decrement(video::Video, widgets::Vector, actions::Vector, dims::Vector,
+    _decrement(video::Video, widgets::Vector, objects::Vector, dims::Vector,
         canvas::Gtk.Canvas, frames::Int)
 
 Decrements a given value and returns the associated frame.
@@ -59,7 +59,7 @@ Decrements a given value and returns the associated frame.
 function _decrement(
     video::Video,
     widgets::Vector,
-    actions::Vector,
+    objects::Vector,
     dims::Vector,
     canvas::Gtk.Canvas,
     frames::Int,
@@ -69,23 +69,23 @@ function _decrement(
     if curr_frame > 1
         # `widgets[1]` represents the GtkReactive slider widget
         push!(widgets[1], curr_frame - 1)
-        _draw_image(video, actions, curr_frame - 1, canvas, dims)
+        _draw_image(video, objects, curr_frame - 1, canvas, dims)
     else
         # `widgets[2]` represents the GtkReactive textboxwidget
         push!(widgets[2], frames) # Sets the first frame shown to one
-        _draw_image(video, actions, frames, canvas, dims)
+        _draw_image(video, objects, frames, canvas, dims)
     end
 end
 
 """
-     _javis_viewer(video::Video, frames::Int, action_list::Vector, show::Bool)
+     _javis_viewer(video::Video, frames::Int, object_list::Vector, show::Bool)
 
 Internal Javis Viewer built on Gtk that is called for live previewing.
 """
 function _javis_viewer(
     video::Video,
     total_frames::Int,
-    action_list::Vector,
+    object_list::Vector,
     show::Bool = true,
 )
     #####################################################################
@@ -170,7 +170,7 @@ function _javis_viewer(
     # DISPLAY FIRST FRAME
     #####################################################################
 
-    _draw_image(video, action_list, 1, canvas, frame_dims)
+    _draw_image(video, object_list, 1, canvas, frame_dims)
 
     #####################################################################
     # SIGNAL CONNECTION FUNCTIONS
@@ -184,7 +184,7 @@ function _javis_viewer(
         # Get frame number from bounded value object as Int
         slide_val = Gtk.get_gtk_property(bound_slide, "value", Int)
 
-        _draw_image(video, action_list, slide_val, canvas, frame_dims)
+        _draw_image(video, object_list, slide_val, canvas, frame_dims)
     end
 
     # When the `Enter` key is pressed, update the frame
@@ -193,35 +193,35 @@ function _javis_viewer(
             # Get current frame from textbox as an Int value
             curr_frame = parse(Int, get_gtk_property(tbox, :text, String))
             curr_frame = clamp(curr_frame, 1, total_frames)
-            _draw_image(video, action_list, curr_frame, canvas, frame_dims)
+            _draw_image(video, object_list, curr_frame, canvas, frame_dims)
         end
     end
 
     # When the `forward` button is clicked, increment current frame number
     # If at final frame, wrap viewer to first frame
     signal_connect(forward, "clicked") do widget
-        _increment(video, [slide, tbox], action_list, frame_dims, canvas, total_frames)
+        _increment(video, [slide, tbox], object_list, frame_dims, canvas, total_frames)
     end
 
     # When the `Right Arrow` key is pressed, increment current frame number
     # If at final frame, wrap viewer to first frame
     signal_connect(win, "key-press-event") do widget, event
         if event.keyval == 65363
-            _increment(video, [slide, tbox], action_list, frame_dims, canvas, total_frames)
+            _increment(video, [slide, tbox], object_list, frame_dims, canvas, total_frames)
         end
     end
 
     # When the `backward` button is clicked, decrement the current frame number
     # If at first frame, wrap viewer to last frame
     signal_connect(backward, "clicked") do widget
-        _decrement(video, [slide, tbox], action_list, frame_dims, canvas, total_frames)
+        _decrement(video, [slide, tbox], object_list, frame_dims, canvas, total_frames)
     end
 
     # When the `Left Arrow` key is pressed, decrement current frame number
     # If at first frame, wrap viewer to last frame
     signal_connect(win, "key-press-event") do widget, event
         if event.keyval == 65361
-            _decrement(video, [slide, tbox], action_list, frame_dims, canvas, total_frames)
+            _decrement(video, [slide, tbox], object_list, frame_dims, canvas, total_frames)
         end
     end
 
@@ -231,7 +231,7 @@ function _javis_viewer(
         # Display image viewer
         Gtk.showall(win)
     else
-        return win, frame_dims, slide, tbox, canvas, action_list, total_frames, video
+        return win, frame_dims, slide, tbox, canvas, object_list, total_frames, video
     end
 
 end

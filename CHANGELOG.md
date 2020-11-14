@@ -1,5 +1,18 @@
 # Javis.jl - Changelog
 
+## v0.3 (10th of November 2020)
+- Morphing with several shapes
+- Changed `Action` to `Object` syntax
+- Ability to use `setopactity()` in an `Action`
+- Ability to disable an `Action` after its last defined frame. See `? Action` and the keyword `; keep`
+- Moved from `Translation`, `Scaling` and `Rotation` to `anim_translate` etc
+- Changed `Rel` to `RFrames` and added `GFrames` for defining actions with global frames
+- A warning is shown if some frames don't have a background
+- A warning is shown if an `Action` is defined outside the parental `Object`
+
+## v0.2.2 (20th of October 2020)
+- Ability to change a keyword using `change`
+
 ## v0.2.1 (11th of October 2020)
 - Ability to draw animated LaTeX via `appear(:draw_text)`
 - Support for Images v0.23
