@@ -8,7 +8,7 @@ using Gtk
 using GtkReactive
 using Hungarian
 using Images
-import Interact
+import Interact: @map, Widget, Widgets, @layout!, hbox, vbox
 using LaTeXStrings
 using LightXML
 import Luxor
