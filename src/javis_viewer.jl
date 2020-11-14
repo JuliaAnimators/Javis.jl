@@ -88,7 +88,6 @@ function _javis_viewer(
     action_list::Vector,
     show::Bool = true,
 )
-
     #####################################################################
     # VIEWER WINDOW AND CONFIGURATION
     #####################################################################
@@ -235,4 +234,20 @@ function _javis_viewer(
         return win, frame_dims, slide, tbox, canvas, action_list, total_frames, video
     end
 
+end
+
+"""
+     not_repl(video::Video, frames::Int, actions::Vector)
+
+Creates an interactive viewer in a Jupyter Notebook.
+"""
+
+function not_repl(
+    video::Video,
+    frames::Int,
+    actions::Vector,
+)
+    Interact.@manipulate for f = 1:frames
+        return get_javis_frame(video, actions, f)   
+    end            
 end

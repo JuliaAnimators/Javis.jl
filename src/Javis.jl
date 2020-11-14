@@ -7,6 +7,7 @@ using FFMPEG
 using Gtk
 using GtkReactive
 using Images
+import Interact
 using LaTeXStrings
 using LightXML
 import Luxor
@@ -212,8 +213,12 @@ function javis(
     end
 
     if liveview == true
-        _javis_viewer(video, length(frames), actions)
-        return "Live preview started."
+        if isdefined(Main, :IJulia) && Main.IJulia.inited
+            return not_repl(video, length(frames), actions)
+        else
+            _javis_viewer(video, length(frames), actions)
+            return "Live Preview Started"
+        end
     end
 
     path, ext = "", ""
