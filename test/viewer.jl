@@ -65,13 +65,15 @@ end
 
     img = Javis._jupyter_viewer(vid, length(frames), objects)
     @test img.output.val == Javis.get_javis_frame(vid, objects, 1)
-    
+
     txt = Interact.textbox(1:length(frames), typ = "Frame", value = 2)
-    frm = Interact.slider(1:length(frames), label = "Frame", value = txt[]+1)
-    @test Javis.get_javis_frame(vid, objects, 2) == Javis.get_javis_frame(vid, objects, txt[])
-    @test Javis.get_javis_frame(vid, objects, 3) == Javis.get_javis_frame(vid, objects, frm[])
-    
-    for  i in 4:length(frames)
+    frm = Interact.slider(1:length(frames), label = "Frame", value = txt[] + 1)
+    @test Javis.get_javis_frame(vid, objects, 2) ==
+          Javis.get_javis_frame(vid, objects, txt[])
+    @test Javis.get_javis_frame(vid, objects, 3) ==
+          Javis.get_javis_frame(vid, objects, frm[])
+
+    for i in 4:length(frames)
         output = Javis.get_javis_frame(vid, objects, i)
         wdg = Widget(["frm" => frm, "txt" => txt], output = output)
         img = @layout! wdg vbox(hbox(:frm, :txt), output)
