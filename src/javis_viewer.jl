@@ -243,7 +243,7 @@ Creates an interactive viewer in a Jupyter Notebook.
 """
 
 function not_repl(video::Video, frames::Int, objects::Vector)
-    Interact.@manipulate for f in 1:frames
+    Interact.@manipulate throttle = .35 for f in 1:frames
         return get_javis_frame(video, objects, f)
     end
 end
