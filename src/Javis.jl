@@ -2,7 +2,6 @@ module Javis
 
 using Animations
 import Cairo: CairoImageSurface, image
-using ColorTypes: ARGB32
 using FFMPEG
 using Gtk
 using GtkReactive

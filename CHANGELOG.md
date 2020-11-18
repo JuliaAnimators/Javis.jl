@@ -1,5 +1,8 @@
 # Javis.jl - Changelog
 
+## v0.3.1
+- removed `ColorTypes` as a dependency
+
 ## v0.3 (10th of November 2020)
 - Morphing with several shapes
 - Changed `Action` to `Object` syntax
