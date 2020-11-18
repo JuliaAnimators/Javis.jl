@@ -1,7 +1,8 @@
 # Javis.jl - Changelog
 
-## v0.3.1
+## v0.3.1 (18th of November 2020)
 - removed `ColorTypes` as a dependency
+- docstring fixes for `morph_to`
 
 ## v0.3 (10th of November 2020)
 - Morphing with several shapes
