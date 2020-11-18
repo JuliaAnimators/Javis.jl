@@ -12,6 +12,7 @@ assignees: ''
 - Did I read the Documentation and/or docstrings?
 - Did I search the Javis GitHub to see if this bug has already been reported?
 - Am I familiar with the Javis philosophy?
+- Do I have the latest version of Javis installed? 
 
 **Describe the bug**
 
@@ -23,7 +24,9 @@ A clear and concise description of what the bug is.
 
 2. Operating system (Mac, Linux, Windows):
 
-3. Minimum working code example that led to bug:
+3. Javis version (i.e output of `] status Javis` in the REPL)
+
+4. Minimum working code example that led to bug:
 
 **Expected Behavior and Actual Behavior**
 
