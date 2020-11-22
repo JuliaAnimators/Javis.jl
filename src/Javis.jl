@@ -163,7 +163,8 @@ end
         framerate=30,
         pathname="javis_GIBBERISH.gif",
         tempdirectory="",
-        liveview=false
+        liveview=false,
+        ffmpeg_loglevel="panic"
     )
 
 Renders all previously defined [`Object`](@ref) drawings to the user-defined `Video` as a gif or mp4.
@@ -178,6 +179,9 @@ Renders all previously defined [`Object`](@ref) drawings to the user-defined `Vi
 - `tempdirectory::String`: The folder where each frame is stored
     Defaults to a temporary directory when not set
 - `liveview::Bool`: Causes a live image viewer to appear to assist with animation development
+- `ffmpeg_loglevel::String`:
+    - Can be used if there are errors with ffmpeg. Defaults to panic:
+    All other options are described here: https://ffmpeg.org/ffmpeg.html
 """
 function render(
     video::Video;
@@ -185,6 +189,7 @@ function render(
     pathname = "javis_$(randstring(7)).gif",
     liveview = false,
     tempdirectory = "",
+    ffmpeg_loglevel="panic"
 )
     objects = video.objects
     frames = preprocess_frames!(objects)
@@ -231,10 +236,10 @@ function render(
     isempty(pathname) && return
     if ext == ".gif"
         # generate a colorpalette first so ffmpeg does not have to guess it
-        ffmpeg_exe(`-loglevel panic -i $(tempdirectory)/%10d.png -vf
+        ffmpeg_exe(`-loglevel $(ffmpeg_loglevel) -i $(tempdirectory)/%10d.png -vf
                     "palettegen=stats_mode=diff" -y "$(tempdirectory)/palette.bmp"`)
         # then apply the palette to get better results
-        ffmpeg_exe(`-loglevel panic -framerate $framerate -i $(tempdirectory)/%10d.png -i
+        ffmpeg_exe(`-loglevel $(ffmpeg_loglevel) -framerate $framerate -i $(tempdirectory)/%10d.png -i
                     "$(tempdirectory)/palette.bmp" -lavfi
                     "paletteuse=dither=sierra2_4a" -y $pathname`)
     elseif ext == ".mp4"
