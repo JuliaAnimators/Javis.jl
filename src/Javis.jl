@@ -189,7 +189,7 @@ function render(
     pathname = "javis_$(randstring(7)).gif",
     liveview = false,
     tempdirectory = "",
-    ffmpeg_loglevel="panic"
+    ffmpeg_loglevel = "panic",
 )
     objects = video.objects
     frames = preprocess_frames!(objects)
