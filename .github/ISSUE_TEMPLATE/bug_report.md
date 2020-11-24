@@ -33,6 +33,7 @@ A clear and concise description of what the bug is.
 A clear and concise description of what you expected to happen followed up with an explanation of what actually happened.
 
 **Stacktrace (If Applicable)**
+If the stacktrace includes some ffmpeg error please set the kwarg `ffmpeg_loglevel` to `"info"` i.e `render(your_video, "your_animation.gif", ffmpeg_loglevel = "info")`
 
 **Screenshots**
 If applicable, add your gif or drawing to help explain your problem.
