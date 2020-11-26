@@ -335,9 +335,12 @@ end
     video = Video(500, 500)
 
     Background(1:150, ground)
-    circle_obj = Object((args...; radius=25, color="blue") -> circle_with_color(O, radius, :fill, color))
-    act!(circle_obj, Action(1:150, change(:radius, 25=>100)))
-    act!(circle_obj, Action(50:100, change(:color, "red"); keep=false))
+    circle_obj = Object(
+        (args...; radius = 25, color = "blue") ->
+            circle_with_color(O, radius, :fill, color),
+    )
+    act!(circle_obj, Action(1:150, change(:radius, 25 => 100)))
+    act!(circle_obj, Action(50:100, change(:color, "red"); keep = false))
 
     render(video; tempdirectory = "images", pathname = "")
     @test_reference "refs/circle_change020.png" load("images/0000000020.png")
