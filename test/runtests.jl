@@ -27,6 +27,11 @@ function ground_color(color_bg, color_pen, framenumber)
     return framenumber
 end
 
+function circle_with_color(position, radius, action, color)
+    sethue(color)
+    circle(position, radius, action)
+end
+
 @testset "Unit" begin
     include("unit.jl")
 end

@@ -331,6 +331,26 @@ end
     end
 end
 
+@testset "Change with/without interpolation" begin
+    video = Video(500, 500)
+
+    Background(1:150, ground)
+    circle_obj = Object(
+        (args...; radius = 25, color = "blue") ->
+            circle_with_color(O, radius, :fill, color),
+    )
+    act!(circle_obj, Action(1:150, change(:radius, 25 => 100)))
+    act!(circle_obj, Action(50:100, change(:color, "red"); keep = false))
+
+    render(video; tempdirectory = "images", pathname = "")
+    @test_reference "refs/circle_change020.png" load("images/0000000020.png")
+    @test_reference "refs/circle_change075.png" load("images/0000000075.png")
+    @test_reference "refs/circle_change101.png" load("images/0000000101.png")
+    for i in 1:150
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
 @testset "Animations.jl @warn" begin
     video = Video(500, 500)
     circle_anim = Animation(

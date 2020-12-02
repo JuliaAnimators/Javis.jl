@@ -317,6 +317,9 @@ function draw_object(object, video, frame, origin_matrix)
     # It's better to draw the object always at the origin and use `star_pos` to shift it
     translate(get_position(object.start_pos))
 
+    # reset change keywords
+    empty!(object.change_keywords)
+
     # first compute and perform the global transformations of this object
     # relative frame number for actions
     rel_frame = frame - first(get_frames(object)) + 1

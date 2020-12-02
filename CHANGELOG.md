@@ -1,5 +1,9 @@
 # Javis.jl - Changelog
 
+## v0.3.3
+- `change` can now set a value 
+- Bugfix: reset keywords if `; keep=false`
+
 ## v0.3.2 (24th of November)
 - added `ffmpeg_loglevel` option for debugging purposes
 
