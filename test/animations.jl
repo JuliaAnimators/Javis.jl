@@ -56,7 +56,7 @@ end
     for i in 1:25
         rm("images/$(lpad(i, 10, "0")).png")
     end
-    rm("images/palette.bmp")
+    rm("images/palette.png")
     rm("dancing.gif")
 end
 
@@ -84,8 +84,9 @@ end
 
     render(video; tempdirectory = "images", pathname = "dancing.mp4", framerate = 1)
 
-    # 30 frames with a framerate of 1 should take about 30 seconds ;)
-    @test isapprox(VideoIO.get_duration("dancing.mp4"), 30.0, atol = 0.1)
+    # 30 frames with a framerate of 1 should take about 30 seconds ;) (30000000 microseconds)
+    t, d = VideoIO.get_time_duration("dancing.mp4") # gives time in microseconds
+    @test isapprox(d.value, 30000000, atol = 0.1)
     rm("dancing.mp4")
 end
 
@@ -656,7 +657,7 @@ end
     for i in 1:100
         rm("images/$(lpad(i, 10, "0")).png")
     end
-    rm("images/palette.bmp")
+    rm("images/palette.png")
 end
 
 @testset "test default kwargs" begin
