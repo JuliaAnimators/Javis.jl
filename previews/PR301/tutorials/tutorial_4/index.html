@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Tutorial 4: Do You Know Our Mascot? - Learn About Transitions And Actions! · Javis.jl</title><link rel="canonical" href="https://Wikunia.github.io/Javis.jl/tutorials/tutorial_4/"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">Javis.jl</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../"><strong>Information about Tutorials - Beginners Start Here!</strong></a></li><li><a class="tocitem" href="../tutorial_1/"><strong>Tutorial 1:</strong> Making Your First Javis Animation!</a></li><li><a class="tocitem" href="../tutorial_2/"><strong>Tutorial 2:</strong> What Are Objects?</a></li><li><a class="tocitem" href="../tutorial_3/"><strong>Tutorial 3:</strong> Rendering LaTeX with Javis!</a></li><li class="is-active"><a class="tocitem" href><strong>Tutorial 4:</strong> Do You Know Our Mascot? - Learn About Transitions And Actions!</a><ul class="internal"><li><a class="tocitem" href="#Our-goal"><span>Our goal</span></a></li><li><a class="tocitem" href="#Learning-Outcomes"><span>Learning Outcomes</span></a></li><li><a class="tocitem" href="#Starting-with-the-Basics-of-Action"><span>Starting with the Basics of Action</span></a></li><li><a class="tocitem" href="#The-Upper-Part-of-the-Head"><span>The Upper Part of the Head</span></a></li><li><a class="tocitem" href="#Talk-to-Me,-Jarvis"><span>Talk to Me, Jarvis</span></a></li><li><a class="tocitem" href="#Conclusion"><span>Conclusion</span></a></li><li><a class="tocitem" href="#The-Code"><span>The Code</span></a></li></ul></li><li><a class="tocitem" href="../tutorial_5/"><strong>Tutorial 5:</strong> Taming the Elements</a></li><li><a class="tocitem" href="../tutorial_6/"><strong>Tutorial 6:</strong> Using Animations.jl to Create something with more Pep!</a></li></ul></li><li><a class="tocitem" href="../../howto/">HowTo</a></li><li><a class="tocitem" href="../../workflows/">Workflows</a></li><li><a class="tocitem" href="../../examples/">Examples</a></li><li><a class="tocitem" href="../../mission/">Mission</a></li><li><a class="tocitem" href="../../references/">References</a></li><li><a class="tocitem" href="../../contributing/">Contributing</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href><strong>Tutorial 4:</strong> Do You Know Our Mascot? - Learn About Transitions And Actions!</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href><strong>Tutorial 4:</strong> Do You Know Our Mascot? - Learn About Transitions And Actions!</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/Wikunia/Javis.jl/blob/master/docs/src/tutorials/tutorial_4.md#L" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="**Tutorial-4:**-Do-You-Know-Our-Mascot?-Learn-About-Transitions-And-Actions!"><a class="docs-heading-anchor" href="#**Tutorial-4:**-Do-You-Know-Our-Mascot?-Learn-About-Transitions-And-Actions!"><strong>Tutorial 4:</strong> Do You Know Our Mascot? - Learn About Transitions And Actions!</a><a id="**Tutorial-4:**-Do-You-Know-Our-Mascot?-Learn-About-Transitions-And-Actions!-1"></a><a class="docs-heading-anchor-permalink" href="#**Tutorial-4:**-Do-You-Know-Our-Mascot?-Learn-About-Transitions-And-Actions!" title="Permalink"></a></h1><p>You have learned a couple of cool features of Javis already.  Now you&#39;re ready to finally meet our little mascot.  Well actually you can&#39;t see him just yet - we have to create him first. 😄</p><h2 id="Our-goal"><a class="docs-heading-anchor" href="#Our-goal">Our goal</a><a id="Our-goal-1"></a><a class="docs-heading-anchor-permalink" href="#Our-goal" title="Permalink"></a></h2><p>Let&#39;s create a list of what we want first:</p><ul><li>a circular head</li><li>some hair</li><li>eyes</li><li>a nose</li><li>a moving mouth</li><li>he should say something</li></ul><h2 id="Learning-Outcomes"><a class="docs-heading-anchor" href="#Learning-Outcomes">Learning Outcomes</a><a id="Learning-Outcomes-1"></a><a class="docs-heading-anchor-permalink" href="#Learning-Outcomes" title="Permalink"></a></h2><p>This tutorial demonstrates the power of actions a bit more than the previous tutorials. An <a href="../../references/#Javis.Action"><code>Action</code></a> can be used to finely manipulate objects in your animation or visualization. </p><p>From this tutorial, you will learn how to:</p><ol><li>Finely control objects by making them appear and disappear using an <code>Action</code>.</li><li>Move objects using an <code>Action</code>.</li><li>Learn how to create several objects quickly</li></ol><h2 id="Starting-with-the-Basics-of-Action"><a class="docs-heading-anchor" href="#Starting-with-the-Basics-of-Action">Starting with the Basics of Action</a><a id="Starting-with-the-Basics-of-Action-1"></a><a class="docs-heading-anchor-permalink" href="#Starting-with-the-Basics-of-Action" title="Permalink"></a></h2><p>The <code>ground</code> function should be familiar to you as well as the general structure of the code if you have seen the first <a href="../tutorial_1/">tutorial</a>. In this tutorial, rather than calling the <code>render</code> function in the global space, we are going to be calling it from the function we are creating to create our mascot, <code>face</code>: </p><pre><code class="language-julia">using Javis
+
+function ground(args...)
+    background(&quot;white&quot;)
+    sethue(&quot;black&quot;)
+end
+
+function title(args...)
+    fontsize(20)
+    text(&quot;Our Mascot&quot;, Point(0, -200),
+        valign=:middle, halign=:center)
+end
+
+function face()
+    video = Video(500, 500)
+    Background(1:150, ground)
+    the_title = Object(title)
+    act!(the_title, Action(1:5, appear(:fade)))
+    render(video; pathname=&quot;jarvis.gif&quot;, framerate=15)
+end</code></pre><blockquote><p><strong>NOTE:</strong> For an <code>Object</code> you can leave the frames arg blank.  The frames from the previous action are used. </p></blockquote><p>A function of an <code>Action</code> is normally either <a href="../../references/#Javis.appear-Tuple{Symbol}"><code>appear</code></a> or <a href="../../references/#Javis.disappear-Tuple{Symbol}"><code>disappear</code></a> or one of these transformations: <a href="../../references/#Javis.anim_translate-Tuple{Real,Real}"><code>anim_translate</code></a>, <a href="../../references/#Javis.anim_rotate-Tuple{Real}"><code>anim_rotate</code></a>/<a href="../../references/#Javis.anim_rotate_around-Tuple{Real,Any}"><code>anim_rotate_around</code></a> and <a href="../../references/#Javis.anim_scale-Tuple{Any}"><code>anim_scale</code></a>.</p><p>In theory you can define your own but that is way outside of this tutorial.</p><p><strong>Let&#39;s summarize the functionality:</strong></p><p>We have created a <a href="../../references/#Javis.Background-Tuple{Any,Function,Vararg{Any,N} where N}"><code>Background</code></a> as usual and an <a href="../../references/#Javis.Object"><code>Object</code></a> with the same number of frames.  The object is saved in a variable <code>the_title</code> such that we can <a href="../../references/#Javis.act!-Tuple{Javis.AbstractObject,Javis.AbstractAction}"><code>act!</code></a> on it with an <a href="../../references/#Javis.Action"><code>Action</code></a>. In this case we let the title fade in for the first five frames.</p><h2 id="The-Upper-Part-of-the-Head"><a class="docs-heading-anchor" href="#The-Upper-Part-of-the-Head">The Upper Part of the Head</a><a id="The-Upper-Part-of-the-Head-1"></a><a class="docs-heading-anchor-permalink" href="#The-Upper-Part-of-the-Head" title="Permalink"></a></h2><p>Let&#39;s continue with a bit more before we draw part of the mascot.</p><p>The following actions will be added below the last action.</p><pre><code class="language-julia">head = Object(16:150, (args...)-&gt;circle(O, 100, :stroke))
+act!(head, Action(1:15, appear(:fade)))</code></pre><p>This is very similar to the previous code. Here we can see that the <code>Action</code> uses relative frame numbers such that the head appears in the frames <code>16:30</code> and then is at full opacity afterwards.</p><blockquote><p><strong>NOTE:</strong> Just a small refresher: We need the anonymous function <code>(args...)-&gt;circle(O, 100, :stroke)</code> as each function gets called with the three arguments <code>video, action, frame</code>.</p></blockquote><h3 id="Javis-Regrows-Hair!"><a class="docs-heading-anchor" href="#Javis-Regrows-Hair!">Javis Regrows Hair!</a><a id="Javis-Regrows-Hair!-1"></a><a class="docs-heading-anchor-permalink" href="#Javis-Regrows-Hair!" title="Permalink"></a></h3><p>Jarvis is bald currently! Okay let&#39;s add some hair shall we?</p><p>I want to have some randomness in his hair so let&#39;s define:</p><pre><code class="language-julia">hair_angle = rand(-0.9:0.1:0.9, 20)</code></pre><p>at the beginning of the <code>face</code> function.</p><p>and have a hair function:</p><pre><code class="language-julia">function hair_blob(angle)
+    sethue(&quot;brown&quot;)
+    rotate(angle)
+    circle(Point(0, -100), 20, :fill)
+end</code></pre><p>It draws one brown hair blob given the angle. We basically rotate the whole canvas and then draw the circle always at the same local position. </p><p>Now how do we draw the hair without creating an action for each blob?</p><p>Well we actually create an Action for each blob but only internally. You can use the <a href="../../references/#Javis.act!-Tuple{Javis.AbstractObject,Javis.AbstractAction}"><code>act!</code></a> function.</p><pre><code class="language-julia">hair = Object[]
+for i = 1:20
+    push!(hair, Object(26:150, (args...)-&gt;hair_blob(hair_angle[i])))
+end
+act!(hair, Action(1:25, appear(:fade)))</code></pre><p>We first create a vector where we define that its a vector of <code>Object</code> and then push new objects to it. Afterwards we can apply an action to the whole group.</p><p>I think you get the idea of how to use <code>appear</code> now. Let&#39;s add some eyes and a nose quickly before we draw our first gif.</p><pre><code class="language-julia">the_eyes = Object(30:150, (args...)-&gt;eyes(eye_centers, 10, &quot;darkblue&quot;))
+act!(the_eyes, Action(1:15, appear(:fade)))
+
+the_nose = Object(45:150, (args...)-&gt;poly(nose, :fill))
+act!(the_nose, Action(1:15, appear(:fade)))</code></pre><p>with:</p><pre><code class="language-julia">eye_centers = [Point(-40,-30), Point(40,-30)]
+nose = [O, Point(-10,20), Point(10, 20), O]</code></pre><p>and</p><pre><code class="language-julia">function eyes(centers, radius, color)
+    sethue(color)
+    circle.(centers, radius, :fill)
+    setcolor(&quot;white&quot;)
+    circle.(centers, radius/5, :fill)
+end</code></pre><p><img src="../assets/jarvis_nose.gif" alt="Up to the nose"/></p><h2 id="Talk-to-Me,-Jarvis"><a class="docs-heading-anchor" href="#Talk-to-Me,-Jarvis">Talk to Me, Jarvis</a><a id="Talk-to-Me,-Jarvis-1"></a><a class="docs-heading-anchor-permalink" href="#Talk-to-Me,-Jarvis" title="Permalink"></a></h2><p>Let&#39;s give him some moving lips so he can communicate with us:</p><pre><code class="language-julia">upper_lip = [Point(-40, 45), Point(40, 45)]
+lower_lip = [Point(-40, 55), Point(40, 55)]</code></pre><p>These are just the outer points of the lips:</p><pre><code class="language-julia">function lip(p1, p2)
+    setline(2)
+    move(p1)
+    c1 = p1 + Point(10, 10)
+    c2 = p2 + Point(-10, 10)
+    curve(c1, c2, p2)
+    do_action(:stroke)
+end</code></pre><p>This function uses some more functions of the awesome Luxor package.</p><p>The lips should be a little thicker than the other lines that we have drawn so far so let&#39;s set <code>setline(2)</code> (default is 1). First we move to the starting point of the lip and create two control points a bit below and to the vertical center.</p><p>The <code>curve</code> function is used to draw a cubic <a href="https://en.wikipedia.org/wiki/B%C3%A9zier_curve">Bézier curve</a>.  It unfortunately doesn&#39;t support the <code>:stroke</code> at the end so we have to do this with <code>do_action(:stroke)</code> this time.</p><p>Now our two actions:</p><pre><code class="language-julia">lip_fade_in = Action(1:15, appear(:fade))
+the_upper_lip = Object(60:150, (args...)-&gt;lip(upper_lip...))
+act!(the_upper_lip, lip_fade_in)
+act!(the_upper_lip, [Action(20i:20i+10, anim_translate(0, -5)) for i in 1:5])
+act!(the_upper_lip, [Action(20i+10:20i+20, anim_translate(0, 5)) for i in 1:5])
+
+the_lower_lip = Object(60:150, (args...)-&gt;lip(lower_lip...))
+act!(the_lower_lip, lip_fade_in)
+act!(the_lower_lip, [Action(20i:20i+10, anim_translate(0, 5)) for i in 1:5])
+act!(the_lower_lip, [Action(20i+10:20i+20, anim_translate(0, -5)) for i in 1:5])</code></pre><p>We fade them in at the beginning and then they shall move up and down a couple of times.</p><p>In this snippet you can see that we can define a more general action which isn&#39;t applied to an object at the stage of creation. You can also use the <code>act!</code> function to apply a list of actions to an object like. </p><p>Finally let him speak:</p><pre><code class="language-julia">function speak(str)
+    fontsize(15)
+    text(str, Point(100, 50))
+end</code></pre><pre><code class="language-julia">speaking1 = Object(80:120, (args...)-&gt;speak(&quot;I&#39;m Jarvis&quot;))
+act!(speaking1, Action(1:5, appear(:draw_text)))
+act!(speaking1, Action(36:40, disappear(:draw_text)))
+
+speaking2 = Object(120:150, (args...)-&gt;speak(&quot;How are you?&quot;))
+act!(speaking2, Action(1:5, appear(:draw_text)))
+act!(speaking2, Action(36:40, disappear(:draw_text)))  </code></pre><p>This time we also use the <a href="../../references/#Javis.disappear-Tuple{Symbol}"><code>disappear</code></a> function to fade out the text. Additionally, it shows you a new input into <a href="../../references/#Javis.appear-Tuple{Symbol}"><code>appear</code></a> and <a href="../../references/#Javis.disappear-Tuple{Symbol}"><code>disappear</code></a> which only works for text namely <code>:draw_text</code> which draws the text from left to right.</p><p>Now, with everything properly defined within the <code>face</code> function one can simply execute the following from your Julia REPL:</p><pre><code class="language-none">julia&gt; face()</code></pre><p>To produce the following:</p><p><img src="../assets/jarvis.gif" alt="Jarvis"/></p><p>Jarvis is alive! </p><h2 id="Conclusion"><a class="docs-heading-anchor" href="#Conclusion">Conclusion</a><a id="Conclusion-1"></a><a class="docs-heading-anchor-permalink" href="#Conclusion" title="Permalink"></a></h2><p>To recap, by working through this animation you should now:</p><ol><li>Understand how to make objects appear and disappear using actions</li><li>Be able to move objects inside actions to have a finer control of the movement</li><li>Know how to use apply several actions to an object</li></ol><p>Hope you had as much fun reading this tutorial as I had creating our mascot.</p><p>You&#39;re now ready to create your own big project.</p><h2 id="The-Code"><a class="docs-heading-anchor" href="#The-Code">The Code</a><a id="The-Code-1"></a><a class="docs-heading-anchor-permalink" href="#The-Code" title="Permalink"></a></h2><pre><code class="language-julia">using Javis
+
+function ground(args...)
+    background(&quot;white&quot;)
+    sethue(&quot;black&quot;)
+end
+
+function title(args...)
+    fontsize(20)
+    text(&quot;Our Mascot&quot;, Point(0, -200),
+        valign=:middle, halign=:center)
+end
+
+function hair_blob(angle)
+    sethue(&quot;brown&quot;)
+    rotate(angle)
+    circle(Point(0, -100), 20, :fill)
+end
+
+function eyes(centers, radius, color)
+    sethue(color)
+    circle.(centers, radius, :fill)
+    setcolor(&quot;white&quot;)
+    circle.(centers, radius/5, :fill)
+end
+
+function lip(p1, p2)
+    setline(2)
+    move(p1)
+    c1 = p1 + Point(10, 10)
+    c2 = p2 + Point(-10, 10)
+    curve(c1, c2, p2)
+    do_action(:stroke)
+end
+
+function speak(str)
+    fontsize(15)
+    text(str, Point(100, 50))
+end
+
+function face()
+    eye_centers = [Point(-40,-30), Point(40,-30)]
+    nose = [O, Point(-10,20), Point(10, 20), O]
+    upper_lip = [Point(-40, 45), Point(40, 45)]
+    lower_lip = [Point(-40, 55), Point(40, 55)]
+    hair_angle = rand(-0.9:0.1:0.9, 20)
+
+    video = Video(500, 500)
+    Background(1:150, ground)
+    the_title = Object(title)
+    act!(the_title, Action(1:5, appear(:fade)))
+    a = Object(16:150, (args...)-&gt;circle(O, 100, :stroke))
+    act!(a, Action(1:15, appear(:fade)))
+    
+    hair = Object[]
+    for i = 1:20
+        push!(hair, Object(26:150, (args...)-&gt;hair_blob(hair_angle[i])))
+    end
+    act!(hair, Action(1:25, appear(:fade)))
+    
+    the_eyes = Object(30:150, (args...)-&gt;eyes(eye_centers, 10, &quot;darkblue&quot;))
+    act!(the_eyes, Action(1:15, appear(:fade)))
+
+    the_nose = Object(45:150, (args...)-&gt;poly(nose, :fill))
+    act!(the_nose, Action(1:15, appear(:fade)))
+    
+    lip_fade_in = Action(1:15, appear(:fade))
+    the_upper_lip = Object(60:150, (args...)-&gt;lip(upper_lip...))
+    act!(the_upper_lip, lip_fade_in)
+    act!(the_upper_lip, [Action(20i:20i+10, anim_translate(0, -5)) for i in 1:5])
+    act!(the_upper_lip, [Action(20i+10:20i+20, anim_translate(0, 5)) for i in 1:5])
+
+    the_lower_lip = Object(60:150, (args...)-&gt;lip(lower_lip...))
+    act!(the_lower_lip, lip_fade_in)
+    act!(the_lower_lip, [Action(20i:20i+10, anim_translate(0, 5)) for i in 1:5])
+    act!(the_lower_lip, [Action(20i+10:20i+20, anim_translate(0, -5)) for i in 1:5])
+
+    speaking1 = Object(80:120, (args...)-&gt;speak(&quot;I&#39;m Jarvis&quot;))
+    act!(speaking1, Action(1:5, appear(:draw_text)))
+    act!(speaking1, Action(36:40, disappear(:draw_text)))
+
+    speaking2 = Object(120:150, (args...)-&gt;speak(&quot;How are you?&quot;))
+    act!(speaking2, Action(1:5, appear(:draw_text)))
+    act!(speaking2, Action(36:40, disappear(:draw_text)))    
+    render(video; pathname=&quot;jarvis.gif&quot;, framerate=15)
+end
+
+face()</code></pre><blockquote><p><strong>Author(s):</strong> Ole Kröger, Jacob Zelko <br/><strong>Date:</strong> August 14th, 2020 <br/><strong>Tag(s):</strong> jarvis, actions, fade, transformations</p></blockquote></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tutorial_3/">« <strong>Tutorial 3:</strong> Rendering LaTeX with Javis!</a><a class="docs-footer-nextpage" href="../tutorial_5/"><strong>Tutorial 5:</strong> Taming the Elements »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 4 December 2020 15:29">Friday 4 December 2020</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
