@@ -244,7 +244,8 @@ Creates an interactive viewer in a Jupyter Notebook.
 function _jupyter_viewer(video::Video, frames::Int, objects::Vector)
     t = Interact.textbox(1:frames, value = 1, typ = "Frame")
     f = Interact.slider(1:frames, label = "Frame", value = t)
-    output = @map get_javis_frame(video, objects, &f)
+    obs = Interact.Observables.throttle(0.65, f) # hardcoding this value isn't the right thing to do in the long run
+    output = @map get_javis_frame(video, objects, &obs)
     wdg = Widget(["f" => f, "t" => t], output = output)
     @layout! wdg vbox(hbox(:f, :t), output)
 end
