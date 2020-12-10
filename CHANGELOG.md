@@ -1,5 +1,16 @@
 # Javis.jl - Changelog
 
+## v0.3.3
+- `change` can now set a value 
+- Bugfix: reset keywords if `; keep=false`
+
+## v0.3.2 (24th of November)
+- added `ffmpeg_loglevel` option for debugging purposes
+
+## v0.3.1 (18th of November 2020)
+- removed `ColorTypes` as a dependency
+- docstring fixes for `morph_to`
+
 ## v0.3 (10th of November 2020)
 - Morphing with several shapes
 - Changed `Action` to `Object` syntax
