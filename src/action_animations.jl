@@ -382,10 +382,10 @@ function _follow_path(video, object, action, rel_frame, points; closed = closed)
 end
 
 """
-    change(s::Symbol, [val(s)])
+    change(s::Symbol, [vals::Pair])
 
 Changes the keyword `s` of the parent [`Object`](@ref) from `vals[1]` to `vals[2]`
-in an animated way if vals is given as a `Pair` otherwise it sets the keyword `s` to `val`.
+in an animated way.
 
 # Arguments
 - `s::Symbol` Change the keyword with the name `s`
@@ -396,32 +396,22 @@ in an animated way if vals is given as a `Pair` otherwise it sets the keyword `s
 # Example
 ```julia
 Background(1:100, ground)
-obj = Object((args...; radius = 25, color="red") -> object(O, radius, color), Point(100, 0))
+obj = Object((args...; radius = 25) -> object(O, radius, "red"), Point(100, 0))
 act!(obj, Action(1:50, change(:radius, 25 => 0)))
 act!(Action(51:100, change(:radius, 0 => 25)))
-act!(Action(51:100, change(:color, "blue")))
 ```
 """
 function change(s::Symbol, vals::Pair)
     (video, object, action, rel_frame) -> _change(video, object, action, rel_frame, s, vals)
 end
 
-function change(s::Symbol, val)
-    (video, object, action, rel_frame) -> _change(video, object, action, rel_frame, s, val)
-end
-
 function change(s::Symbol)
     (video, object, action, rel_frame) -> _change(video, object, action, rel_frame, s)
 end
 
-function _change(video, object, action, rel_frame, s, vals::Pair)
+function _change(video, object, action, rel_frame, s, vals)
     t = get_interpolation(action, rel_frame)
     val = vals[1] + t * (vals[2] - vals[1])
-    object.change_keywords[s] = val
-end
-
-
-function _change(video, object, action, rel_frame, s, val)
     object.change_keywords[s] = val
 end
 
