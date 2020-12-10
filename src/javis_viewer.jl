@@ -257,6 +257,6 @@ Creates an interactive viewer in a Pluto.
 """
 # function _pluto_viewer(video::Video, frames::Int, objects::Vector)
 #     function Base.show(io, MIME("text/html"), f)
-        # stuff goes here
+# stuff goes here
 #     end
 # end
