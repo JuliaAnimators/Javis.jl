@@ -90,7 +90,10 @@ end
 In general you can use all `Luxor` functions inside `Javis`. `Javis` is just an animation layer on top of it. We therefore highly recommend that you check out the awesome package [`Luxor.jl`](https://juliagraphics.github.io/Luxor.jl/stable/) which has a nice newcomer tutorial. 
 
 The code snippet above defines a function which will be used to animate a circle in the next section. It takes in a point and a color as keyword arguments. 
-Default is to use the center point `O` which is just a shorthand for `Point(0, 0)` and the color `black`. 
+
+> **NOTE:** You may notice in the `object` method, there is a kwarg called `p`, standing for the "point" of where to draw the object, which defaults to the character `O`.
+This is a shorthand provided by `Luxor` which is the same as `Point(0, 0)`.
+If one wishes to be more explicit, one can define the function header as `function object(p=Point(0,0), color="black")`.
 
 `Luxor` has its default origin in the center of the canvas and the y-axis is pointing down.
 
