@@ -1,6 +1,6 @@
 # Javis.jl - Changelog
 
-## Unmarked Changes
+## v0.3.4
 - `:all` can now be used to have an Object persist for all frames of an animation
 
 ## v0.3.3
