@@ -1,5 +1,8 @@
 # Javis.jl - Changelog
 
+## Unmarked Changes
+- `:all` can now be used to have an Object persist for all frames of an animation
+
 ## v0.3.3
 - `change` can now set a value 
 - Bugfix: reset keywords if `; keep=false`
