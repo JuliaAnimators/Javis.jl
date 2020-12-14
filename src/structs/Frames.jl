@@ -37,7 +37,10 @@ end
 
 Return `elem.frames.frames` which holds the computed frames for the AbstractObject or AbstractAction `a`.
 """
-get_frames(elem) = elem.frames.frames
+function get_frames(elem)
+    elem.frames.frames
+end
+
 
 """
     get_frames(parent, elem, frames::Symbol, last_frames::UnitRange; is_first=false)
@@ -51,8 +54,10 @@ function get_frames(parent, elem, frames::Symbol, last_frames::UnitRange; is_fir
             return 1:length(last_frames)
         end
         return last_frames
+    elseif frames === :all
+	return 1:maximum(CURRENT_VIDEO[1].background_frames)
     else
-        throw(ArgumentError("Currently the only symbol supported for defining frames is `:same`"))
+        throw(ArgumentError("Currently the only symbols supported for defining frames are `:same` and `:all`."))
     end
 end
 

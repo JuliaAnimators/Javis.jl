@@ -35,6 +35,8 @@ const CURRENT_OBJECT = Array{Object,1}()
 
 Object(func::Function, args...; kwargs...) = Object(:same, func, args...; kwargs...)
 
+Object(func::Function, args...; kwargs...) = Object(:all, func, args...; kwargs...)
+
 Object(frames, func::Function; kwargs...) = Object(frames, func, O; kwargs...)
 
 

@@ -16,7 +16,7 @@ using Random
 using Statistics
 using VideoIO
 
-const FRAMES_SYMBOL = [:same]
+const FRAMES_SYMBOL = [:same, :all]
 
 abstract type AbstractAction end
 abstract type AbstractObject end
