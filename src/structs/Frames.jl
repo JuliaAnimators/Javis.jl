@@ -55,7 +55,7 @@ function get_frames(parent, elem, frames::Symbol, last_frames::UnitRange; is_fir
         end
         return last_frames
     elseif frames === :all
-	return 1:maximum(CURRENT_VIDEO[1].background_frames)
+        return 1:maximum(CURRENT_VIDEO[1].background_frames)
     else
         throw(ArgumentError("Currently the only symbols supported for defining frames are `:same` and `:all`."))
     end
