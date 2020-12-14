@@ -77,12 +77,10 @@ function animate_latex(text, pos::Point, t, object)
     pathsvg(svg)
     polygon = pathtopoly()
     w, h = polywh(polygon)
-
-    translate(pos)
+    sethue("red")
+    rect(pos, t * w, h, :fill)
     pathsvg(svg)
     do_action(:clip)
-    r = t * sqrt(w^2 + h^2)
-    circle(O, r, :fill)
     translate(-pos)
 end
 
