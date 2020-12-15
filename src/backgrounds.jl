@@ -36,9 +36,9 @@ function _draw_grid(video::Video, object::AbstractObject, frame::Int; line_gap =
         finish_point = Point(x_point, min_height)
         line(start_point, finish_point, :stroke)
     end
-    
+
     # Creates the horizontal lines of the grid
-    # Drawn from left to right 
+    # Drawn from left to right
     for y_point in min_height:line_gap:max_height
         start_point = Point(min_width, y_point)
         finish_point = Point(max_width, y_point)
@@ -79,20 +79,11 @@ Object(1:100, zero_lines(direction = "TL", line_thickness = 10)),
 
 """
 function zero_lines(; line_thickness = 10)
-    return (video, object, frame) -> _zero_lines(
-        video,
-        object,
-        frame;
-        line_thickness = line_thickness,
-    )
+    return (video, object, frame) ->
+        _zero_lines(video, object, frame; line_thickness = line_thickness)
 end
 
-function _zero_lines(
-    video::Video,
-    object::AbstractObject,
-    frame::Int;
-    line_thickness,
-)
+function _zero_lines(video::Video, object::AbstractObject, frame::Int; line_thickness)
 
     min_width = div(video.width, -2, RoundDown)
     max_width = div(video.width, 2, RoundUp)
@@ -102,15 +93,15 @@ function _zero_lines(
 
     setline(line_thickness)
 
-    	# Creates a vertical zero line 
-        # Top to bottom motion for vertical line
-        start_point_y = Point(0, min_height)
-        end_point_y = Point(0, max_height) - start_point_y
+    # Creates a vertical zero line
+    # Top to bottom motion for vertical line
+    start_point_y = Point(0, min_height)
+    end_point_y = Point(0, max_height) - start_point_y
 
-    	# Creates a horizontal zero line 
-	# Left to right motion for horizontal line
-	start_point_x = Point(min_width, 0)
-	end_point_x = Point(max_width, 0) - start_point_x
+    # Creates a horizontal zero line
+    # Left to right motion for horizontal line
+    start_point_x = Point(min_width, 0)
+    end_point_x = Point(max_width, 0) - start_point_x
 
     line(start_point_x, end_point_x, :stroke)
     line(start_point_y, end_point_y, :stroke)
