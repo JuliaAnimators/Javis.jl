@@ -31,14 +31,12 @@ end
 holds the current object in an array to be declared as a constant
 The current object can be accessed using CURRENT_OBJECT[1]
 """
+
 const CURRENT_OBJECT = Array{Object,1}()
 
 Object(func::Function, args...; kwargs...) = Object(:same, func, args...; kwargs...)
 
-Object(func::Function, args...; kwargs...) = Object(:all, func, args...; kwargs...)
-
 Object(frames, func::Function; kwargs...) = Object(frames, func, O; kwargs...)
-
 
 """
     Object([frames], func::Function, [start_pos]; kwargs...)
