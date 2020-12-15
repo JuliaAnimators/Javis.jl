@@ -249,14 +249,3 @@ function _jupyter_viewer(video::Video, frames::Int, objects::Vector)
     wdg = Widget(["f" => f, "t" => t], output = output)
     @layout! wdg vbox(hbox(:f, :t), output)
 end
-
-"""
-_pluto_viewer(video::Video, frames::Int, actions::Vector)
-
-Creates an interactive viewer in a Pluto.
-"""
-# function _pluto_viewer(video::Video, frames::Int, objects::Vector)
-#     function Base.show(io, MIME("text/html"), f)
-# stuff goes here
-#     end
-# end
