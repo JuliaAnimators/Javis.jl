@@ -1,10 +1,13 @@
 # Javis.jl - Changelog
 
-## v0.3.3
+## v0.3.4
+- changed color palette for gif rendering
+
+## v0.3.3 (2nd of December 2020)
 - `change` can now set a value 
 - Bugfix: reset keywords if `; keep=false`
 
-## v0.3.2 (24th of November)
+## v0.3.2 (24th of November 2020)
 - added `ffmpeg_loglevel` option for debugging purposes
 
 ## v0.3.1 (18th of November 2020)
