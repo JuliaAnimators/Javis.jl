@@ -1,6 +1,4 @@
 using Animations
-using GtkReactive
-using Gtk: get_gtk_property, visible
 using Images
 using Javis
 import Latexify: latexify
@@ -43,7 +41,4 @@ end
 end
 @testset "Morphing" begin
     include("morphing.jl")
-end
-@testset "Javis Viewer" begin
-    include("viewer.jl")
 end

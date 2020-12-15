@@ -3,8 +3,6 @@ module Javis
 using Animations
 import Cairo: CairoImageSurface, image
 using FFMPEG
-using Gtk
-using GtkReactive
 using Hungarian
 using Images
 using LaTeXStrings
@@ -96,7 +94,6 @@ include("backgrounds.jl")
 include("svg2luxor.jl")
 include("morphs.jl")
 include("action_animations.jl")
-include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
 
@@ -163,7 +160,6 @@ end
         framerate=30,
         pathname="javis_GIBBERISH.gif",
         tempdirectory="",
-        liveview=false,
         ffmpeg_loglevel="panic"
     )
 
@@ -178,7 +174,6 @@ Renders all previously defined [`Object`](@ref) drawings to the user-defined `Vi
     - **Default:** The animation is rendered as a gif with the `javis_` prefix and some gibberish afterwards
 - `tempdirectory::String`: The folder where each frame is stored
     Defaults to a temporary directory when not set
-- `liveview::Bool`: Causes a live image viewer to appear to assist with animation development
 - `ffmpeg_loglevel::String`:
     - Can be used if there are errors with ffmpeg. Defaults to panic:
     All other options are described here: https://ffmpeg.org/ffmpeg.html
@@ -187,17 +182,11 @@ function render(
     video::Video;
     framerate = 30,
     pathname = "javis_$(randstring(7)).gif",
-    liveview = false,
     tempdirectory = "",
     ffmpeg_loglevel = "panic",
 )
     objects = video.objects
     frames = preprocess_frames!(objects)
-
-    if liveview == true
-        _javis_viewer(video, length(frames), objects)
-        return "Live preview started."
-    end
 
     path, ext = "", ""
     if !isempty(pathname)
