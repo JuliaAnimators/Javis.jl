@@ -251,12 +251,12 @@ function render(
     else
         @error "Currently, only gif and mp4 creation is supported. Not a $ext."
     end
-    
-    # even if liveview = false show the rendered gif in the cell output
+
+    # even if liveview = false, show the rendered gif in the cell output
     if isdefined(Main, :IJulia) && Main.IJulia.inited
         display(MIME("text/html"), """<img src="$(pathname)">""")
     end
-    
+
     return pathname
 end
 
