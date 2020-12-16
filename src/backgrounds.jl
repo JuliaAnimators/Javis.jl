@@ -1,6 +1,6 @@
 """
 
-`draw_grid(frame::UnitRange; direction::AbstractString = "TR", line_gap = 25)`
+`grid_lines(frame::UnitRange; direction::AbstractString = "TR", line_gap = 25)`
 
 Draws an oriented grid on the given frame of a Video.
 
@@ -12,16 +12,16 @@ Draws an oriented grid on the given frame of a Video.
 Example call of this function within an `Object`.
 ```
 ...
-Object(1:100, draw_grid(direction = "TL", line_gap = 25))
+Object(1:100, grid_lines(direction = "TL", line_gap = 25))
 ...
 ```
 
 """
-function draw_grid(; line_gap = 25)
-    return (video, object, frame) -> _draw_grid(video, object, frame; line_gap = line_gap)
+function grid_lines(; line_gap = 25)
+    return (video, object, frame) -> _grid_lines(video, object, frame; line_gap = line_gap)
 end
 
-function _draw_grid(video::Video, object::AbstractObject, frame::Int; line_gap = 25)
+function _grid_lines(video::Video, object::AbstractObject, frame::Int; line_gap = 25)
 
     min_width = div(video.width, -2, RoundDown)
     max_width = div(video.width, 2, RoundUp)
@@ -108,4 +108,4 @@ function _zero_lines(video::Video, object::AbstractObject, frame::Int; line_thic
 
 end
 
-export draw_grid, zero_lines
+export grid_lines, zero_lines
