@@ -402,7 +402,7 @@ export Video, Object, Background, Action, RFrames, GFrames
 export Line, Transformation
 export val, pos, ang, scl, get_value, get_position, get_angle, get_scale
 export projection, morph_to
-export appear, disappear, rotate_around, follow_path, change
+export appear, disappear, rotate_around, follow_path, change, sweep
 export rev
 export scaleto
 export act!
