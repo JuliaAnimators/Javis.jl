@@ -56,5 +56,3 @@ To make the Jupyter Notebook experience with Javis more easy, videos rendered as
 ## Workflow for Pluto Notebooks
 
 [Coming Soon!]
-
-
