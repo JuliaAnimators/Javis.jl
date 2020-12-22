@@ -86,6 +86,14 @@ function animate_latex(text, pos::Point, t, object)
     translate(-pos)
 end
 
+"""
+    strip_eq(text::LaTeXString)
+
+Strips `\$\$` from `text.s` if present and returns the resulting string. 
+
+# Arguments
+- `text::LaTeXString`: a LaTeX string
+"""
 function strip_eq(text::LaTeXString)
     ts = text.s
     if ts[1] == '$'
