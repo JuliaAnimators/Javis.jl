@@ -92,7 +92,10 @@ function get_latex_svg(text::LaTeXString)
         svg = LaTeXSVG[text]
     else
         # remove the $
-        ts = text.s[2:(end - 1)]
+        ts = text.s
+        if ts[1] == '$'
+            ts = ts[2:(end - 1)]
+        end
         command = `tex2svg $ts`
         try
             svg = read(command, String)
