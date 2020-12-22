@@ -86,16 +86,20 @@ function animate_latex(text, pos::Point, t, object)
     translate(-pos)
 end
 
+function strip_eq(text::LaTeXString)
+    ts = text.s
+    if ts[1] == '$'
+        ts = ts[2:(end - 1)]
+    end
+    ts
+end
+
 function get_latex_svg(text::LaTeXString)
     # check if it's cached
     if haskey(LaTeXSVG, text)
         svg = LaTeXSVG[text]
     else
-        # remove the $
-        ts = text.s
-        if ts[1] == '$'
-            ts = ts[2:(end - 1)]
-        end
+        ts = strip_eq(text)
         command = `tex2svg $ts`
         try
             svg = read(command, String)

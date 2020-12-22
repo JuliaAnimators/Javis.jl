@@ -78,8 +78,8 @@ end
     rm("images/0000000001.png")
 end
 
-@testset "Checking for" begin
+@testset "Checking for \$\$" begin
     a = L"\sqrt{x^2}"
     b = LaTeXString("\\sqrt{x^2}")
-    @test Javis.get_latex_svg(a) == Javis.get_latex_svg(b)
+    @test Javis.strip_eq(a) == Javis.strip_eq(b)
 end
