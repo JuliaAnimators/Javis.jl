@@ -1,9 +1,7 @@
 # Javis.jl - Changelog
 
-## v0.3.5
+## v0.3.4 (23rd of December 2020)
 - Bugfix: `get_latex_svg` assumed a `LaTeXString` always includes `$$`
-
-## v0.3.4
 - changed color palette for gif rendering
 
 ## v0.3.3 (2nd of December 2020)
