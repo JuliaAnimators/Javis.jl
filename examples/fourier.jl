@@ -152,7 +152,7 @@ function animate_fourier(options)
     trace_points = Point[]
     Object(1:nframes, (args...) -> draw_path!(trace_points, pos(circles[end]), "red"))
 
-    render(video, pathname = options.filename)
+    render(video, pathname = joinpath(@__DIR__, options.filename))
 end
 
 function main()
