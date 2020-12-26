@@ -53,9 +53,8 @@ bezierpath = makebezierpath(points)
 bezierpathpoly = bezierpathtopoly(bezierpath)
 
 # let the bezier path appear and disappear in the end
-bezier_object = Object(
-    (2 * npoints + 10):200, (args...) -> drawbezierpath(bezierpath, :stroke)
-)
+bezier_object =
+    Object((2 * npoints + 10):200, (args...) -> drawbezierpath(bezierpath, :stroke))
 
 act!(bezier_object, Action(1:10, appear(:fade)))
 act!(bezier_object, Action(GFrames(190:200), disappear(:fade)))
@@ -66,4 +65,4 @@ act!(red_circle, Action(1:20, appear(:fade)))
 act!(red_circle, Action(21:70, sineio(), follow_path(bezierpathpoly .- first(points))))
 act!(red_circle, Action(71:80, disappear(:fade)))
 
-render(video; pathname=joinpath(@__DIR__, "gifs/follow_bezier_path.gif"))
+render(video; pathname = joinpath(@__DIR__, "gifs/follow_bezier_path.gif"))

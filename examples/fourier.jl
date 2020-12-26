@@ -15,7 +15,7 @@ function ground(args...)
     return sethue("white")
 end
 
-function circ(; r=10, vec=O, action=:stroke, color="white")
+function circ(; r = 10, vec = O, action = :stroke, color = "white")
     sethue(color)
     circle(O, r, action)
     my_arrow(O, vec)
@@ -24,12 +24,22 @@ end
 
 function my_arrow(start_pos, end_pos)
     arrow(
-        start_pos, end_pos; linewidth=distance(start_pos, end_pos) / 100, arrowheadlength=7
+        start_pos,
+        end_pos;
+        linewidth = distance(start_pos, end_pos) / 100,
+        arrowheadlength = 7,
     )
     return end_pos
 end
 
-function draw_line(p1=O, p2=O; color="white", action=:stroke, edge="solid", linewidth=3)
+function draw_line(
+    p1 = O,
+    p2 = O;
+    color = "white",
+    action = :stroke,
+    edge = "solid",
+    linewidth = 3,
+)
     sethue(color)
     setdash(edge)
     setline(linewidth)
@@ -40,12 +50,12 @@ function draw_path!(path, pos, color)
     sethue(color)
 
     push!(path, pos)
-    return draw_line.(path[2:end], path[1:(end - 1)]; color=color)
+    return draw_line.(path[2:end], path[1:(end - 1)]; color = color)
 end
 
 function get_points(npoints, options)
     Drawing() # julialogo needs a drawing
-    julialogo(; action=:path, centered=true)
+    julialogo(; action = :path, centered = true)
     shapes = pathtopoly()
     new_shapes = shapes[1:6]
     last_i = 1
@@ -108,7 +118,7 @@ function animate_fourier(options)
     # solve tsp to reduce length of extra edges
     distmat = [distance(points[i], points[j]) for i in 1:npoints, j in 1:npoints]
 
-    path, cost = solve_tsp(distmat; quality_factor=options.tsp_quality_factor)
+    path, cost = solve_tsp(distmat; quality_factor = options.tsp_quality_factor)
     println("TSP cost: $cost")
     points = points[path] # tsp saves the last point again
 
@@ -129,7 +139,7 @@ function animate_fourier(options)
     for i in 1:npoints
         ridx = remap_idx(i)
 
-        push!(circles, Object((args...) -> circ(; r=abs(fs[ridx]), vec=c2p(fs[ridx]))))
+        push!(circles, Object((args...) -> circ(; r = abs(fs[ridx]), vec = c2p(fs[ridx]))))
 
         if i > 1
             # translate to the tip of the vector of the previous circle
@@ -142,44 +152,44 @@ function animate_fourier(options)
     trace_points = Point[]
     Object(1:nframes, (args...) -> draw_path!(trace_points, pos(circles[end]), "red"))
 
-    return render(video; pathname=joinpath(@__DIR__, options.filename))
+    return render(video; pathname = joinpath(@__DIR__, options.filename))
 end
 
 function main()
     hd_options = (
-        npoints=3001, # rough number of points for the shape => number of circles
-        nplay_frames=1200, # number of frames for the animation of fourier
-        nruns=2, # how often it's drawn
-        nend_frames=200,  # number of frames in the end
-        width=1920,
-        height=1080,
-        shape_scale=2.5, # scale factor for the logo
-        tsp_quality_factor=50,
-        filename="julia_hd.mp4",
+        npoints = 3001, # rough number of points for the shape => number of circles
+        nplay_frames = 1200, # number of frames for the animation of fourier
+        nruns = 2, # how often it's drawn
+        nend_frames = 200,  # number of frames in the end
+        width = 1920,
+        height = 1080,
+        shape_scale = 2.5, # scale factor for the logo
+        tsp_quality_factor = 50,
+        filename = "julia_hd.mp4",
     )
 
     fast_options = (
-        npoints=1001, # rough number of points for the shape => number of circles
-        nplay_frames=600, # number of frames for the animation of fourier
-        nruns=1, # how often it's drawn
-        nend_frames=200,  # number of frames in the end
-        width=1000,
-        height=768,
-        shape_scale=1.5, # scale factor for the logo
-        tsp_quality_factor=40,
-        filename="julia_fast.mp4",
+        npoints = 1001, # rough number of points for the shape => number of circles
+        nplay_frames = 600, # number of frames for the animation of fourier
+        nruns = 1, # how often it's drawn
+        nend_frames = 200,  # number of frames in the end
+        width = 1000,
+        height = 768,
+        shape_scale = 1.5, # scale factor for the logo
+        tsp_quality_factor = 40,
+        filename = "julia_fast.mp4",
     )
 
     gif_options = (
-        npoints=651, # rough number of points for the shape => number of circles
-        nplay_frames=600, # number of frames for the animation of fourier
-        nruns=2, # how often it's drawn
-        nend_frames=0,  # number of frames in the end
-        width=350,
-        height=219,
-        shape_scale=0.8, # scale factor for the logo
-        tsp_quality_factor=80,
-        filename="gifs/julia_logo_dft.gif",
+        npoints = 651, # rough number of points for the shape => number of circles
+        nplay_frames = 600, # number of frames for the animation of fourier
+        nruns = 2, # how often it's drawn
+        nend_frames = 0,  # number of frames in the end
+        width = 350,
+        height = 219,
+        shape_scale = 0.8, # scale factor for the logo
+        tsp_quality_factor = 80,
+        filename = "gifs/julia_logo_dft.gif",
     )
     return animate_fourier(gif_options)
 end
