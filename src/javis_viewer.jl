@@ -134,11 +134,11 @@ function _javis_viewer(
     backward = GtkButton("<==")
 
     #=
-                
     TODO: Enable widgets of window to dynamically resize based on user changing the size of a window.
-                
-    I think I can use the `configure-event` signal in GTK3 documentation (link: https://developer.gnome.org/gtk3/stable/GtkWidget.html#GtkWidget-configure-event). From there, I can then make a `signal_connect` set-up where I update `set_gtk_property!()` of the windows accordingly using `:width_request` and `height_request`.
-                
+    I think I can use the `configure-event` signal in GTK3 documentation
+    (link: https://developer.gnome.org/gtk3/stable/GtkWidget.html#GtkWidget-configure-event).
+    From there, I can then make a `signal_connect` set-up where I update `set_gtk_property!()`
+    of the windows accordingly using `:width_request` and `height_request`.
     =#
 
     #####################################################################
