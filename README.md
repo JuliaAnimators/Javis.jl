@@ -17,6 +17,14 @@
 Want to learn more?
 Check out our [documentation](https://wikunia.github.io/Javis.jl/dev/) for tutorials, our contributing guidelines, and the mission of `Javis.jl`!
 
+## Join Our Developer Community!
+
+We have a live Zulip stream that you can join to discuss Javis with other Javis users!
+We'd love to have you and hear your thoughts and see what you are making!
+
+Click this badge to join: [![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://julialang.zulipchat.com/#narrow/stream/253420-javis)
+
+
 ## Gallery
 
 ### Tutorials
@@ -106,3 +114,5 @@ We want to thank a couple of people who helped make this possible.
 - [@ric-cioffi](https://github.com/ric-cioffi) for adding the Julia Logo example and for feedback
 - [@findmyway](https://github.com/findmyway) for fixing typos in documentation
 - [@ArbitRandomUser](https://github.com/ArbitRandomUser) for cleaning up the LaTeX code base
+- [@agerlach](https://github.com/agerlach) for improving the internal LaTeX parsing
+- [@matbesancon](https://github.com/matbesancon) for adding in an example on projections and for identifying an issue with Javis image processing.
