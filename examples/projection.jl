@@ -4,7 +4,7 @@ nframes = 200
 
 function ground(args...)
     background("white") # canvas background
-    return sethue("black") # pen color
+    sethue("black") # pen color
 end
 
 myvideo = Video(300, 300)
@@ -13,7 +13,7 @@ Background(1:200, ground)
 function draw_line(p1 = O, p2 = O, color = "black", action = :stroke, edge = "solid")
     sethue(color)
     setdash(edge)
-    return line(p1, p2, action)
+    line(p1, p2, action)
 end
 
 # Draw the coordinate lines with solid in the positive side and dashed in the negative one
