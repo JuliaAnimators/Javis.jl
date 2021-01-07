@@ -12,7 +12,7 @@ using TravelingSalesmanHeuristics
 
 function ground(args...)
     background("black")
-    sethue("white")
+    return sethue("white")
 end
 
 function circ(; r = 10, vec = O, action = :stroke, color = "white")
@@ -43,19 +43,19 @@ function draw_line(
     sethue(color)
     setdash(edge)
     setline(linewidth)
-    line(p1, p2, action)
+    return line(p1, p2, action)
 end
 
 function draw_path!(path, pos, color)
     sethue(color)
 
     push!(path, pos)
-    draw_line.(path[2:end], path[1:(end - 1)]; color = color)
+    return draw_line.(path[2:end], path[1:(end - 1)]; color = color)
 end
 
 function get_points(npoints, options)
     Drawing() # julialogo needs a drawing
-    julialogo(action = :path, centered = true)
+    julialogo(; action = :path, centered = true)
     shapes = pathtopoly()
     new_shapes = shapes[1:6]
     last_i = 1
@@ -126,7 +126,7 @@ function animate_fourier(options)
     x = [p.x for p in points]
     y = [p.y for p in points]
 
-    fs = fft(complex.(x, y)) |> FFTView
+    fs = FFTView(fft(complex.(x, y)))
     # normalize the points as fs isn't normalized
     fs ./= npoints
     npoints = length(fs)
@@ -152,7 +152,7 @@ function animate_fourier(options)
     trace_points = Point[]
     Object(1:nframes, (args...) -> draw_path!(trace_points, pos(circles[end]), "red"))
 
-    render(video, pathname = options.filename)
+    return render(video; pathname = joinpath(@__DIR__, options.filename))
 end
 
 function main()
@@ -191,7 +191,7 @@ function main()
         tsp_quality_factor = 80,
         filename = "gifs/julia_logo_dft.gif",
     )
-    animate_fourier(gif_options)
+    return animate_fourier(gif_options)
 end
 
 main()

@@ -2,12 +2,12 @@ using Javis, Animations
 
 function ground(args...)
     background("white")
-    sethue("black")
+    return sethue("black")
 end
 
 function circle_with_color(pos, radius, color)
     sethue(color)
-    circle(pos, radius, :fill)
+    return circle(pos, radius, :fill)
 end
 
 # the safest option is to declare the Video first all the time
@@ -65,4 +65,4 @@ act!(red_circle, Action(1:20, appear(:fade)))
 act!(red_circle, Action(21:70, sineio(), follow_path(bezierpathpoly .- first(points))))
 act!(red_circle, Action(71:80, disappear(:fade)))
 
-render(video; pathname = "gifs/follow_bezier_path.gif")
+render(video; pathname = joinpath(@__DIR__, "gifs/follow_bezier_path.gif"))
