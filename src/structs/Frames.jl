@@ -52,7 +52,11 @@ function get_frames(parent, elem, frames::Symbol, last_frames::UnitRange; is_fir
         end
         return last_frames
     else
-        throw(ArgumentError("Currently the only symbol supported for defining frames is `:same`"))
+        throw(
+            ArgumentError(
+                "Currently the only symbol supported for defining frames is `:same`",
+            ),
+        )
     end
 end
 

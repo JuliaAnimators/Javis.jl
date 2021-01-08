@@ -12,7 +12,7 @@ using TravelingSalesmanHeuristics
 
 function ground(args...)
     background("black")
-    return sethue("white")
+    sethue("white")
 end
 
 function circ(; r = 10, vec = O, action = :stroke, color = "white")
@@ -43,7 +43,7 @@ function draw_line(
     sethue(color)
     setdash(edge)
     setline(linewidth)
-    return line(p1, p2, action)
+    line(p1, p2, action)
 end
 
 function draw_path!(path, pos, color)
@@ -89,8 +89,8 @@ function get_points(npoints, options)
         portion = len / total_distance
         nlocalpoints = floor(Int, portion * npoints)
         new_points = [
-            Javis.get_polypoint_at(shape, i / (nlocalpoints - 1))
-            for i in 0:(nlocalpoints - 1)
+            Javis.get_polypoint_at(shape, i / (nlocalpoints - 1)) for
+            i in 0:(nlocalpoints - 1)
         ]
         append!(points, new_points)
         new_i = start_i + length(new_points) - 1

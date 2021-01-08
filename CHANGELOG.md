@@ -1,5 +1,8 @@
 # Javis.jl - Changelog
 
+## v0.4.0
+- added ImageIO and ImageMagick as dependencies
+
 ## v0.3.4 (23rd of December 2020)
 - Bugfix: `get_latex_svg` assumed a `LaTeXString` always includes `$$`
 - changed color palette for gif rendering

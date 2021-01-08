@@ -54,8 +54,9 @@ end
     video = Video(400, 200)
     Background(1:1, latex_ground)
     Object(
-        (args...) ->
-            latex(L"$\begin{equation}\left[\begin{array}{ccc}1 & 2 & 3 \\4 & 5 & 6 \\7 & 8 & 9 \\\end{array}\right]\end{equation}$"),
+        (args...) -> latex(
+            L"$\begin{equation}\left[\begin{array}{ccc}1 & 2 & 3 \\4 & 5 & 6 \\7 & 8 & 9 \\\end{array}\right]\end{equation}$",
+        ),
     )
     render(video; tempdirectory = "images", pathname = "")
     @test_reference "refs/latex_3x3_matrix.png" load("images/0000000001.png")
