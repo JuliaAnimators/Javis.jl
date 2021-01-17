@@ -1,4 +1,17 @@
 """
+	_cache_frame(video::Video, objects::Vector, frame::Int, cachedir::String)
+"""
+function _cache_frame(video:Video, objects::Vector, frame::Int, cachedir::String)
+
+        # Gets a specific frame from graphic; transposed due to returned matrix
+        frame_mat = transpose(get_javis_frame(video, objects, frame))
+
+	# TODO: Write matrix to file 
+	write(frame, cachedir)
+
+end
+
+"""
     _draw_image(video::Video, objects::Vector, frame::Int, canvas::Gtk.Canvas,
     img_dims::Vector)
 
@@ -87,6 +100,7 @@ function _javis_viewer(
     total_frames::Int,
     object_list::Vector,
     show::Bool = true,
+    cache::Bool = false
 )
 
     #####################################################################
@@ -167,6 +181,14 @@ function _javis_viewer(
     # Adds grid to previously defined window
     push!(win, grid)
 
+    #####################################################################
+    # PREPARING IMAGES FOR CACHING
+    #####################################################################
+    
+    if cache == true
+
+    end
+    
     #####################################################################
     # DISPLAY FIRST FRAME
     #####################################################################
