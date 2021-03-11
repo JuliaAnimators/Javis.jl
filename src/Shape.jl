@@ -67,11 +67,15 @@ function get_angles(p)
             pB = p[1]
             pC = p[2]
         end
-        ang = rad2deg(acos(clamp(
-            dotproduct(u, v) / (sqrt(u.x^2 + u.y^2) * sqrt(v.x^2 + v.y^2)),
-            -1,
-            1,
-        )))
+        ang = rad2deg(
+            acos(
+                clamp(
+                    dotproduct(u, v) / (sqrt(u.x^2 + u.y^2) * sqrt(v.x^2 + v.y^2)),
+                    -1,
+                    1,
+                ),
+            ),
+        )
         if ang < 179.8
             push!(simplified, pB)
         end
@@ -210,7 +214,9 @@ end
 
 function print_basic(s::Shape)
     println("Shape: #Points: $(length(s.points))")
-    println("Angles: #Acute: $(s.num_acute_angles) #Obtuse: $(s.num_obtuse_angles) #Right: $(s.num_right_angles)")
+    println(
+        "Angles: #Acute: $(s.num_acute_angles) #Obtuse: $(s.num_obtuse_angles) #Right: $(s.num_right_angles)",
+    )
     println("#Holes: $(length(s.subpaths))")
 end
 

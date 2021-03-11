@@ -2,7 +2,6 @@ module Javis
 
 using Animations
 import Cairo: CairoImageSurface, image
-using ColorTypes: ARGB32
 using FFMPEG
 using Gtk
 using GtkReactive
@@ -147,7 +146,9 @@ function preprocess_frames!(objects::Vector{<:AbstractObject})
     end
     frames = unique(frames)
     if !(frames ⊆ CURRENT_VIDEO[1].background_frames)
-        @warn("Some of the frames don't have a background. In this case: $(setdiff(frames, CURRENT_VIDEO[1].background_frames)))")
+        @warn(
+            "Some of the frames don't have a background. In this case: $(setdiff(frames, CURRENT_VIDEO[1].background_frames)))"
+        )
     end
 
     if isempty(CURRENT_OBJECT)
@@ -164,7 +165,8 @@ end
         framerate=30,
         pathname="javis_GIBBERISH.gif",
         tempdirectory="",
-        liveview=false
+        liveview=false,
+        ffmpeg_loglevel="panic"
     )
 
 Renders all previously defined [`Object`](@ref) drawings to the user-defined `Video` as a gif or mp4.
@@ -179,6 +181,9 @@ Renders all previously defined [`Object`](@ref) drawings to the user-defined `Vi
 - `tempdirectory::String`: The folder where each frame is stored
     Defaults to a temporary directory when not set
 - `liveview::Bool`: Causes a live image viewer to appear to assist with animation development
+- `ffmpeg_loglevel::String`:
+    - Can be used if there are errors with ffmpeg. Defaults to panic:
+    All other options are described here: https://ffmpeg.org/ffmpeg.html
 """
 function render(
     video::Video;
@@ -186,6 +191,7 @@ function render(
     pathname = "javis_$(randstring(7)).gif",
     liveview = false,
     tempdirectory = "",
+    ffmpeg_loglevel = "panic",
 )
     objects = video.objects
     frames = preprocess_frames!(objects)
@@ -232,12 +238,13 @@ function render(
     isempty(pathname) && return
     if ext == ".gif"
         # generate a colorpalette first so ffmpeg does not have to guess it
-        ffmpeg_exe(`-loglevel panic -i $(tempdirectory)/%10d.png -vf
-                    "palettegen=stats_mode=diff" -y "$(tempdirectory)/palette.bmp"`)
+        ffmpeg_exe(`-loglevel $(ffmpeg_loglevel) -i $(tempdirectory)/%10d.png -vf
+                    palettegen $(tempdirectory)/palette.png`)
         # then apply the palette to get better results
-        ffmpeg_exe(`-loglevel panic -framerate $framerate -i $(tempdirectory)/%10d.png -i
-                    "$(tempdirectory)/palette.bmp" -lavfi
-                    "paletteuse=dither=sierra2_4a" -y $pathname`)
+        ffmpeg_exe(
+            `-loglevel $(ffmpeg_loglevel) -framerate $framerate -i $(tempdirectory)/%10d.png -i
+               $(tempdirectory)/palette.png -lavfi paletteuse -y $pathname`,
+        )
     elseif ext == ".mp4"
         finishencode!(video_encoder, video_io)
         close(video_io)
@@ -312,6 +319,9 @@ function draw_object(object, video, frame, origin_matrix)
     # translate the object to it's starting position.
     # It's better to draw the object always at the origin and use `star_pos` to shift it
     translate(get_position(object.start_pos))
+
+    # reset change keywords
+    empty!(object.change_keywords)
 
     # first compute and perform the global transformations of this object
     # relative frame number for actions

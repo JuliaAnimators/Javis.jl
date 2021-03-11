@@ -86,13 +86,29 @@ function animate_latex(text, pos::Point, t, object)
     translate(-pos)
 end
 
+"""
+    strip_eq(text::LaTeXString)
+
+Strips `\$\$` from `text.s` if present and returns the resulting string. 
+
+# Arguments
+- `text::LaTeXString`: a LaTeX string
+"""
+function strip_eq(text::LaTeXString)
+    ts = text.s
+    if ts[1] == '$'
+        ts = ts[2:(end - 1)]
+    end
+    ts
+end
+
+# \todo update LaTeXSVG cache to use output of strip_eq as the key. See https://github.com/Wikunia/Javis.jl/pull/307#issuecomment-749616375
 function get_latex_svg(text::LaTeXString)
     # check if it's cached
     if haskey(LaTeXSVG, text)
         svg = LaTeXSVG[text]
     else
-        # remove the $
-        ts = text.s[2:(end - 1)]
+        ts = strip_eq(text)
         command = `tex2svg $ts`
         try
             svg = read(command, String)
