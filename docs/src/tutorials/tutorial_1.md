@@ -64,7 +64,7 @@ end
 ```
 
 > **NOTE:** One may wonder, "why is `args...` needed in the `ground` function?"
-> Each user-defined function gets three arguments `video`, `object`, and `frame` provided by Javis
+> Each user-defined function gets three arguments `video`, `object`, and `frame` provided by Javis  
 > These arguments are defined below:
 >
 > - `video`: Video struct
