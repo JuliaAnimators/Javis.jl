@@ -1,10 +1,10 @@
 """
     Action <: AbstractAction
 
-A Action can be used in the keyword arguments of an [`Object`](@ref) to define small
+An Action can be used in the keyword arguments of an [`Object`](@ref) to define small
 sub objects on the object function, such as [`appear`](@ref).
 
-A Action should not be created by hand but instead by using one of the constructors.
+An Action should not be created by hand but instead by using one of the constructors.
 
 # Fields
 - `frames::Frames`: the frames relative to the parent [`Object`](@ref)
