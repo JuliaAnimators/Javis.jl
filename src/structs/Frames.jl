@@ -57,9 +57,10 @@ function get_frames(parent, elem, frames::Symbol, last_frames::UnitRange; is_fir
     elseif frames === :all
         return 1:maximum(CURRENT_VIDEO[1].background_frames)
     else
-        backtick_frame_symbol = map(x->"`:$x`", FRAMES_SYMBOL)
+        backtick_frame_symbol = map(x -> "`:$x`", FRAMES_SYMBOL)
         allowed_frames_str = join(backtick_frame_symbol, ", ", " and ")
-        throw(ArgumentError("Currently the only symbols supported for defining frames are $allowed_frames_str."))
+        err_msg = "Currently the only symbols supported for defining frames are $allowed_frames_str."
+        throw(ArgumentError(err_msg))
     end
 end
 
