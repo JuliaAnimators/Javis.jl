@@ -45,7 +45,7 @@ end
 """
     get_frames(parent, elem, frames::Symbol, last_frames::UnitRange; is_first=false)
 
-Get the frames based on a symbol (currently only `same`) and the `last_frames`.
+Get the frames based on a symbol defined in `FRAMES_SYMBOL` and the `last_frames`.
 Throw `ArgumentError` if symbol is unknown
 """
 function get_frames(parent, elem, frames::Symbol, last_frames::UnitRange; is_first = false)
@@ -57,7 +57,9 @@ function get_frames(parent, elem, frames::Symbol, last_frames::UnitRange; is_fir
     elseif frames === :all
         return 1:maximum(CURRENT_VIDEO[1].background_frames)
     else
-        throw(ArgumentError("Currently the only symbols supported for defining frames are `:same` and `:all`."))
+        backtick_frame_symbol = map(x->"`:$x`", FRAMES_SYMBOL)
+        allowed_frames_str = join(backtick_frame_symbol, ", ", " and ")
+        throw(ArgumentError("Currently the only symbols supported for defining frames are $allowed_frames_str."))
     end
 end
 

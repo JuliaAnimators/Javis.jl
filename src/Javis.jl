@@ -146,7 +146,9 @@ function preprocess_frames!(objects::Vector{<:AbstractObject})
     end
     frames = unique(frames)
     if !(frames ⊆ CURRENT_VIDEO[1].background_frames)
-        @warn("Some of the frames don't have a background. In this case: $(setdiff(frames, CURRENT_VIDEO[1].background_frames)))")
+        @warn(
+            "Some of the frames don't have a background. In this case: $(setdiff(frames, CURRENT_VIDEO[1].background_frames)))"
+        )
     end
 
     if isempty(CURRENT_OBJECT)
@@ -237,11 +239,12 @@ function render(
     if ext == ".gif"
         # generate a colorpalette first so ffmpeg does not have to guess it
         ffmpeg_exe(`-loglevel $(ffmpeg_loglevel) -i $(tempdirectory)/%10d.png -vf
-                    "palettegen=stats_mode=diff" -y "$(tempdirectory)/palette.bmp"`)
+                    palettegen $(tempdirectory)/palette.png`)
         # then apply the palette to get better results
-        ffmpeg_exe(`-loglevel $(ffmpeg_loglevel) -framerate $framerate -i $(tempdirectory)/%10d.png -i
-                    "$(tempdirectory)/palette.bmp" -lavfi
-                    "paletteuse=dither=sierra2_4a" -y $pathname`)
+        ffmpeg_exe(
+            `-loglevel $(ffmpeg_loglevel) -framerate $framerate -i $(tempdirectory)/%10d.png -i
+               $(tempdirectory)/palette.png -lavfi paletteuse -y $pathname`,
+        )
     elseif ext == ".mp4"
         finishencode!(video_encoder, video_io)
         close(video_io)

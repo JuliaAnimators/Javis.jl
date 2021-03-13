@@ -39,8 +39,8 @@ Background(1:220, ground)
 
 # let the points appear one by one
 objects = [
-    Object(frame_start:200, (args...) -> circle(O, 10, :fill), points[i])
-    for (frame_start, i) in zip(1:2:(2 * npoints), 1:npoints)
+    Object(frame_start:200, (args...) -> circle(O, 10, :fill), points[i]) for
+    (frame_start, i) in zip(1:2:(2 * npoints), 1:npoints)
 ]
 
 # easiest to move canvas to draw at origin
@@ -65,4 +65,4 @@ act!(red_circle, Action(1:20, appear(:fade)))
 act!(red_circle, Action(21:70, sineio(), follow_path(bezierpathpoly .- first(points))))
 act!(red_circle, Action(71:80, disappear(:fade)))
 
-render(video; pathname = "gifs/follow_bezier_path.gif")
+render(video; pathname = joinpath(@__DIR__, "gifs/follow_bezier_path.gif"))
