@@ -238,6 +238,22 @@
         @test Javis.get_frames(objects[2]) == 1:50
         @test Javis.get_frames(objects[2].actions[1]) == 1:50
 
+        demo = Video(500, 500)
+        back = Background(1:50, (args...) -> 1)
+        obj = Object(1:20, (args...) -> 1)
+        act!(obj, Action(anim_scale(1, 2)))
+        obj2 = Object(:all, (args...) -> 1)
+        act!(obj2, Action(anim_scale(1, 3)))
+
+        objects = [back, obj]
+
+        Javis.preprocess_frames!(demo.objects)
+        @test Javis.get_frames(objects[1]) == 1:50
+        @test Javis.get_frames(obj) == 1:20
+        @test Javis.get_frames(obj.actions[1]) == 1:20
+        @test Javis.get_frames(obj2) == 1:50
+        @test Javis.get_frames(obj2.actions[1]) == 1:50
+
 
         demo = Video(500, 500)
         back = Background(1:50, (args...) -> 1)
