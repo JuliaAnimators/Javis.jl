@@ -3,8 +3,11 @@
 include("latexsvgfile.jl")
 latex(text::LaTeXString) = latex(text, O)
 latex(text::LaTeXString, pos::Point) = latex(text, pos, :stroke)
+latex(text::LaTeXString, pos::Point, valign::Symbol, halign::Symbol) =
+    latex(text, pos, :stroke, valign = valign, halign = halign)
 latex(text::LaTeXString, x, y) = latex(text, Point(x, y), :stroke)
-
+latex(text::LaTeXString, x, y, valign::Symbol, halign::Symbol) =
+    latex(text, Point(x, y), :stroke, valign = valign, halign = halign)
 """
     latex(text::LaTeXString, pos::Point, object::Symbol)
 
@@ -56,14 +59,20 @@ render(demo; pathname = "latex.gif")
 ```
 
 """
-function latex(text::LaTeXString, pos::Point, draw_object::Symbol)
+function latex(
+    text::LaTeXString,
+    pos::Point,
+    draw_object::Symbol;
+    valign = :top,
+    halign = :left,
+)
     object = CURRENT_OBJECT[1]
     opts = object.opts
     t = get(opts, :draw_text_t, 1.0)
-    return animate_latex(text, pos, t, draw_object)
+    return animate_latex(text, pos, t, valign, halign, draw_object)
 end
 
-function animate_latex(text, pos::Point, t, object)
+function animate_latex(text, pos::Point, t, valign::Symbol, halign::Symbol, object)
     svg = get_latex_svg(text)
     object == :stroke && (object = :fill)
     if t >= 1
@@ -74,16 +83,34 @@ function animate_latex(text, pos::Point, t, object)
         return
     end
 
-    pathsvg(svg)
-    polygon = pathtopoly()
-    w, h = polywh(polygon)
+    w, h = svgwh(svg)
 
-    translate(pos)
+    halignment = findfirst(isequal(halign), [:left, :center, :right, :centre])
+
+    # if unspecified or wrong, default to left, also treat UK spelling centre as center
+    if halignment === nothing
+        halignment = 1
+    elseif halignment == 4
+        halignment = 2
+    end
+
+    textpointx = pos.x - [0, w / 2, w][halignment]
+
+    valignment = findfirst(isequal(valign), [:top, :middle, :bottom])
+
+    # if unspecified or wrong, default to baseline
+    if valignment === nothing
+        valignment = 3
+    end
+
+    textpointy = pos.y - [0, h / 2, h][valignment]
+
+    translate(Point(textpointx, textpointy))
     pathsvg(svg)
     do_action(:clip)
     r = t * sqrt(w^2 + h^2)
     circle(O, r, :fill)
-    translate(-pos)
+    translate(-Point(textpointx, textpointy))
 end
 
 """

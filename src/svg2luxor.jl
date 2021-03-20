@@ -230,6 +230,22 @@ set_attr(::Val{:id}, args...) = nothing
 set_attr(t, args...) = @warn "No attr match for $t"
 
 """
+    svgwh(svg)
+
+Return width and height of svg on screen.
+"""
+function svgwh(svg)
+    fsize = get_current_setting().fontsize
+    xdoc = parse_string(svg)
+    xroot = root(xdoc)
+    x, y, width, height = parse.(Float64, split(attribute(xroot, "viewBox")))
+    # remove ex in the end
+    ex_width = parse(Float64, attribute(xroot, "width")[1:(end - 2)])
+    ex_height = parse(Float64, attribute(xroot, "height")[1:(end - 2)])
+    return (fsize / 2) .* (ex_width, ex_height)
+end
+
+"""
     pathsvg(svg)
 
 Convert an svg to a path using Luxor. Normally called via the `latex` command.
