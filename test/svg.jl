@@ -43,6 +43,42 @@ end
     rm("images/0000000001.png")
 end
 
+@testset "latex alignment in function" begin
+    function latex_ground(args...)
+        background("white")
+        sethue("black")
+    end
+
+    video = Video(400, 200)
+    Background(1:1, latex_ground)
+    Object((args...) -> latex(L"8", O + Point(20, 20), :bottom, :right))
+    Object((args...) -> latex(L"8", O + Point(20, 20), :bottom, :left))
+    Object((args...) -> latex(L"8", O + Point(20, 20), :top, :right))
+    Object((args...) -> latex(L"8", O + Point(20, 20), :top, :left))
+    Object((args...) -> latex(L"8", O, :middle, :center))
+    Object(
+        (args...) -> Javis.animate_latex(L"8", O - Point(20, 20), 2, :top, :left, :stroke),
+    )
+    Object(
+        (args...) ->
+            Javis.animate_latex(L"8", O - Point(20, 20), 2, :bottom, :left, :stroke),
+    )
+    Object(
+        (args...) -> Javis.animate_latex(L"8", O - Point(20, 20), 2, :top, :right, :stroke),
+    )
+    Object(
+        (args...) ->
+            Javis.animate_latex(L"8", O - Point(20, 20), 2, :bottom, :right, :stroke),
+    )
+    Object(
+        (args...) ->
+            Javis.animate_latex(L"8", O - Point(-20, 20), 0, :middle, :center, :stroke),
+    )
+    render(video; tempdirectory = "images", pathname = "")
+    @test_reference "refs/latex_alignment.png" load("images/0000000001.png")
+    rm("images/0000000001.png")
+end
+
 @testset "LaTeX 3x3 matrix" begin
     function latex_ground(args...)
         translate(-200, -100)

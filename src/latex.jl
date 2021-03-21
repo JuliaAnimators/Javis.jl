@@ -9,7 +9,7 @@ latex(text::LaTeXString, x, y) = latex(text, Point(x, y), :stroke)
 latex(text::LaTeXString, x, y, valign::Symbol, halign::Symbol) =
     latex(text, Point(x, y), :stroke, valign = valign, halign = halign)
 """
-    latex(text::LaTeXString, pos::Point, object::Symbol)
+    latex(text::LaTeXString, pos::Point, object::Symbol, valign = :top, halign = :left)
 
 Add the latex string `text` to the top left corner of the LaTeX path.
 Can be added to `Luxor.jl` graphics via [`Video`](@ref).
@@ -23,6 +23,7 @@ Can be added to `Luxor.jl` graphics via [`Video`](@ref).
 - **The `latex` method must be called from within an [`Object`](@ref).**
 
 # Arguments
+Positional:
 - `text::LaTeXString`: a LaTeX string to render.
 - `pos::Point`: position of the upper left corner of the latex text. Default: `O`
     - can be written as `x, y` instead of `Point(x, y)`
@@ -30,6 +31,12 @@ Can be added to `Luxor.jl` graphics via [`Video`](@ref).
 Available objects:
   - `:stroke` - Draws the latex string on the canvas. For more info check `Luxor.strokepath`
   - `:path` - Creates the path of the latex string but does not render it to the canvas.
+
+Keyword:
+  - `valign::Symbol`: vertical alignment with respect to the specified `pos` parameter. Default `:top`.
+      - Options available are `:top`, `:middle`, `:bottom`
+  - `halign::Symbol`: horizontal alignment with respect to the specified `pos` parameter Default `:left`.
+      - Options available are `:left`, `:center/:centre`, `:right`
 
 # Throws
 - `IOError`: mathjax-node-cli is not installed
@@ -75,44 +82,43 @@ end
 function animate_latex(text, pos::Point, t, valign::Symbol, halign::Symbol, object)
     svg = get_latex_svg(text)
     object == :stroke && (object = :fill)
-    if t >= 1
-        translate(pos)
-        pathsvg(svg)
-        do_action(object)
-        translate(-pos)
-        return
-    end
 
     w, h = svgwh(svg)
+    halignment = findfirst(isequal(halign), (:left, :center, :right, :centre))
 
-    halignment = findfirst(isequal(halign), [:left, :center, :right, :centre])
-
-    # if unspecified or wrong, default to left, also treat UK spelling centre as center
     if halignment === nothing
+        @warn "Unknown horizontal alignment option: $(halign). Defaulting to left alignment"
         halignment = 1
     elseif halignment == 4
         halignment = 2
     end
 
-    textpointx = pos.x - [0, w / 2, w][halignment]
+    textpointx = pos.x - (0, w / 2, w)[halignment]
+    valignment = findfirst(isequal(valign), (:top, :middle, :bottom))
 
-    valignment = findfirst(isequal(valign), [:top, :middle, :bottom])
-
-    # if unspecified or wrong, default to baseline
     if valignment === nothing
-        valignment = 3
+        @warn "Unknown vertical alignment option: $(valign). Defaulting to top alignment"
+        valignment = 1
     end
 
-    textpointy = pos.y - [0, h / 2, h][valignment]
+    textpointy = pos.y - (0, h / 2, h)[valignment]
+    upperleft = Point(textpointx, textpointy)
 
-    translate(Point(textpointx, textpointy))
+    if t >= 1
+        translate(upperleft)
+        pathsvg(svg)
+        do_action(object)
+        translate(-upperleft)
+        return
+    end
+
+    translate(upperleft)
     pathsvg(svg)
     do_action(:clip)
     r = t * sqrt(w^2 + h^2)
     circle(O, r, :fill)
-    translate(-Point(textpointx, textpointy))
+    translate(-upperleft)
 end
-
 """
     strip_eq(text::LaTeXString)
 
