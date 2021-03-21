@@ -56,7 +56,7 @@ end
     for i in 1:25
         rm("images/$(lpad(i, 10, "0")).png")
     end
-    rm("images/palette.bmp")
+    rm("images/palette.png")
     rm("dancing.gif")
 end
 
@@ -636,7 +636,7 @@ end
     for i in 1:100
         rm("images/$(lpad(i, 10, "0")).png")
     end
-    rm("images/palette.bmp")
+    rm("images/palette.png")
 end
 
 @testset "test default kwargs" begin
