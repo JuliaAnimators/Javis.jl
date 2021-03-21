@@ -2,11 +2,14 @@ module Javis
 
 using Animations
 import Cairo: CairoImageSurface, image
+using ColorTypes: ARGB32
 using FFMPEG
 using Gtk
 using GtkReactive
 using Hungarian
 using Images
+import Interact
+import Interact: @map, Widget, Widgets, @layout!, hbox, vbox # not exporting textbox & slider due to possible conflicts with Gtk & luxor
 using LaTeXStrings
 using LightXML
 import Luxor
@@ -165,8 +168,7 @@ end
         framerate=30,
         pathname="javis_GIBBERISH.gif",
         tempdirectory="",
-        liveview=false,
-        ffmpeg_loglevel="panic"
+        liveview=false
     )
 
 Renders all previously defined [`Object`](@ref) drawings to the user-defined `Video` as a gif or mp4.
@@ -181,9 +183,6 @@ Renders all previously defined [`Object`](@ref) drawings to the user-defined `Vi
 - `tempdirectory::String`: The folder where each frame is stored
     Defaults to a temporary directory when not set
 - `liveview::Bool`: Causes a live image viewer to appear to assist with animation development
-- `ffmpeg_loglevel::String`:
-    - Can be used if there are errors with ffmpeg. Defaults to panic:
-    All other options are described here: https://ffmpeg.org/ffmpeg.html
 """
 function render(
     video::Video;
@@ -191,14 +190,17 @@ function render(
     pathname = "javis_$(randstring(7)).gif",
     liveview = false,
     tempdirectory = "",
-    ffmpeg_loglevel = "panic",
 )
     objects = video.objects
     frames = preprocess_frames!(objects)
 
     if liveview == true
-        _javis_viewer(video, length(frames), objects)
-        return "Live preview started."
+        if isdefined(Main, :IJulia) && Main.IJulia.inited
+            return _jupyter_viewer(video, length(frames), objects)
+        else
+            _javis_viewer(video, length(frames), objects)
+            return "Live Preview Started"
+        end
     end
 
     path, ext = "", ""
@@ -252,8 +254,15 @@ function render(
     else
         @error "Currently, only gif and mp4 creation is supported. Not a $ext."
     end
+
+    # even if liveview = false, show the rendered gif in the cell output
+    if isdefined(Main, :IJulia) && Main.IJulia.inited
+        display(MIME("text/html"), """<img src="$(pathname)">""")
+    end
+
     return pathname
 end
+
 
 """
     get_javis_frame(video, objects, frame)
@@ -319,9 +328,6 @@ function draw_object(object, video, frame, origin_matrix)
     # translate the object to it's starting position.
     # It's better to draw the object always at the origin and use `star_pos` to shift it
     translate(get_position(object.start_pos))
-
-    # reset change keywords
-    empty!(object.change_keywords)
 
     # first compute and perform the global transformations of this object
     # relative frame number for actions

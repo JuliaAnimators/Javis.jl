@@ -2,6 +2,8 @@ using Animations
 using GtkReactive
 using Gtk: get_gtk_property, visible
 using Images
+import Interact
+import Interact: @map, Widget, Widgets, @layout!, hbox, vbox
 using Javis
 import Latexify: latexify
 using LaTeXStrings
@@ -25,11 +27,6 @@ function ground_color(color_bg, color_pen, framenumber)
     background(color_bg)
     sethue(color_pen)
     return framenumber
-end
-
-function circle_with_color(position, radius, action, color)
-    sethue(color)
-    circle(position, radius, action)
 end
 
 @testset "Unit" begin

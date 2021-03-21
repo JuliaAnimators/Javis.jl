@@ -160,7 +160,6 @@ act!(
 [`change`](@ref) is used here to change the given radius of the circle in `element` from `1` to `12`, from `12` to `20`, `20` to `7`, and finally `7` to `1`.
 This updates the circle being drawn and gives a growing or shrinking effect.
 [`change`](@ref) interpolates the values in between what we want to change the value from to what the value we want to change to. 
-It can be additionally used to simply set a value without interpolation (since v0.3.3).
 
 That scaling looks like this:
 
