@@ -146,7 +146,7 @@ The following code places a vertical and horizontal axis as well as an inscribed
 
 ```julia
 ...
-inside_circle = Object((args...) -> circ(O, "black", :stroke, 170))
+inside_circle = Object((args...) -> circ(O, "black", :stroke, 140, "longdashed"))
 vert_line = Object(
     (args...) ->
         draw_line(Point(0, -170), Point(0, 170), "black", :stroke, "longdashed"),
@@ -438,7 +438,7 @@ demo = Video(500, 500)
 
 anim_background = Background(1:10, ground)
 head = Object((args...) -> circ(O, "black", :stroke, 170))
-inside_circle = Object((args...) -> circ(O, "black", :stroke, 170))
+inside_circle = Object((args...) -> circ(O, "black", :stroke, 140, "longdashed"))
 vert_line = Object(
     (args...) ->
         draw_line(Point(0, -170), Point(0, 170), "black", :stroke, "longdashed"),
