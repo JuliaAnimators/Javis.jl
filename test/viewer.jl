@@ -63,7 +63,7 @@ end
     objects = vid.objects
     frames = Javis.preprocess_frames!(objects)
 
-    img = Javis._jupyter_viewer(vid, length(frames), objects)
+    img = Javis._jupyter_viewer(vid, length(frames), objects, 30)
     @test img.output.val == Javis.get_javis_frame(vid, objects, 1)
 
     txt = Interact.textbox(1:length(frames), typ = "Frame", value = 2)
