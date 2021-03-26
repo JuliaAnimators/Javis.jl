@@ -166,7 +166,8 @@ end
         pathname="javis_GIBBERISH.gif",
         tempdirectory="",
         liveview=false,
-        ffmpeg_loglevel="panic"
+        ffmpeg_loglevel="panic",
+        compute_frames = :all
     )
 
 Renders all previously defined [`Object`](@ref) drawings to the user-defined `Video` as a gif or mp4.
@@ -184,6 +185,8 @@ Renders all previously defined [`Object`](@ref) drawings to the user-defined `Vi
 - `ffmpeg_loglevel::String`:
     - Can be used if there are errors with ffmpeg. Defaults to panic:
     All other options are described here: https://ffmpeg.org/ffmpeg.html
+- `compute_frames`: If specified to `:latest` and `dev_mode` is set for the current [`Video`](@ref), 
+    then it reuses frames which do not have changed since last render. This speeds up the rendering time.
 """
 function render(
     video::Video;
@@ -192,6 +195,7 @@ function render(
     liveview = false,
     tempdirectory = "",
     ffmpeg_loglevel = "panic",
+    compute_frames = :all,
 )
     objects = video.objects
     frames = preprocess_frames!(objects)
@@ -217,10 +221,24 @@ function render(
     end
 
     filecounter = 1
+
+    dev_mode = get(CURRENT_VIDEO[1].defs, :dev_mode, false)
+    if dev_mode
+        last_frames = get(CURRENT_VIDEO[1].defs, :last_frames, frames)
+        tempdirectory = ".dev"
+    end
+
     @showprogress 1 "Rendering frames..." for frame in frames
-        frame_image = convert.(RGB, get_javis_frame(video, objects, frame))
-        if !isempty(tempdirectory)
-            Images.save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
+        if compute_frames == :latest && frame in last_frames
+            frame_image = Images.load("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png")
+        else
+            frame_image = convert.(RGB, get_javis_frame(video, objects, frame))
+            if !isempty(tempdirectory)
+                Images.save(
+                    "$(tempdirectory)/$(lpad(filecounter, 10, "0")).png",
+                    frame_image,
+                )
+            end
         end
         if render_mp4
             if frame == first(frames)
@@ -251,6 +269,10 @@ function render(
         mux("temp.stream", pathname, framerate; silent = true)
     else
         @error "Currently, only gif and mp4 creation is supported. Not a $ext."
+    end
+
+    if dev_mode
+        CURRENT_VIDEO[1].defs[:last_frames] = frames
     end
     return pathname
 end

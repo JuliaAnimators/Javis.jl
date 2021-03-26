@@ -7,3 +7,4 @@ Manifest.toml
 test.png
 test/current/
 .commit
+.dev
