@@ -8,8 +8,8 @@ struct PlutoViewer
     filename::String
 end
 
-function Base.show(io::IO, ::MIME"image/png", w::PlutoViewer)
-    write(io, read(w.filename))
+function Base.show(io::IO, ::MIME"image/png", v::PlutoViewer)
+    write(io, read(v.filename))
 end
 
 """
