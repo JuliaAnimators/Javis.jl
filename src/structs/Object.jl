@@ -73,7 +73,8 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
     if isempty(CURRENT_VIDEO)
         throw(ErrorException("A `Video` must be defined before an `Object`"))
     end
-    CURRENT_VIDEO[1].defs[:last_frames] = frames
+
+    update_lastframes(frames)
     opts = Dict(kwargs...)
 
     if get(opts, :in_global_layer, false) && frames isa UnitRange
@@ -129,11 +130,13 @@ Here the scaling is applied to the rectangle for the first fifty frames.
    - `action::Vector{<:AbstractAction}` - the actions applied to the objects
 """
 function act!(object::AbstractObject, action::AbstractAction)
+    update_lastframes(action.frames)
     push!(object.actions, copy(action))
 end
 
 function act!(object::AbstractObject, actions::Vector{<:AbstractAction})
     for action in actions
+        update_lastframes(action.frames)
         act!(object, action)
     end
 end
