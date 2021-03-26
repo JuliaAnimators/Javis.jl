@@ -268,7 +268,7 @@ end
 """
 _pluto_viewer(video::Video, frames::Int, actions::Vector)
 
-Creates an interactive viewer in a Pluto Noteboo by storing all the frames in-memory
+Creates an interactive viewer in a Pluto Notebook by storing all the frames in-memory
 ```
 # In separate Pluto notebook cells
 using PlutoUI

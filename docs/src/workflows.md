@@ -54,5 +54,26 @@ To make the Jupyter Notebook experience with Javis more easy, videos rendered as
 ![](assets/jupyter_viewer.gif)
 
 ## Workflow for Pluto Notebooks
+The workflow for Pluto notebooks is almost similar to the one for Jupyter Notebook.
+To be able to use the interactivity, you'll have to manually import the `PlutoUI` pacakge and use the `@bind` macro.
 
-[Coming Soon!]
+eg:
+```julia
+...
+# to be typed in different cells
+using PlutoUI
+
+anim = render(video, liveview = true)
+
+# frames: number of frames
+@bind x Slider(1:1:frames)
+
+anim[x]
+```
+![](assets/pluto_viewer_live.gif)
+
+
+If you don't want to use the interactivity and simply display the output, set the `liveviewer` flag as `false` and Pluto will display the gif.
+
+![](assets/pluto_viewer.gif)
+

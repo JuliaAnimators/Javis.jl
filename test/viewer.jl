@@ -82,7 +82,7 @@ end
 end
 
 @testset "Pluto Viewer" begin
-    v = PlutoViewer("foo.png")
+    v = Javis.PlutoViewer("foo.png")
     astar(args...; do_action = :stroke) = star(O, 50, 5, 0.5, 0, do_action)
     acirc(args...; do_action = :stroke) = circle(Point(100, 100), 50, do_action)
 
