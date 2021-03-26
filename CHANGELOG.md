@@ -1,7 +1,7 @@
 # Javis.jl - Changelog
 
-## v0.4.1
-- added support for Jupyter notebooks
+## v0.5.0
+- added support for Jupyter and Pluto notebooks
 
 ## v0.4.0
 - added ImageIO and ImageMagick as dependencies

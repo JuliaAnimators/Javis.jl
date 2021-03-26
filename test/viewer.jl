@@ -98,5 +98,5 @@ end
     img = Javis._pluto_viewer(vid, length(frames), objects)
     for i in 1:length(img)
         @test img[i] == Javis.get_javis_frame(vid, objects, i)
-    end    
+    end
 end
