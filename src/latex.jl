@@ -9,7 +9,7 @@ latex(text::LaTeXString, x, y) = latex(text, Point(x, y), :stroke)
 latex(text::LaTeXString, x, y, valign::Symbol, halign::Symbol) =
     latex(text, Point(x, y), :stroke, valign = valign, halign = halign)
 """
-    latex(text::LaTeXString, pos::Point, object::Symbol; valign = :top, halign = :left)
+    latex(text::LaTeXString, pos::Point, object::Symbol; valign::Symbol = :top, halign::Symbol = :left)
 
 Add the latex string `text` to the top left corner of the LaTeX path.
 Can be added to `Luxor.jl` graphics via [`Video`](@ref).
@@ -27,14 +27,16 @@ Can be added to `Luxor.jl` graphics via [`Video`](@ref).
 - `pos::Point`: position of the upper left corner of the latex text. Default: `O`
     - can be written as `x, y` instead of `Point(x, y)`
 - `object::Symbol`: graphics objects defined by `Luxor.jl`. Default `:stroke`.
-Available objects:
-  - `:stroke` - Draws the latex string on the canvas. For more info check `Luxor.strokepath`
-  - `:path` - Creates the path of the latex string but does not render it to the canvas.
+	- `:stroke` - Draws the latex string on the canvas. For more info check `Luxor.strokepath`
+	- `:path` - Creates the path of the latex string but does not render it to the canvas.
 
 # Keywords:
-  - `valign::Symbol=:top`: vertical alignment with respect to the specified `pos` parameter.
+  - `valign::Symbol`: vertical alignment with respect to the specified `pos` parameter. Default: `:top`
+
       - Options available are `:top`, `:middle`, `:bottom`
-  - `halign::Symbol=:left`: horizontal alignment with respect to the specified `pos` parameter.
+
+  - `halign::Symbol`: horizontal alignment with respect to the specified `pos` parameter. Default: `:left`
+
       - Options available are `:left`, `:center/:centre`, `:right`
 
 # Throws
@@ -121,7 +123,7 @@ end
 """
     strip_eq(text::LaTeXString)
 
-Strips `\$\$` from `text.s` if present and returns the resulting string. 
+Strips `\$\$` from `text.s` if present and returns the resulting string.
 
 # Arguments
 - `text::LaTeXString`: a LaTeX string
