@@ -139,7 +139,7 @@ end
     red_ball = Object(RFrames(-24:0), (args...) -> circ_ret_trans(O, "red"), p1)
     act!(red_ball, Action(anim_rotate_around(from_rot, to_rot, O)))
 
-    blue_ball = Object(1:25, (args...) -> circ_ret_trans(O, "blue"), p2)
+    blue_ball = Object(:all, (args...) -> circ_ret_trans(O, "blue"), p2)
     act!(blue_ball, Action(anim_rotate_around(to_rot, from_rot, red_ball)))
     path_red =
         Object(1:25, (video, args...) -> path!(path_of_red, get_position(red_ball), "red"))
