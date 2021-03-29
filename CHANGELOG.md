@@ -1,6 +1,6 @@
 # Javis.jl - Changelog
 
-## Unreleased
+## v0.5.0 (29th of March 2021)
 - `:all` can now be used to have an Object persist for all frames of an animation
 - added support for Jupyter notebooks
 
