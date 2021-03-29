@@ -50,3 +50,33 @@ end
 
     @test last_frame != first_frame
 end
+
+@testset "Jupyter Viewer" begin
+    astar(args...; do_action = :stroke) = star(O, 50, 5, 0.5, 0, do_action)
+    acirc(args...; do_action = :stroke) = circle(Point(100, 100), 50, do_action)
+
+    vid = Video(500, 500)
+    back = Background(1:100, ground)
+    star_obj = Object(1:100, astar)
+    act!(star_obj, Action(morph_to(acirc; do_action = :fill)))
+
+    objects = vid.objects
+    frames = Javis.preprocess_frames!(objects)
+
+    img = Javis._jupyter_viewer(vid, length(frames), objects, 30)
+    @test img.output.val == Javis.get_javis_frame(vid, objects, 1)
+
+    txt = Interact.textbox(1:length(frames), typ = "Frame", value = 2)
+    frm = Interact.slider(1:length(frames), label = "Frame", value = txt[] + 1)
+    @test Javis.get_javis_frame(vid, objects, 2) ==
+          Javis.get_javis_frame(vid, objects, txt[])
+    @test Javis.get_javis_frame(vid, objects, 3) ==
+          Javis.get_javis_frame(vid, objects, frm[])
+
+    for i in 4:length(frames)
+        output = Javis.get_javis_frame(vid, objects, i)
+        wdg = Widget(["frm" => frm, "txt" => txt], output = output)
+        img = @layout! wdg vbox(hbox(:frm, :txt), output)
+        @test img.output.val == output
+    end
+end

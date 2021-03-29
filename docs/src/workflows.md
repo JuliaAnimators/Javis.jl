@@ -32,10 +32,27 @@ In the future, we will add a caching feature for the Viewer such that all frames
 
 ## Workflow for Jupyter Notebooks
 
-[Coming Soon!]
+Javis now supports a minimal version of the Javis viewer using the [Interact.jl](https://github.com/JuliaGizmos/Interact.jl) package. It automatically detects the `IJulia`(Jupyter Notebook environment).
+Here's what it looks like with the `liveviewer` flag set to `true` :
+
+![](assets/jupyter_viewer_interact.gif)
+
+> NOTE: For animations involving heavy computation this may be a bit laggy.
+
+### Common Problems:
+- WebIO error (WebIO is not installed)
+    
+    The comment in discussion [here](https://github.com/Wikunia/Javis.jl/pull/288#issuecomment-747671260) should help out with the problem.
+
+- No change on dragging the silder/changing the value in textbox
+
+    Try restarting the kernel. This might problably be an error with the WebIO integration.
+
+
+To make the Jupyter Notebook experience with Javis more easy, videos rendered as gifs via setting the `liveview` flag as `false`, are directly viewed as `MIME` elements in the notebook as seen below: 
+
+![](assets/jupyter_viewer.gif)
 
 ## Workflow for Pluto Notebooks
 
 [Coming Soon!]
-
-

@@ -7,6 +7,8 @@ using Gtk
 using GtkReactive
 using Hungarian
 using Images
+import Interact
+import Interact: @map, Widget, Widgets, @layout!, hbox, vbox # not exporting textbox & slider due to possible conflicts with Gtk & luxor
 using LaTeXStrings
 using LightXML
 import Luxor
@@ -197,8 +199,12 @@ function render(
     frames = preprocess_frames!(objects)
 
     if liveview == true
-        _javis_viewer(video, length(frames), objects)
-        return "Live preview started."
+        if isdefined(Main, :IJulia) && Main.IJulia.inited
+            return _jupyter_viewer(video, length(frames), objects, framerate)
+        else
+            _javis_viewer(video, length(frames), objects)
+            return "Live Preview Started"
+        end
     end
 
     path, ext = "", ""
@@ -252,8 +258,15 @@ function render(
     else
         @error "Currently, only gif and mp4 creation is supported. Not a $ext."
     end
+
+    # even if liveview = false, show the rendered gif in the cell output
+    if isdefined(Main, :IJulia) && Main.IJulia.inited
+        display(MIME("text/html"), """<img src="$(pathname)">""")
+    end
+
     return pathname
 end
+
 
 """
     get_javis_frame(video, objects, frame)

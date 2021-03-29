@@ -2,6 +2,8 @@ using Animations
 using GtkReactive
 using Gtk: get_gtk_property, visible
 using Images
+import Interact
+import Interact: @map, Widget, Widgets, @layout!, hbox, vbox
 using Javis
 import Latexify: latexify
 using LaTeXStrings
