@@ -130,13 +130,13 @@ Here the scaling is applied to the rectangle for the first fifty frames.
    - `action::Vector{<:AbstractAction}` - the actions applied to the objects
 """
 function act!(object::AbstractObject, action::AbstractAction)
-    update_lastframes(action.frames)
+    update_lastframes(action.frames.frames)
     push!(object.actions, copy(action))
 end
 
 function act!(object::AbstractObject, actions::Vector{<:AbstractAction})
     for action in actions
-        update_lastframes(action.frames)
+        update_lastframes(action.frames.frames)
         act!(object, action)
     end
 end

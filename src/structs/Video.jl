@@ -16,6 +16,7 @@ mutable struct Video
     objects::Vector{AbstractObject}
     background_frames::Vector{Int}
     defs::Dict{Symbol,Any}
+    frame_images::Dict{Int, Any}
 end
 
 """
@@ -45,6 +46,7 @@ function Video(width, height; dev_mode = false)
         AbstractObject[],
         Int[],
         Dict{Symbol,Any}(:dev_mode => dev_mode),
+        Dict{Int, Any}()
     )
     if isempty(CURRENT_VIDEO)
         push!(CURRENT_VIDEO, video)
@@ -70,8 +72,12 @@ function update_lastframes(frames::Any)
             frames = Vector{Int}(frames)
         end
         if get(CURRENT_VIDEO[1].defs, :dev_mode, false)
+            last_frames = get(CURRENT_VIDEO[1].defs, :last_frames, Vector{Int}())
             CURRENT_VIDEO[1].defs[:last_frames] =
-                setdiff(get(CURRENT_VIDEO[1].defs, :last_frames, Vector{Int}()), frames)
+                setdiff(last_frames, frames)
+            for frame in frames
+                delete!(CURRENT_VIDEO[1].frame_images, frame)
+            end
         end
     catch e
         @warn "Argument `frames` with type $(typeof(frames)) passed to `update_lastframes` must have integer vector like type hence ignoring update."

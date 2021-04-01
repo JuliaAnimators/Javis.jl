@@ -225,14 +225,16 @@ function render(
     dev_mode = get(CURRENT_VIDEO[1].defs, :dev_mode, false)
     if dev_mode
         last_frames = get(CURRENT_VIDEO[1].defs, :last_frames, frames)
-        tempdirectory = ".dev"
     end
 
     @showprogress 1 "Rendering frames..." for frame in frames
-        if compute_frames == :latest && frame in last_frames
-            frame_image = Images.load("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png")
+        if compute_frames == :latest && size(last_frames)[1] != 0
+            frame_image = CURRENT_VIDEO[1].frame_images[frame]
         else
             frame_image = convert.(RGB, get_javis_frame(video, objects, frame))
+            if dev_mode
+                CURRENT_VIDEO[1].frame_images[frame] = frame_image
+            end
             if !isempty(tempdirectory)
                 Images.save(
                     "$(tempdirectory)/$(lpad(filecounter, 10, "0")).png",
