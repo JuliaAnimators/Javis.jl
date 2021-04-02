@@ -268,8 +268,6 @@ function render(
     elseif isdefined(Main, :PlutoRunner)
         return PlutoViewer(pathname)
     end
-    end
-
     return pathname
 end
 
