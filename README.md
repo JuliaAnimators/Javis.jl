@@ -108,11 +108,12 @@ We want to thank a couple of people who helped make this possible.
 
 ### Contributors 
 
-- [@sudomaze](https://github.com/sudomaze) for helping out with tutorials and feedback for v0.1.0.
+- [@sudomaze](https://github.com/sudomaze) for helping out with tutorials and feedback for v0.1.0
 - [@mythreyiramesh](https://github.com/mythreyiramesh) helping with cleaning up tutorials 
 - [@briochemc](https://github.com/briochemc) for spotting and cleaning up tutorial typos and grammar
 - [@ric-cioffi](https://github.com/ric-cioffi) for adding the Julia Logo example and for feedback
 - [@findmyway](https://github.com/findmyway) for fixing typos in documentation
 - [@ArbitRandomUser](https://github.com/ArbitRandomUser) for cleaning up the LaTeX code base
 - [@agerlach](https://github.com/agerlach) for improving the internal LaTeX parsing
-- [@matbesancon](https://github.com/matbesancon) for adding in an example on projections and for identifying an issue with Javis image processing.
+- [@matbesancon](https://github.com/matbesancon) for adding in an example on projections and for identifying an issue with Javis image processing
+- [@Sov-trotter](https://github.com/Sov-trotter) for implementing the Jupyter viewer

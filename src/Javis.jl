@@ -18,7 +18,7 @@ using Random
 using Statistics
 using VideoIO
 
-const FRAMES_SYMBOL = [:same]
+const FRAMES_SYMBOL = [:same, :all]
 
 abstract type AbstractAction end
 abstract type AbstractObject end
@@ -201,6 +201,7 @@ function render(
     if liveview == true
         if isdefined(Main, :IJulia) && Main.IJulia.inited
             return _jupyter_viewer(video, length(frames), objects, framerate)
+
         elseif isdefined(Main, :PlutoRunner)
             return _pluto_viewer(video, length(frames), objects)
         else
@@ -267,6 +268,8 @@ function render(
     elseif isdefined(Main, :PlutoRunner)
         return PlutoViewer(pathname)
     end
+    end
+
     return pathname
 end
 

@@ -264,7 +264,6 @@ function _jupyter_viewer(video::Video, frames::Int, objects::Vector, framerate::
     @layout! wdg vbox(hbox(:f, :t), output)
 end
 
-
 """
 _pluto_viewer(video::Video, frames::Int, actions::Vector)
 

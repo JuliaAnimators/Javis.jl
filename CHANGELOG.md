@@ -1,9 +1,11 @@
 # Javis.jl - Changelog
 
 ## v0.5.0
-- added support for Jupyter and Pluto notebooks
+- `:all` can now be used to have an Object persist for all frames of an animation
+- added support for Jupyter notebooks
+- added support for Pluto notebooks
 
-## v0.4.0
+## v0.4.0 (9th of January 2021)
 - added ImageIO and ImageMagick as dependencies
 
 ## v0.3.4 (23rd of December 2020)
