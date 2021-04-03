@@ -13,11 +13,11 @@ render(demo; pathname = &quot;latex.gif&quot;, framerate = 1)</code></pre><p>Fin
         2 &amp; 3 \\  4 &amp; \sqrt{5} \\  
         \end{array} \right] 
         \end{equation}&quot;&quot;&quot;,
-        video.width / -2,
-        video.height / -2
+        O,
+        valign = :middle,
+        halign = :center
     )
-end</code></pre><p>Here is what this function does:</p><p>The <code>latex</code> function is called to render a <code>LaTeXString</code> object. This particular string makes a matrix! The last two arguments position the latex string  in the top left corner. </p><blockquote><p><strong>NOTE:</strong> The default position is the origin (default: the center of the canvas)</p></blockquote><p>We can run this code block to render the <code>LaTeX</code> by adding an <code>Object</code> under the <code>Background</code> line</p><pre><code class="language-julia">Object(draw_latex)</code></pre><p>Which produces the following visualization:</p><p><img src="../assets/boring_matrix.gif" alt/></p><p><em>Math-magical!</em> ✨ You just rendered your first bit of <code>LaTeX</code> using <code>Javis</code>! But, I must say, it looks quite... Bland. 😐</p><p>Let&#39;s spice it up!</p><h2 id="Throw-it-in-the-Blender!"><a class="docs-heading-anchor" href="#Throw-it-in-the-Blender!">Throw it in the Blender!</a><a id="Throw-it-in-the-Blender!-1"></a><a class="docs-heading-anchor-permalink" href="#Throw-it-in-the-Blender!" title="Permalink"></a></h2><p>A fun function that <code>Luxor</code> provides is the ability to blend colors together! To do so, let&#39;s modify the <code>draw_latex</code> function:</p><pre><code class="language-julia">function draw_latex(video, action, frame)
-    translate(video.width / -2, video.height / -2)
+end</code></pre><p>Here is what this function does:</p><p>The <code>latex</code> function is called to render a <code>LaTeXString</code> object. This particular string makes a matrix! The positional argument <code>O</code> specifies the top left corner for placing the latex text. The last 2 arguments specify the alignment with respect  to the top left corner point. These are optional and default to <code>:top</code> and <code>:left</code> respectively.</p><blockquote><p><strong>NOTE:</strong> The default position is the origin (default: the center of the canvas)</p></blockquote><p>We can run this code block to render the <code>LaTeX</code> by adding an <code>Object</code> under the <code>Background</code> line</p><pre><code class="language-julia">Object(draw_latex)</code></pre><p>Which produces the following visualization:</p><p><img src="../assets/boring_matrix.gif" alt/></p><p><em>Math-magical!</em> ✨ You just rendered your first bit of <code>LaTeX</code> using <code>Javis</code>! But, I must say, it looks quite... Bland. 😐</p><p>Let&#39;s spice it up!</p><h2 id="Throw-it-in-the-Blender!"><a class="docs-heading-anchor" href="#Throw-it-in-the-Blender!">Throw it in the Blender!</a><a id="Throw-it-in-the-Blender!-1"></a><a class="docs-heading-anchor-permalink" href="#Throw-it-in-the-Blender!" title="Permalink"></a></h2><p>A fun function that <code>Luxor</code> provides is the ability to blend colors together! To do so, let&#39;s modify the <code>draw_latex</code> function:</p><pre><code class="language-julia">function draw_latex(video, action, frame)
     black_red = blend(O, Point(0, 150), &quot;black&quot;, &quot;red&quot;)
     setblend(black_red)
     fontsize(50)
@@ -26,7 +26,10 @@ end</code></pre><p>Here is what this function does:</p><p>The <code>latex</code>
         \left[\begin{array}{cc} 
         2 &amp; 3 \\  4 &amp; \sqrt{5} \\  
         \end{array} \right] 
-        \end{equation}&quot;&quot;&quot;
+        \end{equation}&quot;&quot;&quot;,
+        O,
+        valign = :middle,
+        halign = :center
     )
 end</code></pre><p>The biggest change is that we added the <code>blend</code> and <code>setblend</code> functions. <code>blend</code> creates a linear blend between two points using two given colors - in this case, black and red. <code>setblend</code> applies the blend to the drawn object.  We also use the <code>translate</code> function this time as it makes writing the <code>blend</code> function easier.</p><p>Can you guess what happens when we execute the code with this newly updated <code>draw_latex</code> function? Here is what the output looks like:</p><p><img src="../assets/flaming_matrix.gif" alt/></p><p>Now that matrix looks, <strong>AWESOME</strong>. 😎</p><h2 id="Conclusion"><a class="docs-heading-anchor" href="#Conclusion">Conclusion</a><a id="Conclusion-1"></a><a class="docs-heading-anchor-permalink" href="#Conclusion" title="Permalink"></a></h2><p>Well done! You just finished a brief introduction to using <code>LaTeX</code> in <code>Javis</code>! There is more you can with <code>Javis</code> and <code>LaTeX</code> which will be explored in future tutorials.</p><p>As a reminder, you just learned how to render <code>LaTeX</code> using <code>Javis</code>! Go forth and produce more wonderful <span>$\LaTeX$</span> creations! </p><h2 id="Full-Code"><a class="docs-heading-anchor" href="#Full-Code">Full Code</a><a id="Full-Code-1"></a><a class="docs-heading-anchor-permalink" href="#Full-Code" title="Permalink"></a></h2><p>In case you ran into any issues or confusion, here is the full code:</p><pre><code class="language-julia">using Javis
 using LaTeXStrings
@@ -37,7 +40,6 @@ function ground(args...)
 end
 
 function draw_latex(video, action, frame)
-    translate(video.width / -2, video.height / -2)
     black_red = blend(O, Point(0, 150), &quot;black&quot;, &quot;red&quot;)
     setblend(black_red)
     fontsize(50)
@@ -46,11 +48,14 @@ function draw_latex(video, action, frame)
         \left[\begin{array}{cc} 
         2 &amp; 3 \\  4 &amp; \sqrt{5} \\  
         \end{array} \right] 
-        \end{equation}&quot;&quot;&quot;
+        \end{equation}&quot;&quot;&quot;,
+        O,
+        :middle,
+        :center
     )
 end
 
 demo = Video(300, 200)
 Background(1:1, ground)
 Object(draw_latex)
-render(demo; pathname = &quot;latex.gif&quot;, framerate=1)</code></pre><hr/><hr/><blockquote><p><strong>Author(s):</strong> Jacob Zelko <br/><strong>Date:</strong> August 16th, 2020 <br/><strong>Tag(s):</strong> latex, blend, LaTeXStrings, node</p></blockquote></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tutorial_2/">« <strong>Tutorial 2:</strong> What Are Objects?</a><a class="docs-footer-nextpage" href="../tutorial_4/"><strong>Tutorial 4:</strong> Do You Know Our Mascot? - Learn About Transitions And Actions! »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Saturday 3 April 2021 16:13">Saturday 3 April 2021</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+render(demo; pathname = &quot;latex.gif&quot;, framerate=1)</code></pre><hr/><hr/><blockquote><p><strong>Author(s):</strong> Jacob Zelko <br/><strong>Date:</strong> August 16th, 2020 <br/><strong>Tag(s):</strong> latex, blend, LaTeXStrings, node</p></blockquote></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tutorial_2/">« <strong>Tutorial 2:</strong> What Are Objects?</a><a class="docs-footer-nextpage" href="../tutorial_4/"><strong>Tutorial 4:</strong> Do You Know Our Mascot? - Learn About Transitions And Actions! »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Saturday 3 April 2021 16:39">Saturday 3 April 2021</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
