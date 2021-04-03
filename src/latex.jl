@@ -3,10 +3,13 @@
 include("latexsvgfile.jl")
 latex(text::LaTeXString) = latex(text, O)
 latex(text::LaTeXString, pos::Point) = latex(text, pos, :stroke)
+latex(text::LaTeXString, pos::Point, valign::Symbol, halign::Symbol) =
+    latex(text, pos, :stroke, valign = valign, halign = halign)
 latex(text::LaTeXString, x, y) = latex(text, Point(x, y), :stroke)
-
+latex(text::LaTeXString, x, y, valign::Symbol, halign::Symbol) =
+    latex(text, Point(x, y), :stroke, valign = valign, halign = halign)
 """
-    latex(text::LaTeXString, pos::Point, object::Symbol)
+    latex(text::LaTeXString, pos::Point, object::Symbol; valign = :top, halign = :left)
 
 Add the latex string `text` to the top left corner of the LaTeX path.
 Can be added to `Luxor.jl` graphics via [`Video`](@ref).
@@ -28,8 +31,17 @@ Available objects:
   - `:stroke` - Draws the latex string on the canvas. For more info check `Luxor.strokepath`
   - `:path` - Creates the path of the latex string but does not render it to the canvas.
 
+# Keywords:
+  - `valign::Symbol=:top`: vertical alignment with respect to the specified `pos` parameter.
+      - Options available are `:top`, `:middle`, `:bottom`
+  - `halign::Symbol=:left`: horizontal alignment with respect to the specified `pos` parameter.
+      - Options available are `:left`, `:center/:centre`, `:right`
+
 # Throws
 - `IOError`: mathjax-node-cli is not installed
+
+# Warning
+Shows a warning if either of the alignment options are unrecognised.
 
 # Example
 
@@ -56,36 +68,59 @@ render(demo; pathname = "latex.gif")
 ```
 
 """
-function latex(text::LaTeXString, pos::Point, draw_object::Symbol)
+function latex(
+    text::LaTeXString,
+    pos::Point,
+    draw_object::Symbol;
+    valign = :top,
+    halign = :left,
+)
     object = CURRENT_OBJECT[1]
     opts = object.opts
     t = get(opts, :draw_text_t, 1.0)
-    return animate_latex(text, pos, t, draw_object)
+    return animate_latex(text, pos, t, valign, halign, draw_object)
 end
 
-function animate_latex(text, pos::Point, t, object)
+function animate_latex(text, pos::Point, t, valign::Symbol, halign::Symbol, object)
     svg = get_latex_svg(text)
     object == :stroke && (object = :fill)
+
+    w, h = svgwh(svg)
+    halignment = findfirst(isequal(halign), (:left, :center, :right, :centre))
+
+    if halignment === nothing
+        @warn "Unknown horizontal alignment option: $(halign). Defaulting to left alignment"
+        halignment = 1
+    elseif halignment == 4
+        halignment = 2
+    end
+
+    textpointx = pos.x - (0, w / 2, w)[halignment]
+    valignment = findfirst(isequal(valign), (:top, :middle, :bottom))
+
+    if valignment === nothing
+        @warn "Unknown vertical alignment option: $(valign). Defaulting to top alignment"
+        valignment = 1
+    end
+
+    textpointy = pos.y - (0, h / 2, h)[valignment]
+    upperleft = Point(textpointx, textpointy)
+
     if t >= 1
-        translate(pos)
+        translate(upperleft)
         pathsvg(svg)
         do_action(object)
-        translate(-pos)
+        translate(-upperleft)
         return
     end
 
-    pathsvg(svg)
-    polygon = pathtopoly()
-    w, h = polywh(polygon)
-
-    translate(pos)
+    translate(upperleft)
     pathsvg(svg)
     do_action(:clip)
     r = t * sqrt(w^2 + h^2)
     circle(O, r, :fill)
-    translate(-pos)
+    translate(-upperleft)
 end
-
 """
     strip_eq(text::LaTeXString)
 
