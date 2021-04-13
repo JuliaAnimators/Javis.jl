@@ -276,7 +276,7 @@ for num in 1:length(electrodes_list)
         (args...) ->
             electrode.(
                 electrodes_list[num].position,
-                rand(indicators, length(electrodes_list)),
+                "white",
                 "black",
                 :fill,
                 radius,
