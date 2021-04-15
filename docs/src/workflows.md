@@ -64,12 +64,15 @@ eg:
 using PlutoUI
 
 anim = render(video, liveview = true)
+```
 
+The statements below should be entered into two different cells (without any `begin`-`end` block)
+```julia
 # frames: number of frames
 @bind x Slider(1:1:frames)
 
 anim[x]
-```
+``` 
 ![](assets/pluto_viewer_live.gif)
 
 
