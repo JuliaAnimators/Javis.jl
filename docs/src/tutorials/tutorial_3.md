@@ -94,8 +94,9 @@ function draw_latex(video, action, frame)
         2 & 3 \\  4 & \sqrt{5} \\  
         \end{array} \right] 
         \end{equation}""",
-        video.width / -2,
-        video.height / -2
+        O,
+        valign = :middle,
+        halign = :center
     )
 end
 ```
@@ -103,8 +104,9 @@ end
 Here is what this function does:
 
 The `latex` function is called to render a `LaTeXString` object.
-This particular string makes a matrix! The last two arguments position the latex string 
-in the top left corner. 
+This particular string makes a matrix! The positional argument `O` specifies the top left
+corner for placing the latex text. The last 2 arguments specify the alignment with respect 
+to the top left corner point. These are optional and default to `:top` and `:left` respectively.
 
 > **NOTE:** The default position is the origin (default: the center of the canvas)
 
@@ -132,7 +134,6 @@ To do so, let's modify the `draw_latex` function:
 
 ```julia
 function draw_latex(video, action, frame)
-    translate(video.width / -2, video.height / -2)
     black_red = blend(O, Point(0, 150), "black", "red")
     setblend(black_red)
     fontsize(50)
@@ -141,7 +142,10 @@ function draw_latex(video, action, frame)
         \left[\begin{array}{cc} 
         2 & 3 \\  4 & \sqrt{5} \\  
         \end{array} \right] 
-        \end{equation}"""
+        \end{equation}""",
+        O,
+        valign = :middle,
+        halign = :center
     )
 end
 ```
@@ -181,7 +185,6 @@ function ground(args...)
 end
 
 function draw_latex(video, action, frame)
-    translate(video.width / -2, video.height / -2)
     black_red = blend(O, Point(0, 150), "black", "red")
     setblend(black_red)
     fontsize(50)
@@ -190,7 +193,10 @@ function draw_latex(video, action, frame)
         \left[\begin{array}{cc} 
         2 & 3 \\  4 & \sqrt{5} \\  
         \end{array} \right] 
-        \end{equation}"""
+        \end{equation}""",
+        O,
+        :middle,
+        :center
     )
 end
 

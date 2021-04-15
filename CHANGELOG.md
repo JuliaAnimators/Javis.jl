@@ -2,6 +2,7 @@
 
 ## Unreleased
 - added support for Pluto notebooks
+- add alignment options to latex rendering
 
 ## v0.5.0 (29th of March 2021)
 - `:all` can now be used to have an Object persist for all frames of an animation

@@ -43,6 +43,45 @@ end
     rm("images/0000000001.png")
 end
 
+@testset "latex alignment in function" begin
+    function latex_ground(args...)
+        background("white")
+        sethue("black")
+    end
+
+    video = Video(400, 200)
+    Background(1:1, latex_ground)
+    Object((args...) -> latex(L"8", O + Point(20, 20), :bottom, :right))
+    Object((args...) -> latex(L"8", O + Point(20, 20), :bottom, :left))
+    Object((args...) -> latex(L"8", O + Point(20, 20), :top, :right))
+
+    # testing for warn log message on passing incorrect input alignment parameters (default used)
+    Object((args...) -> latex(L"8", O + Point(20, 20), :left, :top))
+
+    Object((args...) -> latex(L"8", 0, 0, :middle, :centre))
+    Object(
+        (args...) -> Javis.animate_latex(L"8", O - Point(20, 20), 2, :top, :left, :stroke),
+    )
+    Object(
+        (args...) ->
+            Javis.animate_latex(L"8", O - Point(20, 20), 2, :bottom, :left, :stroke),
+    )
+    Object(
+        (args...) -> Javis.animate_latex(L"8", O - Point(20, 20), 2, :top, :right, :stroke),
+    )
+    Object(
+        (args...) ->
+            Javis.animate_latex(L"8", O - Point(20, 20), 2, :bottom, :right, :stroke),
+    )
+    Object(
+        (args...) ->
+            Javis.animate_latex(L"8", O - Point(-20, 20), 0, :middle, :center, :stroke),
+    )
+    @test_logs (:warn,) (:warn,) render(video; tempdirectory = "images", pathname = "")
+    @test_reference "refs/latex_alignment.png" load("images/0000000001.png")
+    rm("images/0000000001.png")
+end
+
 @testset "LaTeX 3x3 matrix" begin
     function latex_ground(args...)
         translate(-200, -100)
@@ -83,4 +122,14 @@ end
     a = L"\sqrt{x^2}"
     b = LaTeXString("\\sqrt{x^2}")
     @test Javis.strip_eq(a) == Javis.strip_eq(b)
+end
+
+@testset "Checking polywh to get svg width and height" begin
+    video = Video(400, 200)
+    newpath()
+    circle(O, 5, :path)
+    closepath()
+    poly = pathtopoly()
+    w, h = Javis.polywh(poly)
+    @test w == 10.0
 end
