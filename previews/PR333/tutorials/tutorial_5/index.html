@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Tutorial 5: Taming the Elements · Javis.jl</title><link rel="canonical" href="https://Wikunia.github.io/Javis.jl/tutorials/tutorial_5/"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">Javis.jl</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../"><strong>Information about Tutorials - Beginners Start Here!</strong></a></li><li><a class="tocitem" href="../tutorial_1/"><strong>Tutorial 1:</strong> Making Your First Javis Animation!</a></li><li><a class="tocitem" href="../tutorial_2/"><strong>Tutorial 2:</strong> What Are Objects?</a></li><li><a class="tocitem" href="../tutorial_3/"><strong>Tutorial 3:</strong> Rendering LaTeX with Javis!</a></li><li><a class="tocitem" href="../tutorial_4/"><strong>Tutorial 4:</strong> Do You Know Our Mascot? - Learn About Transitions And Actions!</a></li><li class="is-active"><a class="tocitem" href><strong>Tutorial 5:</strong> Taming the Elements</a><ul class="internal"><li><a class="tocitem" href="#Introduction"><span>Introduction</span></a></li><li><a class="tocitem" href="#Learning-Outcomes"><span>Learning Outcomes 📚</span></a></li><li><a class="tocitem" href="#PeriodicTable.jl-and-Unitful.jl"><span><code>PeriodicTable.jl</code> and <code>Unitful.jl</code></span></a></li><li><a class="tocitem" href="#Setting-Up-Our-Animation"><span>Setting Up Our Animation</span></a></li><li><a class="tocitem" href="#Taming-the-Elements!"><span>Taming the Elements!</span></a></li><li><a class="tocitem" href="#How-Much-Does-an-Atom-Weigh?"><span>How Much Does an Atom Weigh? ⚖️</span></a></li><li><a class="tocitem" href="#Conclusion"><span>Conclusion</span></a></li><li><a class="tocitem" href="#Full-Code"><span>Full Code</span></a></li></ul></li><li><a class="tocitem" href="../tutorial_6/"><strong>Tutorial 6:</strong> Using Animations.jl to Create something with more Pep!</a></li></ul></li><li><a class="tocitem" href="../../howto/">HowTo</a></li><li><a class="tocitem" href="../../workflows/">Workflows</a></li><li><a class="tocitem" href="../../examples/">Examples</a></li><li><a class="tocitem" href="../../mission/">Mission</a></li><li><a class="tocitem" href="../../references/">References</a></li><li><a class="tocitem" href="../../contributing/">Contributing</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href><strong>Tutorial 5:</strong> Taming the Elements</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href><strong>Tutorial 5:</strong> Taming the Elements</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/Wikunia/Javis.jl/blob/master/docs/src/tutorials/tutorial_5.md#L" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="**Tutorial-5:**-Taming-the-Elements"><a class="docs-heading-anchor" href="#**Tutorial-5:**-Taming-the-Elements"><strong>Tutorial 5:</strong> Taming the Elements</a><a id="**Tutorial-5:**-Taming-the-Elements-1"></a><a class="docs-heading-anchor-permalink" href="#**Tutorial-5:**-Taming-the-Elements" title="Permalink"></a></h1><h2 id="Introduction"><a class="docs-heading-anchor" href="#Introduction">Introduction</a><a id="Introduction-1"></a><a class="docs-heading-anchor-permalink" href="#Introduction" title="Permalink"></a></h2><p>The world is built up of tiny tiny building blocks known as atoms. ⚛️ These atoms come in many different sizes and each has different properties. Let&#39;s visualize these atoms and show their uniqueness!</p><h2 id="Learning-Outcomes"><a class="docs-heading-anchor" href="#Learning-Outcomes">Learning Outcomes 📚</a><a id="Learning-Outcomes-1"></a><a class="docs-heading-anchor-permalink" href="#Learning-Outcomes" title="Permalink"></a></h2><p>In this tutorial you&#39;ll learn:</p><ul><li><p>How to use <a href="../../references/#Javis.change-Tuple{Symbol,Pair}"><code>change</code></a> to change a variable inside of an animation.</p></li><li><p>To use <code>Javis.jl</code> to interact with the following Julia packages:</p><ul><li><a href="https://github.com/PainterQubits/Unitful.jl"><code>Unitful.jl</code></a></li><li><a href="https://github.com/JuliaPhysics/PeriodicTable.jl"><code>PeriodicTable.jl</code></a></li></ul></li><li><p>Ways of creating educational gifs</p></li></ul><p>By the end of this tutorial, you will have made the following animation:</p><p><img src="../assets/atomic.gif" alt/></p><h2 id="PeriodicTable.jl-and-Unitful.jl"><a class="docs-heading-anchor" href="#PeriodicTable.jl-and-Unitful.jl"><code>PeriodicTable.jl</code> and <code>Unitful.jl</code></a><a id="PeriodicTable.jl-and-Unitful.jl-1"></a><a class="docs-heading-anchor-permalink" href="#PeriodicTable.jl-and-Unitful.jl" title="Permalink"></a></h2><p>As normal with our tutorials, we need to import first the packages we will be using. In this tutorial, we are introducing two new packages:</p><ol><li><code>PeriodicTable.jl</code> - Periodic table render in Julia</li><li><code>Unitful.jl</code> - Physical quantities with arbitrary units</li></ol><p>These are straightforward to add to your Julia installation by executing the following in your Julia REPL:</p><pre><code class="language-julia">julia&gt; ] add Unitful, PeriodicTable</code></pre><p>You might be wondering what these packages do. Let&#39;s dive into them then!</p><p><code>PeriodicTable.jl</code> enables one to look at information quickly related to the periodic table of elements. One can even print out such a table in their Julia REPL by doing the following:</p><pre><code class="language-julia">julia&gt; using PeriodicTable
+
+julia&gt; elements
+ Elements(…119 elements…):
+H                                                  He
+Li Be                               B  C  N  O  F  Ne
+Na Mg                               Al Si P  S  Cl Ar
+K  Ca Sc Ti V  Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr
+Rb Sr Y  Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I  Xe
+Cs Ba    Hf Ta W  Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn
+Fr Ra    Rf Db Sg Bh Hs Mt Ds Rg Cn Nh Fl Mc Lv Ts Og
+Uue
+      La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu
+      Ac Th Pa U  Np Pu Am Cm Bk Cf Es Fm Md No Lr</code></pre><p>As the famous Mythbuster, Adam Savage once said, &quot;IT&#39;S SCIENTIFIC!&quot; 🧪 🤓 One can even query <code>PeriodicTable</code> to find out information on specific elements. Let&#39;s look up Oxygen (O) here!</p><pre><code class="language-julia">julia&gt; elements[8]
+ Oxygen (O), number 8:
+        category: diatomic nonmetal
+     atomic mass: 15.999 u
+         density: 1.429 g/cm³
+   melting point: 54.36 K
+   boiling point: 90.188 K
+           phase: Gas
+          shells: [2, 6]
+e⁻-configuration: 1s² 2s² 2p⁴
+         summary: Oxygen is a chemical element with symbol O and atomic number 8. It is a member of the chalcogen group on the periodic table and is a highly reactive nonmetal and oxidizing agent that readily forms compounds (notably oxides) with most elements. By mass, oxygen is the third-most abundant element in the universe, after hydrogen and helium.
+   discovered by: Carl Wilhelm Scheele
+        named by: Antoine Lavoisier
+          source: https://en.wikipedia.org/wiki/Oxygen
+  spectral image: https://en.wikipedia.org/wiki/File:Oxygen_spectre.jpg</code></pre><p>As fellow Julian, Johann-Tobias Schäg, said, one should learn <code>Unitful.jl</code> if they want to interact with the real world. <code>Unitful.jl</code> handles physical quantities such as pounds, meters, mols, etc. with minimal overhead in Julia. Further, it helps one to keep track of units and easily convert between different measurement systems.</p><h2 id="Setting-Up-Our-Animation"><a class="docs-heading-anchor" href="#Setting-Up-Our-Animation">Setting Up Our Animation</a><a id="Setting-Up-Our-Animation-1"></a><a class="docs-heading-anchor-permalink" href="#Setting-Up-Our-Animation" title="Permalink"></a></h2><p>As always, let&#39;s import our needed packages:</p><pre><code class="language-julia">using Animations
+using Javis
+using PeriodicTable
+using Unitful</code></pre><blockquote><p><strong>NOTE:</strong> For this tutorial, we will also use <code>Animations.jl</code> to provide what are called &quot;easing functions&quot;.</p></blockquote><p>These are used to control the speed at which an animation is drawn. This is further explained in <a href="../tutorial_6/">Tutorial 6</a> so for now, don&#39;t worry too much about what we are doing with it. </p><p>And let&#39;s define our background function. This background function will also write the current frame being drawn:</p><pre><code class="language-julia">function ground(video, action, frame)
+    background(&quot;white&quot;)
+    sethue(&quot;black&quot;)
+end</code></pre><p>Finally, let&#39;s get started with creating our <code>render</code> function:</p><pre><code class="language-julia">demo = Video(500, 500)
+Background(1:550, ground)
+render(demo, pathname=&quot;tutorial5.gif&quot;, framerate = 10)</code></pre><p>As you can see, the animation we are creating is going to have many frames! This is the longest animation we have made so far. Why? Not only are we going to examine many different elements, this tutorial also serves to illustrate how one can make longer animations to convey ideas. Think of it as your directoral debut! 🎬 🎥</p><h2 id="Taming-the-Elements!"><a class="docs-heading-anchor" href="#Taming-the-Elements!">Taming the Elements!</a><a id="Taming-the-Elements!-1"></a><a class="docs-heading-anchor-permalink" href="#Taming-the-Elements!" title="Permalink"></a></h2><p>Each element has a different atomic mass. This atomic mass is measured in the unit called a &quot;Dalton&quot; (symbol: u) which is equivalent to 1/12 of the mass of a stationary carbon-12 atom. We can use the <a href="../../references/#Javis.change-Tuple{Symbol,Pair}"><code>change</code></a> functionality that <code>Javis.jl</code> provides to visualize different elements!</p><p>To accomplish this, we need to make a function that shows our currently viewed element:</p><pre><code class="language-julia">function element(; radius = 1, color = &quot;black&quot;)
+    sethue(color)
+    circle(O, radius + 4, :fill) # The 4 is to make the circle not so small
+end</code></pre><p>Essentially, all the <code>element</code> function does is create a circle in the middle of the frame with a radius of 5.</p><p>From there, we need to define one <code>Object</code> for our animation to display the element we are viewing and scaling:</p><pre><code class="language-julia">...
+atom = Object(1:550, (args...; radius = 1) -&gt; element(; radius = radius, color = &quot;black&quot;))
+act!(
+    atom,
+    [
+        Action(101:140, change(:radius, 1 =&gt; 12)),
+        Action(241:280, change(:radius, 12 =&gt; 20)),
+        Action(381:420, change(:radius, 20 =&gt; 7)),
+        Action(521:550, change(:radius, 7 =&gt; 1)),
+    ],
+)
+...</code></pre><p><a href="../../references/#Javis.change-Tuple{Symbol,Pair}"><code>change</code></a> is used here to change the given radius of the circle in <code>element</code> from <code>1</code> to <code>12</code>, from <code>12</code> to <code>20</code>, <code>20</code> to <code>7</code>, and finally <code>7</code> to <code>1</code>. This updates the circle being drawn and gives a growing or shrinking effect. <a href="../../references/#Javis.change-Tuple{Symbol,Pair}"><code>change</code></a> interpolates the values in between what we want to change the value from to what the value we want to change to.  It can be additionally used to simply set a value without interpolation (since v0.3.3).</p><p>That scaling looks like this:</p><p><img src="../assets/blank_atom_scaling.gif" alt/></p><p>Staring at this somewhat makes me think of a black hole... ⚫ But great! The only question now is... What are we looking at? Let&#39;s add some more information to this animation! 📝</p><h2 id="How-Much-Does-an-Atom-Weigh?"><a class="docs-heading-anchor" href="#How-Much-Does-an-Atom-Weigh?">How Much Does an Atom Weigh? ⚖️</a><a id="How-Much-Does-an-Atom-Weigh?-1"></a><a class="docs-heading-anchor-permalink" href="#How-Much-Does-an-Atom-Weigh?" title="Permalink"></a></h2><p>To get the information about an element that we are currently previewing, we need to get information about our element. So, how do we do that?</p><p>To identify the element and display its information properly, let&#39;s create an info box similar to what we made in <a href="../tutorial_2/#As-You-Can-See-Here...">Tutorial 2</a>! We do this by creating an <code>info_box</code> function that takes in an element:</p><pre><code class="language-julia">function info_box(element)
+    fontsize(12)
+    box(140, -210, 170, 40, :stroke)
+    box(0, 175, 450, 100, :stroke)
+    text(&quot;Element name: $(element.name)&quot;, 140, -220, valign = :middle, halign = :center)
+    text(
+        &quot;Atomic Mass: $(round(ustrip(element.atomic_mass)))&quot;,
+        140,
+        -200,
+        valign = :middle,
+        halign = :center,
+    )
+    textwrap(&quot;Description: $(element.summary)&quot;, 400, Point(-200, 125))
+end</code></pre><p>To pass the element into the <code>info_box</code> function, we need to define an <code>Object</code> command to create our boxes. Then, we can change the element being passed in:</p><pre><code class="language-julia">...
+info = Object(1:550, (args...; elem = 1) -&gt; info_box(element = elements[round(Int, elem)]))
+
+act!(info, Action(1:30, sineio(), appear(:fade)))
+act!(info, Action(71:100, sineio(), disappear(:fade)))
+act!(info, Action(101:101, change(:elem, 1 =&gt; 12)))
+
+act!(info, Action(140:170, sineio(), appear(:fade)))
+act!(info, Action(210:241, sineio(), disappear(:fade)))
+act!(info, Action(280:280, change(:elem, 12 =&gt; 20)))
+
+act!(info, Action(280:310, sineio(), appear(:fade)))
+act!(info, Action(350:381, sineio(), disappear(:fade)))
+act!(info, Action(381:420, change(:elem, 20 =&gt; 7)))
+
+act!(info, Action(420:450, sineio(), appear(:fade)))
+act!(info, Action(490:521, sineio(), disappear(:fade)))
+act!(info, Action(520:550, change(:elem, 7 =&gt; 1)))
+...</code></pre><p>Here, <a href="../../references/#Javis.change-Tuple{Symbol,Pair}"><code>change</code></a> is being used to change the element, <code>elem</code>, being queried from <code>PeriodicTable.jl</code> over one frame. This gives us the updated information about each atom! Furthermore, using the method <code>appear(:fade)</code> and <code>disappear(:fade)</code> and <code>sineio()</code>, we get a nice fading effect to easily transition between each element.</p><blockquote><p><strong>NOTE:</strong> <code>sineio()</code> comes from <code>Animations.jl</code> and is an easing function.</p></blockquote><p>More on this in <a href="../tutorial_6/">Tutorial 6</a>.</p><p>Now, let&#39;s look at that gif shall we?</p><p><img src="../assets/atomic.gif" alt/></p><p>Hooray! 🎉🎉🎉 We now have a very educational gif that tells us all about the elements we are viewing. We are basically physicists at this point. 😉</p><h2 id="Conclusion"><a class="docs-heading-anchor" href="#Conclusion">Conclusion</a><a id="Conclusion-1"></a><a class="docs-heading-anchor-permalink" href="#Conclusion" title="Permalink"></a></h2><p>Great work getting through this tutorial! This tutorial was a little more complicated as you learned the following:</p><ul><li>Using <code>Javis.jl</code> to <a href="../../references/#Javis.change-Tuple{Symbol,Pair}"><code>change</code></a> animations in progress</li><li>Having <code>Javis.jl</code> interact with other Julia packages</li><li>Creating extended animations for use in education</li></ul><p>Our hope with this tutorial is that it inspires you to create more comprehensive and informative animations with <code>Javis.jl</code> Good luck and have fun making more animations!</p><h2 id="Full-Code"><a class="docs-heading-anchor" href="#Full-Code">Full Code</a><a id="Full-Code-1"></a><a class="docs-heading-anchor-permalink" href="#Full-Code" title="Permalink"></a></h2><pre><code class="language-julia">using Animations
+using Javis
+using PeriodicTable
+using Unitful
+
+function ground(video, action, frame)
+    background(&quot;white&quot;)
+    sethue(&quot;black&quot;)
+end
+
+function element(; radius = 1, color = &quot;black&quot;)
+    sethue(color)
+    circle(O, radius + 4, :fill)
+end
+
+function info_box(element)
+    fontsize(12)
+    box(140, -210, 170, 40, :stroke)
+    box(0, 175, 450, 100, :stroke)
+    text(&quot;Element name: $(element.name)&quot;, 140, -220, valign = :middle, halign = :center)
+    text(
+        &quot;Atomic Mass: $(round(ustrip(element.atomic_mass)))&quot;,
+        140,
+        -200,
+        valign = :middle,
+        halign = :center,
+    )
+    textwrap(&quot;Description: $(element.summary)&quot;, 400, Point(-200, 125))
+end
+
+demo = Video(500, 500)
+
+Background(1:550, ground)
+
+atom = Object(1:550, (args...; radius = 1) -&gt; element(; radius = radius, color = &quot;black&quot;))
+act!(
+    atom,
+    [
+        Action(101:140, change(:radius, 1 =&gt; 12)),
+        Action(241:280, change(:radius, 12 =&gt; 20)),
+        Action(381:420, change(:radius, 20 =&gt; 7)),
+        Action(521:550, change(:radius, 7 =&gt; 1)),
+    ],
+)
+
+info = Object(1:550, (args...; elem = 1) -&gt; info_box(element = elements[round(Int, elem)]))
+
+act!(info, Action(1:30, sineio(), appear(:fade)))
+act!(info, Action(71:100, sineio(), disappear(:fade)))
+act!(info, Action(101:101, change(:elem, 1 =&gt; 12)))
+
+act!(info, Action(140:170, sineio(), appear(:fade)))
+act!(info, Action(210:241, sineio(), disappear(:fade)))
+act!(info, Action(280:280, change(:elem, 12 =&gt; 20)))
+
+act!(info, Action(280:310, sineio(), appear(:fade)))
+act!(info, Action(350:381, sineio(), disappear(:fade)))
+act!(info, Action(381:420, change(:elem, 20 =&gt; 7)))
+
+act!(info, Action(420:450, sineio(), appear(:fade)))
+act!(info, Action(490:521, sineio(), disappear(:fade)))
+act!(info, Action(520:550, change(:elem, 7 =&gt; 1)))
+
+render(demo, pathname=&quot;tutorial5.gif&quot;, framerate = 10)</code></pre><blockquote><p><strong>Author(s):</strong> Jacob Zelko <br/><strong>Date:</strong> September 10, 2020 <br/><strong>Tag(s):</strong> change, atoms, elements, appear, disappear, fade, unitful, periodictable</p></blockquote></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tutorial_4/">« <strong>Tutorial 4:</strong> Do You Know Our Mascot? - Learn About Transitions And Actions!</a><a class="docs-footer-nextpage" href="../tutorial_6/"><strong>Tutorial 6:</strong> Using Animations.jl to Create something with more Pep! »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 7 May 2021 09:00">Friday 7 May 2021</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
