@@ -37,6 +37,9 @@ end
 @testset "Unit" begin
     include("unit.jl")
 end
+@testset "Frames" begin
+    include("frames.jl")
+end
 @testset "SVG LaTeX tests" begin
     include("svg.jl")
 end

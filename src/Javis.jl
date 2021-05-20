@@ -424,6 +424,7 @@ export rev
 export scaleto
 export act!
 export anim_translate, anim_rotate, anim_rotate_around, anim_scale
+export default_last, prev_start, prev_last, parent_start, parent_last
 
 # custom override of luxor extensions
 export setline, setopacity, fontsize, get_fontsize, scale, text
