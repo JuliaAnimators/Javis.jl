@@ -24,12 +24,6 @@ We'd love to have you and hear your thoughts and see what you are making!
 
 Click this badge to join: [![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://julialang.zulipchat.com/#narrow/stream/253420-javis)
 
-## Design Philosophy
-
-Although `Javis.jl` is constantly being improved and made better, our design philosophy remains largely the same with only few changes happening to it.
-We use Object-Action paradigm for creating visualizations.
-Furthermore, details on our philosophy can be found here: [Design Mission and Philosophy](https://wikunia.github.io/Javis.jl/stable/mission/)
-
 ## Gallery
 
 ### Tutorials
@@ -49,6 +43,12 @@ Furthermore, details on our philosophy can be found here: [Design Mission and Ph
 |------------------------------------------------|------------------------------------------------|
 | ![](examples/gifs/follow_bezier_path.gif)      | ![](examples/gifs/julia_logo_dft.gif)                 |
 | [Follow a Path](/examples/follow_path.jl)      |  [Draw the Julia Logo](/examples/fourier.jl) |
+
+## Design Philosophy
+
+Although `Javis.jl` is constantly being improved and made better, our design philosophy remains largely the same with only few changes happening to it.
+We use Object-Action paradigm for creating visualizations.
+Furthermore, details on our philosophy can be found here: [Design Mission and Philosophy](https://wikunia.github.io/Javis.jl/stable/mission/)
 
 ## Installation
 
