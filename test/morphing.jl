@@ -65,9 +65,11 @@ end
 
     function matrix(args...; do_transpose = false, do_action = :stroke)
         fontsize(50)
-        str = L"$\begin{equation}\left[\begin{array}{ccc}\alpha & \beta & \gamma \\x^{2} & \sqrt{y} & \lambda \\1 & 2 & y \\\end{array}\right]\end{equation}$"
+        str =
+            L"$\begin{equation}\left[\begin{array}{ccc}\alpha & \beta & \gamma \\x^{2} & \sqrt{y} & \lambda \\1 & 2 & y \\\end{array}\right]\end{equation}$"
         if do_transpose
-            str = L"$\begin{equation}\left[\begin{array}{ccc}\alpha & x^{2} & 1 \\\beta & \sqrt{y} & 2 \\\gamma & \lambda & y \\\end{array}\right]\end{equation}$"
+            str =
+                L"$\begin{equation}\left[\begin{array}{ccc}\alpha & x^{2} & 1 \\\beta & \sqrt{y} & 2 \\\gamma & \lambda & y \\\end{array}\right]\end{equation}$"
         end
         latex(str, O, do_action)
     end
@@ -102,9 +104,11 @@ end
     function sequence(args...; second = false, do_action = :stroke)
         fontsize(50)
 
-        str = L"$\begin{equation}\left[\begin{array}{cc}2 & -1\\-1 & 2 \\\end{array}\right]\end{equation}$"
+        str =
+            L"$\begin{equation}\left[\begin{array}{cc}2 & -1\\-1 & 2 \\\end{array}\right]\end{equation}$"
         if second
-            str = L"$\begin{equation}\left[\begin{array}{ccc} 2 & -1 & 0 \\ -1 & 2 & -1 \\ 0 & -1 & 2 \\\end{array}\right]\end{equation}$"
+            str =
+                L"$\begin{equation}\left[\begin{array}{ccc} 2 & -1 & 0 \\ -1 & 2 & -1 \\ 0 & -1 & 2 \\\end{array}\right]\end{equation}$"
         end
         if !second
             latex(str, Point(-150, -60), do_action)
