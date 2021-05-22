@@ -7,7 +7,7 @@
 [![Coverage](https://codecov.io/gh/Wikunia/Javis.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/Wikunia/Javis.jl)
 [![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://julialang.zulipchat.com/#narrow/stream/253420-javis)
 
-![GitHub Hacktoberfest combined status](https://img.shields.io/github/hacktoberfest/2020/Wikunia/Javis.jl)
+<!--![GitHub Hacktoberfest combined status](https://img.shields.io/github/hacktoberfest/2020/Wikunia/Javis.jl)-->
 
 **Javis:** **J**ulia **A**nimations and **Vis**ualizations
 
@@ -24,6 +24,11 @@ We'd love to have you and hear your thoughts and see what you are making!
 
 Click this badge to join: [![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://julialang.zulipchat.com/#narrow/stream/253420-javis)
 
+## Design Philosophy
+
+Although `Javis.jl` is constantly being improved and made better, our design philosophy remains largely the same with only few changes happening to it.
+We use Object-Action paradigm for creating visualizations.
+Furthermore, details on our philosophy can be found here: [Design Mission and Philosophy](https://wikunia.github.io/Javis.jl/stable/mission/)
 
 ## Gallery
 
@@ -65,36 +70,6 @@ npm install -g mathjax-node-cli
 
 If you don't need `LaTeX`, there is no reason to install this :wink:
 
-## State of development
-
-`Javis.jl` is currently under heavy development but we wanted to bring you a first version after we received over 30 stars. It makes it easier to try out `Javis.jl` for you and we are looking forward to bug reports and issue requests. More the latter, but we expect things to fail!
-
-### Current state
-
-#### v0.2.0
-
-`Javis` currently supports very simple animations with:
-- `LaTeX` support
-- Transformations
-- Subactions
-- Drawing grid lines
-- Morphing one shape into another 
-- Image Viewer (`; liveview=true`)
-- Compatibility with [Animations.jl](https://github.com/jkrumbiegel/Animations.jl)
-
-## Future goals
-
-We have a list of issues for v0.3.0 and beyond which contain things like:
-- Animating transposing a matrix using morphing [PR #175](https://github.com/Wikunia/Javis.jl/pull/175)
-- Combine actions into layers/collections
-- Polar coordinates
-- Vectors
-- ...
-
-[Read more about the current state and our vision](https://opensourc.es/blog/javis-v0.2-and-future/)
-
-Make sure to add a feature request if you think we miss something fundamental or something that would be nice to have.
-
 ## Acknowledgements
 
 We want to thank a couple of people who helped make this possible.
@@ -116,4 +91,7 @@ We want to thank a couple of people who helped make this possible.
 - [@ArbitRandomUser](https://github.com/ArbitRandomUser) for cleaning up the LaTeX code base
 - [@agerlach](https://github.com/agerlach) for improving the internal LaTeX parsing
 - [@matbesancon](https://github.com/matbesancon) for adding in an example on projections and for identifying an issue with Javis image processing
-- [@Sov-trotter](https://github.com/Sov-trotter) for implementing the Jupyter viewer
+- [@Sov-trotter](https://github.com/Sov-trotter) for implementing the Jupyter and Pluto viewer tools
+- [@codejaeger](https://github.com/codejaeger) - for improving the Javis viewer tool
+- [@XRFXLP](https://github.com/XRFXLP) - fixing typo in docs
+
