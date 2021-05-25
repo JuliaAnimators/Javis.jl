@@ -1,6 +1,7 @@
 # Javis.jl - Changelog
 
 ## v0.5.1
+- added support for Pluto notebooks
 - add alignment options to latex rendering
 - clarified `O` as origin in tutorial 1
 

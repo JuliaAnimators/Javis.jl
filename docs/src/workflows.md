@@ -53,6 +53,131 @@ To make the Jupyter Notebook experience with Javis more easy, videos rendered as
 
 ![](assets/jupyter_viewer.gif)
 
-## Workflow for Pluto Notebooks
+## Workflow for Pluto Notebooks :balloon:
 
-[Coming Soon!]
+**Supported Platforms:** Windows*, OSX, Linux
+
+The workflow for Pluto notebooks is very similar to using Jupyter notebooks but with some crucial differences!
+** PLEASE READ EACH OF SECTIONS CAREFULLY TO GET PLUTO NOTEBOOKS TO WORK WITH YOUR ANIMATIONS!**
+
+### Install the Required Pluto Packages
+
+You will need to use two packages:
+
+- [**Pluto**](https://github.com/fonsp/Pluto.jl) - simple reactive notebooks for Julia
+
+- [**PlutoUI**](https://github.com/fonsp/PlutoUI.jl) - enables the creation of widgets in Pluto notebooks
+
+To install these packages, run the following in your Julia REPL:
+
+```
+] add Pluto, PlutoUI
+```
+
+### Example of Running a Pluto Notebook
+
+Copy this following script into a Julia file (like, `example.jl`):
+
+```julia
+### A Pluto.jl notebook ###
+# v0.14.5
+
+using Markdown
+using InteractiveUtils
+
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : missing
+        el
+    end
+end
+
+# ╔═╡ d6c62fb0-bb9d-11eb-33e0-f5de58261376
+using PlutoUI, Javis
+
+# ╔═╡ ff1ff714-bb9f-11eb-1dfa-fbfa8c75d19f
+begin
+    function ground(args...)
+        background("white") # canvas background
+        sethue("black") # pen color
+    end
+
+    function object(p = O, color = "black")
+        sethue(color)
+        circle(p, 25, :fill)
+        return p
+    end
+
+    function path!(points, pos, color)
+        sethue(color)
+        push!(points, pos) # add pos to points
+        circle.(points, 2, :fill) # draws a circle for each point using broadcasting
+    end
+
+    function connector(p1, p2, color)
+        sethue(color)
+        line(p1, p2, :stroke)
+    end
+
+    myvideo = Video(500, 500)
+
+    path_of_red = Point[]
+    path_of_blue = Point[]
+
+    Background(1:70, ground)
+    red_ball = Object(1:70, (args...) -> object(O, "red"), Point(100, 0))
+    act!(red_ball, Action(anim_rotate_around(2π, O)))
+    blue_ball = Object(1:70, (args...) -> object(O, "blue"), Point(200, 80))
+    act!(blue_ball, Action(anim_rotate_around(2π, 0.0, red_ball)))
+    Object(1:70, (args...) -> connector(pos(red_ball), pos(blue_ball), "black"))
+    Object(1:70, (args...) -> path!(path_of_red, pos(red_ball), "red"))
+    Object(1:70, (args...) -> path!(path_of_blue, pos(blue_ball), "blue"))
+
+    mygif = render(myvideo; liveview = true)
+
+end
+
+# ╔═╡ fb96b6b6-bb9d-11eb-2861-5dcfbab3e6f1
+@bind x Slider(1:1:70)
+
+# ╔═╡ 2664d0b2-bb9e-11eb-1af0-8d1c96dd8c92
+mygif[x]
+
+# ╔═╡ Cell order:
+# ╠═d6c62fb0-bb9d-11eb-33e0-f5de58261376
+# ╠═ff1ff714-bb9f-11eb-1dfa-fbfa8c75d19f
+# ╠═fb96b6b6-bb9d-11eb-2861-5dcfbab3e6f1
+# ╠═2664d0b2-bb9e-11eb-1af0-8d1c96dd8c92
+```
+
+Then run the following commands in your Julia REPL:
+
+```
+using Pluto
+Pluto.run()
+```
+
+Select the `example.jl` file from within the Pluto instance and you are good to go with running a Javis notebook!
+
+![](assets/pluto_example.gif)
+
+### Notes When Running Javis in Pluto Notebooks
+
+To generate a live view in general for an animation you are working on (with a slider), enter the two following statements into two separate cells (not inside a `begin`-`end` block):
+
+```julia
+# frames: number of frames
+@bind x Slider(1:1:frames)
+
+anim[x]
+``` 
+
+This will give you the ability to preview an animation with a slider:
+
+![](assets/pluto_viewer_live.gif)
+
+If you don't want to use the interactivity and simply display the output, set the `liveviewer` flag as `false` in the Javis `render` function and Pluto will display the gif:
+
+![](assets/pluto_viewer.gif)

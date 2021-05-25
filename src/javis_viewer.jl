@@ -1,4 +1,18 @@
 """
+    PlutoViewer
+
+Wrapper to assist viewing rendered gifs as cell outputs of Pluto notebooks
+when `liveview = false` 
+"""
+struct PlutoViewer
+    filename::String
+end
+
+function Base.show(io::IO, ::MIME"image/png", v::PlutoViewer)
+    write(io, read(v.filename))
+end
+
+"""
     _draw_image(video::Video, objects::Vector, frame::Int, canvas::Gtk.Canvas,
     img_dims::Vector)
 
@@ -248,4 +262,27 @@ function _jupyter_viewer(video::Video, frames::Int, objects::Vector, framerate::
     output = @map get_javis_frame(video, objects, &obs)
     wdg = Widget(["f" => f, "t" => t], output = output)
     @layout! wdg vbox(hbox(:f, :t), output)
+end
+
+"""
+_pluto_viewer(video::Video, frames::Int, actions::Vector)
+
+Creates an interactive viewer in a Pluto Notebook by storing all the frames in-memory
+```
+# In separate Pluto notebook cells
+using PlutoUI
+
+anim = render(
+    video;
+    pathname = "loading.gif",liveview=true
+);
+
+@bind x Slider(1:1:frames)
+
+anim[x]
+```
+"""
+function _pluto_viewer(video::Video, frames::Int, objects::Vector)
+    arr = collect(get_javis_frame(video, objects, frame) for frame in 1:frames)
+    return arr
 end

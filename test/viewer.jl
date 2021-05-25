@@ -80,3 +80,23 @@ end
         @test img.output.val == output
     end
 end
+
+@testset "Pluto Viewer" begin
+    v = Javis.PlutoViewer("foo.png")
+    astar(args...; do_action = :stroke) = star(O, 50, 5, 0.5, 0, do_action)
+    acirc(args...; do_action = :stroke) = circle(Point(100, 100), 50, do_action)
+
+    vid = Video(500, 500)
+    back = Background(1:100, ground)
+    star_obj = Object(1:100, astar)
+    act!(star_obj, Action(morph_to(acirc; do_action = :fill)))
+
+    objects = vid.objects
+    frames = Javis.preprocess_frames!(objects)
+
+    @test v.filename === "foo.png"
+    img = Javis._pluto_viewer(vid, length(frames), objects)
+    for i in 1:length(img)
+        @test img[i] == Javis.get_javis_frame(vid, objects, i)
+    end
+end
