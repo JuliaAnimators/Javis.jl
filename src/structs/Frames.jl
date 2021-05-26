@@ -142,6 +142,7 @@ end
 
 """
     @Frames(start, len)
+    @Frames(start, stop=)
 
 Can be used to define frames using functions like [`prev_start`](@ref) or [`prev_end`](@ref)
 
@@ -149,13 +150,36 @@ Can be used to define frames using functions like [`prev_start`](@ref) or [`prev
 ```
 red_circ = Object(1:90, (args...)->circ("red"))
 blue_circ = Object(@Frames(prev_start()+20, 70), (args...)->circ("blue"))
+blue_circ = Object(@Frames(prev_start()+20, stop=90), (args...)->circ("blue"))
 ```
 is the same as
 ```
 red_circ = Object(1:90, (args...)->circ("red"))
 blue_circ = Object(21:90, (args...)->circ("blue"))
+blue_circ = Object(41:90, (args...)->circ("blue"))
 ```
 """
-macro Frames(start, len)
-    return :(Frames(nothing, ()->$start:$start+$len-1))
+macro Frames(start, in_args...)
+    args = []
+    kwargs = Pair{Symbol,Any}[]
+    kwarg_symbols = Symbol[]
+    for el in in_args
+        if Meta.isexpr(el, :(=))
+            push!(kwargs, Pair(el.args...))
+            push!(kwarg_symbols, el.args[1])
+        else
+            push!(args, el)
+        end
+    end
+    stop_idx = findfirst(==(:stop), kwarg_symbols)
+    if stop_idx !== nothing
+        stop = kwargs[stop_idx][2]
+        quote
+            Frames(nothing, ()->$start:$stop)
+        end
+    elseif isempty(kwarg_symbols)
+        quote 
+            Frames(nothing, ()->$start:$start+$args[1]-1)
+        end
+    end
 end
