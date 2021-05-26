@@ -39,7 +39,11 @@ Background(1:220, ground)
 
 # let the points appear one by one
 objects = [
-    Object(@Frames(prev_start()+2, stop=200), (args...) -> circle(O, 10, :fill), points[i]) for i in 1:npoints
+    Object(
+        @Frames(prev_start(), 200 - prev_start() + 1),
+        (args...) -> circle(O, 10, :fill),
+        points[i],
+    ) for _ in 1:npoints
 ]
 
 # easiest to move canvas to draw at origin

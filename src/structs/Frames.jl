@@ -102,7 +102,13 @@ end
 
 Return the frames based on a specified function. The function `func_frames` is simply evaluated 
 """
-function get_frames(parent, elem, func_frames::Function, last_frames::UnitRange; is_first = false)
+function get_frames(
+    parent,
+    elem,
+    func_frames::Function,
+    last_frames::UnitRange;
+    is_first = false,
+)
     return func_frames()
 end
 
@@ -115,7 +121,7 @@ Can be used to provide frame ranges like:
 @Frames(prev_start(), 10)
 ```
 """
-function prev_start() 
+function prev_start()
     if CURRENT_OBJECT_ACTION_TYPE[1] == :Object
         PREVIOUS_OBJECT[1].frames.frames[1]
     else
@@ -132,7 +138,7 @@ Can be used to provide frame ranges like:
 @Frames(prev_end()-10, 10)
 ```
 """
-function prev_end() 
+function prev_end()
     if CURRENT_OBJECT_ACTION_TYPE[1] == :Object
         PREVIOUS_OBJECT[1].frames.frames[end]
     else
@@ -175,11 +181,11 @@ macro Frames(start, in_args...)
     if stop_idx !== nothing
         stop = kwargs[stop_idx][2]
         quote
-            Frames(nothing, ()->$start:$stop)
+            Frames(nothing, () -> ($start):($stop))
         end
     elseif isempty(kwarg_symbols)
-        quote 
-            Frames(nothing, ()->$start:$start+$args[1]-1)
+        quote
+            Frames(nothing, () -> ($start):($start + $args[1] - 1))
         end
     end
 end

@@ -152,7 +152,7 @@ end
 
 Set the `object` as `PREVIOUS_OBJECT`
 """
-function set_previous_object(object::Object) 
+function set_previous_object(object::Object)
     if isempty(PREVIOUS_OBJECT)
         push!(PREVIOUS_OBJECT, object)
     else
@@ -165,7 +165,7 @@ end
 
 Set the `action` as `PREVIOUS_ACTION`
 """
-function set_previous_action(action::Action) 
+function set_previous_action(action::Action)
     if isempty(PREVIOUS_ACTION)
         push!(PREVIOUS_ACTION, action)
     else
@@ -178,7 +178,7 @@ end
 
 Set the `object` as `CURRENT_OBJECT` and update `PREVIOUS_OBJECT`/`PREVIOUS_ACTION`
 """
-function set_current_object(object::Object) 
+function set_current_object(object::Object)
     update_previous_object_or_action()
 
     if isempty(CURRENT_OBJECT)
@@ -193,7 +193,7 @@ end
 
 Set the `action` as `CURRENT_ACTION` and update `PREVIOUS_OBJECT`/`PREVIOUS_ACTION`
 """
-function set_current_action(action::Action) 
+function set_current_action(action::Action)
     update_previous_object_or_action()
 
     if isempty(CURRENT_ACTION)
@@ -227,7 +227,7 @@ on the type of `t`.
 """
 function set_current_action_type(t)
     type = :Object
-    if t isa AbstractAction 
+    if t isa AbstractAction
         type = :Action
     end
     if isempty(CURRENT_OBJECT_ACTION_TYPE)
