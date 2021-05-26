@@ -1,5 +1,8 @@
 # Javis.jl - Changelog
 
+## Unreleased
+- added `@Frames` macro for full power mode of defining frames
+
 ## v0.5.1
 - added support for Pluto notebooks
 - add alignment options to latex rendering
