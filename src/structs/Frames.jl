@@ -11,6 +11,7 @@ mutable struct Frames{T}
 end
 
 Base.convert(::Type{Frames}, x) = Frames(nothing, x)
+Base.convert(::Type{Frames}, x::Frames) = x
 Base.convert(::Type{Frames}, x::UnitRange) = Frames(x, x)
 
 Base.copy(f::Frames) = Frames(f.frames, f.user)
@@ -65,7 +66,7 @@ function get_frames(parent, elem, frames::Symbol, last_frames::UnitRange; is_fir
 end
 
 """
-    get_frames(parent, elem, relative::RFrames, last_frames::UnitRang; is_first=falsee)
+    get_frames(parent, elem, relative::RFrames, last_frames::UnitRange; is_first=falsee)
 
 Return the frames based on a relative frames [`RFrames`](@ref) object and the `last_frames`.
 """
@@ -94,4 +95,67 @@ function get_frames(parent, elem, glob::GFrames, last_frames::UnitRange; is_firs
         return glob.frames .- first(get_frames(parent)) .+ 1
     end
     return glob.frames
+end
+
+"""
+    function get_frames(parent, elem, func_frames::Function, last_frames::UnitRange; is_first = false)
+
+Return the frames based on a specified function. The function `func_frames` is simply evaluated 
+"""
+function get_frames(parent, elem, func_frames::Function, last_frames::UnitRange; is_first = false)
+    return func_frames()
+end
+
+"""
+    prev_start()
+
+The start frame of the previous object or for an action the start frame of the parental object.
+Can be used to provide frame ranges like:
+```
+@Frames(prev_start(), 10)
+```
+"""
+function prev_start() 
+    if CURRENT_OBJECT_ACTION_TYPE[1] == :Object
+        PREVIOUS_OBJECT[1].frames.frames[1]
+    else
+        PREVIOUS_ACTION[1].frames.frames[1]
+    end
+end
+
+"""
+    prev_end()
+
+The end frame of the previous object or for an action the end frame of the parental object.
+Can be used to provide frame ranges like:
+```
+@Frames(prev_end()-10, 10)
+```
+"""
+function prev_end() 
+    if CURRENT_OBJECT_ACTION_TYPE[1] == :Object
+        PREVIOUS_OBJECT[1].frames.frames[end]
+    else
+        PREVIOUS_ACTION[1].frames.frames[end]
+    end
+end
+
+"""
+    @Frames(start, len)
+
+Can be used to define frames using functions like [`prev_start`](@ref) or [`prev_end`](@ref)
+
+# Example
+```
+red_circ = Object(1:90, (args...)->circ("red"))
+blue_circ = Object(@Frames(prev_start()+20, 70), (args...)->circ("blue"))
+```
+is the same as
+```
+red_circ = Object(1:90, (args...)->circ("red"))
+blue_circ = Object(21:90, (args...)->circ("blue"))
+```
+"""
+macro Frames(start, len)
+    return :(Frames(nothing, ()->$start:$start+$len-1))
 end
