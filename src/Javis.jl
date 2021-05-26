@@ -168,6 +168,7 @@ end
         pathname="javis_GIBBERISH.gif",
         tempdirectory="",
         liveview=false,
+        livestream=false,
         ffmpeg_loglevel="panic"
     )
 
@@ -183,6 +184,7 @@ Renders all previously defined [`Object`](@ref) drawings to the user-defined `Vi
 - `tempdirectory::String`: The folder where each frame is stored
     Defaults to a temporary directory when not set
 - `liveview::Bool`: Causes a live image viewer to appear to assist with animation development
+- `liveview::Bool`: Livestream the rendered animation to the local network
 - `ffmpeg_loglevel::String`:
     - Can be used if there are errors with ffmpeg. Defaults to panic:
     All other options are described here: https://ffmpeg.org/ffmpeg.html
@@ -192,6 +194,7 @@ function render(
     framerate = 30,
     pathname = "javis_$(randstring(7)).gif",
     liveview = false,
+    livestream = false,
     tempdirectory = "",
     ffmpeg_loglevel = "panic",
 )
@@ -260,6 +263,14 @@ function render(
         mux("temp.stream", pathname, framerate; silent = true)
     else
         @error "Currently, only gif and mp4 creation is supported. Not a $ext."
+    end
+
+    if livestream == true
+        schedule(
+            @task begin
+                ffmpeg_exe(`-stream_loop -1 -i $pathname -f mpegts udp://0.0.0.0:8080`)
+            end
+        )
     end
 
     # even if liveview = false, show the rendered gif in the cell output
