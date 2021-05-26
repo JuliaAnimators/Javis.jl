@@ -133,7 +133,13 @@ end
     video = Video(500, 500)
     back = Object(1:25, ground, in_global_layer = true)
     act!(back, Action(anim_rotate(π / 2, π / 2)))
-    act!(back, Action(@Frames(prev_start(), stop=25), anim_translate(Point(25, 25), Point(25, 25))))
+    act!(
+        back,
+        Action(
+            @Frames(prev_start(), stop = 25),
+            anim_translate(Point(25, 25), Point(25, 25)),
+        ),
+    )
 
     Object(latex_title)
     red_ball = Object(RFrames(-24:0), (args...) -> circ_ret_trans(O, "red"), p1)
@@ -183,7 +189,7 @@ end
     p = Point(100, 0)
 
     Background(1:10, ground_black_on_white)
-    circ = Object(@Frames(1, stop=prev_end()), (args...) -> circ_ret_trans(), p)
+    circ = Object(@Frames(1, stop = prev_end()), (args...) -> circ_ret_trans(), p)
     act!(circ, Action(anim_rotate_around(0.0, 2π, O)))
     Object((args...) -> line(Point(-200, 0), Point(-200, -10 * ang(circ)), :stroke))
 
