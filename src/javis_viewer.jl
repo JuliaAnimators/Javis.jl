@@ -287,23 +287,40 @@ function _pluto_viewer(video::Video, frames::Int, objects::Vector)
     return arr
 end
 
+struct StreamConfig
+    livestreamto::Symbol
+    address::String
+    port::Int
+    twitch_key::String
+end
+
+function setup_stream(;livestreamto::Symbol = nothing, address::String = "0.0.0.0", port::Int = 8080, twitch_key::String = "")
+    StreamConfig(livestreamto, address, port, twitch_key)
+end
+
 function cancel_stream()
     # kill the ffmpeg process
     # ps aux | grep ffmpeg | grep test.gif | awk '{print $2}' | xargs kill -9 || true (hacky fix for bash errors)
-    try 
+    try
         run(
             pipeline(`ps aux`, 
             pipeline(`grep ffmpeg`,
             pipeline(`grep stream_loop`, 
-            pipeline(`awk '{print $2}'`, `xargs kill -9`)))) || true) 
+            pipeline(`awk '{print $2}'`, `xargs kill -9`)))));
     catch e
+        return "Not Streaming Anything Currently"
     end
+    return "Livestream Cancelled!"
 end
 
-function _livestream(livestreamto::Symbol, address::String, port::Int, framerate::Int, width::Int, height::Int, pathname::String, twitch_key::String)
-    # if the stream is in progress, cancel it
-    cancel_stream()
-    
+function _livestream(streamconfig::StreamConfig, framerate::Int, width::Int, height::Int, pathname::String)
+    livestreamto = streamconfig.livestreamto
+    twitch_key = streamconfig.twitch_key
+
+    if livestreamto == :twitch && isempty(twitch_key) 
+        return error("Please enter your twitch api key")
+    end
+
     command = [
         "-stream_loop", "-1", # loop the stream -1 i.e. indefinitely
         "-r", "$framerate",  # frames per second
@@ -311,6 +328,7 @@ function _livestream(livestreamto::Symbol, address::String, port::Int, framerate
         "-loglevel", "error",
         "-i", "$pathname",
         ]
+
     if livestreamto == :twitch
         if isempty(twitch_key)
             error("Please enter your twitch api key")
@@ -319,6 +337,8 @@ function _livestream(livestreamto::Symbol, address::String, port::Int, framerate
         push!(command, tw_cmd...)
         @info "Livestreaming to Twitch!"
     elseif livestreamto == :local
+        address = streamconfig.address
+        port = streamconfig.port
         local_command = ["-f", "mpegts" ,"udp://$address:$port"]
         push!(command, local_command...)
         @info "Livestream Started at udp://$address:$port"
@@ -329,7 +349,6 @@ function _livestream(livestreamto::Symbol, address::String, port::Int, framerate
             ffmpeg_exe(`$command`)
         end
         )
-    end
-    
-    # `ps aux|grep ffmpeg|grep test.gif|awk '{print $2}'`
-_livestream(livestreamto::Nothing, address::String, port::Int, framerate::Int, width::Int, height::Int, pathname::String, twitch_key::String) = return
+end
+
+_livestream(streamconfig::Nothing, framerate::Int, width::Int, height::Int, pathname::String) = return

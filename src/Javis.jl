@@ -199,10 +199,7 @@ function render(
     framerate = 30,
     pathname = "javis_$(randstring(7)).gif",
     liveview = false,
-    livestreamto = nothing,
-    address="0.0.0.0",
-    port=8080,
-    twitch_key="",
+    streamconfig::Union{StreamConfig, Nothing} = nothing,
     tempdirectory = "",
     ffmpeg_loglevel = "panic",
 )
@@ -273,8 +270,8 @@ function render(
         @error "Currently, only gif and mp4 creation is supported. Not a $ext."
     end
 
-    _livestream(livestreamto, address, port, framerate, video.width, video.height, pathname, twitch_key)
-    
+    _livestream(streamconfig, framerate, video.width, video.height, pathname)
+
     # even if liveview = false, show the rendered gif in the cell output
     if isdefined(Main, :IJulia) && Main.IJulia.inited
         display(MIME("text/html"), """<img src="$(pathname)">""")
@@ -444,6 +441,6 @@ export anim_translate, anim_rotate, anim_rotate_around, anim_scale
 
 # custom override of luxor extensions
 export setline, setopacity, fontsize, get_fontsize, scale, text
-export cancel_stream
+export setup_stream, cancel_stream
 
 end
