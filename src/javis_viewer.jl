@@ -286,3 +286,42 @@ function _pluto_viewer(video::Video, frames::Int, objects::Vector)
     arr = collect(get_javis_frame(video, objects, frame) for frame in 1:frames)
     return arr
 end
+
+function _livestream(livestreamto::Symbol, address::String, port::Int, width::Int, height::Int, pathname::String)
+    command = [
+            "-stream_loop", "-1",
+            "-f", "rawvideo",
+            "-s", "$(width)x$(height)",  # size of one frame
+            "-pix_fmt", "rgba",
+            "-r", "$framerate",  # frames per second
+            "-c:v", "h264_nvenc",
+            "-an",  # Tells FFMPEG not to expect any audio
+            "-loglevel", "error",
+            "-vcodec", "libx264",
+            "-pix_fmt", "yuv420p",
+            "-i", "$pathname",
+            ]
+        #         command += ["-f', 'mpegts']
+        #         command += [STREAMING_PROTOCOL + '://' + STREAMING_IP + ':' + STREAMING_PORT]
+        # else:
+        #     cmd = `-loglevel warning  -i $pathname -f mpegts udp://$address:port`
+    if livestreamto == :twitch
+        # if IS_STREAMING_TO_TWITCH:
+        #     command += ['-f', 'flv']
+        #     command += ['rtmp://live.twitch.tv/app/' + TWITCH_STREAM_KEY]
+        tw_cmd = ["-f", "flv", "rtmp://live.twitch.tv/app/$TWITCH_STREAM_KEY",]
+        push!(command, tw_cmd...)
+        
+    elseif livestreamto == :local
+        local_command = ["-f", "mpegts" ,"udp://$address:port\?listen"]
+        push!(command, local_command...)
+    end
+
+    schedule(
+        @task begin
+            ffmpeg_exe(`$command`)            )
+        end
+        )
+    @info "Livestream Started at udp://$address:$port"
+    
+end

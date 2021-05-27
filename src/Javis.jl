@@ -169,6 +169,8 @@ end
         tempdirectory="",
         liveview=false,
         livestream=false,
+        address=0.0.0.0,
+        port=8080,
         ffmpeg_loglevel="panic"
     )
 
@@ -184,7 +186,9 @@ Renders all previously defined [`Object`](@ref) drawings to the user-defined `Vi
 - `tempdirectory::String`: The folder where each frame is stored
     Defaults to a temporary directory when not set
 - `liveview::Bool`: Causes a live image viewer to appear to assist with animation development
-- `liveview::Bool`: Livestream the rendered animation to the local network
+- `livestreamto::Union{Symbol, Nothing}`: Livestream the rendered animation to the local network
+- `address::String` : Address for the livestream if streaming to local
+- `port::Int` : Port number for the livestream
 - `ffmpeg_loglevel::String`:
     - Can be used if there are errors with ffmpeg. Defaults to panic:
     All other options are described here: https://ffmpeg.org/ffmpeg.html
@@ -194,14 +198,16 @@ function render(
     framerate = 30,
     pathname = "javis_$(randstring(7)).gif",
     liveview = false,
-    livestream = false,
+    livestreamto = nothing,
+    address="0.0.0.0",
+    port=8080,
     tempdirectory = "",
     ffmpeg_loglevel = "panic",
 )
     objects = video.objects
     frames = preprocess_frames!(objects)
 
-    if liveview == true
+    if liveview
         if isdefined(Main, :IJulia) && Main.IJulia.inited
             return _jupyter_viewer(video, length(frames), objects, framerate)
 
@@ -265,14 +271,8 @@ function render(
         @error "Currently, only gif and mp4 creation is supported. Not a $ext."
     end
 
-    if livestream == true
-        schedule(
-            @task begin
-                ffmpeg_exe(`-stream_loop -1 -i $pathname -f mpegts udp://0.0.0.0:8080`)
-            end
-        )
-    end
-
+    _livestream(livestreamto, address, port, framerate, video.width, video.height, pathname)
+    
     # even if liveview = false, show the rendered gif in the cell output
     if isdefined(Main, :IJulia) && Main.IJulia.inited
         display(MIME("text/html"), """<img src="$(pathname)">""")
