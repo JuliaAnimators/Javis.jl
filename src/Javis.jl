@@ -183,13 +183,10 @@ Renders all previously defined [`Object`](@ref) drawings to the user-defined `Vi
 - `framerate::Int`: The frame rate of the video
 - `pathname::String`: The path for the rendered gif or mp4 (i.e `output.gif` or `output.mp4`)
     - **Default:** The animation is rendered as a gif with the `javis_` prefix and some gibberish afterwards
+- `liveview::Bool`: Causes a live image viewer to appear to assist with animation development
+- `streamconfig::Union{StreamConfig, Nothing}`: Contains livestream specific instructions 
 - `tempdirectory::String`: The folder where each frame is stored
     Defaults to a temporary directory when not set
-- `liveview::Bool`: Causes a live image viewer to appear to assist with animation development
-- `livestreamto::Union{Symbol, Nothing}`: Livestream the rendered animation to the local network
-- `address::String` : Address for the livestream if streaming to local
-- `port::Int` : Port number for the livestream
-- `twitch_key::String` : The twitch streaming key for your account
 - `ffmpeg_loglevel::String`:
     - Can be used if there are errors with ffmpeg. Defaults to panic:
     All other options are described here: https://ffmpeg.org/ffmpeg.html
