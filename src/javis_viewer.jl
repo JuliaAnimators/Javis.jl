@@ -287,14 +287,30 @@ function _pluto_viewer(video::Video, frames::Int, objects::Vector)
     return arr
 end
 
+function cancel_stream()
+    # kill the ffmpeg process
+    # ps aux | grep ffmpeg | grep test.gif | awk '{print $2}' | xargs kill -9 || true (hacky fix for bash errors)
+    try 
+        run(
+            pipeline(`ps aux`, 
+            pipeline(`grep ffmpeg`,
+            pipeline(`grep stream_loop`, 
+            pipeline(`awk '{print $2}'`, `xargs kill -9`)))) || true) 
+    catch e
+    end
+end
+
 function _livestream(livestreamto::Symbol, address::String, port::Int, framerate::Int, width::Int, height::Int, pathname::String, twitch_key::String)
+    # if the stream is in progress, cancel it
+    cancel_stream()
+    
     command = [
-            "-stream_loop", "-1", # loop the stream -1 i.e. indefinitely
-            "-r", "$framerate",  # frames per second
-            "-an",  # Tells FFMPEG not to expect any audio
-            "-loglevel", "error",
-            "-i", "$pathname",
-            ]
+        "-stream_loop", "-1", # loop the stream -1 i.e. indefinitely
+        "-r", "$framerate",  # frames per second
+        "-an",  # Tells FFMPEG not to expect any audio
+        "-loglevel", "error",
+        "-i", "$pathname",
+        ]
     if livestreamto == :twitch
         if isempty(twitch_key)
             error("Please enter your twitch api key")
@@ -315,4 +331,5 @@ function _livestream(livestreamto::Symbol, address::String, port::Int, framerate
         )
     end
     
+    # `ps aux|grep ffmpeg|grep test.gif|awk '{print $2}'`
 _livestream(livestreamto::Nothing, address::String, port::Int, framerate::Int, width::Int, height::Int, pathname::String, twitch_key::String) = return
