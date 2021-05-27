@@ -287,41 +287,32 @@ function _pluto_viewer(video::Video, frames::Int, objects::Vector)
     return arr
 end
 
-function _livestream(livestreamto::Symbol, address::String, port::Int, width::Int, height::Int, pathname::String)
+function _livestream(livestreamto::Symbol, address::String, port::Int, framerate::Int, width::Int, height::Int, pathname::String, twitch_key::String)
     command = [
-            "-stream_loop", "-1",
-            "-f", "rawvideo",
-            "-s", "$(width)x$(height)",  # size of one frame
-            "-pix_fmt", "rgba",
+            "-stream_loop", "-1", # loop the stream -1 i.e. indefinitely
             "-r", "$framerate",  # frames per second
-            "-c:v", "h264_nvenc",
             "-an",  # Tells FFMPEG not to expect any audio
             "-loglevel", "error",
-            "-vcodec", "libx264",
-            "-pix_fmt", "yuv420p",
             "-i", "$pathname",
             ]
-        #         command += ["-f', 'mpegts']
-        #         command += [STREAMING_PROTOCOL + '://' + STREAMING_IP + ':' + STREAMING_PORT]
-        # else:
-        #     cmd = `-loglevel warning  -i $pathname -f mpegts udp://$address:port`
     if livestreamto == :twitch
-        # if IS_STREAMING_TO_TWITCH:
-        #     command += ['-f', 'flv']
-        #     command += ['rtmp://live.twitch.tv/app/' + TWITCH_STREAM_KEY]
-        tw_cmd = ["-f", "flv", "rtmp://live.twitch.tv/app/$TWITCH_STREAM_KEY",]
+        if isempty(twitch_key)
+            error("Please enter your twitch api key")
+        end
+        tw_cmd = ["-f", "flv", "rtmp://live.twitch.tv/app/$twitch_key",]
         push!(command, tw_cmd...)
-        
+        @info "Livestreaming to Twitch!"
     elseif livestreamto == :local
-        local_command = ["-f", "mpegts" ,"udp://$address:port\?listen"]
+        local_command = ["-f", "mpegts" ,"udp://$address:$port"]
         push!(command, local_command...)
+        @info "Livestream Started at udp://$address:$port"
     end
 
     schedule(
         @task begin
-            ffmpeg_exe(`$command`)            )
+            ffmpeg_exe(`$command`)
         end
         )
-    @info "Livestream Started at udp://$address:$port"
+    end
     
-end
+_livestream(livestreamto::Nothing, address::String, port::Int, framerate::Int, width::Int, height::Int, pathname::String, twitch_key::String) = return

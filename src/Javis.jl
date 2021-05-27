@@ -189,6 +189,7 @@ Renders all previously defined [`Object`](@ref) drawings to the user-defined `Vi
 - `livestreamto::Union{Symbol, Nothing}`: Livestream the rendered animation to the local network
 - `address::String` : Address for the livestream if streaming to local
 - `port::Int` : Port number for the livestream
+- `twitch_key::String` : The twitch streaming key for your account
 - `ffmpeg_loglevel::String`:
     - Can be used if there are errors with ffmpeg. Defaults to panic:
     All other options are described here: https://ffmpeg.org/ffmpeg.html
@@ -201,6 +202,7 @@ function render(
     livestreamto = nothing,
     address="0.0.0.0",
     port=8080,
+    twitch_key="",
     tempdirectory = "",
     ffmpeg_loglevel = "panic",
 )
@@ -271,7 +273,7 @@ function render(
         @error "Currently, only gif and mp4 creation is supported. Not a $ext."
     end
 
-    _livestream(livestreamto, address, port, framerate, video.width, video.height, pathname)
+    _livestream(livestreamto, address, port, framerate, video.width, video.height, pathname, twitch_key)
     
     # even if liveview = false, show the rendered gif in the cell output
     if isdefined(Main, :IJulia) && Main.IJulia.inited
