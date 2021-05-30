@@ -251,7 +251,7 @@ function _javis_viewer(
 end
 
 """
-_jupyter_viewer(video::Video, frames::Int, actions::Vector)
+    _jupyter_viewer(video::Video, frames::Int, actions::Vector)
 
 Creates an interactive viewer in a Jupyter Notebook.
 """
@@ -265,7 +265,7 @@ function _jupyter_viewer(video::Video, frames::Int, objects::Vector, framerate::
 end
 
 """
-_pluto_viewer(video::Video, frames::Int, actions::Vector)
+    _pluto_viewer(video::Video, frames::Int, actions::Vector)
 
 Creates an interactive viewer in a Pluto Notebook by storing all the frames in-memory
 ```
@@ -287,6 +287,17 @@ function _pluto_viewer(video::Video, frames::Int, objects::Vector)
     return arr
 end
 
+"""
+    StreamConfig
+
+Holds the conguration for livestream, defaults to `nothing`
+
+#Fields
+- `livestreamto::Symbol` Livestream platform `:local` or `:twitch`  
+- `address::String` The IP address for the `:local` stream(ignored in case of `:twitch`)
+- `port::Int` The port for the `:local` stream(ignored in case of `:twitch`)
+- `twitch_key::String` TWITCH API key for your account
+"""
 struct StreamConfig
     livestreamto::Symbol
     address::String
@@ -294,10 +305,20 @@ struct StreamConfig
     twitch_key::String
 end
 
+"""
+    setup_stream(;livestreamto, address, port, twitch_key)
+
+Sets up the livestream configuration
+"""
 function setup_stream(;livestreamto::Symbol = nothing, address::String = "0.0.0.0", port::Int = 8080, twitch_key::String = "")
     StreamConfig(livestreamto, address, port, twitch_key)
 end
 
+"""
+    cancel_stream()
+
+Kills the livestreaming process
+"""
 function cancel_stream()
     # kill the ffmpeg process
     # ps aux | grep ffmpeg | grep test.gif | awk '{print $2}' | xargs kill -9 || true (hacky fix for bash errors)
@@ -313,6 +334,11 @@ function cancel_stream()
     return "Livestream Cancelled!"
 end
 
+"""
+    _livestream(streamconfig, framerate, width, height, pathname)
+
+Internal method for livestreaming 
+"""
 function _livestream(streamconfig::StreamConfig, framerate::Int, width::Int, height::Int, pathname::String)
     livestreamto = streamconfig.livestreamto
     twitch_key = streamconfig.twitch_key
