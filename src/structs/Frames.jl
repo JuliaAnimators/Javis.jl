@@ -180,12 +180,12 @@ macro Frames(start, in_args...)
     stop_idx = findfirst(==(:stop), kwarg_symbols)
     if stop_idx !== nothing
         stop = kwargs[stop_idx][2]
-        quote
-            Frames(nothing, () -> ($start):($stop))
-        end
+        return esc(quote
+            Javis.Frames(nothing, () -> ($start):($stop))
+        end)
     elseif isempty(kwarg_symbols)
-        quote
-            Frames(nothing, () -> ($start):($start + $args[1] - 1))
-        end
+        esc(quote
+            Javis.Frames(nothing, () -> ($start):($start + $args[1] - 1))
+        end)
     end
 end
