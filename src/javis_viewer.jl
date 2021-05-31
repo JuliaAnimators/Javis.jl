@@ -354,6 +354,7 @@ function _livestream(streamconfig::StreamConfig, framerate::Int, width::Int, hei
         "-r", "$framerate",  # frames per second
         "-an",  # Tells FFMPEG not to expect any audio
         "-loglevel", "error",
+        "-re",
         "-i", "$pathname",
         ]
 
@@ -381,3 +382,4 @@ function _livestream(streamconfig::StreamConfig, framerate::Int, width::Int, hei
 end
 
 _livestream(streamconfig::Nothing, framerate::Int, width::Int, height::Int, pathname::String) = return
+# srtp
