@@ -124,6 +124,7 @@ end
     @test isempty(conf_twitch_err.twitch_key)
     @test conf_twitch.twitch_key = "foo"
 
+    render(vid, streamconfig = conf_local)
     proc = run(
         pipeline(`ps aux`, 
         pipeline(`grep ffmpeg`,
@@ -132,12 +133,11 @@ end
     @test proc isa Base.ProcessChain
     @test proc.process isa Vector{Base.Process}
     
-    cancel_stream()
-    
-    test_local = run(pipeline(`lsof i-i -P -n`, `grep ffmpeg`))
+    test_local = run(pipeline(`lsof -i -P -n`, `grep ffmpeg`))
     @test test_local isa Base.ProcessChain
     @test test_local.process isa Vector{Base.Process}
     
+    cancel_stream()
     @test_throws ProcessFailedException run(
                                             pipeline(`ps aux`, 
                                             pipeline(`grep ffmpeg`,
