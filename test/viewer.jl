@@ -122,7 +122,7 @@ end
     @test conf_twitch_err isa Javis.StreamConfig
     @test conf_twitch_err.livestreamto == :twitch
     @test isempty(conf_twitch_err.twitch_key)
-    @test conf_twitch.twitch_key = "foo"
+    @test conf_twitch.twitch_key == "foo"
 
     render(vid, streamconfig = conf_local)
     proc = run(
@@ -131,11 +131,11 @@ end
         pipeline(`grep stream_loop`, `awk '{print $2}'`))))
 
     @test proc isa Base.ProcessChain
-    @test proc.process isa Vector{Base.Process}
+    @test proc.processes isa Vector{Base.Process}
     
     test_local = run(pipeline(`lsof -i -P -n`, `grep ffmpeg`))
     @test test_local isa Base.ProcessChain
-    @test test_local.process isa Vector{Base.Process}
+    @test test_local.processes isa Vector{Base.Process}
     
     cancel_stream()
     @test_throws ProcessFailedException run(
