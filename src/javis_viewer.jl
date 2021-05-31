@@ -324,16 +324,22 @@ Kills the livestreaming process
 function cancel_stream()
     # kill the ffmpeg process
     # ps aux | grep ffmpeg | grep stream_loop | awk '{print $2}' | xargs kill -9
-    try
+    try 
+        println("Checking for existing stream....")
         run(
             pipeline(`ps aux`, 
             pipeline(`grep ffmpeg`,
-            pipeline(`grep stream_loop`, 
-            pipeline(`awk '{print $2}'`, `xargs kill -9`)))));
-            return "Livestream Cancelled!"
+            pipeline(`grep stream_loop`, `awk '{print $2}'`))))
     catch
-        @warn "Not Streaming Anything Currently"
+        return @warn "Not Streaming Anything Currently"
     end
+    
+    run(
+        pipeline(`ps aux`, 
+        pipeline(`grep ffmpeg`,
+        pipeline(`grep stream_loop`, 
+        pipeline(`awk '{print $2}'`, `xargs kill -9`)))));
+        return "Livestream Cancelled!"
 end
 
 """
@@ -342,6 +348,8 @@ end
 Internal method for livestreaming 
 """
 function _livestream(streamconfig::StreamConfig, framerate::Int, width::Int, height::Int, pathname::String)    
+    cancel_stream()
+    
     livestreamto = streamconfig.livestreamto
     twitch_key = streamconfig.twitch_key
 
