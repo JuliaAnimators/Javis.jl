@@ -308,12 +308,12 @@ struct StreamConfig
 end
 
 """
-    setup_stream(;livestreamto, protocol, address, port, twitch_key)
+    setup_stream(livestreamto=:local; protocol="udp", address="0.0.0.0", port=8080, twitch_key="")
 
 Sets up the livestream configuration
 """
-function setup_stream(;livestreamto::Symbol = nothing, protocol::String = "udp", address::String = "0.0.0.0", port::Int = 8080, twitch_key::String = "")
-    StreamConfig(livestreamto, address, port, twitch_key)
+function setup_stream(livestreamto::Symbol = :local; protocol::String = "udp", address::String = "0.0.0.0", port::Int = 8080, twitch_key::String = "")
+    StreamConfig(livestreamto, protocol, address, port, twitch_key)
 end
 
 """
@@ -323,17 +323,17 @@ Kills the livestreaming process
 """
 function cancel_stream()
     # kill the ffmpeg process
-    # ps aux | grep ffmpeg | grep test.gif | awk '{print $2}' | xargs kill -9 || true (hacky fix for bash errors)
+    # ps aux | grep ffmpeg | grep stream_loop | awk '{print $2}' | xargs kill -9
     try
         run(
             pipeline(`ps aux`, 
             pipeline(`grep ffmpeg`,
             pipeline(`grep stream_loop`, 
             pipeline(`awk '{print $2}'`, `xargs kill -9`)))));
-    catch e
-        return "Not Streaming Anything Currently"
+            return "Livestream Cancelled!"
+    catch
+        @warn "Not Streaming Anything Currently"
     end
-    return "Livestream Cancelled!"
 end
 
 """
@@ -341,7 +341,7 @@ end
 
 Internal method for livestreaming 
 """
-function _livestream(streamconfig::StreamConfig, framerate::Int, width::Int, height::Int, pathname::String)
+function _livestream(streamconfig::StreamConfig, framerate::Int, width::Int, height::Int, pathname::String)    
     livestreamto = streamconfig.livestreamto
     twitch_key = streamconfig.twitch_key
 

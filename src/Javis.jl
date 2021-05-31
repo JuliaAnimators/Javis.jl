@@ -166,11 +166,9 @@ end
         video::Video;
         framerate=30,
         pathname="javis_GIBBERISH.gif",
-        tempdirectory="",
         liveview=false,
-        livestream=false,
-        address=0.0.0.0,
-        port=8080,
+        streamconfig::Union{StreamConfig, Nothing} = nothing,
+        tempdirectory="",
         ffmpeg_loglevel="panic"
     )
 
@@ -184,7 +182,7 @@ Renders all previously defined [`Object`](@ref) drawings to the user-defined `Vi
 - `pathname::String`: The path for the rendered gif or mp4 (i.e `output.gif` or `output.mp4`)
     - **Default:** The animation is rendered as a gif with the `javis_` prefix and some gibberish afterwards
 - `liveview::Bool`: Causes a live image viewer to appear to assist with animation development
-- `streamconfig::Union{StreamConfig, Nothing}`: Contains livestream specific instructions 
+- `streamconfig::Union{StreamConfig, Nothing}`: Contains livestream specific instructions, passed on to [`setup_stream`](@ref).
 - `tempdirectory::String`: The folder where each frame is stored
     Defaults to a temporary directory when not set
 - `ffmpeg_loglevel::String`:
