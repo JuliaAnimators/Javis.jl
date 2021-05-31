@@ -294,23 +294,25 @@ Holds the conguration for livestream, defaults to `nothing`
 
 #Fields
 - `livestreamto::Symbol` Livestream platform `:local` or `:twitch`  
+- `protocol::String` The streaming protocol to be used. Defaults to UDP
 - `address::String` The IP address for the `:local` stream(ignored in case of `:twitch`)
 - `port::Int` The port for the `:local` stream(ignored in case of `:twitch`)
 - `twitch_key::String` TWITCH API key for your account
 """
 struct StreamConfig
     livestreamto::Symbol
+    protocol::String
     address::String
     port::Int
     twitch_key::String
 end
 
 """
-    setup_stream(;livestreamto, address, port, twitch_key)
+    setup_stream(;livestreamto, protocol, address, port, twitch_key)
 
 Sets up the livestream configuration
 """
-function setup_stream(;livestreamto::Symbol = nothing, address::String = "0.0.0.0", port::Int = 8080, twitch_key::String = "")
+function setup_stream(;livestreamto::Symbol = nothing, protocol::String = "udp", address::String = "0.0.0.0", port::Int = 8080, twitch_key::String = "")
     StreamConfig(livestreamto, address, port, twitch_key)
 end
 
@@ -363,11 +365,12 @@ function _livestream(streamconfig::StreamConfig, framerate::Int, width::Int, hei
         push!(command, tw_cmd...)
         @info "Livestreaming to Twitch!"
     elseif livestreamto == :local
+        protocol = streamconfig.protocol
         address = streamconfig.address
         port = streamconfig.port
-        local_command = ["-f", "mpegts" ,"udp://$address:$port"]
+        local_command = ["-f", "mpegts" ,"$protocol://$address:$port"]
         push!(command, local_command...)
-        @info "Livestream Started at udp://$address:$port"
+        @info "Livestream Started at $protocol://$address:$port"
     end
 
     schedule(
