@@ -1,16 +1,5 @@
-"""
-    PlutoViewer
-
-Wrapper to assist viewing rendered gifs as cell outputs of Pluto notebooks
-when `liveview = false` 
-"""
-struct PlutoViewer
-    filename::String
-end
-
-function Base.show(io::IO, ::MIME"image/png", v::PlutoViewer)
-    write(io, read(v.filename))
-end
+include("structs/plutoviewer.jl")
+include("structs/livestream.jl")
 
 """
     _draw_image(video::Video, objects::Vector, frame::Int, canvas::Gtk.Canvas,
@@ -264,6 +253,10 @@ function _jupyter_viewer(video::Video, frames::Int, objects::Vector, framerate::
     @layout! wdg vbox(hbox(:f, :t), output)
 end
 
+function Base.show(io::IO, ::MIME"image/png", v::PlutoViewer)
+    write(io, read(v.filename))
+end
+
 """
     _pluto_viewer(video::Video, frames::Int, actions::Vector)
 
@@ -288,26 +281,6 @@ function _pluto_viewer(video::Video, frames::Int, objects::Vector)
 end
 
 """
-    StreamConfig
-
-Holds the conguration for livestream, defaults to `nothing`
-
-#Fields
-- `livestreamto::Symbol` Livestream platform `:local` or `:twitch`  
-- `protocol::String` The streaming protocol to be used. Defaults to UDP
-- `address::String` The IP address for the `:local` stream(ignored in case of `:twitch`)
-- `port::Int` The port for the `:local` stream(ignored in case of `:twitch`)
-- `twitch_key::String` TWITCH API key for your account
-"""
-struct StreamConfig
-    livestreamto::Symbol
-    protocol::String
-    address::String
-    port::Int
-    twitch_key::String
-end
-
-"""
     setup_stream(livestreamto=:local; protocol="udp", address="0.0.0.0", port=8080, twitch_key="")
 
 Sets up the livestream configuration
@@ -319,9 +292,12 @@ end
 """
     cancel_stream()
 
-Kills the livestreaming process
+Sends a `SIGKILL` signal to the livestreaming process. Though used internally, it can be used stop streaming.
+However this method is not guaranted to end the stream on the client side.
 """
 function cancel_stream()
+    #todo explore better ways of searching and killing processes
+
     # kill the ffmpeg process
     # ps aux | grep ffmpeg | grep stream_loop | awk '{print $2}' | xargs kill -9
     try 
@@ -361,27 +337,32 @@ function _livestream(streamconfig::StreamConfig, framerate::Int, width::Int, hei
         "-stream_loop", "-1", # loop the stream -1 i.e. indefinitely
         "-r", "$framerate",  # frames per second
         "-an",  # Tells FFMPEG not to expect any audio
-        "-loglevel", "error",
-        "-re",
-        "-i", "$pathname",
+        "-loglevel", "error", # show only ffmpeg errors
+        "-re", # read input at native frame rate
+        "-i", "$pathname", # input file
         ]
 
     if livestreamto == :twitch
         if isempty(twitch_key)
             error("Please enter your twitch api key")
         end
-        tw_cmd = ["-f", "flv", "rtmp://live.twitch.tv/app/$twitch_key",]
-        push!(command, tw_cmd...)
+
+        # 
+        twitch_cmd = ["-f", "flv", # force the file to flv format
+                "rtmp://live.twitch.tv/app/$twitch_key" # stream to the twitch platform using rtmp protocol
+                ]
+        push!(command, twitch_cmd...)
         @info "Livestreaming to Twitch!"
     elseif livestreamto == :local
         protocol = streamconfig.protocol
         address = streamconfig.address
         port = streamconfig.port
-        local_command = ["-f", "mpegts" ,"$protocol://$address:$port"]
+        local_command = ["-f", "mpegts" ,"$protocol://$address:$port"] # use an mpeg-ts format, and stream to the given address/port using the protocol
         push!(command, local_command...)
         @info "Livestream Started at $protocol://$address:$port"
     end
 
+    # schedule the streaming process and allow it to run asynchronously
     schedule(
         @task begin
             ffmpeg_exe(`$command`)
@@ -390,4 +371,3 @@ function _livestream(streamconfig::StreamConfig, framerate::Int, width::Int, hei
 end
 
 _livestream(streamconfig::Nothing, framerate::Int, width::Int, height::Int, pathname::String) = return
-# srtp
