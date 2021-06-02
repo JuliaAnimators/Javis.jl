@@ -352,16 +352,16 @@ function _livestream(
     end
 
     command = [
-        "-stream_loop",
-        "-1", # loop the stream -1 i.e. indefinitely
-        "-r",
-        "$framerate",  # frames per second
+        "-stream_loop", # loop the stream -1 times i.e. indefinitely
+        "-1",
+        "-r", # frames per second
+        "$framerate",
         "-an",  # Tells FFMPEG not to expect any audio
-        "-loglevel",
-        "error", # show only ffmpeg errors
+        "-loglevel", # show only ffmpeg errors
+        "error",
         "-re", # read input at native frame rate
-        "-i",
-        "$pathname", # input file
+        "-i", # input file
+        "$pathname",
     ]
 
     if livestreamto == :twitch
