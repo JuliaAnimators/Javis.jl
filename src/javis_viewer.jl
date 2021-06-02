@@ -348,7 +348,7 @@ function _livestream(
     twitch_key = streamconfig.twitch_key
 
     if livestreamto == :twitch && isempty(twitch_key)
-        return error("Please enter your twitch api key")
+        return error("Please enter your twitch stream key")
     end
 
     command = [

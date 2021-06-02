@@ -184,13 +184,13 @@ If you don't want to use the interactivity and simply display the output, set th
 
 
 ## Livestreaming animations
-Javis brings in the support to pipe the rendered animations to streaming softwares(like OBS, VLC) or directly to platforms like Twitch or any alternatives that can read from a network stream.
+Javis brings in the support to pipe the rendered animations to streaming software(like OBS, VLC) or directly to platforms like Twitch or any alternatives that can read from a network stream.
 
 - ### Streaming Locally
-Many eaducational streamers/teachers prefer using streaming tools like OBS/VLC to have more cretive control over thier streams. Javis livestreaming is tuned for that use case.
-The animation can be streamed to a local IP and port and can be viewed using any tool that can read from a network stream.
+Many educational streamers/teachers prefer using streaming tools like OBS/VLC to have more creative control over their streams. Javis livestreaming is tuned for such use cases.
+The animation can be streamed to a local IP/port and can be viewed using any tool that can read from a network stream.
 
-Firstly, one needs to setup the `StreamConfig` object that holds configuration regarding the streaming process. Javis uses `udp://127.0.0.1:8081` as the default streaming protocol, address and port respectively. However you're free to use any options of your choice.
+Firstly, one needs to setup the `StreamConfig` object that holds configuration regarding the streaming process. Javis uses `udp://0.0.0.0:14015` as the default streaming protocol, address and port respectively. However you're free to use any options of your choice.
 
 !!! warning
     
@@ -214,9 +214,9 @@ eg: `ffplay udp://127.0.0.1:8081`
 
 - ### Streaming to Twitch
 Javis allows streaming animations directly to the [Twitch](twitch.tv) platform.
-All you need to do is pass the symbol `:twitch` and your twitch api key as arguments to the `stream_setup` method.
+All you need to do is pass the symbol `:twitch` and your [twitch stream key](https://www.businessinsider.in/tech/how-to/how-to-find-your-twitch-stream-key-which-will-let-you-start-streaming-games-and-access-other-features/articleshow/76450099.cms) as arguments to the `stream_setup` method.
 ```julia
 ...
-stream_conf = setup_stream(:twitch, twitch_key = "<twitch api key>")
+stream_conf = setup_stream(:twitch, twitch_key = "<twitch stream key>")
 render(vid, streamconfig=stream_conf)
 ```

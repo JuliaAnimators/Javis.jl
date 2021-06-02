@@ -110,7 +110,7 @@ end
     star_obj = Object(1:100, astar)
     act!(star_obj, Action(morph_to(acirc; do_action = :fill)))
 
-    conf_local = setup_stream(:local, address = "0.0.0.0", port=8081)
+    conf_local = setup_stream(:local, address = "0.0.0.0", port = 8081)
     @test conf_local isa Javis.StreamConfig
     @test conf_local.livestreamto == :local
     @test conf_local.protocol == "udp"

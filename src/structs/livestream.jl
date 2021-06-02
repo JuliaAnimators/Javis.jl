@@ -8,7 +8,7 @@ Holds the conguration for livestream, defaults to `nothing`
 - `protocol::String` The streaming protocol to be used. Defaults to UDP
 - `address::String` The IP address for the `:local` stream(ignored in case of `:twitch`)
 - `port::Int` The port for the `:local` stream(ignored in case of `:twitch`)
-- `twitch_key::String` TWITCH API key for your account
+- `twitch_key::String` Twitch stream key for your account
 """
 struct StreamConfig
     livestreamto::Symbol
