@@ -214,7 +214,7 @@ eg: `ffplay udp://127.0.0.1:8081`
 
 - ### Streaming to Twitch
 Javis allows streaming animations directly to the [Twitch](twitch.tv) platform.
-All you need to do is pass `:twitch` and your twitch api key as arguments to the `stream_setup` method.
+All you need to do is pass the symbol `:twitch` and your twitch api key as arguments to the `stream_setup` method.
 ```julia
 ...
 stream_conf = setup_stream(:twitch, twitch_key = "<twitch api key>")

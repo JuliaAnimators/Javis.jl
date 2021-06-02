@@ -194,7 +194,7 @@ function render(
     framerate = 30,
     pathname = "javis_$(randstring(7)).gif",
     liveview = false,
-    streamconfig::Union{StreamConfig, Nothing} = nothing,
+    streamconfig::Union{StreamConfig,Nothing} = nothing,
     tempdirectory = "",
     ffmpeg_loglevel = "panic",
 )

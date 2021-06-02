@@ -285,7 +285,13 @@ end
 
 Sets up the livestream configuration
 """
-function setup_stream(livestreamto::Symbol = :local; protocol::String = "udp", address::String = "127.0.0.0", port::Int = 8081, twitch_key::String = "")
+function setup_stream(
+    livestreamto::Symbol = :local;
+    protocol::String = "udp",
+    address::String = "127.0.0.0",
+    port::Int = 8081,
+    twitch_key::String = "",
+)
     StreamConfig(livestreamto, protocol, address, port, twitch_key)
 end
 
@@ -300,22 +306,28 @@ function cancel_stream()
 
     # kill the ffmpeg process
     # ps aux | grep ffmpeg | grep stream_loop | awk '{print $2}' | xargs kill -9
-    try 
+    try
         println("Checking for existing stream....")
         run(
-            pipeline(`ps aux`, 
-            pipeline(`grep ffmpeg`,
-            pipeline(`grep stream_loop`, `awk '{print $2}'`))))
+            pipeline(
+                `ps aux`,
+                pipeline(`grep ffmpeg`, pipeline(`grep stream_loop`, `awk '{print $2}'`)),
+            ),
+        )
     catch
         return @warn "Not Streaming Anything Currently"
     end
-    
+
     run(
-        pipeline(`ps aux`, 
-        pipeline(`grep ffmpeg`,
-        pipeline(`grep stream_loop`, 
-        pipeline(`awk '{print $2}'`, `xargs kill -9`)))));
-        return "Livestream Cancelled!"
+        pipeline(
+            `ps aux`,
+            pipeline(
+                `grep ffmpeg`,
+                pipeline(`grep stream_loop`, pipeline(`awk '{print $2}'`, `xargs kill -9`)),
+            ),
+        ),
+    )
+    return "Livestream Cancelled!"
 end
 
 """
@@ -323,24 +335,34 @@ end
 
 Internal method for livestreaming 
 """
-function _livestream(streamconfig::StreamConfig, framerate::Int, width::Int, height::Int, pathname::String)    
+function _livestream(
+    streamconfig::StreamConfig,
+    framerate::Int,
+    width::Int,
+    height::Int,
+    pathname::String,
+)
     cancel_stream()
-    
+
     livestreamto = streamconfig.livestreamto
     twitch_key = streamconfig.twitch_key
 
-    if livestreamto == :twitch && isempty(twitch_key) 
+    if livestreamto == :twitch && isempty(twitch_key)
         return error("Please enter your twitch api key")
     end
 
     command = [
-        "-stream_loop", "-1", # loop the stream -1 i.e. indefinitely
-        "-r", "$framerate",  # frames per second
+        "-stream_loop",
+        "-1", # loop the stream -1 i.e. indefinitely
+        "-r",
+        "$framerate",  # frames per second
         "-an",  # Tells FFMPEG not to expect any audio
-        "-loglevel", "error", # show only ffmpeg errors
+        "-loglevel",
+        "error", # show only ffmpeg errors
         "-re", # read input at native frame rate
-        "-i", "$pathname", # input file
-        ]
+        "-i",
+        "$pathname", # input file
+    ]
 
     if livestreamto == :twitch
         if isempty(twitch_key)
@@ -348,26 +370,32 @@ function _livestream(streamconfig::StreamConfig, framerate::Int, width::Int, hei
         end
 
         # 
-        twitch_cmd = ["-f", "flv", # force the file to flv format
-                "rtmp://live.twitch.tv/app/$twitch_key" # stream to the twitch platform using rtmp protocol
-                ]
+        twitch_cmd = [
+            "-f",
+            "flv", # force the file to flv format
+            "rtmp://live.twitch.tv/app/$twitch_key", # stream to the twitch platform using rtmp protocol
+        ]
         push!(command, twitch_cmd...)
         @info "Livestreaming to Twitch!"
     elseif livestreamto == :local
         protocol = streamconfig.protocol
         address = streamconfig.address
         port = streamconfig.port
-        local_command = ["-f", "mpegts" ,"$protocol://$address:$port"] # use an mpeg-ts format, and stream to the given address/port using the protocol
+        local_command = ["-f", "mpegts", "$protocol://$address:$port"] # use an mpeg-ts format, and stream to the given address/port using the protocol
         push!(command, local_command...)
         @info "Livestream Started at $protocol://$address:$port"
     end
 
     # schedule the streaming process and allow it to run asynchronously
-    schedule(
-        @task begin
-            ffmpeg_exe(`$command`)
-        end
-        )
+    schedule(@task begin
+        ffmpeg_exe(`$command`)
+    end)
 end
 
-_livestream(streamconfig::Nothing, framerate::Int, width::Int, height::Int, pathname::String) = return
+_livestream(
+    streamconfig::Nothing,
+    framerate::Int,
+    width::Int,
+    height::Int,
+    pathname::String,
+) = return
