@@ -181,3 +181,42 @@ This will give you the ability to preview an animation with a slider:
 If you don't want to use the interactivity and simply display the output, set the `liveviewer` flag as `false` in the Javis `render` function and Pluto will display the gif:
 
 ![](assets/pluto_viewer.gif)
+
+
+## Livestreaming animations
+Javis brings in the support to pipe the rendered animations to streaming softwares(like OBS, VLC) or directly to platforms like Twitch or any alternatives that can read from a network stream.
+
+- ### Streaming Locally
+Many eaducational streamers/teachers prefer using streaming tools like OBS/VLC to have more cretive control over thier streams. Javis livestreaming is tuned for that use case.
+The animation can be streamed to a local IP and port and can be viewed using any tool that can read from a network stream.
+
+Firstly, one needs to setup the `StreamConfig` object that holds configuration regarding the streaming process. Javis uses `udp://127.0.0.1:8081` as the default streaming protocol, address and port respectively. However you're free to use any options of your choice.
+
+!!! warning
+    
+    While you can stream to any IP/port, we recommend using the default streaming protocol `udp` if you wish to share the stream with other people(connected over the network) or tools like OBS. 
+
+```julia
+...
+stream_conf = setup_stream(:local)
+render(vid, streamconfig=stream_conf)
+```
+Other use cases: If you wish to share an animation with a group of people connceted over the same network, you can start streaming and other people can access the stream using tools like VLC, ffplay, mplayer etc.
+
+An example of how to setup things on the receiver's side: 
+
+On OBS:
+![](assets/local_obs.png)
+
+For tools like ffplay one can view the stream by typing `ffplay <protocol>://<address>:<port>`  in the terminal.
+
+eg: `ffplay udp://127.0.0.1:8081`
+
+- ### Streaming to Twitch
+Javis allows streaming animations directly to the [Twitch](twitch.tv) platform.
+All you need to do is pass `:twitch` and your twitch api key as arguments to the `stream_setup` method.
+```julia
+...
+stream_conf = setup_stream(:twitch, twitch_key = "<twitch api key>")
+render(vid, streamconfig=stream_conf)
+```
