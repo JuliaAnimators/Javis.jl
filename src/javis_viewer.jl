@@ -281,15 +281,15 @@ function _pluto_viewer(video::Video, frames::Int, objects::Vector)
 end
 
 """
-    setup_stream(livestreamto=:local; protocol="udp", address="127.0.0.0", port=8081, twitch_key="")
+    setup_stream(livestreamto=:local; protocol="udp", address="0.0.0.0", port=14015, twitch_key="")
 
 Sets up the livestream configuration
 """
 function setup_stream(
     livestreamto::Symbol = :local;
     protocol::String = "udp",
-    address::String = "127.0.0.0",
-    port::Int = 8081,
+    address::String = "0.0.0.0",
+    port::Int = 14015,
     twitch_key::String = "",
 )
     StreamConfig(livestreamto, protocol, address, port, twitch_key)
