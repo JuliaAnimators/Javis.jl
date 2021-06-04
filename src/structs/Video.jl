@@ -13,7 +13,8 @@ Defines the video canvas for an animation.
 mutable struct Video
     width::Int
     height::Int
-    objects::Vector{AbstractObject}
+    layers::Vector{AbstractObject}
+    orphanObjects::Vector{AbstractObject} #use a better data structure here(array resizing makes allocations and takes up time)
     background_frames::Vector{Int}
     defs::Dict{Symbol,Any}
 end
@@ -36,12 +37,13 @@ This also sets `CURRENT_VIDEO`.
 function Video(width, height)
     # some luxor functions need a drawing ;)
     Drawing()
-    video = Video(width, height, AbstractObject[], Int[], Dict{Symbol,Any}())
+    video = Video(width, height, AbstractObject[], AbstractObject[],Int[], Dict{Symbol,Any}())
     if isempty(CURRENT_VIDEO)
         push!(CURRENT_VIDEO, video)
     else
         CURRENT_VIDEO[1] = video
     end
-    empty!(CURRENT_OBJECT)
+    # empty!(CURRENT_OBJECT)
+    empty!(CURRENT_LAYER)
     return video
 end

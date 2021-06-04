@@ -73,6 +73,8 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
     if isempty(CURRENT_VIDEO)
         throw(ErrorException("A `Video` must be defined before an `Object`"))
     end
+    
+
     CURRENT_VIDEO[1].defs[:last_frames] = frames
     opts = Dict(kwargs...)
 
@@ -90,7 +92,11 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
         Dict{Symbol,Any}(),
         Any[nothing],
     )
-    push!(CURRENT_VIDEO[1].objects, object)
+    if get(opts, :in_global_layer, false)
+        push!(CURRENT_VIDEO[1].layers, object)
+    else
+        push!(CURRENT_VIDEO[1].orphanObjects, object)
+    end
     return object
 end
 
