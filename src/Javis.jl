@@ -136,8 +136,6 @@ the actual frames for objects and actions.
 Shows a warning if some frames don't have a background.
 """
 function preprocess_frames!(objects::Vector{<:AbstractObject})
-    # flatten the layer tree into a list of objects
-    
     compute_frames!(objects)
 
     for (i, object) in enumerate(objects)
@@ -171,13 +169,13 @@ function flatten(layers::Vector{AbstractObject})
     end
     return objects
 end
-
+# if the layer has child layer
 function flatten!(objects::Array{AbstractObject}, l::Layer)
     for obj in l.children
         flatten!(objects, obj)
     end
 end
-
+# finally objects
 flatten!(objects::Array{AbstractObject}, object::Object) = push!(objects, object)
 
 """
@@ -214,7 +212,9 @@ function render(
     tempdirectory = "",
     ffmpeg_loglevel = "panic",
 )
+    # flatten the layer tree into a list of objects
     objects = flatten(video.layers)
+    # push the orphanObjects at the end 
     !isempty(video.orphanObjects) && push!(objects, video.orphanObjects...)
     frames = preprocess_frames!(objects)
 
@@ -315,8 +315,9 @@ function get_javis_frame(video, layers, frame)
     Drawing(video.width, video.height, :image)
     origin()
     origin_matrix = cairotojuliamatrix(getmatrix())
-    # this frame needs doing, see if each of the scenes defines it
+
     for layer in layers
+        #if the layer is actually a Background or orphanlayer
         if layer isa Object
             CURRENT_OBJECT[1] = layer
             if get(layer.opts, :in_global_layer, false)
@@ -324,7 +325,7 @@ function get_javis_frame(video, layers, frame)
                 # update origin_matrix as it's inside the global layer
                 origin_matrix = cairotojuliamatrix(getmatrix())
                 update_background_settings!(background_settings, layer)    
-            else
+            else #for orphan objects
                 if frame in get_frames(layer)
                     @layer begin
                         draw_object(layer, video, frame, origin_matrix)
@@ -333,7 +334,16 @@ function get_javis_frame(video, layers, frame)
             end
             continue
         end
+        # the the layer isa layer
         objects = layer.children
+
+    # currently this approach is still object based
+    # nothing much related to layers happens here except the higher @layer block
+    # define get_frames for a layer so that the layer is not rendered beyond the frame range
+    
+    # nomenclature is a headache...objects and layers are used interchangebly here.
+    # update_layer_settings is what we need to give this to have awesome properties
+    # but before that please have the layer positioning thing sorted out
 
         @layer begin
             for object in objects

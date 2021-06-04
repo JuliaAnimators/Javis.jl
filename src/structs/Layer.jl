@@ -10,6 +10,11 @@ end
 const CURRENT_LAYER = Array{Layer,1}()
 
 function to_layer!(layer::Layer, frames, obj::Union{AbstractObject, Vector{<:AbstractObject}})
+    # orphan objects are the objects that may or maynot be adopted into a layer 
+    # Better nomenclature please
+    # this is an expensive operation
+    # we can get rid of the orphanObjects field and have such objects sit in the layers field in Video
+    # but just to have clarity right now let's keep them separate
     orphan_objects = CURRENT_VIDEO[1].orphanObjects
     adopt!(orphan_objects, obj)
     to_layer!(layer, obj)
@@ -20,7 +25,7 @@ to_layer!(layer::Layer, obj::AbstractObject) = push!(layer.children, obj)
 to_layer!(layer::Layer, obj::Vector{<:AbstractObject}) = push!(layer.children, obj...)# removes the object from orphanObjects
 
 function adopt!(orphan_objects::Vector{AbstractObject}, obj::AbstractObject)
-    filter!(x->x≠"s",orphan_objects)
+    filter!(x->x≠obj,orphan_objects)
 end
 function adopt!(orphan_objects::Vector{AbstractObject}, obj::Vector{<:AbstractObject})
     filter!(x->x∉obj,orphan_objects)
@@ -44,15 +49,16 @@ function Layer(frames, width = CURRENT_VIDEO[1].width, height = CURRENT_VIDEO[1]
     empty!(CURRENT_OBJECT)
     return layer
 end
-"""
-Removes objects from the layer
-also from the video
-todo: clear other fields too
-"""
-function clear_layer!()
-    Javis.CURRENT_VIDEO[1].layers[1].children = AbstractObject[]
-    Javis.CURRENT_LAYER[1].children = AbstractObject[]
-end
+
+# """
+# Removes objects from the layer
+# also from the video
+# todo: clear other fields too
+# """
+# function clear_layer!()
+#     Javis.CURRENT_VIDEO[1].layers[1].children = AbstractObject[]
+#     Javis.CURRENT_LAYER[1].children = AbstractObject[]
+# end
 
 
 
