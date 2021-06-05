@@ -21,9 +21,21 @@ function to_layer!(layer::Layer, frames, obj::Union{AbstractObject, Vector{<:Abs
     # add other properties if any
 end
 
-to_layer!(layer::Layer, obj::AbstractObject) = push!(layer.children, obj)
-to_layer!(layer::Layer, obj::Vector{<:AbstractObject}) = push!(layer.children, obj...)# removes the object from orphanObjects
+function to_layer!(layer::Layer, obj::Vector{<:AbstractObject}) 
+    for o in obj
+        to_layer!(layer, o)
+    end
+end
 
+to_layer!(layer::Layer, obj::Object) = push!(layer.children, obj)
+
+#removes the layer from the children field if that layer is made a child of another layer
+function to_layer!(layer::Layer, lyr::Layer)
+    filter!(x->x≠lyr,CURRENT_VIDEO[1].layers)
+    push!(layer.children, lyr)
+end
+
+# removes the object from orphanObjects
 function adopt!(orphan_objects::Vector{AbstractObject}, obj::AbstractObject)
     filter!(x->x≠obj,orphan_objects)
 end

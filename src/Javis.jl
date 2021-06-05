@@ -317,25 +317,33 @@ function get_javis_frame(video, layers, frame)
     origin_matrix = cairotojuliamatrix(getmatrix())
 
     for layer in layers
-        #if the layer is actually a Background or orphanlayer
-        if layer isa Object
-            CURRENT_OBJECT[1] = layer
-            if get(layer.opts, :in_global_layer, false)
-                draw_object(layer, video, frame, origin_matrix)
-                # update origin_matrix as it's inside the global layer
-                origin_matrix = cairotojuliamatrix(getmatrix())
-                update_background_settings!(background_settings, layer)    
-            else #for orphan objects
-                if frame in get_frames(layer)
-                    @layer begin
-                        draw_object(layer, video, frame, origin_matrix)
-                    end
-                end
-            end
-            continue
+        draw_layer(video, layer, frame, background_settings, origin_matrix)
+    end
+    img = image_as_matrix()
+    finish()
+    return img
+end
+
+function draw_layer(video, object::Object, frame, background_settings, origin_matrix)
+    CURRENT_OBJECT[1] = object
+    
+    if get(object.opts, :in_global_layer, false)
+        draw_object(object, video, frame, origin_matrix)
+    
+        # update origin_matrix as it's inside the global layer
+        origin_matrix = cairotojuliamatrix(getmatrix())
+        update_background_settings!(background_settings, object)    
+    
+    elseif frame in get_frames(object)
+        @layer begin
+            update_object_settings!(object, background_settings)
+            draw_object(object, video, frame, origin_matrix)
         end
-        # the the layer isa layer
-        objects = layer.children
+    end
+end
+
+function draw_layer(video, layer::Layer, frame, background_settings, origin_matrix)
+    objects = layer.children
 
     # currently this approach is still object based
     # nothing much related to layers happens here except the higher @layer block
@@ -344,19 +352,12 @@ function get_javis_frame(video, layers, frame)
     # nomenclature is a headache...objects and layers are used interchangebly here.
     # update_layer_settings is what we need to give this to have awesome properties
     # but before that please have the layer positioning thing sorted out
-
-        @layer begin
-            for object in objects
-                update_object_settings!(object, background_settings)
-                CURRENT_OBJECT[1] = object
-                @layer begin
-                    if frame in get_frames(object)
-                        draw_object(object, video, frame, origin_matrix)    
-                    end
-                end
-            end
+    @layer begin
+        for object in objects
+            draw_layer(video, object, frame, background_settings, origin_matrix)
         end
     end
+end
 
 # this is what luxor does
 # so we can translate the layer to a specific pos
@@ -372,12 +373,7 @@ function get_javis_frame(video, layers, frame)
 #         sethue("black")
 #         text(replace(string(f), "Luxor." => ""), Point(0, h/2 - 20), halign=:center)
 #     end
-# end
-
-    img = image_as_matrix()
-    finish()
-    return img
-end
+# end    
 
 """
     draw_object(object, video, frame, origin_matrix)
