@@ -1,5 +1,8 @@
 # Javis.jl - Changelog
 
+## Unreleased
+- `frames` keyword for `render` for faster rendering
+
 ## v0.5.1
 - added support for Pluto notebooks
 - add alignment options to latex rendering

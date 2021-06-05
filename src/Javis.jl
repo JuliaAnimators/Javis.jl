@@ -186,6 +186,8 @@ Renders all previously defined [`Object`](@ref) drawings to the user-defined `Vi
 - `ffmpeg_loglevel::String`:
     - Can be used if there are errors with ffmpeg. Defaults to panic:
     All other options are described here: https://ffmpeg.org/ffmpeg.html
+- `frames`: Only render these frames for faster rendering
+    - **Default:** All frames get rendered
 """
 function render(
     video::Video;
@@ -194,9 +196,14 @@ function render(
     liveview = false,
     tempdirectory = "",
     ffmpeg_loglevel = "panic",
+    frames = nothing
 )
     objects = video.objects
+    render_frames = frames
     frames = preprocess_frames!(objects)
+    if render_frames === nothing
+        render_frames = frames
+    end
 
     if liveview == true
         if isdefined(Main, :IJulia) && Main.IJulia.inited
@@ -227,12 +234,16 @@ function render(
 
     filecounter = 1
     @showprogress 1 "Rendering frames..." for frame in frames
-        frame_image = convert.(RGB, get_javis_frame(video, objects, frame))
-        if !isempty(tempdirectory)
+        if frame in render_frames
+            frame_image = convert.(RGB, get_javis_frame(video, objects, frame))
+        else
+            compute_javis_frame(video, objects, frame)
+        end
+        if !isempty(tempdirectory) && frame in render_frames
             Images.save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
         end
-        if render_mp4
-            if frame == first(frames)
+        if render_mp4 && frame in render_frames
+            if frame == first(render_frames)
                 video_encoder = prepareencoder(
                     frame_image,
                     framerate = framerate,
@@ -290,6 +301,13 @@ be applied to.
 - `Array{ARGB32, 2}` - request frame as a matrix
 """
 function get_javis_frame(video, objects, frame)
+    compute_javis_frame(video, objects, frame)
+    img = image_as_matrix()
+    finish()
+    return img
+end
+
+function compute_javis_frame(video, objects, frame)
     background_settings = ObjectSetting()
     Drawing(video.width, video.height, :image)
     origin()
@@ -317,9 +335,6 @@ function get_javis_frame(video, objects, frame)
         # if object is in global layer this changes the background settings
         update_background_settings!(background_settings, object)
     end
-    img = image_as_matrix()
-    finish()
-    return img
 end
 
 """
