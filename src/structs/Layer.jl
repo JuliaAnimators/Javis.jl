@@ -9,7 +9,12 @@ end
 
 const CURRENT_LAYER = Array{Layer,1}()
 
-function to_layer!(layer::Layer, frames, obj::Union{AbstractObject, Vector{<:AbstractObject}})
+
+#the frames specified in the to_layer! method are a bit 
+#too much since we already define the frame range for objects and layers
+#let's make this optional and have the default fetch that the object's frame range
+
+function to_layer!(layer::Layer, obj::Union{AbstractObject, Vector{<:AbstractObject}})
     # orphan objects are the objects that may or maynot be adopted into a layer 
     # Better nomenclature please
     # this is an expensive operation
@@ -21,13 +26,13 @@ function to_layer!(layer::Layer, frames, obj::Union{AbstractObject, Vector{<:Abs
     # add other properties if any
 end
 
-function to_layer!(layer::Layer, obj::Vector{<:AbstractObject}) 
-    for o in obj
-        to_layer!(layer, o)
+function to_layer!(layer::Layer, objects::Vector{<:AbstractObject}) 
+    for object in objects
+        to_layer!(layer, object)
     end
 end
 
-to_layer!(layer::Layer, obj::Object) = push!(layer.children, obj)
+to_layer!(layer::Layer, object::Object) = push!(layer.children, object)
 
 #removes the layer from the children field if that layer is made a child of another layer
 function to_layer!(layer::Layer, lyr::Layer)

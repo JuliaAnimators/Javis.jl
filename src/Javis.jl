@@ -343,8 +343,6 @@ function draw_layer(video, object::Object, frame, background_settings, origin_ma
 end
 
 function draw_layer(video, layer::Layer, frame, background_settings, origin_matrix)
-    objects = layer.children
-
     # currently this approach is still object based
     # nothing much related to layers happens here except the higher @layer block
     # define get_frames for a layer so that the layer is not rendered beyond the frame range
@@ -352,9 +350,12 @@ function draw_layer(video, layer::Layer, frame, background_settings, origin_matr
     # nomenclature is a headache...objects and layers are used interchangebly here.
     # update_layer_settings is what we need to give this to have awesome properties
     # but before that please have the layer positioning thing sorted out
-    @layer begin
-        for object in objects
-            draw_layer(video, object, frame, background_settings, origin_matrix)
+    if frame in get_frames(layer)
+        objects = layer.children
+        @layer begin
+            for object in objects
+                draw_layer(video, object, frame, background_settings, origin_matrix)
+            end
         end
     end
 end

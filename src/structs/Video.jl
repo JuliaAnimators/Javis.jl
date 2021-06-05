@@ -43,7 +43,6 @@ function Video(width, height)
     else
         CURRENT_VIDEO[1] = video
     end
-    # empty!(CURRENT_OBJECT)
     empty!(CURRENT_LAYER)
     return video
 end
