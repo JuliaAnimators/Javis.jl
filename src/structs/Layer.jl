@@ -4,40 +4,45 @@ mutable struct Layer <:AbstractObject
     height::Int
     children::Vector{AbstractObject}
     position::Point
-    misc::Dict{Symbol,Any}
+    misc::Dict{Symbol,Any} # rename this to opts
 end
 
 const CURRENT_LAYER = Array{Layer,1}()
 
-
 #the frames specified in the to_layer! method are a bit 
 #too much since we already define the frame range for objects and layers
 #let's make this optional and have the default fetch that the object's frame range
-
-function to_layer!(layer::Layer, obj::Union{AbstractObject, Vector{<:AbstractObject}})
+function to_layer!(layer::Layer, lifetime, objects::Union{AbstractObject, Vector{<:AbstractObject}})
     # orphan objects are the objects that may or maynot be adopted into a layer 
     # Better nomenclature please
     # this is an expensive operation
     # we can get rid of the orphanObjects field and have such objects sit in the layers field in Video
     # but just to have clarity right now let's keep them separate
+    
     orphan_objects = CURRENT_VIDEO[1].orphanObjects
-    adopt!(orphan_objects, obj)
-    to_layer!(layer, obj)
+    adopt!(orphan_objects, objects)
+    
+    layer_frames = layer.frames.frames
+    if layer_frames.start > lifetime.start || layer_frames.stop < lifetime.stop
+        @warn "Object/Layer exists outside the frame range of the layer. Using the layer framerange as the Object lifetime" 
+        lifetime = layer_frames
+    end
+
+    for object in objects
+        to_layer!(layer, lifetime, object)
+    end
     # add other properties if any
 end
 
-function to_layer!(layer::Layer, objects::Vector{<:AbstractObject}) 
-    for object in objects
-        to_layer!(layer, object)
-    end
+function to_layer!(layer::Layer, lifetime, object::Object)
+    push!(layer.children, object)
+    push!(object.opts, (:lifetime => lifetime))
 end
 
-to_layer!(layer::Layer, object::Object) = push!(layer.children, object)
-
-#removes the layer from the children field if that layer is made a child of another layer
-function to_layer!(layer::Layer, lyr::Layer)
+function to_layer!(layer::Layer, lifetime, lyr::Layer)
     filter!(x->x≠lyr,CURRENT_VIDEO[1].layers)
     push!(layer.children, lyr)
+    push!(layer.misc, (:lifetime => lifetime))
 end
 
 # removes the object from orphanObjects
@@ -53,7 +58,7 @@ end
 # if width and height are different from that in the video
 # specify the position of the layer
 
-function Layer(frames, width = CURRENT_VIDEO[1].width, height = CURRENT_VIDEO[1].width, position = O; misc = Dict())
+function Layer(frames, width = CURRENT_VIDEO[1].width, height = CURRENT_VIDEO[1].width, position = O; misc = Dict{Symbol, Any}())
     layer = Layer(frames, width, height, AbstractObject[], position, misc)
 
     if isempty(CURRENT_LAYER)

@@ -52,9 +52,9 @@ Transformation(p, a) = Transformation(p, a, 1.0)
 Transformation(p, a, s::Float64) = Transformation(p, a, (s, s))
 Transformation(p, a, s::Tuple{Float64,Float64}) = Transformation(p, a, Scale(s...))
 
-include("structs/Layer.jl")
 include("structs/ObjectSetting.jl")
 include("structs/Object.jl")
+include("structs/Layer.jl")
 include("structs/Transitions.jl")
 include("structs/Action.jl")
 
@@ -334,7 +334,7 @@ function draw_layer(video, object::Object, frame, background_settings, origin_ma
         origin_matrix = cairotojuliamatrix(getmatrix())
         update_background_settings!(background_settings, object)    
     
-    elseif frame in get_frames(object)
+    elseif frame in get_frames(object) && frame in get(object.opts, :lifetime, frame)
         @layer begin
             update_object_settings!(object, background_settings)
             draw_object(object, video, frame, origin_matrix)
@@ -350,7 +350,7 @@ function draw_layer(video, layer::Layer, frame, background_settings, origin_matr
     # nomenclature is a headache...objects and layers are used interchangebly here.
     # update_layer_settings is what we need to give this to have awesome properties
     # but before that please have the layer positioning thing sorted out
-    if frame in get_frames(layer)
+    if frame in get_frames(layer) && frame in get(layer.misc, :lifetime, frame)
         objects = layer.children
         @layer begin
             for object in objects
