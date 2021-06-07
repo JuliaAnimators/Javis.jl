@@ -54,6 +54,7 @@ Transformation(p, a, s::Tuple{Float64,Float64}) = Transformation(p, a, Scale(s..
 
 include("structs/ObjectSetting.jl")
 include("structs/Object.jl")
+include("structs/LayerSetting.jl")
 include("structs/Layer.jl")
 include("structs/Transitions.jl")
 include("structs/Action.jl")
@@ -245,7 +246,7 @@ function render(
         tempdirectory = mktempdir()
     end
 
-    layers = [video.layers..., video.orphanObjects...]
+    layers = [video.orphanObjects..., video.layers...]
     filecounter = 1
     @showprogress 1 "Rendering frames..." for frame in frames
         frame_image = convert.(RGB, get_javis_frame(video, layers, frame))
@@ -336,13 +337,17 @@ function draw_layer(video, object::Object, frame, background_settings, origin_ma
     
     elseif frame in get_frames(object) && frame in get(object.opts, :lifetime, frame)
         @layer begin
-            update_object_settings!(object, background_settings)
+            update_object_settings!(object, CURRENT_LAYER[1].current_setting) #apply the layer setting to the child object 
+            # update_object_settings!(object, background_settings)
             draw_object(object, video, frame, origin_matrix)
         end
     end
 end
 
 function draw_layer(video, layer::Layer, frame, background_settings, origin_matrix)
+    CURRENT_LAYER[1] = layer
+    cls = get_current_layer_setting()
+    !cls.show_object && return
     # currently this approach is still object based
     # nothing much related to layers happens here except the higher @layer block
     # define get_frames for a layer so that the layer is not rendered beyond the frame range
@@ -352,7 +357,8 @@ function draw_layer(video, layer::Layer, frame, background_settings, origin_matr
     # but before that please have the layer positioning thing sorted out
     if frame in get_frames(layer) && frame in get(layer.misc, :lifetime, frame)
         objects = layer.children
-        @layer begin
+        cls.hue != "" && sethue(cls.hue)
+            @layer begin
             for object in objects
                 draw_layer(video, object, frame, background_settings, origin_matrix)
             end

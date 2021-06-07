@@ -92,11 +92,8 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
         Dict{Symbol,Any}(),
         Any[nothing],
     )
-    if get(opts, :in_global_layer, false)
-        push!(CURRENT_VIDEO[1].layers, object)
-    else
-        push!(CURRENT_VIDEO[1].orphanObjects, object)
-    end
+    # ground is always an orphan object
+    push!(CURRENT_VIDEO[1].orphanObjects, object) 
     return object
 end
 

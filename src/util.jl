@@ -51,6 +51,16 @@ function get_current_setting()
 end
 
 """
+    get_current_layer_setting()
+
+Return the current setting of the current layer
+"""
+function get_current_layer_setting()
+    layer = CURRENT_LAYER[1]
+    return layer.current_setting
+end
+
+"""
     get_interpolation(frames::UnitRange, frame)
 
 Return a value between 0 and 1 which represents the relative `frame` inside `frames`.
