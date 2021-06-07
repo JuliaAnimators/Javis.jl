@@ -348,13 +348,7 @@ function draw_layer(video, layer::Layer, frame, background_settings, origin_matr
     CURRENT_LAYER[1] = layer
     cls = get_current_layer_setting()
     !cls.show_object && return
-    # currently this approach is still object based
-    # nothing much related to layers happens here except the higher @layer block
-    # define get_frames for a layer so that the layer is not rendered beyond the frame range
     
-    # nomenclature is a headache...objects and layers are used interchangebly here.
-    # update_layer_settings is what we need to give this to have awesome properties
-    # but before that please have the layer positioning thing sorted out
     if frame in get_frames(layer) && frame in get(layer.misc, :lifetime, frame)
         objects = layer.children
         cls.hue != "" && sethue(cls.hue)
@@ -365,22 +359,6 @@ function draw_layer(video, layer::Layer, frame, background_settings, origin_matr
         end
     end
 end
-
-# this is what luxor does
-# so we can translate the layer to a specific pos
-#     @layer begin
-#         translate(pos) -----------|  
-#         setline(0.5)   -----------|
-#         sethue("black")-----------|>> we will have to do this to implement the properties for every layer
-#         box(O, w, h, :stroke)-----|
-#         sethue("purple")----------|
-#         for i in 0:0.005:1.0
-#             circle(Point(-w/2, h/2) + Point(w * i, -f(i, 0, h, 1)), 1, :fill)
-#         end
-#         sethue("black")
-#         text(replace(string(f), "Luxor." => ""), Point(0, h/2 - 20), halign=:center)
-#     end
-# end    
 
 """
     draw_object(object, video, frame, origin_matrix)

@@ -1,8 +1,4 @@
-#todo
-# figure out if we need a layer setting 
-# also in other places instead of fetching the global background layer
-# fetch stuff from the CURRENT_LAYER if a layer is defined
-
+# can more settings be defined for a layer?
 mutable struct LayerSetting
     hue::String
     line_width::Float64
