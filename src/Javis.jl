@@ -357,22 +357,22 @@ end
 
 function get_javis_frame(video, frame)
     background_settings = ObjectSetting()
-    origin()
     layers = video.layers
-
-    # for each layer render it's objects and store the image matrix
-    for layer in layers
-        if frame in get_frames(layer)
-            mat = @imagematrix begin
-                get_layer_frame(video, layer, frame, background_settings)
-              end layer.width layer.height     
-            layer.image_matrix[1] = mat
+    if !isempty(layers)
+        # for each layer render it's objects and store the image matrix
+        for layer in layers
+            if frame in get_frames(layer)
+                mat = @imagematrix begin
+                    get_layer_frame(video, layer, frame, background_settings)
+                end layer.width layer.height     
+                layer.image_matrix[1] = mat
+            end
         end
-    end
 
-    # for each layer apply respective actions,
-    # place the layer matrix over an empty canvas 
-    img_layers = apply_layer_actions(video, layers, frame)
+        # for each layer apply respective actions,
+        # place the layer matrix over an empty canvas 
+        img_layers = apply_layer_actions(video, layers, frame)
+    end
 
     # finally render the independent objects
     objects = video.objects
@@ -395,8 +395,10 @@ function get_javis_frame(video, frame)
         update_background_settings!(background_settings, object)
     end
 
-    # place the matrix containing all the layers over the global matrix
-    placeimage(img_layers, Point(-video.width/2 , -video.height/2))
+    if !isempty(layers)
+        # place the matrix containing all the layers over the global matrix
+        placeimage(img_layers, Point(-video.width/2 , -video.height/2))
+    end
     img = image_as_matrix()
     finish()
     return img
