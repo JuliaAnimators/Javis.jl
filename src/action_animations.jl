@@ -154,6 +154,11 @@ function _translate(video, object, action, rel_frame)
     Luxor.translate(p)
 end
 
+function _translate(video, layer::Layer, action, rel_frame)
+    p = get_interpolation(action, rel_frame)
+    layer.position = p
+end
+
 """
     rotate()
 
@@ -259,6 +264,11 @@ end
 function _scale(video, object, action, rel_frame)
     s = get_interpolation(action, rel_frame)
     scaleto(s)
+end
+
+function _scale(video, layer::Layer, action, rel_frame)
+    s = get_interpolation(action, rel_frame)
+    layer.current_setting.scale = s
 end
 
 """

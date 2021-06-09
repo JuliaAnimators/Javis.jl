@@ -12,7 +12,7 @@ import Interact: @map, Widget, Widgets, @layout!, hbox, vbox # not exporting tex
 using LaTeXStrings
 using LightXML
 import Luxor
-import Luxor: Point, @layer, translate, rotate
+import Luxor: Point, @layer, translate, rotate, @imagematrix
 using ProgressMeter
 using Random
 using Statistics
@@ -58,6 +58,8 @@ include("structs/LayerSetting.jl")
 include("structs/Layer.jl")
 include("structs/Transitions.jl")
 include("structs/Action.jl")
+include("structs/LayerSetting.jl")
+include("structs/Layer.jl")
 
 
 """
@@ -213,10 +215,8 @@ function render(
     tempdirectory = "",
     ffmpeg_loglevel = "panic",
 )
-    # flatten the layer tree into a list of objects
     objects = flatten(video.layers)
-    # push the orphanObjects at the end 
-    !isempty(video.orphanObjects) && push!(objects, video.orphanObjects...)
+    push!(objects, video.objects...)
     frames = preprocess_frames!(objects)
 
     # if liveview == true
@@ -249,7 +249,7 @@ function render(
     layers = [video.orphanObjects..., video.layers...]
     filecounter = 1
     @showprogress 1 "Rendering frames..." for frame in frames
-        frame_image = convert.(RGB, get_javis_frame(video, layers, frame))
+        frame_image = convert.(RGB, get_javis_frame(video, frame))
         if !isempty(tempdirectory)
             Images.save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
         end
@@ -293,33 +293,113 @@ function render(
     return pathname
 end
 
+function get_layer_frame(video, layer, frame, background_settings)
+    origin()
+    origin_matrix = cairotojuliamatrix(getmatrix())
+    objects = layer.children
+    for object in objects
+        update_object_settings!(object, background_settings)
 
-"""
-    get_javis_frame(video, objects, frame)
+        #todo copy first object from global objects if a background for layer is not specified 
+        CURRENT_OBJECT[1] = object
+        if frame in get_frames(object)
+            # check if the object should be part of the global layer (i.e Background)
+            # or in its own layer (default)
+            in_global_layer = get(object.opts, :in_global_layer, false)::Bool
+            if !in_global_layer
+                @layer begin
+                    draw_object(object, video, frame, origin_matrix)
+                end
+            else
+                draw_object(object, video, frame, origin_matrix)
+                # update origin_matrix as it's inside the global layer
+            end
+        end
+        # if object is in global layer this changes the background settings
+        update_background_settings!(background_settings, object)
+    end
+end
 
-Get a frame from an animation given a video object, its objects, and frame.
+function apply_layer_actions(video, layers, frame)
+    # create an empty drawing of size same as the main video
+    Drawing(video.width, video.height, :image)
+    origin()
+    
+    for layer in layers
+        if frame in get_frames(layer)
+            rel_frame = frame - first(get_frames(layer)) + 1
+            # call currently active actions and their transformations for each layer
+            for action in layer.actions
+                @layer begin 
+                    if rel_frame in get_frames(action)
+                        action.func(video, layer, action, rel_frame)
+                    elseif rel_frame > last(get_frames(action)) && action.keep
+                        # call the action on the last frame i.e. disappeared things stay disappeared
+                        action.func(video, layer, action, last(get_frames(action)))
+                    end
+                end
+            end
+        end
+        
+        # final actions on the layer are applied here
+        # currently scale and translate are supported
+        scale(layer.current_setting.scale)
 
-If one wants to use this without calling [`render`](@ref), [`preprocess_frames!`](@ref)
-needs to be called before. That way each object and action has the correct frames it should
-be applied to.
+        # provide pre-centered points to the place image functions
+        # rather than using centered=true 
+        # https://github.com/JuliaGraphics/Luxor.jl/issues/155
+        pt = Point(layer.position.x - layer.width/2, layer.position.y - layer.height/2)
+        placeimage(layer.image_matrix[1], pt)
+    end
 
-# Arguments
-- `video::Video`: The video which defines the dimensions of the output
-- `objects::Vector{Object}`: All objects that are performed
-- `frame::Int`: Specific frame to be returned
+    # matrix of a transparent drawing with all the layers 
+    img_layers = image_as_matrix()
+    finish()
+    return img_layers
+end
 
-# Returns
-- `Array{ARGB32, 2}` - request frame as a matrix
-"""
-function get_javis_frame(video, layers, frame)
+function get_javis_frame(video, frame)
     background_settings = ObjectSetting()
+    origin()
+    layers = video.layers
+
+    # for each layer render it's objects and store the image matrix
+    for layer in layers
+        if frame in get_frames(layer)
+            mat = @imagematrix begin
+                get_layer_frame(video, layer, frame, background_settings)
+              end layer.width layer.height     
+            layer.image_matrix[1] = mat
+        end
+    end
+
+    # for each layer apply respective actions,
+    # place the layer matrix over an empty canvas 
+    img_layers = apply_layer_actions(video, layers, frame)
+
+    # finally render the independent objects
+    objects = video.objects
+    origin_matrix = cairotojuliamatrix(getmatrix())
     Drawing(video.width, video.height, :image)
     origin()
     origin_matrix = cairotojuliamatrix(getmatrix())
-
-    for layer in layers
-        draw_layer(video, layer, frame, background_settings, origin_matrix)
+    # this frame needs doing, see if each of the scenes defines it
+    for object in objects
+        # if object is not in global layer this sets the background_settings
+        # from the parent background object
+        update_object_settings!(object, background_settings)
+        CURRENT_OBJECT[1] = object
+        if frame in get_frames(object)
+            @layer begin
+                draw_object(object, video, frame, origin_matrix)
+            end
+        end
+        # if object is in global layer this changes the background settings
+        update_background_settings!(background_settings, object)
     end
+
+    # place the matrix containing all the layers over the global matrix
+    placeimage(img_layers, Point(-video.width/2 , -video.height/2))
     img = image_as_matrix()
     finish()
     return img
