@@ -11,7 +11,8 @@ mutable struct Layer <:AbstractObject
 end
 
 const CURRENT_LAYER = Array{Layer,1}()
-
+const PUSH_TO_LAYER = Array{Any, 1}()
+push!(PUSH_TO_LAYER, false)
 function Layer(frames; width = CURRENT_VIDEO[1].width, height = CURRENT_VIDEO[1].height, position = O, children = AbstractObject[], actions = AbstractAction[], setting = LayerSetting(), misc = Dict{Symbol, Any}(), mat = Any[nothing])
     layer = Layer(frames, width, height, position, children, actions, setting, misc, mat)
 
@@ -26,29 +27,25 @@ function Layer(frames; width = CURRENT_VIDEO[1].width, height = CURRENT_VIDEO[1]
     return layer
 end
 
-function javis_layer(frames, width, height, position, objects)
-    filter!(x->x∉objects, CURRENT_VIDEO[1].objects) # remove objects that belong to a layer from video.objects
-    return Layer(frames, width = width, height = height, position = position, children = objects)    
+# function javis_layer(frames, width, height, position, objects)
+#     filter!(x->x∉objects, CURRENT_VIDEO[1].objects) # remove objects that belong to a layer from video.objects
+#     return Layer(frames, width = width, height = height, position = position, children = objects)    
+# end
+
+macro javis_layer(frames, width, height, position, body)
+    quote
+        layer = Javis.Layer($frames,width = $width, height = $height, position = $position)
+        if isempty(Javis.CURRENT_LAYER)
+            push!(Javis.CURRENT_LAYER, layer)
+        else
+            Javis.CURRENT_LAYER[1] =  layer
+        end
+        PUSH_TO_LAYER[1] = true 
+        $(esc(body))
+        PUSH_TO_LAYER[1] = false
+        layer
+    end  
 end
-
-function layer_act!(layer::Layer, action::AbstractAction)
-    push!(layer.actions, copy(action))
-end
-
-function layer_act!(layer::Layer, actions::Vector{<:AbstractAction})
-    for action in actions
-        layer_act!(layer, action)
-    end
-end
-
-function layer_act!(layers::Vector{<:Layer}, action)
-    for layer in objects
-        layer_act!(layer, action)
-    end
-end
-
-
-
 
 # julia> @imagematrix begin
 #     sethue(1., 0.5, 0.0)

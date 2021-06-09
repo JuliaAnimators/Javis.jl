@@ -92,9 +92,12 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
     )
 
     # if the object belongs to local layer, don't push it to the video
-    if !get(opts, :in_local_layer, false)
+    if PUSH_TO_LAYER[1]
+        push!(CURRENT_LAYER[1].children, object)
+    else
         push!(CURRENT_VIDEO[1].objects, object)
     end
+
     return object
 end
 
@@ -132,6 +135,7 @@ Here the scaling is applied to the rectangle for the first fifty frames.
    - `object::Vector{<:AbstractObject}` - the objects actions are applied to
    - `action::Vector{<:AbstractAction}` - the actions applied to the objects
 """
+#also for layers
 function act!(object::AbstractObject, action::AbstractAction)
     push!(object.actions, copy(action))
 end
@@ -172,9 +176,4 @@ This draws a white circle on a black background as `sethue` is defined for the g
 """
 function Background(frames, func::Function, args...; kwargs...)
     Object(frames, func, args...; in_global_layer = true, kwargs...)
-end
-
-# todo apply layer brackground through this
-function LayerBackground(frames, func::Function, args...; kwargs...)
-    Object(frames, func, args...; in_local_layer = true, kwargs...)
 end
