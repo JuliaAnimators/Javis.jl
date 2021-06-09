@@ -290,14 +290,16 @@ function render(
     return pathname
 end
 
-function get_layer_frame(video, layer, frame, background_settings)
+function render_objects(objects, video, frame)
+    CURRENT_OBJECT[1] = objects[1]
+    background_settings = ObjectSetting()
     origin()
     origin_matrix = cairotojuliamatrix(getmatrix())
-    objects = layer.children
+    # this frame needs doing, see if each of the scenes defines it
     for object in objects
+        # if object is not in global layer this sets the background_settings
+        # from the parent background object
         update_object_settings!(object, background_settings)
-
-        #todo copy first object from global objects if a background for layer is not specified 
         CURRENT_OBJECT[1] = object
         if frame in get_frames(object)
             # check if the object should be part of the global layer (i.e Background)
@@ -310,11 +312,17 @@ function get_layer_frame(video, layer, frame, background_settings)
             else
                 draw_object(object, video, frame, origin_matrix)
                 # update origin_matrix as it's inside the global layer
+                origin_matrix = cairotojuliamatrix(getmatrix())
             end
         end
         # if object is in global layer this changes the background settings
         update_background_settings!(background_settings, object)
     end
+end
+
+function get_layer_frame(video, layer, frame)
+    objects = layer.children
+    render_objects(objects, video, frame)
 end
 
 function apply_layer_actions(video, layers, frame)
@@ -356,14 +364,13 @@ function apply_layer_actions(video, layers, frame)
 end
 
 function get_javis_frame(video, frame)
-    background_settings = ObjectSetting()
     layers = video.layers
     if !isempty(layers)
         # for each layer render it's objects and store the image matrix
         for layer in layers
             if frame in get_frames(layer)
                 mat = @imagematrix begin
-                    get_layer_frame(video, layer, frame, background_settings)
+                    get_layer_frame(video, layer, frame)
                 end layer.width layer.height     
                 layer.image_matrix[1] = mat
             end
@@ -376,24 +383,8 @@ function get_javis_frame(video, frame)
 
     # finally render the independent objects
     objects = video.objects
-    origin_matrix = cairotojuliamatrix(getmatrix())
     Drawing(video.width, video.height, :image)
-    origin()
-    origin_matrix = cairotojuliamatrix(getmatrix())
-    # this frame needs doing, see if each of the scenes defines it
-    for object in objects
-        # if object is not in global layer this sets the background_settings
-        # from the parent background object
-        update_object_settings!(object, background_settings)
-        CURRENT_OBJECT[1] = object
-        if frame in get_frames(object)
-            @layer begin
-                draw_object(object, video, frame, origin_matrix)
-            end
-        end
-        # if object is in global layer this changes the background settings
-        update_background_settings!(background_settings, object)
-    end
+    render_objects(objects, video, frame)
 
     if !isempty(layers)
         # place the matrix containing all the layers over the global matrix
