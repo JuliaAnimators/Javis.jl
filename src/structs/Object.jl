@@ -90,7 +90,11 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
         Dict{Symbol,Any}(),
         Any[nothing],
     )
-    push!(CURRENT_VIDEO[1].objects, object)
+
+    # if the object belongs to local layer, don't push it to the video
+    if !get(opts, :in_local_layer, false)
+        push!(CURRENT_VIDEO[1].objects, object)
+    end
     return object
 end
 
@@ -168,4 +172,9 @@ This draws a white circle on a black background as `sethue` is defined for the g
 """
 function Background(frames, func::Function, args...; kwargs...)
     Object(frames, func, args...; in_global_layer = true, kwargs...)
+end
+
+# todo apply layer brackground through this
+function LayerBackground(frames, func::Function, args...; kwargs...)
+    Object(frames, func, args...; in_local_layer = true, kwargs...)
 end

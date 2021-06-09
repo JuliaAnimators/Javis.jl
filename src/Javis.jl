@@ -3,8 +3,8 @@ module Javis
 using Animations
 import Cairo: CairoImageSurface, image
 using FFMPEG
-using Gtk
-using GtkReactive
+# using Gtk
+# using GtkReactive
 using Hungarian
 using Images
 import Interact
@@ -12,7 +12,7 @@ import Interact: @map, Widget, Widgets, @layout!, hbox, vbox # not exporting tex
 using LaTeXStrings
 using LightXML
 import Luxor
-import Luxor: Point, @layer, translate, rotate
+import Luxor: Point, @layer, translate, rotate, @imagematrix
 using ProgressMeter
 using Random
 using Statistics
@@ -56,6 +56,8 @@ include("structs/ObjectSetting.jl")
 include("structs/Object.jl")
 include("structs/Transitions.jl")
 include("structs/Action.jl")
+include("structs/LayerSetting.jl")
+include("structs/Layer.jl")
 
 
 """
@@ -98,7 +100,7 @@ include("backgrounds.jl")
 include("svg2luxor.jl")
 include("morphs.jl")
 include("action_animations.jl")
-include("javis_viewer.jl")
+# include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
 
@@ -161,6 +163,22 @@ function preprocess_frames!(objects::Vector{<:AbstractObject})
     return frames
 end
 
+function flatten(layers::Vector{AbstractObject})
+    objects = AbstractObject[]
+    for layer in layers
+        flatten!(objects, layer)
+    end
+    return objects
+end
+# if the layer has child layer
+function flatten!(objects::Array{AbstractObject}, l::Layer)
+    for obj in l.children
+        flatten!(objects, obj)
+    end
+end
+# finally objects
+flatten!(objects::Array{AbstractObject}, object::Object) = push!(objects, object)
+
 """
     render(
         video::Video;
@@ -195,20 +213,21 @@ function render(
     tempdirectory = "",
     ffmpeg_loglevel = "panic",
 )
-    objects = video.objects
+    objects = flatten(video.layers)
+    push!(objects, video.objects...)
     frames = preprocess_frames!(objects)
 
-    if liveview == true
-        if isdefined(Main, :IJulia) && Main.IJulia.inited
-            return _jupyter_viewer(video, length(frames), objects, framerate)
+    # if liveview == true
+    #     if isdefined(Main, :IJulia) && Main.IJulia.inited
+    #         return _jupyter_viewer(video, length(frames), objects, framerate)
 
-        elseif isdefined(Main, :PlutoRunner)
-            return _pluto_viewer(video, length(frames), objects)
-        else
-            _javis_viewer(video, length(frames), objects)
-            return "Live Preview Started"
-        end
-    end
+    #     elseif isdefined(Main, :PlutoRunner)
+    #         return _pluto_viewer(video, length(frames), objects)
+    #     else
+    #         _javis_viewer(video, length(frames), objects)
+    #         return "Live Preview Started"
+    #     end
+    # end
 
     path, ext = "", ""
     if !isempty(pathname)
@@ -227,7 +246,7 @@ function render(
 
     filecounter = 1
     @showprogress 1 "Rendering frames..." for frame in frames
-        frame_image = convert.(RGB, get_javis_frame(video, objects, frame))
+        frame_image = convert.(RGB, get_javis_frame(video, frame))
         if !isempty(tempdirectory)
             Images.save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
         end
@@ -271,34 +290,14 @@ function render(
     return pathname
 end
 
-
-"""
-    get_javis_frame(video, objects, frame)
-
-Get a frame from an animation given a video object, its objects, and frame.
-
-If one wants to use this without calling [`render`](@ref), [`preprocess_frames!`](@ref)
-needs to be called before. That way each object and action has the correct frames it should
-be applied to.
-
-# Arguments
-- `video::Video`: The video which defines the dimensions of the output
-- `objects::Vector{Object}`: All objects that are performed
-- `frame::Int`: Specific frame to be returned
-
-# Returns
-- `Array{ARGB32, 2}` - request frame as a matrix
-"""
-function get_javis_frame(video, objects, frame)
-    background_settings = ObjectSetting()
-    Drawing(video.width, video.height, :image)
+function get_layer_frame(video, layer, frame, background_settings)
     origin()
     origin_matrix = cairotojuliamatrix(getmatrix())
-    # this frame needs doing, see if each of the scenes defines it
+    objects = layer.children
     for object in objects
-        # if object is not in global layer this sets the background_settings
-        # from the parent background object
         update_object_settings!(object, background_settings)
+
+        #todo copy first object from global objects if a background for layer is not specified 
         CURRENT_OBJECT[1] = object
         if frame in get_frames(object)
             # check if the object should be part of the global layer (i.e Background)
@@ -311,12 +310,93 @@ function get_javis_frame(video, objects, frame)
             else
                 draw_object(object, video, frame, origin_matrix)
                 # update origin_matrix as it's inside the global layer
-                origin_matrix = cairotojuliamatrix(getmatrix())
             end
         end
         # if object is in global layer this changes the background settings
         update_background_settings!(background_settings, object)
     end
+end
+
+function apply_layer_actions(video, layers, frame)
+    # create an empty drawing of size same as the main video
+    Drawing(video.width, video.height, :image)
+    origin()
+    
+    for layer in layers
+        if frame in get_frames(layer)
+            rel_frame = frame - first(get_frames(layer)) + 1
+            # call currently active actions and their transformations for each layer
+            for action in layer.actions
+                @layer begin 
+                    if rel_frame in get_frames(action)
+                        action.func(video, layer, action, rel_frame)
+                    elseif rel_frame > last(get_frames(action)) && action.keep
+                        # call the action on the last frame i.e. disappeared things stay disappeared
+                        action.func(video, layer, action, last(get_frames(action)))
+                    end
+                end
+            end
+        end
+        
+        # final actions on the layer are applied here
+        # currently scale and translate are supported
+        scale(layer.current_setting.scale)
+
+        # provide pre-centered points to the place image functions
+        # rather than using centered=true 
+        # https://github.com/JuliaGraphics/Luxor.jl/issues/155
+        pt = Point(layer.position.x - layer.width/2, layer.position.y - layer.height/2)
+        placeimage(layer.image_matrix[1], pt)
+    end
+
+    # matrix of a transparent drawing with all the layers 
+    img_layers = image_as_matrix()
+    finish()
+    return img_layers
+end
+
+function get_javis_frame(video, frame)
+    background_settings = ObjectSetting()
+    origin()
+    layers = video.layers
+
+    # for each layer render it's objects and store the image matrix
+    for layer in layers
+        if frame in get_frames(layer)
+            mat = @imagematrix begin
+                get_layer_frame(video, layer, frame, background_settings)
+              end layer.width layer.height     
+            layer.image_matrix[1] = mat
+        end
+    end
+
+    # for each layer apply respective actions,
+    # place the layer matrix over an empty canvas 
+    img_layers = apply_layer_actions(video, layers, frame)
+
+    # finally render the independent objects
+    objects = video.objects
+    origin_matrix = cairotojuliamatrix(getmatrix())
+    Drawing(video.width, video.height, :image)
+    origin()
+    origin_matrix = cairotojuliamatrix(getmatrix())
+    # this frame needs doing, see if each of the scenes defines it
+    for object in objects
+        # if object is not in global layer this sets the background_settings
+        # from the parent background object
+        update_object_settings!(object, background_settings)
+        CURRENT_OBJECT[1] = object
+        if frame in get_frames(object)
+            @layer begin
+                draw_object(object, video, frame, origin_matrix)
+            end
+        end
+        # if object is in global layer this changes the background settings
+        update_background_settings!(background_settings, object)
+    end
+
+    # place the matrix containing all the layers over the global matrix
+    placeimage(img_layers, Point(-video.width/2 , -video.height/2))
     img = image_as_matrix()
     finish()
     return img
