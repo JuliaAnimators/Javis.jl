@@ -321,8 +321,29 @@ function render_objects(objects, video, frame)
 end
 
 function get_layer_frame(video, layer, frame)
+    Drawing(layer.width, layer.height, :image)
     objects = layer.children
     render_objects(objects, video, frame)
+    if frame in get_frames(layer)
+        rel_frame = frame - first(get_frames(layer)) + 1
+
+        # call currently active actions and their transformations for each layer
+        actions = layer.actions
+        if !isempty(actions)
+            for action in actions
+                if rel_frame in get_frames(action)
+                    action.func(video, layer, action, rel_frame)
+                elseif rel_frame > last(get_frames(action)) && action.keep
+                    # call the action on the last frame i.e. disappeared things stay disappeared
+                    action.func(video, layer, action, last(get_frames(action)))
+                end
+            end
+        end
+    end
+    
+    img_layer = image_as_matrix()
+    finish()
+    return img_layer
 end
 
 function apply_layer_actions(video, layers, frame)
@@ -331,30 +352,19 @@ function apply_layer_actions(video, layers, frame)
     origin()
     
     for layer in layers
-        if frame in get_frames(layer)
-            rel_frame = frame - first(get_frames(layer)) + 1
-            # call currently active actions and their transformations for each layer
-            for action in layer.actions
-                @layer begin 
-                    if rel_frame in get_frames(action)
-                        action.func(video, layer, action, rel_frame)
-                    elseif rel_frame > last(get_frames(action)) && action.keep
-                        # call the action on the last frame i.e. disappeared things stay disappeared
-                        action.func(video, layer, action, last(get_frames(action)))
-                    end
-                end
-            end
+        @layer begin
+            #todo move this to a separate function
+            settings = layer.current_setting
+            # final actions on the layer are applied here
+            # currently scale and translate are support
+            scale(settings.scale)
+              
+            # provide pre-centered points to the place image functions
+            # rather than using centered=true 
+            # https://github.com/JuliaGraphics/Luxor.jl/issues/155
+            pt = Point(layer.position.x - layer.width/2, layer.position.y - layer.height/2)
+            placeimage(layer.image_matrix[1], pt)
         end
-        
-        # final actions on the layer are applied here
-        # currently scale and translate are supported
-        scale(layer.current_setting.scale)
-
-        # provide pre-centered points to the place image functions
-        # rather than using centered=true 
-        # https://github.com/JuliaGraphics/Luxor.jl/issues/155
-        pt = Point(layer.position.x - layer.width/2, layer.position.y - layer.height/2)
-        placeimage(layer.image_matrix[1], pt)
     end
 
     # matrix of a transparent drawing with all the layers 
@@ -369,9 +379,7 @@ function get_javis_frame(video, frame)
         # for each layer render it's objects and store the image matrix
         for layer in layers
             if frame in get_frames(layer)
-                mat = @imagematrix begin
-                    get_layer_frame(video, layer, frame)
-                end layer.width layer.height     
+                mat = get_layer_frame(video, layer, frame)     
                 layer.image_matrix[1] = mat
             end
         end
