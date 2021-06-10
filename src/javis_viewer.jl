@@ -28,7 +28,7 @@ function _draw_image(
 )
     @guarded draw(canvas) do widget
         # Gets a specific frame from graphic; transposed due to returned matrix
-        frame_mat = transpose(get_javis_frame(video, objects, frame, layers = layers))
+        frame_mat = transpose(get_javis_frame(video, objects, frame; layers = layers))
 
         # Gets the correct Canvas context to draw on
         context = getgc(canvas)
@@ -102,9 +102,9 @@ Internal Javis Viewer built on Gtk that is called for live previewing.
 function _javis_viewer(
     video::Video,
     total_frames::Int,
-    object_list::Vector{AbstractObject},
-    show::Bool = true,
-    layers::Vector{Layers}
+    object_list::Vector,
+    show::Bool = true;
+    layers::Vector = Layer[],
 )
     #####################################################################
     # VIEWER WINDOW AND CONFIGURATION
@@ -178,7 +178,7 @@ function _javis_viewer(
     # Center all widgets vertically in grid
     set_gtk_property!(grid, :valign, 3)
 
-    # Center all widgets horizontally in grid
+    # Center all widgets horizontally in grids
     set_gtk_property!(grid, :halign, 3)
 
     # Adds grid to previously defined window
@@ -188,7 +188,7 @@ function _javis_viewer(
     # DISPLAY FIRST FRAME
     #####################################################################
 
-    _draw_image(video, object_list, 1, canvas, frame_dims)
+    _draw_image(video, object_list, 1, canvas, frame_dims, layers)
 
     #####################################################################
     # SIGNAL CONNECTION FUNCTIONS
@@ -218,28 +218,60 @@ function _javis_viewer(
     # When the `forward` button is clicked, increment current frame number
     # If at final frame, wrap viewer to first frame
     signal_connect(forward, "clicked") do widget
-        _increment(video, [slide, tbox], object_list, frame_dims, canvas, total_frames, layers)
+        _increment(
+            video,
+            [slide, tbox],
+            object_list,
+            frame_dims,
+            canvas,
+            total_frames,
+            layers,
+        )
     end
 
     # When the `Right Arrow` key is pressed, increment current frame number
     # If at final frame, wrap viewer to first frame
     signal_connect(win, "key-press-event") do widget, event
         if event.keyval == 65363
-            _increment(video, [slide, tbox], object_list, frame_dims, canvas, total_frames, layers)
+            _increment(
+                video,
+                [slide, tbox],
+                object_list,
+                frame_dims,
+                canvas,
+                total_frames,
+                layers,
+            )
         end
     end
 
     # When the `backward` button is clicked, decrement the current frame number
     # If at first frame, wrap viewer to last frame
     signal_connect(backward, "clicked") do widget
-        _decrement(video, [slide, tbox], object_list, frame_dims, canvas, total_frames, layers)
+        _decrement(
+            video,
+            [slide, tbox],
+            object_list,
+            frame_dims,
+            canvas,
+            total_frames,
+            layers,
+        )
     end
 
     # When the `Left Arrow` key is pressed, decrement current frame number
     # If at first frame, wrap viewer to last frame
     signal_connect(win, "key-press-event") do widget, event
         if event.keyval == 65361
-            _decrement(video, [slide, tbox], object_list, frame_dims, canvas, total_frames, layers)
+            _decrement(
+                video,
+                [slide, tbox],
+                object_list,
+                frame_dims,
+                canvas,
+                total_frames,
+                layers,
+            )
         end
     end
 
@@ -249,9 +281,16 @@ function _javis_viewer(
         # Display image viewer
         Gtk.showall(win)
     else
-        return win, frame_dims, slide, tbox, canvas, layers, object_list, total_frames, video
+        return win,
+        frame_dims,
+        slide,
+        tbox,
+        canvas,
+        layers,
+        object_list,
+        total_frames,
+        video
     end
-
 end
 
 """
@@ -259,15 +298,17 @@ _jupyter_viewer(video::Video, frames::Int, objects::Vector{AbstractObject}; laye
 
 Creates an interactive viewer in a Jupyter Notebook.
 """
-function _jupyter_viewer(video::Video, frames::Int, objects::Vector{AbstractObject}, framerate::Int, layers::Vector{Layer})
+function _jupyter_viewer(
+    video::Video,
+    frames::Int,
+    objects::Vector{AbstractObject},
+    framerate::Int;
+    layers::Vector{Layer}=Layer[],
+)
     t = Interact.textbox(1:frames, value = 1, typ = Int)
     f = Interact.slider(1:frames, label = "Frame", value = t)
     obs = Interact.Observables.throttle(1 / framerate, f)
-    if isempty(layers)
-        output = @map get_javis_frame(video, objects, &obs)
-    else
-        output = @map get_javis_frame(video, objects, &obs, layers=layers)
-    end
+    output = @map get_javis_frame(video, objects, &obs; layers = layers)
     wdg = Widget(["f" => f, "t" => t], output = output)
     @layout! wdg vbox(hbox(:f, :t), output)
 end
@@ -290,12 +331,9 @@ anim = render(
 anim[x]
 ```
 """
-function _pluto_viewer(video::Video, frames::Int, objects::Vector, layers::Vector{Layer})
-    if isempty(layers)
-        arr = collect(get_javis_frame(video, objects, frame) for frame in 1:frames)
-    else
-        arr = collect(get_javis_frame(video, objects, frame, layers=layers) for frame in 1:frames)
-    end
-    
+function _pluto_viewer(video::Video, frames::Int, objects::Vector; layers::Vector{Layer}=Layer[])
+    arr = collect(
+        get_javis_frame(video, objects, frame; layers = layers) for frame in 1:frames
+    )
     return arr
 end

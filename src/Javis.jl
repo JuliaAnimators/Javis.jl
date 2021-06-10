@@ -3,8 +3,8 @@ module Javis
 using Animations
 import Cairo: CairoImageSurface, image
 using FFMPEG
-# using Gtk
-# using GtkReactive
+using Gtk
+using GtkReactive
 using Hungarian
 using Images
 import Interact
@@ -100,7 +100,7 @@ include("backgrounds.jl")
 include("svg2luxor.jl")
 include("morphs.jl")
 include("action_animations.jl")
-# include("javis_viewer.jl")
+include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
 include("layer_values.jl")
@@ -221,18 +221,18 @@ function render(
         frames = preprocess_frames!(objects)
     else
         frames = preprocess_frames!([layer_objects..., objects...])
-    end    
-    # if liveview == true
-    #     if isdefined(Main, :IJulia) && Main.IJulia.inited
-    #         return _jupyter_viewer(video, length(frames), objects, framerate, layers)
+    end
+    if liveview == true
+        if isdefined(Main, :IJulia) && Main.IJulia.inited
+            return _jupyter_viewer(video, length(frames), objects, framerate, layers = layers)
 
-    #     elseif isdefined(Main, :PlutoRunner)
-    #         return _pluto_viewer(video, length(frames), objects, layers)
-    #     else
-    #         _javis_viewer(video, length(frames), objects, layers)
-    #         return "Live Preview Started"
-    #     end
-    # end
+        elseif isdefined(Main, :PlutoRunner)
+            return _pluto_viewer(video, length(frames), objects, layers = layers)
+        else
+            _javis_viewer(video, length(frames), objects, layers = layers)
+            return "Live Preview Started"
+        end
+    end
 
     path, ext = "", ""
     if !isempty(pathname)
@@ -354,15 +354,18 @@ function apply_layer_actions(video, layers, frame)
     # create an empty drawing of size same as the main video
     Drawing(video.width, video.height, :image)
     origin()
-    
+
     for layer in layers
         @layer begin
             # any actions on the layer go in this block
             # provide pre-centered points to the place image functions
             # rather than using centered=true 
             # https://github.com/JuliaGraphics/Luxor.jl/issues/155
-            pt = Point(layer.position.x - layer.width/2, layer.position.y - layer.height/2)
-            
+            pt = Point(
+                layer.position.x - layer.width / 2,
+                layer.position.y - layer.height / 2,
+            )
+
             settings = layer.current_setting
             # final actions on the layer are applied here
             # currently scale and translate are support
@@ -378,12 +381,12 @@ function apply_layer_actions(video, layers, frame)
     return img_layers
 end
 
-function get_javis_frame(video, objects, frame; layers=Layer[])
+function get_javis_frame(video, objects, frame; layers = Layer[])
     if !isempty(layers)
         # for each layer render it's objects and store the image matrix
         for layer in layers
             if frame in get_frames(layer)
-                mat = get_layer_frame(video, layer, frame)     
+                mat = get_layer_frame(video, layer, frame)
                 layer.image_matrix[1] = mat
             end
         end
@@ -399,7 +402,7 @@ function get_javis_frame(video, objects, frame; layers=Layer[])
 
     if !isempty(layers)
         # place the matrix containing all the layers over the global matrix
-        placeimage(img_layers, Point(-video.width/2 , -video.height/2))
+        placeimage(img_layers, Point(-video.width / 2, -video.height / 2))
     end
     img = image_as_matrix()
     finish()

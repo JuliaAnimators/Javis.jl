@@ -37,7 +37,8 @@ This also sets `CURRENT_VIDEO`.
 function Video(width, height)
     # some luxor functions need a drawing ;)
     Drawing()
-    video = Video(width, height, AbstractObject[], AbstractObject[], Int[], Dict{Symbol,Any}())
+    video =
+        Video(width, height, AbstractObject[], AbstractObject[], Int[], Dict{Symbol,Any}())
     if isempty(CURRENT_VIDEO)
         push!(CURRENT_VIDEO, video)
     else
