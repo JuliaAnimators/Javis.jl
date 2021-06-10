@@ -217,6 +217,11 @@ function _rotate(video, object, action, rel_frame)
     Luxor.rotate(a)
 end
 
+function _rotate(video, layer::Layer, action, rel_frame)
+    a = get_interpolation(action, rel_frame)
+    layer.current_setting.rotation_angle = a
+end
+
 """
     rotate_around(p)
 

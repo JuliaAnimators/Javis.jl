@@ -340,7 +340,6 @@ function get_layer_frame(video, layer, frame)
             end
         end
     end
-    
     img_layer = image_as_matrix()
     finish()
     return img_layer
@@ -353,16 +352,19 @@ function apply_layer_actions(video, layers, frame)
     
     for layer in layers
         @layer begin
-            #todo move this to a separate function
-            settings = layer.current_setting
-            # final actions on the layer are applied here
-            # currently scale and translate are support
-            scale(settings.scale)
-              
+            # any actions on the layer go in this block
             # provide pre-centered points to the place image functions
             # rather than using centered=true 
             # https://github.com/JuliaGraphics/Luxor.jl/issues/155
             pt = Point(layer.position.x - layer.width/2, layer.position.y - layer.height/2)
+            
+            settings = layer.current_setting
+            # final actions on the layer are applied here
+            # currently scale and translate are support
+            scale(settings.scale)
+            translate(layer.position)
+            rotate(settings.rotation_angle)
+            translate()
             placeimage(layer.image_matrix[1], pt)
         end
     end
