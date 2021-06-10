@@ -513,6 +513,7 @@ end
 
 export render, latex
 export Video, Object, Background, Action, RFrames, GFrames
+export @javis_layer
 export Line, Transformation
 export val, pos, ang, scl, get_value, get_position, get_angle, get_scale
 export projection, morph_to

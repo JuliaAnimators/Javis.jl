@@ -37,11 +37,6 @@ function Layer(
     return layer
 end
 
-# function javis_layer(frames, width, height, position, objects)
-#     filter!(x->x∉objects, CURRENT_VIDEO[1].objects) # remove objects that belong to a layer from video.objects
-#     return Layer(frames, width = width, height = height, position = position, children = objects)    
-# end
-
 macro javis_layer(frames, width, height, position, body)
     quote
         layer = Javis.Layer($frames, width = $width, height = $height, position = $position)
