@@ -303,7 +303,7 @@ function _jupyter_viewer(
     frames::Int,
     objects::Vector{AbstractObject},
     framerate::Int;
-    layers::Vector{Layer}=Layer[],
+    layers::Vector{Layer} = Layer[],
 )
     t = Interact.textbox(1:frames, value = 1, typ = Int)
     f = Interact.slider(1:frames, label = "Frame", value = t)
@@ -331,7 +331,12 @@ anim = render(
 anim[x]
 ```
 """
-function _pluto_viewer(video::Video, frames::Int, objects::Vector; layers::Vector{Layer}=Layer[])
+function _pluto_viewer(
+    video::Video,
+    frames::Int,
+    objects::Vector;
+    layers::Vector{Layer} = Layer[],
+)
     arr = collect(
         get_javis_frame(video, objects, frame; layers = layers) for frame in 1:frames
     )

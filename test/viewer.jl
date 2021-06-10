@@ -22,13 +22,29 @@ end
 
     @test get_gtk_property(viewer_win, :title, String) == "Javis Viewer"
 
-    Javis._increment(video, [r_slide, tbox], actions, frame_dims, canvas, total_frames, Javis.Layer[])
+    Javis._increment(
+        video,
+        [r_slide, tbox],
+        actions,
+        frame_dims,
+        canvas,
+        total_frames,
+        Javis.Layer[],
+    )
     sleep(0.1)
     curr_frame = Reactive.value(r_slide)
     second_frame = Javis.get_javis_frame(video, actions, curr_frame)
     @test Reactive.value(r_slide) == 2
 
-    Javis._decrement(video, [r_slide, tbox], actions, frame_dims, canvas, total_frames, Javis.Layer[])
+    Javis._decrement(
+        video,
+        [r_slide, tbox],
+        actions,
+        frame_dims,
+        canvas,
+        total_frames,
+        Javis.Layer[],
+    )
     sleep(0.1)
     curr_frame = Reactive.value(r_slide)
     first_frame = Javis.get_javis_frame(video, actions, curr_frame)
@@ -36,13 +52,29 @@ end
 
     @test first_frame != second_frame
 
-    Javis._decrement(video, [r_slide, tbox], actions, frame_dims, canvas, total_frames, Javis.Layer[])
+    Javis._decrement(
+        video,
+        [r_slide, tbox],
+        actions,
+        frame_dims,
+        canvas,
+        total_frames,
+        Javis.Layer[],
+    )
     sleep(0.1)
     curr_frame = Reactive.value(r_slide)
     last_frame = Javis.get_javis_frame(video, actions, curr_frame)
     @test curr_frame == total_frames
 
-    Javis._increment(video, [r_slide, tbox], actions, frame_dims, canvas, total_frames, Javis.Layer[])
+    Javis._increment(
+        video,
+        [r_slide, tbox],
+        actions,
+        frame_dims,
+        canvas,
+        total_frames,
+        Javis.Layer[],
+    )
     sleep(0.1)
     curr_frame = Reactive.value(r_slide)
     first_frame = Javis.get_javis_frame(video, actions, curr_frame)
@@ -63,7 +95,7 @@ end
     objects = vid.objects
     frames = Javis.preprocess_frames!(objects)
 
-    img = Javis._jupyter_viewer(vid, length(frames), objects, 30, layers=Javis.Layer[])
+    img = Javis._jupyter_viewer(vid, length(frames), objects, 30, layers = Javis.Layer[])
     @test img.output.val == Javis.get_javis_frame(vid, objects, 1)
 
     txt = Interact.textbox(1:length(frames), typ = "Frame", value = 2)
@@ -95,7 +127,7 @@ end
     frames = Javis.preprocess_frames!(objects)
 
     @test v.filename === "foo.png"
-    img = Javis._pluto_viewer(vid, length(frames), objects;layers=Javis.Layer[])
+    img = Javis._pluto_viewer(vid, length(frames), objects; layers = Javis.Layer[])
     for i in 1:length(img)
         @test img[i] == Javis.get_javis_frame(vid, objects, i)
     end

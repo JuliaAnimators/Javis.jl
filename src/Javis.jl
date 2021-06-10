@@ -224,7 +224,13 @@ function render(
     end
     if liveview == true
         if isdefined(Main, :IJulia) && Main.IJulia.inited
-            return _jupyter_viewer(video, length(frames), objects, framerate, layers = layers)
+            return _jupyter_viewer(
+                video,
+                length(frames),
+                objects,
+                framerate,
+                layers = layers,
+            )
 
         elseif isdefined(Main, :PlutoRunner)
             return _pluto_viewer(video, length(frames), objects, layers = layers)
