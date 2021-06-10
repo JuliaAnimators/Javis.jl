@@ -103,6 +103,7 @@ include("action_animations.jl")
 # include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
+include("layer_values.jl")
 
 """
     projection(p::Point, l::Line)
@@ -213,18 +214,22 @@ function render(
     tempdirectory = "",
     ffmpeg_loglevel = "panic",
 )
-    objects = flatten(video.layers)
-    push!(objects, video.objects...)
-    frames = preprocess_frames!(objects)
-
+    layers = video.layers
+    layer_objects = flatten(video.layers)
+    objects = video.objects
+    if isempty(layers)
+        frames = preprocess_frames!(objects)
+    else
+        frames = preprocess_frames!([layer_objects..., objects...])
+    end    
     # if liveview == true
     #     if isdefined(Main, :IJulia) && Main.IJulia.inited
-    #         return _jupyter_viewer(video, length(frames), objects, framerate)
+    #         return _jupyter_viewer(video, length(frames), objects, framerate, layers)
 
     #     elseif isdefined(Main, :PlutoRunner)
-    #         return _pluto_viewer(video, length(frames), objects)
+    #         return _pluto_viewer(video, length(frames), objects, layers)
     #     else
-    #         _javis_viewer(video, length(frames), objects)
+    #         _javis_viewer(video, length(frames), objects, layers)
     #         return "Live Preview Started"
     #     end
     # end
@@ -246,7 +251,7 @@ function render(
 
     filecounter = 1
     @showprogress 1 "Rendering frames..." for frame in frames
-        frame_image = convert.(RGB, get_javis_frame(video, frame))
+        frame_image = convert.(RGB, get_javis_frame(video, objects, frame; layers = layers))
         if !isempty(tempdirectory)
             Images.save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
         end
@@ -373,8 +378,7 @@ function apply_layer_actions(video, layers, frame)
     return img_layers
 end
 
-function get_javis_frame(video, frame)
-    layers = video.layers
+function get_javis_frame(video, objects, frame; layers=Layer[])
     if !isempty(layers)
         # for each layer render it's objects and store the image matrix
         for layer in layers
@@ -390,7 +394,6 @@ function get_javis_frame(video, frame)
     end
 
     # finally render the independent objects
-    objects = video.objects
     Drawing(video.width, video.height, :image)
     render_objects(objects, video, frame)
 
