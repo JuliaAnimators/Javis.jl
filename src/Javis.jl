@@ -362,10 +362,8 @@ function apply_layer_actions(video, layers, frame)
             # final actions on the layer are applied here
             # currently scale and translate are support
             scale(settings.scale)
-            translate(layer.position)
             rotate(settings.rotation_angle)
-            translate()
-            placeimage(layer.image_matrix[1], pt)
+            placeimage(layer.image_matrix[1], pt, settings.opacity)
         end
     end
 

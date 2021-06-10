@@ -37,6 +37,12 @@ function _appear(video, object, action, rel_frame, symbol::Val{:fade})
     object.current_setting.mul_opacity = t
 end
 
+# for layer only appear(:fade) is possible
+function _appear(video, layer::Layer, action, rel_frame, symbol::Val{:fade})
+    t = get_interpolation(action, rel_frame)
+    layer.current_setting.opacity = t
+end
+
 function _appear(video, object, action, rel_frame, symbol::Val{:scale})
     t = get_interpolation(action, rel_frame)
     object.current_setting.mul_scale = t
@@ -83,6 +89,12 @@ function _disappear(video, object, action, rel_frame, symbol::Val{:fade})
     t = get_interpolation(action, rel_frame)
     object.current_setting.mul_opacity = 1 - t
 end
+# for layer only disappear(:fade) is possible
+function _disappear(video, layer::Layer, action, rel_frame, symbol::Val{:fade})
+    t = get_interpolation(action, rel_frame)
+    layer.current_setting.opacity = 1 - t
+end
+
 
 function _disappear(video, object, action, rel_frame, symbol::Val{:scale})
     t = get_interpolation(action, rel_frame)
