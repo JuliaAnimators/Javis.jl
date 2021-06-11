@@ -329,7 +329,8 @@ function render_objects(objects, video, frame)
             # check if the object should be part of the global layer (i.e Background)
             # or in its own layer (default)
             in_global_layer = get(object.opts, :in_global_layer, false)::Bool
-            if !in_global_layer
+            in_local_layer = get(object.opts, :in_local_layer, false)::Bool
+            if !in_global_layer && !in_local_layer
                 @layer begin
                     draw_object(object, video, frame, origin_matrix)
                 end
@@ -430,7 +431,7 @@ function place_layers(video, layers, frame)
             end
         end
     end
-    
+
     # matrix of a transparent drawing with all the layers 
     img_layers = image_as_matrix()
     finish()
@@ -573,7 +574,6 @@ end
 
 export render, latex
 export Video, Object, Background, Action, RFrames, GFrames
-export @javis_layer
 export Line, Transformation
 export val, pos, ang, scl, get_value, get_position, get_angle, get_scale
 export projection, morph_to

@@ -186,7 +186,7 @@ This draws a white circle on a black background as `sethue` is defined for the g
 """
 function Background(frames, func::Function, args...; kwargs...)
     if PUSH_TO_LAYER[1]
-        Object(frames, func, args...; kwargs...)
+        Object(frames, func, args...; in_local_layer = true, kwargs...)
     else
         Object(frames, func, args...; in_global_layer = true, kwargs...)
     end
