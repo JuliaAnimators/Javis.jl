@@ -377,7 +377,7 @@ function apply_layer_actions(video, layers, frame)
             # currently scale and translate are support
             scale(settings.scale)
             rotate(settings.rotation_angle)
-            placeimage(layer.image_matrix[1], pt, settings.opacity)
+            placeimage(layer.image_matrix[1], pt, alpha = settings.opacity)
         end
     end
 

@@ -80,7 +80,7 @@
         @test l1.image_matrix == Any[nothing]
     end
 
-    # @test get_position(l1) == O
+    @test get_position(l1) == O
 
     astar(args...; do_action = :stroke) = star(O, 50, 5, 0.5, 0, do_action)
     acirc(args...; do_action = :stroke) = circle(Point(100, 100), 50, do_action)
