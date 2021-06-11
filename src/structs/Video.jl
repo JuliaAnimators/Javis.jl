@@ -7,6 +7,7 @@ Defines the video canvas for an animation.
 - `width::Int` the width in pixel
 - `height::Int` the height in pixel
 - `objects::Vector{AbstractObject}` the objects defined in this video
+- `layers::Vector{AbstractObject}` the layers defined in this video
 - `background_frames::Vector{Int}` saves for which frames a background is defined
 - `defs::Dict{Symbol, Any}` Some definitions which should be accessible throughout the video.
 """

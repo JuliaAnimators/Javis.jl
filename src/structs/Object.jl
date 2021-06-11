@@ -92,7 +92,7 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
         Any[nothing],
     )
 
-    # if the object belongs to local layer, don't push it to the video.objects
+    # should the object be push to the video or a layer
     if PUSH_TO_LAYER[1]
         push!(CURRENT_LAYER[1].children, object)
     else
@@ -105,7 +105,7 @@ end
 """
     act!
 
-Adds an [`Action`] or a list of actions to an [`Object`](@ref) or a list of objects.
+Adds an [`Action`] or a list of actions to an [`Object`](@ref)/[`Layer`](@ref) or a list of objects/layers.
 
 
 # Example
@@ -118,25 +118,34 @@ act!(obj, Action(1:50, anim_scale(1.5)))
 Here the scaling is applied to the rectangle for the first fifty frames.
 
 # Options
-1. A single object and action:
+1. A single object/layer and action:
 
    `act!(object::AbstractObject, action::AbstractAction)`
    - `object::AbstractObject` - the object the action is applied to
    - `action::AbstractAction` - the action applied to the object
 
-2. A single object and a list of actions:
+2. A single object/layer and a list of actions:
 
    `act!(object::AbstractObject, action::Vector{<:AbstractAction})`
    - `object::AbstractObject` - the object actions are applied to
    - `action::Vector{<:AbstractAction}` - the actions applied to an object
 
-3. A list of objects and a list of actions:
+3. A list of objects/layers and a list of actions:
 
    `act!(object::Vector{<:AbstractObject}, action::Vector{<:AbstractAction})`
    - `object::Vector{<:AbstractObject}` - the objects actions are applied to
    - `action::Vector{<:AbstractAction}` - the actions applied to the objects
+
+Actions can be applied to a layer using a similar syntax
+```julia
+l1 = Javis.@javis_layer 20:60 100 100 Point(0, 0) begin
+    obj = Object((args...)->circle(O, 50, :fill))
+    act!(obj, Action(1:20, appear(:fade)))
+end
+    
+act!(l2, anim_translate(Point(100, 100)))
+```
 """
-#also for layers
 function act!(object::AbstractObject, action::AbstractAction)
     push!(object.actions, copy(action))
 end

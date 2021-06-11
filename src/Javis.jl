@@ -3,8 +3,8 @@ module Javis
 using Animations
 import Cairo: CairoImageSurface, image
 using FFMPEG
-# using Gtk
-# using GtkReactive
+using Gtk
+using GtkReactive
 using Hungarian
 using Images
 import Interact
@@ -125,7 +125,7 @@ end
 """
     preprocess_frames!(objects::Vector{<:AbstractObject})
 
-Computes the frames for each object and action based on the user defined frames that the
+Computes the frames for each object(of both main canvas and layers) and action based on the user defined frames that the
 user can provide like [`RFrames`](@ref), [`GFrames`](@ref) and `:same`.
 
 This function needs to be called before calling [`get_javis_frame`](@ref) as it computes
@@ -164,6 +164,14 @@ function preprocess_frames!(objects::Vector{<:AbstractObject})
     return frames
 end
 
+"""
+flatten(layers::Vector{AbstractObject})
+
+Convert a vector of layers to a list of objects withing each layer.
+
+# Returns
+- `objects::Vector{AbstractObject}` - list of all objects in each layer
+"""
 function flatten(layers::Vector{AbstractObject})
     objects = AbstractObject[]
     for layer in layers
@@ -171,7 +179,7 @@ function flatten(layers::Vector{AbstractObject})
     end
     return objects
 end
-# if the layer has child layer
+
 function flatten!(objects::Array{AbstractObject}, l::Layer)
     for obj in l.children
         flatten!(objects, obj)
@@ -222,23 +230,24 @@ function render(
     else
         frames = preprocess_frames!([objects..., layer_objects...])
     end
-    # if liveview == true
-    #     if isdefined(Main, :IJulia) && Main.IJulia.inited
-    #         return _jupyter_viewer(
-    #             video,
-    #             length(frames),
-    #             objects,
-    #             framerate,
-    #             layers = layers,
-    #         )
 
-    #     elseif isdefined(Main, :PlutoRunner)
-    #         return _pluto_viewer(video, length(frames), objects, layers = layers)
-    #     else
-    #         _javis_viewer(video, length(frames), objects, layers = layers)
-    #         return "Live Preview Started"
-    #     end
-    # end
+    if liveview == true
+        if isdefined(Main, :IJulia) && Main.IJulia.inited
+            return _jupyter_viewer(
+                video,
+                length(frames),
+                objects,
+                framerate,
+                layers = layers,
+            )
+
+        elseif isdefined(Main, :PlutoRunner)
+            return _pluto_viewer(video, length(frames), objects, layers = layers)
+        else
+            _javis_viewer(video, length(frames), objects, layers = layers)
+            return "Live Preview Started"
+        end
+    end
 
     path, ext = "", ""
     if !isempty(pathname)
@@ -301,6 +310,10 @@ function render(
     return pathname
 end
 
+"""
+    render_objects(objects, video, frame)
+Is called inside the [`get_javis_frame`](@ref) function and renders objects(both individual and ones belonging to a layer).
+"""
 function render_objects(objects, video, frame)
     CURRENT_OBJECT[1] = objects[1]
     background_settings = ObjectSetting()
@@ -331,6 +344,15 @@ function render_objects(objects, video, frame)
     end
 end
 
+"""
+    get_layer_frame(video, layer, frame)
+
+Is called inside [`get_javis_frame`](@ref) and does two things viz.
+    - Creates a Luxor Drawing and renders the object of each layer
+    - computes the actions applies on the layer and stores them
+
+Returns the Drawing of the layer as an image matrix.
+"""
 function get_layer_frame(video, layer, frame)
     Drawing(layer.width, layer.height, :image)
     objects = layer.children
@@ -338,18 +360,16 @@ function get_layer_frame(video, layer, frame)
     if frame in get_frames(layer)
         # call currently active actions and their transformations for each layer
         actions = layer.actions
-        if !isempty(actions)
-            for action in actions
-                #actions for layers are handled in a different way
-                # we don't calculate the relative frames for that
-                # can find out a way to pre_compute frames for actions applie to layers
-                # this is not a final fix..
-                if frame in get_frames(action)
-                    action.func(video, layer, action, frame)
-                elseif frame > last(get_frames(action)) && action.keep
-                    # call the action on the last frame i.e. disappeared things stay disappeared
-                    action.func(video, layer, action, last(get_frames(action)))
-                end
+        for action in actions
+            #actions for layers are handled in a different way
+            # we don't calculate the relative frames for that
+            # can find out a way to pre_compute frames for actions applie to layers
+            # this is not a final fix..
+            if frame in get_frames(action)
+                action.func(video, layer, action, frame)
+            elseif frame > last(get_frames(action)) && action.keep
+                # call the action on the last frame i.e. disappeared things stay disappeared
+                action.func(video, layer, action, last(get_frames(action)))
             end
         end
     end
@@ -358,15 +378,45 @@ function get_layer_frame(video, layer, frame)
     return img_layer
 end
 
-function apply_layer_actions(video, layers, frame)
+
+"""
+    apply_layer_settings(layer, pt)
+
+Applies the computed actions to the image matrix of the layer to it's image matrix
+Only a few actions are supported. 
+It reads and applies the layer settings(computed by [`get_layer_frame`](@ref) function))
+"""
+
+function apply_layer_settings(layer_settings, pt)
+    # final actions on the layer are applied here
+    # currently scale and translate are support
+    scale(layer_settings.scale)
+    rotate(layer_settings.rotation_angle)
+end
+
+"""
+    place_layers(video, layers, frame)
+
+Places the layers on an empty drawing
+It does 2 things:
+- creates an empty Drawing of the same size as video
+- calls the [`apply_layer_settings`](@ref)
+- places every layer's image matrix on the drawing
+
+Returns the Drawing containing all the layers as an image matrix.
+"""
+function place_layers(video, layers, frame)
     # create an empty drawing of size same as the main video
     Drawing(video.width, video.height, :image)
     origin()
 
     for layer in layers
+        CURRENT_LAYER[1] = layer
         if frame in get_frames(layer)
             @layer begin
                 # any actions on the layer go in this block
+
+                layer_settings = layer.current_setting
                 # provide pre-centered points to the place image functions
                 # rather than using centered=true 
                 # https://github.com/JuliaGraphics/Luxor.jl/issues/155
@@ -375,35 +425,42 @@ function apply_layer_actions(video, layers, frame)
                     layer.position.y - layer.height / 2,
                 )
 
-                settings = layer.current_setting
-                # final actions on the layer are applied here
-                # currently scale and translate are support
-                scale(settings.scale)
-                rotate(settings.rotation_angle)
-                placeimage(layer.image_matrix[1], pt, alpha = settings.opacity)
+                apply_layer_settings(layer_settings, pt)
+                placeimage(layer.image_matrix[1], pt, alpha = layer.current_setting.opacity)
             end
         end
     end
-
+    
     # matrix of a transparent drawing with all the layers 
     img_layers = image_as_matrix()
     finish()
     return img_layers
 end
 
+"""
+    get_javis_frame(video, objects, frame; layers = Layer[])
+
+Is called inside the [`render`](@ref) function.
+It is a 4-step process:
+- for each layer fetch it's image matrix and store it into the layer's struct
+- place the layers on an empty drawing
+- creates the main canvas and renders the independent objects
+- places the drawing containing all the layers on the main drawing
+
+Returens the final rendered frame
+"""
 function get_javis_frame(video, objects, frame; layers = Layer[])
     if !isempty(layers)
         # for each layer render it's objects and store the image matrix
         for layer in layers
+            CURRENT_LAYER[1] = layer
             if frame in get_frames(layer)
                 mat = get_layer_frame(video, layer, frame)
                 layer.image_matrix[1] = mat
             end
         end
 
-        # for each layer apply respective actions,
-        # place the layer matrix over an empty canvas 
-        img_layers = apply_layer_actions(video, layers, frame)
+        img_layers = place_layers(video, layers, frame)
     end
 
     # finally render the independent objects
@@ -420,8 +477,7 @@ function get_javis_frame(video, objects, frame; layers = Layer[])
 end
 
 """
-    draw_object(object, video, frame, origin_matrix)
-
+    draw_object(video, layer, frame, origin_matrix)
 Is called inside the [`render`](@ref) and does everything handled for an `AbstractObject`.
 It is a 4-step process:
 - translate to the start position

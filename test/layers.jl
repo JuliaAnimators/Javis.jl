@@ -48,12 +48,7 @@
             Object(20:60, (args...) -> path!(path_of_blue, pos(blue_ball), "blue"))
     end
 
-    act!(l1, [Action(30:50, anim_translate(l1.position, Point(300, 300)))])
     # dont forget to update the reference images once anim_rotate is fixed
-    act!(l1, Action(30:50, anim_rotate(2π)))
-    act!(l1, Action(30:50, disappear(:fade)))
-    act!(l1, Action(30:50, anim_scale(0)))
-
     layer_actions = [
         Action(30:50, anim_translate(l1.position, Point(300, 300))),
         Action(30:50, anim_rotate(2π)),
@@ -61,6 +56,8 @@
         Action(30:50, anim_scale(0)),
     ]
 
+    act!(l1, layer_actions)
+    
     ball1 = Object(20:60, (args...) -> object_layer(O, "red"), Point(50, 0))
     act!(ball1, Action(anim_rotate_around(2π, O)))
     ball2 = Object(20:60, (args...) -> object_layer(O, "blue"), Point(100, 40))

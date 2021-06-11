@@ -109,7 +109,7 @@ end
 """
     translate()
 
-Translate an [`Object`](@ref) using an [`Action`](@ref) and an Animation defined
+Translate an [`Object`](@ref) or a [`Layer`](@ref) using an [`Action`](@ref) and an Animation defined
 with Animations.jl.
 
 If you're used to working with Animations.jl this should feel quite natural.
@@ -174,7 +174,7 @@ end
 """
     rotate()
 
-Rotate an [`Object`](@ref) using an [`Action`](@ref) and an Animation defined
+Rotate an [`Object`](@ref) or a [`Layer`](@ref) using an [`Action`](@ref) and an Animation defined
 with Animations.jl.
 
 If you're used to working with Animations.jl this should feel quite natural.
