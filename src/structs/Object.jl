@@ -73,6 +73,7 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
     if isempty(CURRENT_VIDEO)
         throw(ErrorException("A `Video` must be defined before an `Object`"))
     end
+
     CURRENT_VIDEO[1].defs[:last_frames] = frames
     opts = Dict(kwargs...)
 
@@ -91,7 +92,7 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
         Any[nothing],
     )
 
-    # if the object belongs to local layer, don't push it to the video
+    # if the object belongs to local layer, don't push it to the video.objects
     if PUSH_TO_LAYER[1]
         push!(CURRENT_LAYER[1].children, object)
     else
@@ -175,5 +176,9 @@ render(video; pathname="test.gif")
 This draws a white circle on a black background as `sethue` is defined for the global frame.
 """
 function Background(frames, func::Function, args...; kwargs...)
-    Object(frames, func, args...; in_global_layer = true, kwargs...)
+    if PUSH_TO_LAYER[1]
+        Object(frames, func, args...; kwargs...)
+    else
+        Object(frames, func, args...; in_global_layer = true, kwargs...)
+    end
 end

@@ -3,8 +3,8 @@ module Javis
 using Animations
 import Cairo: CairoImageSurface, image
 using FFMPEG
-using Gtk
-using GtkReactive
+# using Gtk
+# using GtkReactive
 using Hungarian
 using Images
 import Interact
@@ -100,7 +100,7 @@ include("backgrounds.jl")
 include("svg2luxor.jl")
 include("morphs.jl")
 include("action_animations.jl")
-include("javis_viewer.jl")
+# include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
 include("layer_values.jl")
@@ -215,30 +215,30 @@ function render(
     ffmpeg_loglevel = "panic",
 )
     layers = video.layers
-    layer_objects = flatten(video.layers)
+    layer_objects = flatten(layers)
     objects = video.objects
     if isempty(layers)
         frames = preprocess_frames!(objects)
     else
-        frames = preprocess_frames!([layer_objects..., objects...])
+        frames = preprocess_frames!([objects..., layer_objects...])
     end
-    if liveview == true
-        if isdefined(Main, :IJulia) && Main.IJulia.inited
-            return _jupyter_viewer(
-                video,
-                length(frames),
-                objects,
-                framerate,
-                layers = layers,
-            )
+    # if liveview == true
+    #     if isdefined(Main, :IJulia) && Main.IJulia.inited
+    #         return _jupyter_viewer(
+    #             video,
+    #             length(frames),
+    #             objects,
+    #             framerate,
+    #             layers = layers,
+    #         )
 
-        elseif isdefined(Main, :PlutoRunner)
-            return _pluto_viewer(video, length(frames), objects, layers = layers)
-        else
-            _javis_viewer(video, length(frames), objects, layers = layers)
-            return "Live Preview Started"
-        end
-    end
+    #     elseif isdefined(Main, :PlutoRunner)
+    #         return _pluto_viewer(video, length(frames), objects, layers = layers)
+    #     else
+    #         _javis_viewer(video, length(frames), objects, layers = layers)
+    #         return "Live Preview Started"
+    #     end
+    # end
 
     path, ext = "", ""
     if !isempty(pathname)
@@ -336,15 +336,17 @@ function get_layer_frame(video, layer, frame)
     objects = layer.children
     render_objects(objects, video, frame)
     if frame in get_frames(layer)
-        rel_frame = frame - first(get_frames(layer)) + 1
-
         # call currently active actions and their transformations for each layer
         actions = layer.actions
         if !isempty(actions)
             for action in actions
-                if rel_frame in get_frames(action)
-                    action.func(video, layer, action, rel_frame)
-                elseif rel_frame > last(get_frames(action)) && action.keep
+                #actions for layers are handled in a different way
+                # we don't calculate the relative frames for that
+                # can find out a way to pre_compute frames for actions applie to layers
+                # this is not a final fix..
+                if frame in get_frames(action)
+                    action.func(video, layer, action, frame)
+                elseif frame > last(get_frames(action)) && action.keep
                     # call the action on the last frame i.e. disappeared things stay disappeared
                     action.func(video, layer, action, last(get_frames(action)))
                 end
@@ -362,22 +364,24 @@ function apply_layer_actions(video, layers, frame)
     origin()
 
     for layer in layers
-        @layer begin
-            # any actions on the layer go in this block
-            # provide pre-centered points to the place image functions
-            # rather than using centered=true 
-            # https://github.com/JuliaGraphics/Luxor.jl/issues/155
-            pt = Point(
-                layer.position.x - layer.width / 2,
-                layer.position.y - layer.height / 2,
-            )
+        if frame in get_frames(layer)
+            @layer begin
+                # any actions on the layer go in this block
+                # provide pre-centered points to the place image functions
+                # rather than using centered=true 
+                # https://github.com/JuliaGraphics/Luxor.jl/issues/155
+                pt = Point(
+                    layer.position.x - layer.width / 2,
+                    layer.position.y - layer.height / 2,
+                )
 
-            settings = layer.current_setting
-            # final actions on the layer are applied here
-            # currently scale and translate are support
-            scale(settings.scale)
-            rotate(settings.rotation_angle)
-            placeimage(layer.image_matrix[1], pt, alpha = settings.opacity)
+                settings = layer.current_setting
+                # final actions on the layer are applied here
+                # currently scale and translate are support
+                scale(settings.scale)
+                rotate(settings.rotation_angle)
+                placeimage(layer.image_matrix[1], pt, alpha = settings.opacity)
+            end
         end
     end
 
