@@ -32,7 +32,7 @@
         sethue("white")
     end
 
-    l1 = Javis.@javis_layer 20:60 600 600 Point(0, 0) begin
+    l1 = Javis.@Layer 20:60 600 600 Point(0, 0) begin
         Background(20:60, ground1)
         red_ball = Object(20:60, (args...) -> object_layer(O, "red"), Point(50, 0))
         act!(red_ball, Action(anim_rotate_around(2π, O)))
@@ -57,7 +57,7 @@
     ]
 
     act!(l1, layer_actions)
-    
+
     ball1 = Object(20:60, (args...) -> object_layer(O, "red"), Point(50, 0))
     act!(ball1, Action(anim_rotate_around(2π, O)))
     ball2 = Object(20:60, (args...) -> object_layer(O, "blue"), Point(100, 40))

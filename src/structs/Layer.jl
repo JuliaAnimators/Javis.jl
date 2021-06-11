@@ -69,7 +69,7 @@ function Layer(
 end
 
 """
-    @javis_layer(frames, width, height, position, body)
+    Javis.@Layer(frames, width, height, position, body)
 
 # Arguments
 - frames:a `UnitRange` that defines for which frames the layer is active
@@ -101,7 +101,7 @@ video = Video(500, 500)
 Background(1:100, ground)
 Object((args...)->circle(O, 50, :fill))
 
-l1 = @javis_layer 10:70 100 100 Point(150, 150) begin
+l1 = @Javis.Layer 10:70 100 100 Point(150, 150) begin
     Background(10:70, layer_ground)
     red_ball = Object(20:60, (args...)->object(O, "red"), Point(50,0))
     act!(red_ball, Action(anim_rotate_around(2π, O)))
@@ -109,7 +109,7 @@ end
 render(video; pathname="test.gif")
 ```
 """
-macro javis_layer(frames, width, height, position, body)
+macro Layer(frames, width, height, position, body)
     quote
         layer = Layer($frames, width = $width, height = $height, position = $position)
         if isempty(CURRENT_LAYER)

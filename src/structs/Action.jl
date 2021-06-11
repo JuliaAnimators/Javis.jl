@@ -74,7 +74,7 @@ render(video; pathname="test.gif")
 
 Actions can be applied to a layer using a similar syntax
 ```julia
-l1 = Javis.@javis_layer 20:60 100 100 Point(0, 0) begin
+l1 = Javis.@Layer 20:60 100 100 Point(0, 0) begin
     obj = Object((args...)->circle(O, 50, :fill))
     act!(obj, Action(1:20, appear(:fade)))
 end
