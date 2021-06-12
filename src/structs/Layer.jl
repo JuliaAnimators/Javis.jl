@@ -45,11 +45,12 @@ const PUSH_TO_LAYER = Array{Any,1}()
 # by default push all the objects to the video
 push!(PUSH_TO_LAYER, false)
 
+# for width, height and position defaults are defined in the to_layer_m function
 function Layer(
-    frames;
-    width = CURRENT_VIDEO[1].width,
-    height = CURRENT_VIDEO[1].height,
-    position = O,
+    frames,
+    width,
+    height,
+    position;
     children = AbstractObject[],
     actions = AbstractAction[],
     setting = LayerSetting(),
@@ -72,17 +73,19 @@ end
     Javis.@Layer(frames, width, height, position, body)
 
 # Arguments
-- frames:a `UnitRange` that defines for which frames the layer is active
-- width: defines the width of the layer
-- height: defines the height of the layer
-- position: location of the center of the layer on the main canvas
-- body
+- `frames`:a `UnitRange` that defines for which frames the layer is active
+- `width`: defines the width of the layer
+- `height`: defines the height of the layer
+- `position`: location of the center of the layer on the main canvas
+- `body`
     - It contains all the objects(and thier respective actions) definitions for a layer
     - A layer can have it's own separate background
     - Anything defined within the `begin...end` block stays in the layer
     - A Layer has it's own coordinate reference sysstem, i.e. it has it's own origin 
     So eg : `Point(100, 100)` is different when defined in a layer and doesn't represent
     the location 100, 100 on the main canvas 
+
+``width`, `height` and `position` are optional and defualt to the video's width, height and origin respectively.
 Layer declaration should take place before pushing objects to it if one is not using the macro
 
 # Example
@@ -110,16 +113,28 @@ render(video; pathname="test.gif")
 ```
 """
 macro Layer(frames, width, height, position, body)
+    esc(to_layer_m(frames, body, width=width, height=height, position=position))
+end
+
+macro Layer(frames, body)
+    esc(to_layer_m(frames, body))
+end
+
+macro Layer(frames, width, height, body)
+    esc(to_layer_m(frames, body, width=width, height=height))
+end
+
+function to_layer_m(frames, body; width=CURRENT_VIDEO[1].width, height=CURRENT_VIDEO[1].height, position=Point(0,0))
     quote
-        layer = Layer($frames, width = $width, height = $height, position = $position)
-        if isempty(CURRENT_LAYER)
-            push!(CURRENT_LAYER, layer)
+        layer = Javis.Layer($frames, $width, $height, $position)
+        if isempty(Javis.CURRENT_LAYER)
+            push!(Javis.CURRENT_LAYER, layer)
         else
-            CURRENT_LAYER[1] = layer
+            Javis.CURRENT_LAYER[1] = layer
         end
-        PUSH_TO_LAYER[1] = true
-        $(esc(body))
-        PUSH_TO_LAYER[1] = false
+        Javis.PUSH_TO_LAYER[1] = true
+        eval($body)
+        Javis.PUSH_TO_LAYER[1] = false
         layer
     end
 end
