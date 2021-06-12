@@ -1,7 +1,7 @@
 """
     appear(s::Symbol)
 
-Appear can be used inside an [`Action`](@ref) to make an [`Object`](@ref) appear.
+Appear can be used inside an [`Action`](@ref) to make an [`Object`](@ref) or an entire [`Object`](@ref) (including it's objects) to appear.
 
 # Example
 ```
@@ -22,6 +22,8 @@ of the [`Object`](@ref) so `101-120`.
     - `:scale` which increases the scale up to the default value `1`
        or the value specified by [`scale`](@ref)
     - `:draw_text` which only works for [`text`](@ref) and lets it appear from left to right.
+
+For a layer only `appear(:fade)` is supported
 """
 function appear(s::Symbol)
     (video, object, action, rel_frame) -> _appear(video, object, action, rel_frame, Val(s))
@@ -37,7 +39,6 @@ function _appear(video, object, action, rel_frame, symbol::Val{:fade})
     object.current_setting.mul_opacity = t
 end
 
-# for layer only appear(:fade) is possible
 function _appear(video, layer::Layer, action, rel_frame, symbol::Val{:fade})
     t = get_interpolation(action, rel_frame)
     layer.current_setting.opacity = t
@@ -56,7 +57,7 @@ end
 """
     disappear(s::Symbol)
 
-Disappear can be used inside an [`Action`](@ref) to make an [`Object`](@ref) disappear.
+Disappear can be used inside an [`Action`](@ref) to make an [`Object`](@ref) or an entire [`Object`](@ref) (including it's objects) to appear.
 
 # Example
 ```
@@ -74,6 +75,8 @@ of the [`Object`](@ref) so `181-200`.
     - `:fade` which decreases the opacity down to `0`
     - `:scale` which decreases the scale down to `0`
     - `:draw_text` which only works for text and let the text disappear from right to left.
+
+For a layer only `disappear(:fade)` is supported
 """
 function disappear(s::Symbol)
     (video, object, action, rel_frame) ->
@@ -323,7 +326,7 @@ end
 """
     setopacity()
 
-Set the color of an [`Object`](@ref) using an [`Action`](@ref) and an Animation defined
+Set the color of an [`Object`](@ref) or a [`Layer`](@ref) using an [`Action`](@ref) and an Animation defined
 with Animations.jl.
 
 # Example
@@ -354,7 +357,7 @@ end
 
 function _setopacity(video, layer::Layer, action, rel_frame)
     opacity = get_interpolation(action, rel_frame)
-    layer.current_setting.opacity(opacity)
+    layer.current_setting.opacity = opacity
 end
 
 """

@@ -94,7 +94,7 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
 
     # should the object be push to the video or a layer
     if PUSH_TO_LAYER[1]
-        push!(CURRENT_LAYER[1].children, object)
+        push!(CURRENT_LAYER[1].layer_objects, object)
     else
         push!(CURRENT_VIDEO[1].objects, object)
     end
@@ -106,7 +106,7 @@ end
     act!
 
 Adds an [`Action`] or a list of actions to an [`Object`](@ref)/[`Layer`](@ref) or a list of objects/layers.
-
+One key different to note is that an action is applied to a layer as a whole and not on it's children objects
 
 # Example
 ```julia
