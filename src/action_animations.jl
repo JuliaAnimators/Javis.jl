@@ -352,6 +352,11 @@ function _setopacity(video, object, action, rel_frame)
     setopacity(opacity)
 end
 
+function _setopacity(video, layer::Layer, action, rel_frame)
+    opacity = get_interpolation(action, rel_frame)
+    layer.current_setting.opacity(opacity)
+end
+
 """
     follow_path(points::Vector{Point}; closed=true)
 
