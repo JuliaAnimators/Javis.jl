@@ -196,7 +196,7 @@ function render(
     liveview = false,
     tempdirectory = "",
     ffmpeg_loglevel = "panic",
-    frames = nothing
+    frames = nothing,
 )
     objects = video.objects
     render_frames = frames
@@ -234,6 +234,7 @@ function render(
 
     filecounter = 1
     @showprogress 1 "Rendering frames..." for frame in frames
+        frame > last(render_frames) && break
         if frame in render_frames
             frame_image = convert.(RGB, get_javis_frame(video, objects, frame))
         else
