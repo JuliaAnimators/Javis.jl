@@ -252,7 +252,9 @@ function render(
             end
             appendencode!(video_encoder, video_io, frame_image, filecounter)
         end
-        filecounter += 1
+        if frame in render_frames
+            filecounter += 1
+        end
     end
 
     isempty(pathname) && return
