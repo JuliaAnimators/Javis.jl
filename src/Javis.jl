@@ -311,10 +311,10 @@ function render(
 end
 
 """
-    render_objects(objects, video, frame)
+    render_objects(objects, video, frame; layer_frames=nothing)
 Is called inside the [`get_javis_frame`](@ref) function and renders objects(both individual and ones belonging to a layer).
 """
-function render_objects(objects, video, frame)
+function render_objects(objects, video, frame; layer_frames=nothing)
     CURRENT_OBJECT[1] = objects[1]
     background_settings = ObjectSetting()
     origin()
@@ -325,21 +325,30 @@ function render_objects(objects, video, frame)
         # from the parent background object
         update_object_settings!(object, background_settings)
         CURRENT_OBJECT[1] = object
-        if frame in get_frames(object)
+
+        # checks if independent object is in the current frame
+        # also checks the realtive frame of an object in a layer 
+        # if none is true then the object doesn't exist for that frame at all
+        if !((layer_frames == nothing && frame in get_frames(object)) ||
+            layer_frames isa Frames && (frame - first(layer_frames.frames) + 1) in get_frames(object))
+            continue
+        end
+
+        # if frame in get_frames(object)
             # check if the object should be part of the global layer (i.e Background)
             # or in its own layer (default)
             in_global_layer = get(object.opts, :in_global_layer, false)::Bool
             in_local_layer = get(object.opts, :in_local_layer, false)::Bool
             if !in_global_layer && !in_local_layer
                 @layer begin
-                    draw_object(object, video, frame, origin_matrix)
+                    draw_object(object, video, frame, origin_matrix, layer_frames)
                 end
             else
-                draw_object(object, video, frame, origin_matrix)
+                draw_object(object, video, frame, origin_matrix, layer_frames)
                 # update origin_matrix as it's inside the global layer
                 origin_matrix = cairotojuliamatrix(getmatrix())
             end
-        end
+        # end
         # if object is in global layer this changes the background settings
         update_background_settings!(background_settings, object)
     end
@@ -356,19 +365,16 @@ Returns the Drawing of the layer as an image matrix.
 """
 function get_layer_frame(video, layer, frame)
     Drawing(layer.width, layer.height, :image)
-    objects = layer.children
-    render_objects(objects, video, frame)
+    layer_frames = layer.frames
+    render_objects(layer.children, video, frame, layer_frames=layer_frames)
     if frame in get_frames(layer)
         # call currently active actions and their transformations for each layer
         actions = layer.actions
         for action in actions
-            #actions for layers are handled in a different way
-            # we don't calculate the relative frames for that
-            # can find out a way to pre_compute frames for actions applie to layers
-            # this is not a final fix..
-            if frame in get_frames(action)
-                action.func(video, layer, action, frame)
-            elseif frame > last(get_frames(action)) && action.keep
+            rel_frame = frame - first(layer_frames.frames) + 1
+            if rel_frame in get_frames(action)
+                action.func(video, layer, action, rel_frame)
+            elseif rel_frame > last(get_frames(action)) && action.keep
                 # call the action on the last frame i.e. disappeared things stay disappeared
                 action.func(video, layer, action, last(get_frames(action)))
             end
@@ -478,7 +484,7 @@ function get_javis_frame(video, objects, frame; layers = Layer[])
 end
 
 """
-    draw_object(video, layer, frame, origin_matrix)
+    draw_object(video, layer, frame, origin_matrix, layer_frames)
 Is called inside the [`render`](@ref) and does everything handled for an `AbstractObject`.
 It is a 4-step process:
 - translate to the start position
@@ -486,7 +492,7 @@ It is a 4-step process:
 - call the object function
 - save the result of the object if wanted inside `video.defs`
 """
-function draw_object(object, video, frame, origin_matrix)
+function draw_object(object, video, frame, origin_matrix, layer_frames)
     # translate the object to it's starting position.
     # It's better to draw the object always at the origin and use `star_pos` to shift it
     translate(get_position(object.start_pos))
@@ -496,7 +502,14 @@ function draw_object(object, video, frame, origin_matrix)
 
     # first compute and perform the global transformations of this object
     # relative frame number for actions
-    rel_frame = frame - first(get_frames(object)) + 1
+    if layer_frames == nothing
+        rel_frame = frame - first(get_frames(object)) + 1
+    else
+        # actions of objects in a layer
+        # this is somewhat nested since object and action defined in a layer
+        # both have their respective frame ranges that need to be calculated relatively
+        rel_frame = frame - first(get_frames(object)) - first(layer_frames.frames) + 1
+    end    
     # call currently active actions and their transformations
     for action in object.actions
         if rel_frame in get_frames(action)
