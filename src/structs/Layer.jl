@@ -23,7 +23,8 @@ mutable struct Layer <: AbstractObject
     actions::Vector{AbstractAction}
     current_setting::LayerSetting
     opts::Dict{Symbol,Any}
-    image_matrix::Vector
+    image_matrix::Union{Base.ReinterpretArray{ARGB32,2,UInt32,Matrix{UInt32},false},Nothing}
+    layer_cache::LayerCache
 end
 
 """
@@ -55,9 +56,21 @@ function Layer(
     actions = AbstractAction[],
     setting = LayerSetting(),
     misc = Dict{Symbol,Any}(),
-    mat = Any[nothing],
+    mat = nothing,
+    layer_cache = LayerCache(),
 )
-    layer = Layer(frames, width, height, position, children, actions, setting, misc, mat)
+    layer = Layer(
+        frames,
+        width,
+        height,
+        position,
+        children,
+        actions,
+        setting,
+        misc,
+        mat,
+        layer_cache,
+    )
 
     if isempty(CURRENT_LAYER)
         push!(CURRENT_LAYER, layer)
@@ -113,7 +126,7 @@ render(video; pathname="test.gif")
 ```
 """
 macro Layer(frames, width, height, position, body)
-    esc(to_layer_m(frames, body, width=width, height=height, position=position))
+    esc(to_layer_m(frames, body, width = width, height = height, position = position))
 end
 
 macro Layer(frames, body)
@@ -121,10 +134,16 @@ macro Layer(frames, body)
 end
 
 macro Layer(frames, width, height, body)
-    esc(to_layer_m(frames, body, width=width, height=height))
+    esc(to_layer_m(frames, body, width = width, height = height))
 end
 
-function to_layer_m(frames, body; width=CURRENT_VIDEO[1].width, height=CURRENT_VIDEO[1].height, position=Point(0,0))
+function to_layer_m(
+    frames,
+    body;
+    width = CURRENT_VIDEO[1].width,
+    height = CURRENT_VIDEO[1].height,
+    position = Point(0, 0),
+)
     quote
         layer = Javis.Layer($frames, $width, $height, $position)
         if isempty(Javis.CURRENT_LAYER)
@@ -137,4 +156,20 @@ function to_layer_m(frames, body; width=CURRENT_VIDEO[1].width, height=CURRENT_V
         Javis.PUSH_TO_LAYER[1] = false
         layer
     end
+end
+
+"""
+    show_layer_frame(frames::UnitRange, layer_frame::Union{UnitRange,Int}, layer::Layer)
+`frames::UnitRange`: The frame range for which the layer should be repeated
+`layer_frame::Union{UnitRange,Int}`: The layer frame range to repeat
+`layer::Layer`:the layer to be repeated
+"""
+function show_layer_frame(
+    frames::UnitRange,
+    layer_frame::Union{UnitRange,Int},
+    layer::Layer,
+)
+    lc = layer.layer_cache
+    lc.frames = frames
+    lc.layer_frames = layer_frame
 end

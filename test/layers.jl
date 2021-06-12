@@ -6,7 +6,7 @@ video = Video(600, 600)
         sethue("black")
     end
 
-    Background(1:70, ground)
+    Background(1:80, ground)
 
     function object_layer(p = O, color = "black")
         sethue(color)
@@ -44,15 +44,12 @@ video = Video(600, 600)
         act!(red_ball, Action(anim_rotate_around(2π, O)))
         blue_ball = Object(5:41, (args...) -> object_layer(O, "blue"), Point(100, 40))
         act!(blue_ball, Action(anim_rotate_around(2π, 0.0, red_ball)))
-        
+
         # the frame range for actions have 2 level nesting(check for that)
         act!(blue_ball, Action(5:30, appear(:fade)))
-        connect = Object(
-            5:41,
-            (args...) -> connector(pos(red_ball), pos(blue_ball), "black"),
-        )
-        path_ofRed =
-            Object(5:41, (args...) -> path!(path_of_red, pos(red_ball), "red"))
+        connect =
+            Object(5:41, (args...) -> connector(pos(red_ball), pos(blue_ball), "black"))
+        path_ofRed = Object(5:41, (args...) -> path!(path_of_red, pos(red_ball), "red"))
         path_ofBlue =
             Object(5:41, (args...) -> path!(path_of_blue, pos(blue_ball), "blue"))
     end
@@ -64,14 +61,9 @@ video = Video(600, 600)
         ball2 = Object(5:41, (args...) -> object_layer(O, "blue"), Point(100, 40))
         act!(ball2, Action(anim_rotate_around(2π, 0.0, ball1)))
         act!(ball2, Action(5:30, appear(:fade)))
-        conn = Object(
-            5:41,
-            (args...) -> connector(pos(ball1), pos(ball2), "black"),
-        )
-        path_ball1 =
-            Object(5:41, (args...) -> path!(path_of_red, pos(ball1), "red"))
-        path_ball2 =
-            Object(5:41, (args...) -> path!(path_of_blue, pos(ball2), "blue"))
+        conn = Object(5:41, (args...) -> connector(pos(ball1), pos(ball2), "black"))
+        path_ball1 = Object(5:41, (args...) -> path!(path_of_red, pos(ball1), "red"))
+        path_ball2 = Object(5:41, (args...) -> path!(path_of_blue, pos(ball2), "blue"))
     end
 
     l3 = Javis.@Layer 20:60 600 600 begin
@@ -81,14 +73,9 @@ video = Video(600, 600)
         bball = Object(5:41, (args...) -> object_layer(O, "blue"), Point(100, 40))
         act!(bball, Action(anim_rotate_around(2π, 0.0, rball)))
         act!(bball, Action(5:30, appear(:fade)))
-        con = Object(
-            5:41,
-            (args...) -> connector(pos(rball), pos(bball), "black"),
-        )
-        path_rball =
-            Object(5:41, (args...) -> path!(path_of_red, pos(rball), "red"))
-        path_bball =
-            Object(5:41, (args...) -> path!(path_of_blue, pos(bball), "blue"))
+        con = Object(5:41, (args...) -> connector(pos(rball), pos(bball), "black"))
+        path_rball = Object(5:41, (args...) -> path!(path_of_red, pos(rball), "red"))
+        path_bball = Object(5:41, (args...) -> path!(path_of_blue, pos(bball), "blue"))
     end
 
     # dont forget to update the reference images once anim_rotate is fixed
@@ -100,7 +87,7 @@ video = Video(600, 600)
     ]
 
     act!([l1, l2, l3], layer_actions)
-    
+
     ball1 = Object(5:41, (args...) -> object_layer(O, "red"), Point(50, 0))
     act!(ball1, Action(anim_rotate_around(2π, O)))
     ball2 = Object(5:41, (args...) -> object_layer(O, "blue"), Point(100, 40))
@@ -112,16 +99,31 @@ video = Video(600, 600)
     layer_objects = [ball1, ball2, conn, por, pob]
 
     @testset "Layer macro" begin
-        @test l1.frames.frames==l2.frames.frames==l3.frames.frames
-        @test l1.width==l2.width==l3.width==600
-        @test l1.height==l2.height==l3.height==600
-        @test l1.position==l2.position==l3.position==O
-        @test length(l1.children)==length(l2.children)==length(l3.children)==length(layer_objects)+1
-        @test length(l1.actions)==length(l2.actions)==length(l3.actions)==length(layer_actions)
-        @test l1.current_setting.opacity==l2.current_setting.opacity==l3.current_setting.opacity==1.0
-        @test l1.current_setting.scale==l2.current_setting.scale==l3.current_setting.scale==Javis.Scale(1.0, 1.0)
-        @test l1.current_setting.rotation_angle==l2.current_setting.rotation_angle==l3.current_setting.rotation_angle==0.0
-        @test l1.image_matrix==l2.image_matrix==l3.image_matrix==Any[nothing]
+        @test l1.frames.frames == l2.frames.frames == l3.frames.frames
+        @test l1.width == l2.width == l3.width == 600
+        @test l1.height == l2.height == l3.height == 600
+        @test l1.position == l2.position == l3.position == O
+        @test length(l1.children) ==
+              length(l2.children) ==
+              length(l3.children) ==
+              length(layer_objects) + 1
+        @test length(l1.actions) ==
+              length(l2.actions) ==
+              length(l3.actions) ==
+              length(layer_actions)
+        @test l1.current_setting.opacity ==
+              l2.current_setting.opacity ==
+              l3.current_setting.opacity ==
+              1.0
+        @test l1.current_setting.scale ==
+              l2.current_setting.scale ==
+              l3.current_setting.scale ==
+              Javis.Scale(1.0, 1.0)
+        @test l1.current_setting.rotation_angle ==
+              l2.current_setting.rotation_angle ==
+              l3.current_setting.rotation_angle ==
+              0.0
+        @test l1.image_matrix == l2.image_matrix == l3.image_matrix == nothing
     end
 
     # remove duplicate layers after above testing
@@ -135,33 +137,18 @@ video = Video(600, 600)
     circle_obj = Object(31:60, acirc)
     act!(circle_obj, Action(linear(), morph_to(astar)))
 
-    rotate_anim = Animation(
-        [0, 1], # must go from 0 to 1
-        [0, 2π],
-        [sineio()],
-    )
+    l4 = Javis.@Layer 5:20 200 200 Point(-50, 50) begin
+        Background(1:14, ground2)
+        rball = Object(1:14, (args...) -> object_layer(O, "black"), Point(50, 0))
+        act!(rball, Action(anim_translate(Point(100, -100))))
+    end
 
-    translate_anim = Animation(
-        [0, 1], # must go from 0 to 1
-        [O, Point(130, 0)],
-        [sineio()],
-    )
-
-    translate_back_anim = Animation(
-        [0, 1], # must go from 0 to 1
-        [O, Point(-130, 0)],
-        [sineio()],
-    )
-
-    color_anim = Animation(
-        [0, 0.5, 1], # must go from 0 to 1
-        [Lab(colorant"red"), Lab(colorant"cyan"), Lab(colorant"black")],
-        [sineio(), sineio()],
-    )
+    Javis.show_layer_frame(71:79, 30:35, l1)
+    Javis.show_layer_frame(71:79, 10, l4)
 
     render(video; tempdirectory = "images", pathname = "layer_test.gif")
 
-    for i in ["03", 10, 19, 20, 24, 33, 44, 45, 49, 51, 59, 70]
+    for i in ["03", "05", 10, 18, 19, 20, 24, 33, 44, 45, 49, 51, 59, 65, 71, 76, 77, 79]
         @test_reference "refs/layer$i.png" load("images/00000000$i.png")
         @test isfile("layer_test.gif")
     end

@@ -56,6 +56,7 @@ include("structs/ObjectSetting.jl")
 include("structs/Object.jl")
 include("structs/Transitions.jl")
 include("structs/Action.jl")
+include("structs/LayerCache.jl")
 include("structs/LayerSetting.jl")
 include("structs/Layer.jl")
 
@@ -120,6 +121,15 @@ function projection(p::Point, l::Line)
     # scalar product <x,v>/<v,v>
     c = (x.x * v.x + x.y * v.y) / (v.x^2 + v.y^2)
     return c * v + o
+end
+"""
+    centered_point(pos::Point, width::Int, height::Int)
+Returns pre-centered points to be used in the place image functions
+rather than using centered=true 
+https://github.com/JuliaGraphics/Luxor.jl/issues/155
+"""
+function centered_point(pos::Point, width::Int, height::Int)
+    Point(pos.x - width / 2, pos.y - height / 2)
 end
 
 """
@@ -314,7 +324,7 @@ end
     render_objects(objects, video, frame; layer_frames=nothing)
 Is called inside the [`get_javis_frame`](@ref) function and renders objects(both individual and ones belonging to a layer).
 """
-function render_objects(objects, video, frame; layer_frames=nothing)
+function render_objects(objects, video, frame; layer_frames = nothing)
     CURRENT_OBJECT[1] = objects[1]
     background_settings = ObjectSetting()
     origin()
@@ -329,25 +339,28 @@ function render_objects(objects, video, frame; layer_frames=nothing)
         # checks if independent object is in the current frame
         # also checks the realtive frame of an object in a layer 
         # if none is true then the object doesn't exist for that frame at all
-        if !((layer_frames == nothing && frame in get_frames(object)) ||
-            layer_frames isa Frames && (frame - first(layer_frames.frames) + 1) in get_frames(object))
+        if !(
+            (layer_frames == nothing && frame in get_frames(object)) ||
+            layer_frames isa Frames &&
+            (frame - first(layer_frames.frames) + 1) in get_frames(object)
+        )
             continue
         end
 
         # if frame in get_frames(object)
-            # check if the object should be part of the global layer (i.e Background)
-            # or in its own layer (default)
-            in_global_layer = get(object.opts, :in_global_layer, false)::Bool
-            in_local_layer = get(object.opts, :in_local_layer, false)::Bool
-            if !in_global_layer && !in_local_layer
-                @layer begin
-                    draw_object(object, video, frame, origin_matrix, layer_frames)
-                end
-            else
+        # check if the object should be part of the global layer (i.e Background)
+        # or in its own layer (default)
+        in_global_layer = get(object.opts, :in_global_layer, false)::Bool
+        in_local_layer = get(object.opts, :in_local_layer, false)::Bool
+        if !in_global_layer && !in_local_layer
+            @layer begin
                 draw_object(object, video, frame, origin_matrix, layer_frames)
-                # update origin_matrix as it's inside the global layer
-                origin_matrix = cairotojuliamatrix(getmatrix())
             end
+        else
+            draw_object(object, video, frame, origin_matrix, layer_frames)
+            # update origin_matrix as it's inside the global layer
+            origin_matrix = cairotojuliamatrix(getmatrix())
+        end
         # end
         # if object is in global layer this changes the background settings
         update_background_settings!(background_settings, object)
@@ -366,7 +379,7 @@ Returns the Drawing of the layer as an image matrix.
 function get_layer_frame(video, layer, frame)
     Drawing(layer.width, layer.height, :image)
     layer_frames = layer.frames
-    render_objects(layer.children, video, frame, layer_frames=layer_frames)
+    render_objects(layer.children, video, frame, layer_frames = layer_frames)
     if frame in get_frames(layer)
         # call currently active actions and their transformations for each layer
         actions = layer.actions
@@ -420,21 +433,32 @@ function place_layers(video, layers, frame)
     for layer in layers
         CURRENT_LAYER[1] = layer
         if frame in get_frames(layer)
+            pt = centered_point(layer.position, layer.width, layer.height)
             @layer begin
                 # any actions on the layer go in this block
 
                 layer_settings = layer.current_setting
-                # provide pre-centered points to the place image functions
-                # rather than using centered=true 
-                # https://github.com/JuliaGraphics/Luxor.jl/issues/155
-                pt = Point(
-                    layer.position.x - layer.width / 2,
-                    layer.position.y - layer.height / 2,
-                )
 
                 apply_layer_settings(layer_settings, pt)
-                placeimage(layer.image_matrix[1], pt, alpha = layer.current_setting.opacity)
+                placeimage(layer.image_matrix, pt, alpha = layer.current_setting.opacity)
             end
+        end
+
+        lc = layer.layer_cache
+        if frame in lc.frames
+            if lc.frame_counter < length(lc.layer_frames)
+                lc.frame_counter += 1
+                placeimage(
+                    lc.matrix_cache[lc.frame_counter],
+                    centered_point(layer.position, layer.width, layer.height),
+                )
+            else
+                lc.frame_counter = 1
+            end
+            placeimage(
+                lc.matrix_cache[lc.frame_counter],
+                centered_point(layer.position, layer.width, layer.height),
+            )
         end
     end
 
@@ -463,7 +487,12 @@ function get_javis_frame(video, objects, frame; layers = Layer[])
             CURRENT_LAYER[1] = layer
             if frame in get_frames(layer)
                 mat = get_layer_frame(video, layer, frame)
-                layer.image_matrix[1] = mat
+                layer.image_matrix = mat
+            end
+
+            lc = layer.layer_cache
+            if frame in lc.layer_frames
+                push!(lc.matrix_cache, mat)
             end
         end
 
@@ -509,7 +538,7 @@ function draw_object(object, video, frame, origin_matrix, layer_frames)
         # this is somewhat nested since object and action defined in a layer
         # both have their respective frame ranges that need to be calculated relatively
         rel_frame = frame - first(get_frames(object)) - first(layer_frames.frames) + 1
-    end    
+    end
     # call currently active actions and their transformations
     for action in object.actions
         if rel_frame in get_frames(action)
