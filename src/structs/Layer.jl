@@ -41,12 +41,12 @@ function Layer(
     width::Int,
     height::Int,
     position::Point;
-    layer_objects = AbstractObject[],
-    actions = AbstractAction[],
-    setting = LayerSetting(),
-    misc = Dict{Symbol,Any}(),
+    layer_objects::Vector{AbstractObject} = AbstractObject[],
+    actions::Vector{AbstractAction} = AbstractAction[],
+    setting::LayerSetting = LayerSetting(),
+    misc::Dict{Symbol,Any} = Dict{Symbol,Any}(),
     mat = nothing,
-    layer_cache = LayerCache(),
+    layer_cache::LayerCache = LayerCache(),
 )
     layer = Layer(
         frames,
