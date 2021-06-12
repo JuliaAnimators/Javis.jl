@@ -273,11 +273,11 @@
         back = Background(1:50, (args...) -> 1)
         obj1 = Object(1:10, (args...) -> 1)
         a1 = Action(1:10, anim_scale(1, 2))
-        a2 = Action(@Frames(startof(a1)+5, 5), anim_scale(1, 2))
+        a2 = Action(@Frames(startof(a1) + 5, 5), anim_scale(1, 2))
         act!(obj1, a1)
         act!(obj1, a2)
         obj2 = Object(@Frames(prev_start(), 10), (args...) -> 1)
-        obj3 = Object(@Frames(startof(obj2)+1, 10), (args...) -> 1)
+        obj3 = Object(@Frames(startof(obj2) + 1, 10), (args...) -> 1)
 
         Javis.preprocess_frames!(demo.objects)
         @test Javis.get_frames(obj1) == 1:10
