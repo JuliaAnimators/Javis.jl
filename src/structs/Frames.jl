@@ -146,6 +146,9 @@ function prev_end()
     end
 end
 
+startof(oa::Union{AbstractAction, AbstractObject}) = oa.frames.frames[1]
+endof(oa::Union{AbstractAction, AbstractObject}) = oa.frames.frames[end]
+
 """
     @Frames(start, len)
     @Frames(start, stop=)
