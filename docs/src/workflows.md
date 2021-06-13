@@ -182,41 +182,72 @@ If you don't want to use the interactivity and simply display the output, set th
 
 ![](assets/pluto_viewer.gif)
 
+## Live Streaming animations
 
-## Livestreaming animations
-Javis brings in the support to pipe the rendered animations to streaming software(like OBS, VLC) or directly to platforms like Twitch or any alternatives that can read from a network stream.
+Javis supports directing animations to streaming software after rendering a visualization.
 
-- ### Streaming Locally
-Many educational streamers/teachers prefer using streaming tools like OBS/VLC to have more creative control over their streams. Javis livestreaming is tuned for such use cases.
-The animation can be streamed to a local IP/port and can be viewed using any tool that can read from a network stream.
+### Streaming Locally
 
-Firstly, one needs to setup the `StreamConfig` object that holds configuration regarding the streaming process. Javis uses `udp://0.0.0.0:14015` as the default streaming protocol, address and port respectively. However you're free to use any options of your choice.
+Many professionals and streamers prefer using streaming tools, such as [OBS Studio](https://obsproject.com/) and [VLC Media Player](https://www.videolan.org/vlc/), to have more creative control over their lectures or streams.
+Javis live streaming is tuned for such use cases.
+The animation can be streamed to a local IP or port and be viewed using any tool that can read from a network stream.
 
-!!! warning
-    
-    While you can stream to any IP/port, we recommend using the default streaming protocol `udp` if you wish to share the stream with other people(connected over the network) or tools like OBS. 
+Firstly, one needs to setup the `StreamConfig` object that holds configuration regarding the streaming process.
+That is as simple as this one line of code in your animation script:
 
 ```julia
-...
+stream_conf = setup_stream(:local)
+```
+
+After that, you can render your animation to a network platform of your choice by editing the `render` command:
+
+```julia
+render(vid, streamconfig=stream_conf)
+```
+
+Javis uses `udp://0.0.0.0:14015` as the default streaming protocol, address and port respectively. 
+However you're free to use any options of your choice.
+
+> **NOTE:** While you can stream to any IP/port, we recommend using the default streaming protocol `udp` if you wish to share the stream with other people (connected over the network) or tools like OBS Studio. 
+
+### Streaming to Local Networks
+
+Javis also can be used to share an animation with a group of people connected over the same network.
+One can start streaming and other people can access the stream 
+To start a stream, it is the exact same process as a typical local stream:
+
+```julia
 stream_conf = setup_stream(:local)
 render(vid, streamconfig=stream_conf)
 ```
-Other use cases: If you wish to share an animation with a group of people connceted over the same network, you can start streaming and other people can access the stream using tools like VLC, ffplay, mplayer etc.
 
-An example of how to setup things on the receiver's side: 
+From there, anyone can open up the stream and view it using a viewing tool of their choice.
 
-On OBS:
-![](assets/local_obs.png)
+### Tools for Viewing Live Streams
 
-For tools like ffplay one can view the stream by typing `ffplay <protocol>://<address>:<port>`  in the terminal.
+To view live streams generated from Javis, we recommend the following tools (although any tool that supports network streaming will do):
+using tools like VLC, ffplay, mplayer etc.
 
-eg: `ffplay udp://127.0.0.1:8081`
+1. [OBS Studio](https://obsproject.com/) - to view on OBS Studio, you will need to add a "Media Source" that defines the stream output from Javis.
+To do that, make sure that the option for "Local File" is unchecked, and type in the location of the network stream that you have set (the default is: `udp://0.0.0.0:14015`) to "Input".
+Finally, change the "Input Format" to `mpegts` and you should be set to view the rendering!
 
-- ### Streaming to Twitch
-Javis allows streaming animations directly to the [Twitch](twitch.tv) platform.
-All you need to do is pass the symbol `:twitch` and your [twitch stream key](https://www.businessinsider.in/tech/how-to/how-to-find-your-twitch-stream-key-which-will-let-you-start-streaming-games-and-access-other-features/articleshow/76450099.cms) as arguments to the `stream_setup` method.
-```julia
-...
-stream_conf = setup_stream(:twitch, twitch_key = "<twitch stream key>")
-render(vid, streamconfig=stream_conf)
-```
+> **NOTE:** Currently, OBS Studio has an issue where once the stream is done, the last frame sent from Javis is kept on the screen.
+You will have to manually turn off the source or hide it in the OBS Studio client.
+
+2. [ffplay](https://ffmpeg.org/ffplay.html) - on a command line, one can view a stream by typing `ffplay <protocol>://<address>:<port>`.
+Using the default, an example would be `ffplay udp://0.0.0.0:14015` for viewing a Javis rendering.
+
+3. [VLC Media Player](https://www.videolan.org/vlc/) - to use VLC, go to "Media" and then to "Open Network Stream".
+Finally after that, go to the "Network" tab and, per the Javis default, put `udp://@:14015` as the network URL and select "Play".
+
+### Twitch Support - Coming Soon!
+
+<!--- ### Streaming to Twitch-->
+<!--Javis allows streaming animations directly to the [Twitch](twitch.tv) platform.-->
+<!--All you need to do is pass the symbol `:twitch` and your [twitch stream key](https://www.businessinsider.in/tech/how-to/how-to-find-your-twitch-stream-key-which-will-let-you-start-streaming-games-and-access-other-features/articleshow/76450099.cms) as arguments to the `stream_setup` method.-->
+<!--```julia-->
+<!--...-->
+<!--stream_conf = setup_stream(:twitch, twitch_key = "<twitch stream key>")-->
+<!--render(vid, streamconfig=stream_conf)-->
+<!--```-->
