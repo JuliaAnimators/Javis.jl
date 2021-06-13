@@ -107,7 +107,14 @@ function show_layer_frame(
 )
     lc = layer.layer_cache
     lc.frames = frames
-    lc.layer_frames = layer_frame
+    if layer_frame isa Int
+        lc.layer_frames = layer_frame + first(get_frames(layer)) - 1
+    else
+        lc.layer_frames =
+            (first(layer_frame) + first(get_frames(layer)) - 1):(last(
+                layer_frame,
+            ) + first(get_frames(layer)) - 1)
+    end
 end
 
 """

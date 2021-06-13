@@ -3,8 +3,8 @@ module Javis
 using Animations
 import Cairo: CairoImageSurface, image
 using FFMPEG
-using Gtk
-using GtkReactive
+# using Gtk
+# using GtkReactive
 using Hungarian
 using Images
 import Interact
@@ -56,8 +56,8 @@ include("structs/ObjectSetting.jl")
 include("structs/Object.jl")
 include("structs/Transitions.jl")
 include("structs/Action.jl")
-include("structs/LayerCache.jl")
 include("structs/LayerSetting.jl")
+include("structs/LayerCache.jl")
 include("structs/Layer.jl")
 
 
@@ -102,7 +102,7 @@ include("backgrounds.jl")
 include("svg2luxor.jl")
 include("morphs.jl")
 include("action_animations.jl")
-include("javis_viewer.jl")
+# include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
 
@@ -243,17 +243,17 @@ function render(
         frames = preprocess_frames!([objects..., layer_flat...])
     end
 
-    if liveview == true
-        if isdefined(Main, :IJulia) && Main.IJulia.inited
-            return _jupyter_viewer(video, length(frames), objects, framerate)
+    # if liveview == true
+    #     if isdefined(Main, :IJulia) && Main.IJulia.inited
+    #         return _jupyter_viewer(video, length(frames), objects, framerate)
 
-        elseif isdefined(Main, :PlutoRunner)
-            return _pluto_viewer(video, length(frames), objects)
-        else
-            _javis_viewer(video, length(frames), objects)
-            return "Live Preview Started"
-        end
-    end
+    #     elseif isdefined(Main, :PlutoRunner)
+    #         return _pluto_viewer(video, length(frames), objects)
+    #     else
+    #         _javis_viewer(video, length(frames), objects)
+    #         return "Live Preview Started"
+    #     end
+    # end
 
     path, ext = "", ""
     if !isempty(pathname)
@@ -426,10 +426,12 @@ end
     place_layers(video, layers, frame)
 
 Places the layers on an empty drawing
-It does 2 things:
+It does 4 things:
 - creates an empty Drawing of the same size as video
 - calls the [`apply_layer_settings`](@ref)
 - places every layer's image matrix on the drawing
+- Repeats the above two steps if the [`show_layer_frame`](@ref) is defined for that layer(and frame)
+    But fetches image matrix, position and settings from the layer cache
 
 Returns the Drawing containing all the layers as an image matrix.
 """
@@ -456,19 +458,18 @@ function place_layers(video, layers, frame)
         if frame in lc.frames
             if lc.frame_counter < length(lc.layer_frames)
                 lc.frame_counter += 1
-                placeimage(
-                    lc.matrix_cache[lc.frame_counter],
-                    centered_point(layer.position, layer.width, layer.height),
-                )
             else
                 lc.frame_counter = 1
             end
-            placeimage(
-                lc.matrix_cache[lc.frame_counter],
-                centered_point(layer.position, layer.width, layer.height),
-            )
+            pt = centered_point(lc.position[lc.frame_counter], layer.width, layer.height)
+            @layer begin
+                settings = lc.settings_cache[lc.frame_counter]
+                apply_layer_settings(settings)
+                placeimage(lc.matrix_cache[lc.frame_counter], pt, alpha = settings.opacity)
+            end
         end
     end
+
 
     # matrix of a transparent drawing with all the layers 
     img_layers = image_as_matrix()
@@ -482,8 +483,8 @@ end
 Is called inside the [`render`](@ref) function.
 It is a 5-step process:
 - for each layer fetch it's image matrix and store it into the layer's struct
-- if the [`show_layer_frame`](@ref) method is defined for a layer, comput and save the 
-image matrices of the layers in a [`LayerCache`](@ref)
+- if the [`show_layer_frame`](@ref) method is defined for a layer, save the 
+position, image matrix and layer settings for that frame of the layer in a [`LayerCache`](@ref)
 - place the layers on an empty drawing
 - creates the main canvas and renders the independent objects
 - places the drawing containing all the layers on the main drawing
@@ -503,10 +504,13 @@ function get_javis_frame(video, objects, frame; layers = Layer[])
                 layer.image_matrix = mat
             end
 
-            # check if the layer's frame needs to be cached    
+            # check if the layer's frame needs to be cached for vewing layer  
             lc = layer.layer_cache
             if frame in lc.layer_frames
+                push!(lc.position, deepcopy(layer.position))
+                push!(lc.settings_cache, deepcopy(layer.current_setting))
                 push!(lc.matrix_cache, mat)
+
             end
         end
 
