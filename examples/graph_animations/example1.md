@@ -29,7 +29,7 @@ ga = GraphAnimation(graph, true, 300, 300, O)
 
 **Node registration**
 ```julia
-nodes = [Object(@Frames(prev_start()+5, GraphNode(i, drawNode; animate_on=:scale, fill_color="yellow", border_color="black", text=string(i), text_valign=:middle, text_halign=:center)) for i in range(1, 8; step=1)]
+nodes = [Object(@Frames(prev_start()+5, stop=100), GraphNode(i, drawNode; animate_on=:scale, fill_color="yellow", border_color="black", text=string(i), text_valign=:middle, text_halign=:center)) for i in range(1, 8; step=1)]
 
 # TODO: Need to find the best way to map drawing arguments like text_align (specified before) into the drawing function. Using a dictionary, seems a good idea.
 function drawNode(draw_opts)
@@ -60,7 +60,7 @@ The result is eight balls drawn on the canvas at fixed locations unaltered by ch
 edges=[]
 for (index, node) in enumerate(graph)
     for j in node
-        push!(edges, Object(@Frames(prev_start()+5, GraphEdge(index, j[1], drawEdge; animate_on=:length, color="black"))))
+        push!(edges, Object(@Frames(prev_start()+5, stop=100), GraphEdge(index, j[1], drawEdge; animate_on=:length, color="black")))
     end
 end
 
@@ -125,4 +125,69 @@ while !Q.empty()
         end
     end
 end
+```
+
+## Full Code
+
+```julia
+using Javis, DataStructures
+
+function ground(args...) 
+    background("white")
+    sethue("black")
+end
+
+function drawNode(draw_opts)
+    sethue(draw_opts[:fill_color])
+    circle(draw_opts[:position], 5, :fill)
+    sethue(draw_opts[:border_color])
+    circle(draw_opts[:position], 5, :stroke)
+    text(draw_opts[:text], draw_opts[:position], valign = draw_opts[:text_valign], halign = draw_opts[:text_halign])
+end
+
+function drawEdge(opts)
+    sethue(opts[:color])
+    line(opts[:position1], opts[:position2], :stroke)
+end
+
+graph = [[2, 3, 4, 5],
+         [6, 7],
+         [8],
+         [],
+         [],
+         [],
+         [],
+         []]
+
+video=Video(300, 300)
+Background(1:100, ground)
+
+ga = GraphAnimation(graph, true, 300, 300, O)
+nodes = [Object(@Frames(prev_start()+5, stop=100), GraphNode(i, drawNode; animate_on=:scale, fill_color="yellow", border_color="black", text=string(i), text_valign=:middle, text_halign=:center)) for i in range(1, 8; step=1)]
+
+edges=[]
+for (index, node) in enumerate(graph)
+    for j in node
+        push!(edges, Object(@Frames(prev_start()+5, stop=100), GraphEdge(index, j[1], drawEdge; animate_on=:length, color="black")))
+    end
+end
+
+vis=[false for i in 1:8]
+Q=Queue{Int}()
+enqueue!(Q, 1)
+changeNodeProperty!(ga, 1, :fill_color, "green")
+
+while !isempty(Q)
+    i=dequeue!(Q)
+    vis[i]=true
+    changeNodeProperty!(ga, i, :fill_color, "blue")
+    for j in neighbors(i)
+        if !vis[j]
+            enqueue!(Q, j)
+            changeNodeProperty!(ga, j, :fill_color, "green")
+        end
+    end
+end
+
+render(video; pathname="example1.gif")
 ```

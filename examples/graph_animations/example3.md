@@ -45,7 +45,7 @@ function n(g, node, attr)
     end
 end
 
-function f(g, node1, node2)
+function e(g, node1, node2)
     for j in g[node1][:neighbors]
         if j[1]==node2
             return j[2]
@@ -59,7 +59,7 @@ end
 Once the graph has been registered, we need to register nodes and edges to it. This can be skipped if the base graph representation was one of the known graph types listed in [example 2](example2.md). However, this way of doing it provides much more flexibility to customise the drawing function, frame management, etc.
 
 ```julia
-nodes = [Object(@Frames(prev_start()+5, GraphNode(i, drawNode; animate_on=:scale, property_style_map=Dict(:weight=>:weight), fill_color="white", border_color="black", text=string(i))) for i in range(1, 6; step=1)]
+nodes = [Object(@Frames(prev_start()+5, stop=100), GraphNode(i, drawNode; animate_on=:scale, property_style_map=Dict(:weight=>:weight), fill_color="white", border_color="black", text=string(i))) for i in range(1, 6; step=1)]
 
 function drawNode(opts)
     sethue(opts[:fill_color])
@@ -73,7 +73,7 @@ end
 edges=[]
 for (index, node) in enumerate(g)
     for j in node[:neighbors]
-        push!(edges, Object(@Frames(prev_start()+5, GraphEdge(index, j[1], drawEdge; animate_on=:scale, property_style_map=Dict(:weight=>:line_width, :weight=>:text), color="black"))))
+        push!(edges, Object(@Frames(prev_start()+5, stop=100), GraphEdge(index, j[1], drawEdge; animate_on=:scale, property_style_map=Dict(:weight=>:line_width, :weight=>:text), color="black")))
     end
 end
 
@@ -142,4 +142,98 @@ The changes to the above algorithm would be
         end
         updateGraph!(wg, g)
     end
+```
+
+## Full Code
+
+```julia
+using Javis
+
+function n(g, node, attr)
+    if attr==:weight && g[node][attr]==1000
+        return "inf"
+    else
+        return g[node][attr]
+    end
+end
+
+function e(g, node1, node2)
+    for j in g[node1][:neighbors]
+        if j[1]==node2
+            return j[2]
+        end
+    end
+end
+
+function drawEdge()
+    sethue(opts[:color])
+    setline(opts[:line_width])
+    line(opts[:position1], opts[:position2], :stroke)
+    # Now add the edge weight aligned to the edge line/curve 
+    translate((opts[:position1]+opts[:position2])/2)
+    rotate(slope(opts[:position1], opts[:position2]))
+    translate(Point(0, 3))
+    text(opts[:text], O, valign = :middle, halign = :center)
+    return O
+end
+
+function drawNode(opts)
+    sethue(opts[:fill_color])
+    circle(opts[:position], 5, :fill)
+    sethue(opts[:border_color])
+    circle(opts[:position], 5, :stroke)
+    text(opts[:text], opts[:position], valign = :middle, halign = :center)
+    text(opts[:weight], opts[:position]+(0, 8), valign = :middle, halign = :center)
+end
+
+g = [Dict(:weight=>0, :neighbors=>[(2, 3), (3, 5)]),
+     Dict(:weight=>1000, :neighbors=>[(4, 1), (5, 2)]),
+     Dict(:weight=>1000, :neighbors=>[(5, 1), (4, 2)]),
+     Dict(:weight=>1000, :neighbors=>[(6, 1)]),
+     Dict(:weight=>1000, :neighbors=>[(4, 3)]),
+     Dict(:weight=>1000, :neighbors=>[])]
+
+video =Video(300, 300)
+Background(1:100, ground)
+
+wg = GraphAnimation(g, false, 300, 300, O; 
+                    node_attribute_fn=(g, node, attr) -> n(g, node, attr),
+                    edge_attribute_fn=(g, node1, node2, attr) -> e(g, node1, node2))
+
+nodes = [Object(@Frames(prev_start()+5, stop=100), GraphNode(i, drawNode; animate_on=:scale, property_style_map=Dict(:weight=>:weight), fill_color="white", border_color="black", text=string(i))) for i in range(1, 6; step=1)]
+
+edges=[]
+for (index, node) in enumerate(g)
+    for j in node[:neighbors]
+        push!(edges, Object(@Frames(prev_start()+5, stop=100), GraphEdge(index, j[1], drawEdge; animate_on=:scale, property_style_map=Dict(:weight=>:line_width, :weight=>:text), color="black")))
+    end
+end
+
+st=SortedDict([index=>first(w)[2] for (index, w) in enumerate(g)])
+visited=[false for i in 1:6]
+
+changeEdgeProperty(wg, (node1, node2) -> true, :opacity, 0.5)
+current=1
+dest=6
+while !isempty(st)
+    current=first(st)
+    if current[1]==dest
+        highlightNode(wg, current[1], :border_color, "red")
+        break
+    end
+    highlightNode(wg, current[1], :border_color, "yellow")
+    visited[current[1]]=true
+    delete!(st, current[1])
+    changeNodeProperty!(wg, current[1], :fill_color, "green")
+    for j in g[current[1]][:neighbors]
+        if !visited[j[1]]
+            highlightEdge(wg, current[1], j[1], :color, "yellow")
+            st[j[1]]=min(st[j[1]], current[2]+j[2])
+            g[j[1]][:weight]=st[j[1]]
+        end
+        updateGraph!(wg, g)
+    end
+end
+
+render(video; pathname="example3.md")
 ```

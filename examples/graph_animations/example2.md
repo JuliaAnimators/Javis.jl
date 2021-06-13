@@ -135,8 +135,62 @@ After the traversal has been done and the shortest path found, show the path by 
 changeNodeProperty!(ag, (node)->true, :fill_color, "white")
 changeEdgeProperty!(ag, (nodes...)->true, :color, "black")
 animate_path(ag, path; animate_node_on=(:fill_color, "green"), animate_edge_on=(:color, "red"))
-
-render(video; pathname="tutorial_1.gif")
 ```
 
 In the default case, when nothing is specified about how to animate nodes/edges in a path simple on/off highlighting is used on the universal property `:opacity`.
+
+## Full Code
+
+```julia
+using LightGraphs
+g = SimpleGraph(6)
+add_edge!(g, 1, 2)
+add_edge!(g, 1, 3)
+add_edge!(g, 2, 4)
+add_edge!(g, 3, 5)
+add_edge!(g, 4, 6)
+
+video=Video(300, 300)
+Background(1:100, ground)
+
+ag, nodes, edges = create_graph(g, 300, 300; layout=:spring, mode=:static)
+
+current=1
+dest=6
+path=[]
+visited=[false for i in 1:nv(g)]
+num_visited=0
+
+function dfs_and_animate(node, path)
+    if node==dest
+        highlightNode(GFrames(20+num_visited*10, 100), ag, current, :border_color, "red")
+        return    
+    end
+    # Highlight the current node
+    highlightNode(GFrames(20+num_visited*10, 100), ag, current, :border_color, "yellow")
+    visited[current]=true
+    num_visited+=1
+    push!(path, current)
+    # Change node color when highlighting effect ends
+    changeNodeProperty!(@Frames(prev_end(), stop=parent_end()), ag, current, :color, "blue")
+    for nb in neighbors(g, current)
+        if visited[nb]
+            continue
+        end
+        highlightEdge(GFrames(20+num_visited*10, 100), ag, current, nb, :color, "green")
+        num_visited+=1
+        dfs_and_animate(nb, path)
+    end
+    # Highlight again to indicate return to parent node
+    highlightNode(GFrames(20+num_visited*10, 100), ag, current, :border_color, "yellow")
+    num_visited+=1
+    pop!(path)
+end
+
+dfs_and_animate(1, path)
+changeNodeProperty!(ag, (node)->true, :fill_color, "white")
+changeEdgeProperty!(ag, (nodes...)->true, :color, "black")
+animate_path(ag, path; animate_node_on=(:fill_color, "green"), animate_edge_on=(:color, "red"))
+
+render(video; pathname="example2.md")
+```
