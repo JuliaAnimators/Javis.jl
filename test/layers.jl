@@ -11,7 +11,7 @@ video = Video(600, 600)
 
     function object_layer(p = O, color = "black")
         sethue(color)
-        circle(p, 5, :fill)
+        circle(p, 7, :fill)
         return p
     end
 
@@ -104,7 +104,7 @@ video = Video(600, 600)
         @test l1.frames.frames == l2.frames.frames == l3.frames.frames
         @test l1.width == l2.width == l3.width == 600
         @test l1.height == l2.height == l3.height == 600
-        @test l1.position == l2.position == l3.position == O
+        @test l1.position == l2.position == l3.position == Point(0, 0)
         @test length(l1.layer_objects) ==
               length(l2.layer_objects) ==
               length(l3.layer_objects) ==
@@ -130,7 +130,7 @@ video = Video(600, 600)
 
     # remove duplicate layers after above testing
     video.layers = [l1]
-    @test get_position(l1) == O
+    @test get_position(l1) == Point(0, 0)
 
     astar(args...; do_action = :stroke) = star(O, 50, 5, 0.5, 0, do_action)
     acirc(args...; do_action = :stroke) = circle(Point(100, 100), 50, do_action)
@@ -147,18 +147,18 @@ video = Video(600, 600)
 
     l4 = @JLayer 5:20 200 200 Point(-50, 50) begin
         Background(1:14, ground2)
-        rball = Object(1:14, (args...) -> object_layer(O, "black"), Point(50, 0))
-        act!(rball, Action(anim_translate(Point(100, -100))))
+        rball = Object(1:14, (args...) -> object_layer(O, "black"), Point(0, 0))
+        act!(rball, Action(anim_translate(Point(20, -20))))
     end
 
     act!(l4, Action(1:5, opacity_anim, setopacity()))
 
-    Javis.show_layer_frame(71:79, 30:35, l1)
+    Javis.show_layer_frame(71:79, 5:12, l1)
     Javis.show_layer_frame(71:79, 10, l4)
 
     render(video; tempdirectory = "images", pathname = "layer_test.gif")
 
-    for i in ["03", "05", 10, 18, 19, 20, 24, 33, 44, 45, 49, 51, 59, 65, 71, 76, 77, 79]
+    for i in ["03", "05", "08", 10, 18, 19, 20, 24, 33, 41, 43, 45, 49, 51, 59, 65, 71, 76, 77, 79]
         @test_reference "refs/layer$i.png" load("images/00000000$i.png")
         @test isfile("layer_test.gif")
     end

@@ -3,8 +3,8 @@ module Javis
 using Animations
 import Cairo: CairoImageSurface, image
 using FFMPEG
-# using Gtk
-# using GtkReactive
+using Gtk
+using GtkReactive
 using Hungarian
 using Images
 import Interact
@@ -102,7 +102,7 @@ include("backgrounds.jl")
 include("svg2luxor.jl")
 include("morphs.jl")
 include("action_animations.jl")
-# include("javis_viewer.jl")
+include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
 
@@ -243,17 +243,17 @@ function render(
         frames = preprocess_frames!([objects..., layer_flat...])
     end
 
-    # if liveview == true
-    #     if isdefined(Main, :IJulia) && Main.IJulia.inited
-    #         return _jupyter_viewer(video, length(frames), objects, framerate)
+    if liveview == true
+        if isdefined(Main, :IJulia) && Main.IJulia.inited
+            return _jupyter_viewer(video, length(frames), objects, framerate)
 
-    #     elseif isdefined(Main, :PlutoRunner)
-    #         return _pluto_viewer(video, length(frames), objects)
-    #     else
-    #         _javis_viewer(video, length(frames), objects)
-    #         return "Live Preview Started"
-    #     end
-    # end
+        elseif isdefined(Main, :PlutoRunner)
+            return _pluto_viewer(video, length(frames), objects)
+        else
+            _javis_viewer(video, length(frames), objects)
+            return "Live Preview Started"
+        end
+    end
 
     path, ext = "", ""
     if !isempty(pathname)
