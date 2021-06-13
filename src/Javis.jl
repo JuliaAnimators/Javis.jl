@@ -183,6 +183,7 @@ Renders all previously defined [`Object`](@ref) drawings to the user-defined `Vi
     - **Default:** The animation is rendered as a gif with the `javis_` prefix and some gibberish afterwards
 - `liveview::Bool`: Causes a live image viewer to appear to assist with animation development
 - `streamconfig::Union{StreamConfig, Nothing}`: Contains livestream specific instructions, passed on to [`setup_stream`](@ref).
+Streaming to Twitch or other platforms are not yet supported.
 - `tempdirectory::String`: The folder where each frame is stored
     Defaults to a temporary directory when not set
 - `ffmpeg_loglevel::String`:

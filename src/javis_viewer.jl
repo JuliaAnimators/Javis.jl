@@ -283,7 +283,8 @@ end
 """
     setup_stream(livestreamto=:local; protocol="udp", address="0.0.0.0", port=14015, twitch_key="")
 
-Sets up the livestream configuration
+Sets up the livestream configuration.
+**NOTE:** Twitch not fully implemented, do not use.
 """
 function setup_stream(
     livestreamto::Symbol = :local;
