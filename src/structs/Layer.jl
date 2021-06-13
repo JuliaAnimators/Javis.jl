@@ -23,7 +23,7 @@ mutable struct Layer <: AbstractObject
     actions::Vector{AbstractAction}
     current_setting::LayerSetting
     opts::Dict{Symbol,Any}
-    image_matrix::Union{Base.ReinterpretArray{ARGB32,2,UInt32,Matrix{UInt32},false},Nothing}
+    image_matrix::Union{Array,Nothing}
     layer_cache::LayerCache
 end
 
