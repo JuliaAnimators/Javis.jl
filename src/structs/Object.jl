@@ -105,8 +105,9 @@ end
 """
     act!
 
-Adds an [`Action`] or a list of actions to an [`Object`](@ref)/[`Layer`](@ref) or a list of objects/layers.
-One key different to note is that an action is applied to a layer as a whole and not on it's children objects
+Adds an [`Action`] or a list of actions to an [`Object`](@ref) /
+[`Layer`](@ref) or a list of objects/layers.
+One key different to note is that an action is applied to a layer as a whole and not on the objects inside it.
 
 # Example
 ```julia

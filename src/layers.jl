@@ -11,6 +11,7 @@ push!(PUSH_TO_LAYER, false)
 
 """
     @JLayer(frames, width, height, position, body)
+Calls the [`to_layer_m`](@ref) method to create a [`Layer`](@ref) out of the arguments given. 
 
 # Arguments
 - `frames`:a `UnitRange` that defines for which frames the layer is active
@@ -67,7 +68,7 @@ end
 """
     to_layer_m( frames, body; width, height, position)
 Helper method for the [`JLayer`](@ref) macro
-Returns and expression that creates a layer and pushes the objects defined withing the body to the layer
+Returns an expression that creates a layer and pushes the objects defined withing the body to the layer
 """
 function to_layer_m(
     frames,
@@ -92,6 +93,9 @@ end
 
 """
     show_layer_frame(frames::UnitRange, layer_frame::Union{UnitRange,Int}, layer::Layer)
+Repeat a layer's frame/frames for a given frame range.
+
+# Arguments
 `frames::UnitRange`: The frame range for which the layer should be repeated
 `layer_frame::Union{UnitRange,Int}`: The layer frame range to repeat
 `layer::Layer`:the layer to be repeated

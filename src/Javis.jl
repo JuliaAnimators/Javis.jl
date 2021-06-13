@@ -127,6 +127,8 @@ end
 Returns pre-centered points to be used in the place image functions
 rather than using centered=true 
 https://github.com/JuliaGraphics/Luxor.jl/issues/155
+# Returns
+- `pt::Point`: the location of the center of a layer wrt global canvas
 """
 function centered_point(pos::Point, width::Int, height::Int)
     Point(pos.x - width / 2, pos.y - height / 2)
@@ -321,11 +323,8 @@ Is called inside the [`get_javis_frame`](@ref) function and renders objects(both
 # Arguments
 - `object::Object`: The object to be rendered
 - `video::Video`: The video which defines the dimensions of the output
-- `frame::Int`: The frame number ot be rendered
+- `frame::Int`: The frame number to be rendered
 - `layer_frames::UnitRange`: The frames of the layer to which the object belongs(`nothing` for independent objects)
-
-# Returns
-- doesnt return anything just renders the objects, applies their actions on the current drawing
 """
 function render_objects(objects, video, frame; layer_frames = nothing)
     CURRENT_OBJECT[1] = objects[1]
