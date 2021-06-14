@@ -32,6 +32,7 @@ The demo serves to list the features that I am going to implement for graph anim
 5. [Bipartite Matching]()
 6. [Strongly connected components]()
 7. [Graph Coloring]()
+8. [Gradient backpropagation]()
 
 ### Reference implementation till now
 
