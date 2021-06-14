@@ -1,10 +1,37 @@
 """
     GraphAnimation
 
-Maintain information for the graph object to be drawn and animated on the canvas.
+Maintain the graph state comprising of nodes, edges, layout, animation ordering etc.
+
+This will be a part of the Javis [`Object`](@ref) metadata, when a new graph is created.
+
+# Fields
+- `graph`: A data structure storing information about nodes, edges, properties, etc.
+    - Using a known graph type from the [LightGraphs.jl]() package leads to certain simplicity in usage.
+- `width::Int`: The width of the graph on the canvas.
+- `height::Int`: The height of the graph on the canvas.
+- `mode::Symbol`: The animaition of the graph can be done in two ways.
+    - `static`: A lightweight animation which does not try to animate every detail during transitions unless asked to.
+    - `dynamic`: Animates almost every single change made to the state of the graph. Can be computationally heavy depending on the use case.
+- `layout::Symbol`: The graph layout to be used. Can be one of :-
+    - `:spring`: Emphasizes on spacing nodes and edges as far apart as possible.
+    - `:radial`: Generates the best radial visualization for the graph.
+- `node_attribute_fn`: A function that enables fetching properties defined for nodes in the input graph data structure.
+    - Required only when a node property like `cost` needs to be mapped to a drawing property like `radius`.
+- `edge_attribute_fn`: Similar to `node_attribute_fn` but for edge properties.
+- `adjacency_list`: A light internal representation of the graph structure initialized only when the graph data type in not known.
+    - For undirected graphs it is of type `SimpleGraph` from [LightGraphs.jl]() and for directed graphs it is `SimpleDiGraph`
+- `ordering`: Store the relative ordering used to add nodes and edges to a graph using [`GraphNode`](@ref) and [`GraphEdge`](@ref)
+    - If input graph is of a known type, defaults to a simple BFS ordering starting at the root node.
+- `node_property_limits`: The minima and maxima calculated on the node properties in the input graph.
+    - This is internally created and updated when [`updateGraph`](@ref) or the final render function is called.
+    - This is skipped for node properties of non-numeric types.
+    - Used to scale drawing property values within sensible limits.
+- `edge_property_limits`: The minima and maxima calculated on the edge properties in the input graph.
+    - Similar to `node_attribute_fn`.
 """
 struct GraphAnimation
-    reference_graph
+    graph
     width::Int
     height::Int
     mode::Symbol
@@ -14,8 +41,8 @@ struct GraphAnimation
     edge_attribute_fn::Function
     adjacency_list::AbstractGraph
     ordering::Vector{AbstractObject}
-    edge_weight_limits::Dict{Symbol,Tuple{Real,Real}}
-    node_weight_limits::Dict{Symbol,Tuple{Real,Real}}
+    edge_property_limits::Dict{Symbol,Tuple{Real,Real}}
+    node_property_limits::Dict{Symbol,Tuple{Real,Real}}
 end
 
 GraphAnimation(reference_graph, directed::bool) =
