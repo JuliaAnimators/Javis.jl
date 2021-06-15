@@ -1,5 +1,5 @@
-include("structs/plutoviewer.jl")
-include("structs/livestream.jl")
+include("structs/PlutoViewer.jl")
+include("structs/Livestream.jl")
 
 """
     _draw_image(video::Video, objects::Vector, frame::Int, canvas::Gtk.Canvas,

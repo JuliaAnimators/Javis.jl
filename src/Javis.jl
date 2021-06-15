@@ -60,7 +60,6 @@ include("structs/LayerSetting.jl")
 include("structs/LayerCache.jl")
 include("structs/Layer.jl")
 include("structs/Livestream.jl")
-include("structs/PlutoViewer.jl")
 
 """
     Line
