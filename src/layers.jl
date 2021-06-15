@@ -18,6 +18,7 @@ Calls the [`to_layer_m`](@ref) method to create a [`Layer`](@ref) out of the arg
 - `width`: defines the width of the layer
 - `height`: defines the height of the layer
 - `position`: location of the center of the layer on the main canvas
+- `transparent` : Whether the layer should have a transparent background(:transparent or :opaque)
 - `body`
     - It contains all the objects(and thier respective actions) definitions for a layer
     - A layer can have it's own separate background
@@ -26,7 +27,7 @@ Calls the [`to_layer_m`](@ref) method to create a [`Layer`](@ref) out of the arg
     So eg : `Point(100, 100)` is different when defined in a layer and doesn't represent
     the location 100, 100 on the main canvas 
 
-`width`, `height` and `position` are optional and default to the video's width, height and origin respectively.
+`width`, `height`, `position` and `transparent` are optional and default to the video's width, height, origin and :opaque respectively.
 Layer declaration should take place before pushing objects to it if one is not using the macro
 
 # Example
@@ -36,39 +37,64 @@ function ground(args...)
     sethue("black")
 end
 
-function layer_ground(args...)
-    background("red")
-    sethue("white")
-end
-
 video = Video(500, 500)
 Background(1:100, ground)
 object((args...)->circle(O, 50, :fill))
 
-l1 = @Javis.Layer 10:70 100 100 Point(150, 150) begin
-    Background(10:70, layer_ground)
+l1 = @Javis.Layer 10:70 100 100 Point(150, 150) :transparent begin
     red_ball = Object(20:60, (args...)->object(O, "red"), Point(50,0))
     act!(red_ball, Action(anim_rotate_around(2π, O)))
 end
 render(video; pathname="test.gif")
 ```
 """
-macro JLayer(frames, width, height, position, body)
+macro JLayer(
+    frames::Expr,
+    width::Int,
+    height::Int,
+    position,
+    transparent::QuoteNode,
+    body::Expr,
+)
+    # frame range 1:50 is an expr
+    # transparent -> Symbol is a QuoteNode
+    esc(
+        to_layer_m(
+            frames,
+            body,
+            width = width,
+            height = height,
+            position = position,
+            transparent = transparent,
+        ),
+    )
+end
+
+macro JLayer(frames::Expr, width::Int, height::Int, position, body::Expr)
     esc(to_layer_m(frames, body, width = width, height = height, position = position))
 end
 
-macro JLayer(frames, body)
+macro JLayer(frames::Expr, body::Expr)
     esc(to_layer_m(frames, body))
 end
 
-macro JLayer(frames, width, height, body)
+macro JLayer(frames::Expr, transparent::QuoteNode, body::Expr)
+    esc(to_layer_m(frames, transparent = transparent, body))
+end
+
+macro JLayer(frames::Expr, width::Int, height::Int, body)
     esc(to_layer_m(frames, body, width = width, height = height))
+end
+
+macro JLayer(frames::Expr, width::Int, height::Int, transparent::QuoteNode, body::Expr)
+    esc(to_layer_m(frames, body, width = width, height = height, transparent = transparent))
 end
 
 """
     to_layer_m( frames, body; width, height, position)
 Helper method for the [`JLayer`](@ref) macro
 Returns an expression that creates a layer and pushes the objects defined withing the body to the layer
+:opaque is the default and copies the video's background
 """
 function to_layer_m(
     frames,
@@ -76,9 +102,20 @@ function to_layer_m(
     width = CURRENT_VIDEO[1].width,
     height = CURRENT_VIDEO[1].height,
     position = Point(0, 0),
+    transparent = QuoteNode(:opaque),
 )
     quote
         layer = Javis.Layer($frames, $width, $height, $position)
+
+        if $transparent == :transparent
+            push!(layer.opts, :transparent => true)
+        end
+
+        # by default fetch the video's background as a layer's background
+        # this is overriden by passing another ground to the layer explicity in the begin end block
+        # if no background is needed :transparent flag should be passed
+        push!(layer.layer_objects, $CURRENT_VIDEO[1].objects[1])
+
         if isempty(Javis.CURRENT_LAYER)
             push!(Javis.CURRENT_LAYER, layer)
         else
@@ -87,6 +124,11 @@ function to_layer_m(
         Javis.PUSH_TO_LAYER[1] = true
         eval($body)
         Javis.PUSH_TO_LAYER[1] = false
+
+        # not a problem now but a todo for later
+        # remove duplicate backgrounds
+        # if layer's background is defined, delete the first object 
+        # which is the video's background
         layer
     end
 end

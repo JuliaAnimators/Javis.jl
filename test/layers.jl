@@ -108,7 +108,7 @@ video = Video(600, 600)
         @test length(l1.layer_objects) ==
               length(l2.layer_objects) ==
               length(l3.layer_objects) ==
-              length(layer_objects) + 1
+              length(layer_objects) + 2
         @test length(l1.actions) ==
               length(l2.actions) ==
               length(l3.actions) ==
@@ -145,7 +145,7 @@ video = Video(600, 600)
         [sineio(), sineio()],
     )
 
-    l4 = @JLayer 5:20 200 200 Point(-50, 50) begin
+    l4 = @JLayer 5:20 200 200 Point(-50, 50) :transparent begin
         Background(1:14, ground2)
         rball = Object(1:14, (args...) -> object_layer(O, "black"), Point(0, 0))
         act!(rball, Action(anim_translate(Point(20, -20))))
@@ -155,6 +155,7 @@ video = Video(600, 600)
 
     Javis.show_layer_frame(71:79, 5:12, l1)
     Javis.show_layer_frame(71:79, 10, l4)
+
 
     render(video; tempdirectory = "images", pathname = "layer_test.gif")
 
@@ -193,10 +194,32 @@ video = Video(600, 600)
 
     Javis.CURRENT_VIDEO[1] = vid
     Background(1:20, ground)
-    l5 = @JLayer 5:20 200 200 Point(-50, 50) begin
+    l5 = @JLayer 5:20 200 200 Point(-50, 50) :transparent begin
         Background(1:14, ground2)
-        rball = Object(1:14, (args...) -> object_layer(O, "black"), Point(50, 0))
+        rball1 = Object(1:14, (args...) -> object_layer(O, "black"), Point(50, 0))
     end
+
+    l6 = @JLayer 5:20 200 200 Point(-50, 50) begin
+        Background(1:14, ground2)
+        rball2 = Object(1:14, (args...) -> object_layer(O, "black"), Point(50, 0))
+    end
+
+    l7 = @JLayer 5:20 200 200 begin
+        Background(1:14, ground2)
+        rball3 = Object(1:14, (args...) -> object_layer(O, "black"), Point(50, 0))
+    end
+
+    l9 = @JLayer 5:20 200 200 :transparent begin
+        Background(1:14, ground2)
+        rball4 = Object(1:14, (args...) -> object_layer(O, "black"), Point(50, 0))
+    end
+
+    l6 = @JLayer 5:20 :transparent begin
+        Background(1:14, ground2)
+        rball2 = Object(1:14, (args...) -> object_layer(O, "black"), Point(50, 0))
+    end
+
+
 
     act!(l5, Action(opacity_anim, setopacity()))
 

@@ -249,3 +249,25 @@ end
 function text(str, x, y; kwargs...)
     text(str, Point(x, y); kwargs...)
 end
+
+"""
+    background(str)
+
+Has bacially the same functionality as Luxor.background() but overrides that method to allow for
+transparent layers with.
+Checks if a layer should be present, and if a background has been defined or not for the current layer.
+
+# Arguments
+- `str::AbstractString` background color
+"""
+function background(str)
+    # In the case of main video's background, this shouldn't create a problem as long as the CURRENT_LAYER is cleared 
+    # before moving to rendering of independent objects in [`get_javis_frame`](@ref)
+    if !isempty(CURRENT_LAYER)
+        if !get(CURRENT_LAYER[1].layer_objects[2].opts, :in_local_layer, false) &&
+           get(CURRENT_LAYER[1].opts, :transparent, false)
+            str = RGBA(0, 0, 0, 0)
+        end
+    end
+    Luxor.background(str)
+end

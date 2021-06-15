@@ -59,7 +59,8 @@ include("structs/Action.jl")
 include("structs/LayerSetting.jl")
 include("structs/LayerCache.jl")
 include("structs/Layer.jl")
-
+include("structs/Livestream.jl")
+include("structs/PlutoViewer.jl")
 
 """
     Line
@@ -387,6 +388,7 @@ function get_layer_frame(video, layer, frame)
     Drawing(layer.width, layer.height, :image)
     layer_frames = layer.frames
     render_objects(layer.layer_objects, video, frame, layer_frames = layer_frames)
+
     if frame in get_frames(layer)
         # call currently active actions and their transformations for each layer
         actions = layer.actions
@@ -458,6 +460,7 @@ function place_layers(video, layers, frame)
                 apply_layer_settings(layer_settings)
                 placeimage(layer.image_matrix, pt, alpha = layer.current_setting.opacity)
             end
+            # println(layer.position)
         end
 
         lc = layer.layer_cache
@@ -504,7 +507,11 @@ function get_javis_frame(video, objects, frame; layers = Layer[])
 
         # render each layer's objects and store the layer's Drawing as an image matrix
         for layer in layers
-            CURRENT_LAYER[1] = layer
+            if isempty(Javis.CURRENT_LAYER)
+                push!(Javis.CURRENT_LAYER, layer)
+            else
+                Javis.CURRENT_LAYER[1] = layer
+            end
             if frame in get_frames(layer)
                 mat = get_layer_frame(video, layer, frame)
                 layer.image_matrix = mat
@@ -522,6 +529,8 @@ function get_javis_frame(video, objects, frame; layers = Layer[])
 
         img_layers = place_layers(video, layers, frame)
     end
+
+    empty!(CURRENT_LAYER)
 
     # now that the layers have been handled
     # finally render the independent objects on a separate/main drawing
@@ -631,6 +640,7 @@ const LUXOR_DONT_EXPORT = [
     :get_fontsize,
     :scale,
     :text,
+    :background,
 ]
 
 # Export each function from Luxor
@@ -643,7 +653,7 @@ end
 
 export render, latex
 export Video, Object, Background, Action, RFrames, GFrames
-export @JLayer
+export @JLayer, background
 export Line, Transformation
 export val, pos, ang, scl, get_value, get_position, get_angle, get_scale
 export projection, morph_to
