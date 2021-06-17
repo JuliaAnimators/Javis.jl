@@ -258,16 +258,17 @@ transparent layers with.
 Checks if a layer should be present, and if a background has been defined or not for the current layer.
 
 # Arguments
-- `str::AbstractString` background color
+- `background_color` background color
 """
-function background(str)
+function background(background_color)
     # In the case of main video's background, this shouldn't create a problem as long as the CURRENT_LAYER is cleared 
     # before moving to rendering of independent objects in [`get_javis_frame`](@ref)
     if !isempty(CURRENT_LAYER)
-        if !get(CURRENT_LAYER[1].layer_objects[2].opts, :in_local_layer, false) &&
+        layer_bg = filter(x->get(x.opts, :in_local_layer, false), CURRENT_LAYER[1].layer_objects)
+        if isempty(layer_bg) &&
            get(CURRENT_LAYER[1].opts, :transparent, false)
-            str = RGBA(0, 0, 0, 0)
+           background_color = RGBA(0, 0, 0, 0)
         end
     end
-    Luxor.background(str)
+    Luxor.background(background_color)
 end

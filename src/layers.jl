@@ -41,7 +41,7 @@ video = Video(500, 500)
 Background(1:100, ground)
 object((args...)->circle(O, 50, :fill))
 
-l1 = @Javis.Layer 10:70 100 100 Point(150, 150) :transparent begin
+l1 = @JLayer 10:70 100 100 Point(150, 150) begin
     red_ball = Object(20:60, (args...)->object(O, "red"), Point(50,0))
     act!(red_ball, Action(anim_rotate_around(2π, O)))
 end
@@ -78,6 +78,14 @@ macro JLayer(frames::Expr, body::Expr)
     esc(to_layer_m(frames, body))
 end
 
+macro JLayer(frames::Expr, position::Expr, body::Expr)
+    esc(to_layer_m(frames, position = position, body))
+end
+
+macro JLayer(frames::Expr, position::Expr, transparent::QuoteNode, body::Expr)
+    esc(to_layer_m(frames, position = position, transparent = transparent, body))
+end
+
 macro JLayer(frames::Expr, transparent::QuoteNode, body::Expr)
     esc(to_layer_m(frames, transparent = transparent, body))
 end
@@ -94,7 +102,7 @@ end
     to_layer_m( frames, body; width, height, position)
 Helper method for the [`JLayer`](@ref) macro
 Returns an expression that creates a layer and pushes the objects defined withing the body to the layer
-:opaque is the default and copies the video's background
+:transparent is the default while the other :opaque copies the video's background
 """
 function to_layer_m(
     frames,
@@ -102,7 +110,7 @@ function to_layer_m(
     width = CURRENT_VIDEO[1].width,
     height = CURRENT_VIDEO[1].height,
     position = Point(0, 0),
-    transparent = QuoteNode(:opaque),
+    transparent = QuoteNode(:transparent),
 )
     quote
         layer = Javis.Layer($frames, $width, $height, $position)
@@ -114,7 +122,8 @@ function to_layer_m(
         # by default fetch the video's background as a layer's background
         # this is overriden by passing another ground to the layer explicity in the begin end block
         # if no background is needed :transparent flag should be passed
-        push!(layer.layer_objects, $CURRENT_VIDEO[1].objects[1])
+        video_backgrounds = filter(x->get(x.opts, :in_global_layer, false), $CURRENT_VIDEO[1].objects)
+        push!(layer.layer_objects, video_backgrounds...)
 
         if isempty(Javis.CURRENT_LAYER)
             push!(Javis.CURRENT_LAYER, layer)
@@ -138,9 +147,9 @@ end
 Repeat a layer's frame/frames for a given frame range.
 
 # Arguments
-`frames::UnitRange`: The frame range for which the layer should be repeated
-`layer_frame::Union{UnitRange,Int}`: The layer frame range to repeat
-`layer::Layer`:the layer to be repeated
+- `frames::UnitRange`: The frame range for which the layer should be repeated
+- `layer_frame::Union{UnitRange,Int}`: The layer frame range to repeat
+- `layer::Layer`:the layer to be repeated
 """
 function show_layer_frame(
     frames::UnitRange,
