@@ -422,11 +422,16 @@ Actions supported:
 
 It reads and applies the layer settings(computed by [`get_layer_frame`](@ref) function))
 """
-function apply_layer_settings(layer_settings)
+function apply_layer_settings(layer_settings, pos)
     # final actions on the layer are applied here
     # currently scale and translate are support
+
+    # translate origin to the center of the layer, apply the settings and
+    # translate back to the previous position
+    translate(pos)
     scale(layer_settings.scale)
     rotate(layer_settings.rotation_angle)
+    translate(-pos)
 end
 
 """
@@ -456,7 +461,7 @@ function place_layers(video, layers, frame)
 
                 layer_settings = layer.current_setting
 
-                apply_layer_settings(layer_settings)
+                apply_layer_settings(layer_settings, layer.position)
                 placeimage(layer.image_matrix, pt, alpha = layer.current_setting.opacity)
             end
             # println(layer.position)
@@ -472,7 +477,7 @@ function place_layers(video, layers, frame)
             pt = centered_point(lc.position[lc.frame_counter], layer.width, layer.height)
             @layer begin
                 settings = lc.settings_cache[lc.frame_counter]
-                apply_layer_settings(settings)
+                apply_layer_settings(settings, lc.position[lc.frame_counter])
                 placeimage(lc.matrix_cache[lc.frame_counter], pt, alpha = settings.opacity)
             end
         end

@@ -156,7 +156,6 @@ video = Video(600, 600)
     Javis.show_layer_frame(71:79, 5:12, l1)
     Javis.show_layer_frame(71:79, 10, l4)
 
-
     render(video; tempdirectory = "images", pathname = "layer_test.gif")
 
     for i in [
