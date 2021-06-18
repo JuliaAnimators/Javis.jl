@@ -264,10 +264,10 @@ function background(background_color)
     # In the case of main video's background, this shouldn't create a problem as long as the CURRENT_LAYER is cleared 
     # before moving to rendering of independent objects in [`get_javis_frame`](@ref)
     if !isempty(CURRENT_LAYER)
-        layer_bg = filter(x->get(x.opts, :in_local_layer, false), CURRENT_LAYER[1].layer_objects)
-        if isempty(layer_bg) &&
-           get(CURRENT_LAYER[1].opts, :transparent, false)
-           background_color = RGBA(0, 0, 0, 0)
+        layer_bg =
+            filter(x -> get(x.opts, :in_local_layer, false), CURRENT_LAYER[1].layer_objects)
+        if isempty(layer_bg) && get(CURRENT_LAYER[1].opts, :transparent, false)
+            background_color = RGBA(0, 0, 0, 0)
         end
     end
     Luxor.background(background_color)

@@ -59,7 +59,6 @@ include("structs/Action.jl")
 include("structs/LayerSetting.jl")
 include("structs/LayerCache.jl")
 include("structs/Layer.jl")
-include("structs/Livestream.jl")
 
 """
     Line

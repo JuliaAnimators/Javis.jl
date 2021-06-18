@@ -122,7 +122,8 @@ function to_layer_m(
         # by default fetch the video's background as a layer's background
         # this is overriden by passing another ground to the layer explicity in the begin end block
         # if no background is needed :transparent flag should be passed
-        video_backgrounds = filter(x->get(x.opts, :in_global_layer, false), $CURRENT_VIDEO[1].objects)
+        video_backgrounds =
+            filter(x -> get(x.opts, :in_global_layer, false), $CURRENT_VIDEO[1].objects)
         push!(layer.layer_objects, video_backgrounds...)
 
         if isempty(Javis.CURRENT_LAYER)
