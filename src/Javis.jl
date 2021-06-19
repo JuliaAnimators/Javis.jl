@@ -407,9 +407,8 @@ function get_layer_frame(video, layer, frame)
     return img_layer
 end
 
-
 """
-    apply_layer_settings(layer, pt)
+    apply_layer_settings(layer, pos)
 
 Applies the computed actions to the image matrix of the layer to it's image matrix
 Actions supported:
