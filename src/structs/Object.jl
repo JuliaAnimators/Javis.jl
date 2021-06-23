@@ -91,7 +91,7 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
         ObjectSetting(),
         opts,
         Dict{Symbol,Any}(),
-        [metadata],
+        Any[metadata],
     )
     push!(CURRENT_VIDEO[1].objects, object)
     return object

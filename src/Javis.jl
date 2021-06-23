@@ -415,6 +415,7 @@ const LUXOR_DONT_EXPORT = [
     :get_fontsize,
     :scale,
     :text,
+    :Circle
 ]
 
 # Export each function from Luxor
