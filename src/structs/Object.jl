@@ -80,6 +80,9 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
         CURRENT_VIDEO[1].background_frames =
             union(CURRENT_VIDEO[1].background_frames, frames)
     end
+
+    metadata = func()
+    
     object = Object(
         frames,
         func,
@@ -88,7 +91,7 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
         ObjectSetting(),
         opts,
         Dict{Symbol,Any}(),
-        Any[nothing],
+        [metadata],
     )
     push!(CURRENT_VIDEO[1].objects, object)
     return object

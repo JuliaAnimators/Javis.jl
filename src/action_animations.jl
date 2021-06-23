@@ -47,6 +47,11 @@ function _appear(video, object, action, rel_frame, symbol::Val{:draw_text})
     object.opts[:draw_text_t] = t
 end
 
+function _appear(video, object, action, rel_frame, symbol::Val{:draw})
+    t = get_interpolation(action, rel_frame)
+    show_creation(object.result[1]["shapetype"], object, action, t)
+end
+
 """
     disappear(s::Symbol)
 
