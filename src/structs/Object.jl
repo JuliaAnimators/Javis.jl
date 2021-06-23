@@ -23,6 +23,7 @@ struct Object <: AbstractObject
     opts::Dict{Symbol,Any}
     change_keywords::Dict{Symbol,Any}
     result::Vector
+    metadata::Vector
 end
 
 """
@@ -33,6 +34,7 @@ The current object can be accessed using CURRENT_OBJECT[1]
 """
 
 const CURRENT_OBJECT = Array{Object,1}()
+const CURRENT_OBJECT_META = Array{Any,1}()
 
 Object(func::Function, args...; kwargs...) = Object(:same, func, args...; kwargs...)
 
@@ -81,8 +83,11 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
             union(CURRENT_VIDEO[1].background_frames, frames)
     end
 
-    metadata = func()
-    
+    if !isempty(CURRENT_OBJECT_META)
+        metadata = CURRENT_OBJECT_META[1]
+    else
+        metadata = nothing
+    end
     object = Object(
         frames,
         func,
@@ -91,8 +96,10 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
         ObjectSetting(),
         opts,
         Dict{Symbol,Any}(),
+        Any[nothing],
         Any[metadata],
     )
+    empty!(CURRENT_OBJECT_META)
     push!(CURRENT_VIDEO[1].objects, object)
     return object
 end

@@ -1,22 +1,31 @@
+abstract type Circle end
+
 function _Lineobj(p1, p2, color)
     sethue(color)
     line(p1, p2,:stroke)
-    return Dict("shapetype"=>Line, "initial_pos" => p1, "final_pos" => p2, "current_pos" => p1)
+    return
 end
 
-Lineobj(p1, p2; color="black") = (args...) -> _Lineobj(p1, p2, color)
+function Lineobj(p1, p2; color="black")
+    push!(CURRENT_OBJECT_META, Dict("shapetype"=>Line, "initial_pos" => p1, "final_pos" => p2))
+    return (args...) -> _Lineobj(p1, p2, color)
+end
+
 Lineobj(p2) = Lineobj(O, p2)
 
 function _Circle(center, radius, color, action)
-
+    sethue(color)
+    circle(center, radius, action)
+    return
 end
 
-Circle(center, radius, color="black", action=:fill) = (args...) -> _Circle(center, radius, color, action)
-Circle(p1, p2; color="black", action=:fill) = _Circle(, , color, action)
+function Circle(center::Point, radius::Real; color="black", action=:fill) 
+    push!(CURRENT_OBJECT_META, Dict("shapetype"=>Circle, "center" => center, "radius" => radius, "current_angle" => 0.0))
+    return (args...) -> _Circle(center, radius, color, action)
+end
 
-
-
-
+Circle(center_x::Real, center_y::Real, radius::Real; color="black", action=:fill) = Circle(Point(center_x, center_y), radius, color, action)
+Circle(p1::Real, p2::Real; color="black", action=:fill) = Circle(midpoint(p1, p2), distance(pt1, pt2)/2, color, action)
 
 #==================#
 
