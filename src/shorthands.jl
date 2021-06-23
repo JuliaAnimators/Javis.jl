@@ -7,8 +7,12 @@ end
 Lineobj(p1, p2; color="black") = (args...) -> _Lineobj(p1, p2, color)
 Lineobj(p2) = Lineobj(O, p2)
 
+function _Circle(center, radius, color, action)
 
+end
 
+Circle(center, radius, color="black", action=:fill) = (args...) -> _Circle(center, radius, color, action)
+Circle(p1, p2; color="black", action=:fill) = _Circle(, , color, action)
 
 
 
