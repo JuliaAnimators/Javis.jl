@@ -183,3 +183,25 @@ Get access to the position of a layer.
 function get_position(l::Layer)
     return get_position(l.position)
 end
+
+
+#todo tests and docstrings
+function to_layer!(l::Layer, object::Object)
+    remove_from_video(object)
+    push!(l.layer_objects, object)
+end
+
+
+function to_layer!(l::Layer, objects::Vector{Object})
+    remove_from_video(objects)
+    push!(l.layer_objects, objects...)
+end
+
+function remove_from_video(object::Object)
+    filter!(x->x!=object, CURRENT_VIDEO[1].objects)
+end
+
+
+function remove_from_video(objects::Vector{Object})
+    filter!(x->x∉objects, CURRENT_VIDEO[1].objects)
+end
