@@ -101,6 +101,7 @@ include("action_animations.jl")
 include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
+include("shorthands.jl")
 
 """
     projection(p::Point, l::Line)
