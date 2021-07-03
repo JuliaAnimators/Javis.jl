@@ -91,7 +91,6 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
         Dict{Symbol,Any}(),
         Any[nothing],
     )
-    empty!(CURRENT_OBJECT_META)
     push!(CURRENT_VIDEO[1].objects, object)
     return object
 end
