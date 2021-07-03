@@ -101,7 +101,6 @@ include("action_animations.jl")
 include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
-include("shorthands.jl")
 
 """
     projection(p::Point, l::Line)
@@ -424,6 +423,28 @@ for func in names(Luxor; imported = true)
         eval(Expr(:export, func))
     end
 end
+
+# shorthand declarations
+# Line
+include("shorthands/JLine.jl")
+
+# Circle
+include("shorthands/JCircle.jl")
+
+# Rect
+include("shorthands/JRect.jl")
+
+# Box
+include("shorthands/JBox.jl")
+
+# Ellipse
+include("shorthands/JEllipse.jl")
+
+# Star
+include("shorthands/JStar.jl")
+
+# Poly
+include("shorthands/JPoly.jl")
 
 export render, latex
 export Video, Object, Background, Action, RFrames, GFrames
