@@ -101,3 +101,15 @@ JStar(center, radius; color = "black", npoints=5, ratio=0.5, orientation=0, acti
 Make a star. ratio specifies the height of the smaller radius of the star relative to the larger. Use vertices=true to return the vertices of a star instead of drawing it.
 """
 JStar(xcenter, ycenter, radius; color = "black", npoints=5, ratio=0.5, orientation=0, action=:stroke, vertices = false, reversepath=false) = JStar(Point(xcenter, ycenter), radius, color=color, npoints=npoints, ratio=ratio, orientation=orientation, action=action, vertices=vertices, reversepath=reversepath)
+
+
+#============== Star ==============#
+"""
+Draw a polygon. 
+"""
+function _JPoly(pointlist, color, action, close, reversepath)
+    sethue(color)
+    poly(pointlist, action; close=close, reversepath=reversepath)
+end
+
+JPoly(pointlist::Array{Point, 1}; color="black", action = :stroke, close=true, reversepath=false) = (args...) -> _JPoly(pointlist, color, action, close, reversepath)
