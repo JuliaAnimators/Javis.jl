@@ -1,3 +1,4 @@
+#============== Line ==============#
 function _JLine(p1, p2, color)
     sethue(color)
     line(p1, p2,:stroke)
@@ -6,17 +7,21 @@ JLine(p1, p2, color="black") = (args...) -> _JLine(p1, p2, color)
 JLine(p2) = JLine(O, p2)
 
 
+
+#============== Circle ==============#
 function _JCircle(center, radius, color, action)
     sethue(color)
     circle(center, radius, action)
     return
 end
-JCircle(center::Point, radius::Real; color="black", action=:fill) = (args...) -> _JCircle(center, radius, color, action)
-JCircle(center_x::Real, center_y::Real, radius::Real; color="black", action=:fill) = JCircle(Point(center_x, center_y), radius, color=color, action=action)
-JCircle(p1::Real, p2::Real; color="black", action=:fill) = JCircle(midpoint(p1, p2), distance(pt1, pt2)/2, color=color, action=action)
-JCircle(radius::Real; color="black", action=:fill) = JCircle(O, radius, color=color, action=action)
+JCircle(center::Point, radius::Real; color="black", action=:stroke) = (args...) -> _JCircle(center, radius, color, action)
+JCircle(center_x::Real, center_y::Real, radius::Real; color="black", action=:stroke) = JCircle(Point(center_x, center_y), radius, color=color, action=action)
+JCircle(p1::Real, p2::Real; color="black", action=:stroke) = JCircle(midpoint(p1, p2), distance(pt1, pt2)/2, color=color, action=action)
+JCircle(radius::Real; color="black", action=:stroke) = JCircle(O, radius, color=color, action=action)
 
-# test box and rect
+
+
+#============== Rect ==============#
 function _JRect(cornerpoint::Point, w::Real, h::Real, color::String, action::Symbol, vertices::Bool)
     sethue(color)
     rect(cornerpoint, w, h, action; vertices=vertices)
@@ -25,6 +30,7 @@ JRect(cornerpoint::Point, w::Real, h::Real; color="black", action=:stroke, verti
 JRect(xmin::Int64, ymin::Int64, w::Real, h::Real; color="black", action=:stroke) = JRect(Point(xmin, ymin), w, h, color=color, action=action)
 
 
+#============== Box ==============#
 function _JBox(cornerpoint1::Point, cornerpoint2::Point, color::String, action::Symbol, vertices::Bool)
     sethue(color)
     box(cornerpoint1, cornerpoint2, action, vertices=vertices)
@@ -47,3 +53,35 @@ JBox(pt::Point, width::Real, height::Real; color="black", action=:stroke, vertic
 JBox(x::Int64, y::Int64, width::Real, height::Real; color="black", action=:stroke) = JBox(Point(x, y), width, height, color=color, action=action)
 JBox(pt::Point, width::Real, height::Real, cornerradius::Float64; color="black", action=:stroke) = (args...) -> _JBox(pt, width, height, cornerradius, color, action)
 
+
+#============== Ellipse ==============#
+function _JEllipse(cpt::Point, w::Real, h::Real, color::String, action::Symbol)
+  sethue(color)
+  ellipse(cpt, w, h, action)
+end
+
+function _JEllipse(focus1::Point, focus2::Point, k::Union{Real, Point}, color::String, action::Symbol, stepvalue, vertices, reversepath)
+    sethue(color)
+    ellipse(focus1, focus2, k, action, stepvalue=stepvalue, vertices=vertices, reversepath=reversepath)
+end
+
+"""
+Make an ellipse, centered at point c, with width w, and height h.
+"""
+JEllipse(cpt::Point, w::Real, h::Real; color ="black",action=:stroke) = (args...) -> _JEllipse(cpt, w, h, color, action)
+
+"""
+Make an ellipse, centered at xc/yc, fitting in a box of width w and height h.
+"""
+JEllipse(xc::Int, yc::Int, w::Real, h::Real; color="black", action=:stroke) = JEllipse(Point(xc, yc), w, h, color=color, action=action)
+
+"""
+Build a polygon approximation to an ellipse, given two points and a distance, k, which is the sum of the distances to the focii of any points on the ellipse (or the shortest length of string
+required to go from one focus to the perimeter and on to the other focus).
+"""
+JEllipse(focus1::Point, focus2::Point, k::Real; color="black", action=:stroke, stepvalue=pi/100, vertices=false, reversepath=false) = (args...) -> _JEllipse(focus1, focus2, k, color, action, stepvalue, vertices, reversepath)
+
+"""
+Build a polygon approximation to an ellipse, given two points and a point somewhere on the ellipse.
+"""
+JEllipse(focus1::Point, focus2::Point, pt::Point; color="black", action=:stroke, stepvalue=pi/100, vertices=false, reversepath=false) = (args...) -> _JEllipse(focus1, focus2, pt, color, action, stepvalue, vertices, reversepath)
