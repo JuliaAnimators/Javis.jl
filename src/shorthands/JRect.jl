@@ -8,7 +8,7 @@ end
 
 Create a rectangle with one corner at cornerpoint with width w and height h and do an action.
 """
-JRect(cornerpoint::Point, w::Real, h::Real; color="black", action=:stroke, vertices=false) = (args...) -> _JRect(cornerpoint, w, h, color, action, vertices)
+JRect(cornerpoint::Point, w::Real, h::Real; color="black", action=:stroke, vertices=false) = (args...;kcornerpoint=cornerpoint, w=w, h=h, color=color, action=action, vertices=vertices) -> _JRect(kcornerpoint, w, h, color, action, vertices)
 
 """
     JRect(xmin::Int64, ymin::Int64, w::Real, h::Real; color="black", action=:stroke)

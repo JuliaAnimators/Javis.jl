@@ -9,7 +9,7 @@ end
 
 Make a circle centered at pt.
 """
-JCircle(center::Point, radius::Real; color="black", action=:stroke) = (args...) -> _JCircle(center, radius, color, action)
+JCircle(center::Point, radius::Real; color="black", action=:stroke) = (args...;center=center, radius=radius, color=color, action=action) -> _JCircle(center, radius, color, action)
 
 """
     JCircle(center_x::Real, center_y::Real, radius::Real; color="black", action=:stroke)
@@ -28,7 +28,7 @@ JCircle(p1::Real, p2::Real; color="black", action=:stroke) = JCircle(midpoint(p1
 
 """
     JCircle(radius::Real; color="black", action=:stroke)
-    
+
 Make a circle that passes through three points.
 """
 JCircle(radius::Real; color="black", action=:stroke) = JCircle(O, radius, color=color, action=action)

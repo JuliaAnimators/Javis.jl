@@ -9,7 +9,7 @@ end
 Draw a polygon around points in the pointlist.
 Closes the polygon by default
 """
-JPoly(pointlist::Array{Point, 1}; color="black", action = :stroke, close=true, reversepath=false) = (args...) -> _JPoly(pointlist, color, action, close, reversepath)
+JPoly(pointlist::Array{Point, 1}; color="black", action = :stroke, close=true, reversepath=false) = (args...;pointlist=pointlist, color=color, action=action) -> _JPoly(pointlist, color, action, close, reversepath)
 
 
 
