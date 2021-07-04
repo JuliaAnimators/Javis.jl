@@ -1,6 +1,7 @@
 function _JRect(cornerpoint::Point, w::Real, h::Real, color::String, action::Symbol, vertices::Bool)
     sethue(color)
     rect(cornerpoint, w, h, action; vertices=vertices)
+    return cornerpoint
 end
 
 """
