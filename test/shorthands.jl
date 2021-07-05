@@ -23,7 +23,7 @@ video = Video(800, 800)
     mybox2 =
         Object(Javis.JBox(Point(-250, -100), 200, 200, color = "yellow", action = :fill))
     mybox3 = Object(Javis.JBox(250, 300, 40, 40, color = "yellow", action = :fill))
-    mybox4 = Object(Javis.JBox(150, 150, 15, 40, color = "black", action = :stroke))
+    mybox4 = Object(Javis.JBox(O, 150, 150, 5.0, color = "black", action = :stroke))
 
     myrect = Object(Javis.JRect(250, 15, 30, 55, color = "orange", action = :fill))
     myrect1 =

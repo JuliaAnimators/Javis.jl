@@ -35,7 +35,7 @@ function _JBox(
     action::Symbol,
 )
     sethue(color)
-    box(pt, width, height, cornerradius, action = action)
+    box(pt, width, height, cornerradius, action)
     return Point(pt.x - width / 2, pt.y + height / 2)
 end
 
