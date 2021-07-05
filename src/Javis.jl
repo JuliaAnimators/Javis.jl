@@ -424,26 +424,13 @@ for func in names(Luxor; imported = true)
     end
 end
 
-# shorthand declarations
-# Line
+# shorthands declarations
 include("shorthands/JLine.jl")
-
-# Circle
 include("shorthands/JCircle.jl")
-
-# Rect
 include("shorthands/JRect.jl")
-
-# Box
 include("shorthands/JBox.jl")
-
-# Ellipse
 include("shorthands/JEllipse.jl")
-
-# Star
 include("shorthands/JStar.jl")
-
-# Poly
 include("shorthands/JPoly.jl")
 
 export render, latex
