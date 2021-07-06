@@ -1,6 +1,7 @@
 function _JEllipse(cpt::Point, w::Real, h::Real, color::String, action::Symbol)
     sethue(color)
     ellipse(cpt, w, h, action)
+    return cpt
 end
 
 function _JEllipse(
@@ -23,12 +24,14 @@ function _JEllipse(
         vertices = vertices,
         reversepath = reversepath,
     )
+    return focus1, focus2
 end
 
 """
     JEllipse(cpt::Point, w::Real, h::Real; color ="black",action=:stroke)
 
 Make an ellipse, centered at point c, with width w, and height h.
+Returns the center of the ellipse.
 """
 JEllipse(cpt::Point, w::Real, h::Real; color = "black", action = :stroke) =
     (args...; cpt = cpt, w = w, h = h, color = color, action = action) ->
@@ -38,6 +41,7 @@ JEllipse(cpt::Point, w::Real, h::Real; color = "black", action = :stroke) =
     JEllipse(xc::Int, yc::Int, w::Real, h::Real; color="black", action=:stroke)
 
 Make an ellipse, centered at xc/yc, fitting in a box of width w and height h.
+Returns the center of the ellipse.
 """
 JEllipse(xc::Int, yc::Int, w::Real, h::Real; color = "black", action = :stroke) =
     JEllipse(Point(xc, yc), w, h, color = color, action = action)

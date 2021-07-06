@@ -20,12 +20,13 @@ function _JStar(
         vertices = vertices,
         reversepath = reversepath,
     )
+    return center
 end
 
 """
     JStar(center, radius; color = "black", npoints=5, ratio=0.5, orientation=0, action=:stroke, vertices = false, reversepath=false)
 
-Draw a star centered at a position.
+Draw a star centered at a position. Returns the center of the star.
 """
 JStar(
     center,
@@ -62,6 +63,7 @@ JStar(
     JStar(xcenter, ycenter, radius; color = "black", npoints=5, ratio=0.5, orientation=0, action=:stroke, vertices = false, reversepath=false)
 
 Make a star. ratio specifies the height of the smaller radius of the star relative to the larger. Use vertices=true to return the vertices of a star instead of drawing it.
+Returns the center of the star.
 """
 JStar(
     xcenter,
