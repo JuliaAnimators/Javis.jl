@@ -19,6 +19,15 @@ Background(1:100, ground)
 render(video; pathname="how_to.gif")
 ```
 
+## How can I avoid ambiguity errors with Luxor.jl?
+
+You might have noticed that [Luxor.jl](https://github.com/JuliaGraphics/Luxor.jl) provides the drawing functions that Javis is using.
+Javis is basically just one more package on top of it which provides functions to animate the static images you can create with Luxor.
+As one can't use Javis without using Luxor we decided to reexport all functions that Luxor exports. This means you don't have to and
+**shouldn't** call `using Luxor` as this will result in ambiguity errors. 
+
+Another reason we do this is the case that we sometimes need to save extra functionality when you call certain functions to have more useful information we need to create better animations. 
+
 ## How can I move a circle from A to B?
 
 First of all you need to define an [`Object`](@ref) which draws a circle.

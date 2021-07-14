@@ -28,7 +28,7 @@ With all that said, let's dive into this tutorial! ✨
 `Javis.jl` is an abstraction on top of powerful graphics tools to make animations and visualizations easy to create.
 It is built on top of the fantastic Julia drawing packages, [`Luxor.jl`](https://github.com/JuliaGraphics/Luxor.jl) and [`Cairo.jl`](https://github.com/JuliaGraphics/Cairo.jl).
 `Cairo.jl` is much too complex to explain here, but `Luxor.jl` gives one the ability to define and draw on a canvas.
-`Luxor.jl` provides simple functions like `line`, `circle` and `poly` by which one can make animations. 
+`Luxor.jl` provides simple functions like `line`, `circle` and `poly` by which one can make animations. Please make sure that you not write `using Luxor` in your `Javis` scripts though as this will result in ambiguity errors. We make sure that every function you like from Luxor can be used by just calling `using Javis` :wink:
 
 > **NOTE:** If you're interested in 2D graphics, you should definitely check out the awesome `Luxor.jl` package.
 > It has a [great tutorial](https://juliagraphics.github.io/Luxor.jl/stable/tutorial/) that will give you an even greater understanding of how `Javis.jl` works.
