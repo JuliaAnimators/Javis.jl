@@ -162,8 +162,9 @@ end
         video::Video;
         framerate=30,
         pathname="javis_GIBBERISH.gif",
-        tempdirectory="",
         liveview=false,
+        streamconfig::Union{StreamConfig, Nothing} = nothing,
+        tempdirectory="",
         ffmpeg_loglevel="panic"
     )
 
@@ -176,9 +177,11 @@ Renders all previously defined [`Object`](@ref) drawings to the user-defined `Vi
 - `framerate::Int`: The frame rate of the video
 - `pathname::String`: The path for the rendered gif or mp4 (i.e `output.gif` or `output.mp4`)
     - **Default:** The animation is rendered as a gif with the `javis_` prefix and some gibberish afterwards
+- `liveview::Bool`: Causes a live image viewer to appear to assist with animation development
+- `streamconfig::Union{StreamConfig, Nothing}`: Contains livestream specific instructions, passed on to [`setup_stream`](@ref).
+Streaming to Twitch or other platforms are not yet supported.
 - `tempdirectory::String`: The folder where each frame is stored
     Defaults to a temporary directory when not set
-- `liveview::Bool`: Causes a live image viewer to appear to assist with animation development
 - `ffmpeg_loglevel::String`:
     - Can be used if there are errors with ffmpeg. Defaults to panic:
     All other options are described here: https://ffmpeg.org/ffmpeg.html
@@ -188,13 +191,14 @@ function render(
     framerate = 30,
     pathname = "javis_$(randstring(7)).gif",
     liveview = false,
+    streamconfig::Union{StreamConfig,Nothing} = nothing,
     tempdirectory = "",
     ffmpeg_loglevel = "panic",
 )
     objects = video.objects
     frames = preprocess_frames!(objects)
 
-    if liveview == true
+    if liveview
         if isdefined(Main, :IJulia) && Main.IJulia.inited
             return _jupyter_viewer(video, length(frames), objects, framerate)
 
@@ -259,6 +263,9 @@ function render(
     end
 
     empty_CURRENT_constants()
+
+    # check if livestream is used and livestream if that's the case
+    _livestream(streamconfig, framerate, video.width, video.height, pathname)
 
     # even if liveview = false, show the rendered gif in the cell output
     if isdefined(Main, :IJulia) && Main.IJulia.inited
@@ -430,5 +437,6 @@ export @Frames, prev_start, prev_end, startof, endof
 
 # custom override of luxor extensions
 export setline, setopacity, fontsize, get_fontsize, scale, text
+export setup_stream, cancel_stream
 
 end
