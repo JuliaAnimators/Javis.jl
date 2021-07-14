@@ -261,11 +261,11 @@ function render(
     else
         @error "Currently, only gif and mp4 creation is supported. Not a $ext."
     end
-
-    empty_CURRENT_constants()
-
+    
     # check if livestream is used and livestream if that's the case
     _livestream(streamconfig, framerate, video.width, video.height, pathname)
+    
+    empty_CURRENT_constants()
 
     # even if liveview = false, show the rendered gif in the cell output
     if isdefined(Main, :IJulia) && Main.IJulia.inited

@@ -124,7 +124,8 @@ end
     @test isempty(conf_twitch_err.twitch_key)
     @test conf_twitch.twitch_key == "foo"
 
-    render(vid, streamconfig = conf_local)
+    render(vid, pathname="stream_local.gif", streamconfig = conf_local)
+    rm("stream_local.gif")
 
     # errors with macos; a good test to have
     # test_local = run(pipeline(`lsof -i -P -n`, `grep ffmpeg`))
@@ -139,5 +140,11 @@ end
         ),
     )
 
-    @test_throws ErrorException render(vid, streamconfig = conf_twitch_err)
+    vid = Video(500, 500)
+    back = Background(1:100, ground)
+    star_obj = Object(1:100, astar)
+    act!(star_obj, Action(morph_to(acirc; do_action = :fill)))
+
+    @test_throws ErrorException render(vid, pathname="stream_twitch.gif", streamconfig = conf_twitch_err)
+    rm("stream_twitch.gif")
 end
