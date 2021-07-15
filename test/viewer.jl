@@ -125,7 +125,6 @@ end
     @test conf_twitch.twitch_key == "foo"
 
     render(vid, pathname = "stream_local.gif", streamconfig = conf_local)
-    rm("stream_local.gif")
 
     # errors with macos; a good test to have
     # test_local = run(pipeline(`lsof -i -P -n`, `grep ffmpeg`))
@@ -133,6 +132,7 @@ end
     # @test test_local.processes isa Vector{Base.Process}
 
     cancel_stream()
+    rm("stream_local.gif")
     @test_throws ProcessFailedException run(
         pipeline(
             `ps aux`,
