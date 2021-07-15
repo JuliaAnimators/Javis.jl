@@ -19,14 +19,15 @@ Background(1:100, ground)
 render(video; pathname="how_to.gif")
 ```
 
-## How can I avoid ambiguity errors with Luxor.jl?
+## Why are all my `Javis` functions undefined? 
 
-You might have noticed that [Luxor.jl](https://github.com/JuliaGraphics/Luxor.jl) provides the drawing functions that Javis is using.
-Javis is basically just one more package on top of it which provides functions to animate the static images you can create with Luxor.
-As one can't use Javis without using Luxor we decided to reexport all functions that Luxor exports. This means you don't have to and
-**shouldn't** call `using Luxor` as this will result in ambiguity errors. 
+If you have worked with the animation package [`Luxor.jl`](https://github.com/JuliaGraphics/Luxor.jl), you will be happy to that it provides all the drawing functions that `Javis` uses.
+`Javis` is basically an abstraction layer built on on top of `Luxor.jl` which provides functions to animate the static images you can create with `Luxor` more easily.
+As one can't use `Javis` without using Luxor we decided to reexport all functions that `Luxor` exports.
 
-Another reason we do this is the case that we sometimes need to save extra functionality when you call certain functions to have more useful information we need to create better animations. 
+This means you **should not** call `using Luxor` in scripts that use `Javis`.
+Otherwise it will result in ambiguity errors such as all the `Javis` functions being undefined when you try to run a script with `Javis` in it or other strange conflicts.
+Another reason we reexport all functions from `Luxor` is that we sometimes need to add additional `Javis` functionality around certain `Luxor` functions to create better animations.
 
 ## How can I move a circle from A to B?
 
