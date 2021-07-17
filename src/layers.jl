@@ -184,24 +184,41 @@ function get_position(l::Layer)
     return get_position(l.position)
 end
 
+"""
+    to_layer!(l::Layer, object::Object)
 
-#todo tests and docstrings
+Pushes an object into the layer and out of the list of independent objects.
+This method is helpful in case one doesn't want to include an object in the 
+`begin...end` block of [`@JLayer`](@ref).    
+"""
 function to_layer!(l::Layer, object::Object)
     remove_from_video(object)
     push!(l.layer_objects, object)
 end
 
+"""
+    to_layer!(l::Layer, objects::Vector{Object})
 
+Pushes a list of objects into the layer,
+This method is helpful in case one doesn't want to include an object in the 
+`begin...end` block of [`@JLayer`](@ref).    
+"""
 function to_layer!(l::Layer, objects::Vector{Object})
     remove_from_video(objects)
     push!(l.layer_objects, objects...)
 end
 
+
+"""
+    remove_from_video(object::Object)
+
+Removes an object or a list of objects from the main video.
+This is a helper method for the [`@to_layer!`](@ref) method and is supposed to be used internally
+"""
 function remove_from_video(object::Object)
-    filter!(x->x!=object, CURRENT_VIDEO[1].objects)
+    filter!(x -> x != object, CURRENT_VIDEO[1].objects)
 end
 
-
 function remove_from_video(objects::Vector{Object})
-    filter!(x->x∉objects, CURRENT_VIDEO[1].objects)
+    filter!(x -> x ∉ objects, CURRENT_VIDEO[1].objects)
 end

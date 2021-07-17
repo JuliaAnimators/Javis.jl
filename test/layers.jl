@@ -218,7 +218,13 @@ video = Video(600, 600)
         rball2 = Object(1:14, (args...) -> object_layer(O, "black"), Point(50, 0))
     end
 
-
+    # a layer always has n+1 objects 
+    # the first object in a layer is always the video's background
+    # check L-122 in src/layers.jl
+    rball_n = Object(3:6, (args...) -> object_layer(O, "white"), Point(0, 0))
+    @test length(l6.layer_objects) == 3
+    Javis.to_layer!(l6, rball_n)
+    @test length(l6.layer_objects) == 4
 
     act!(l5, Action(opacity_anim, setopacity()))
 
