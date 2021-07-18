@@ -21,12 +21,12 @@ render(video; pathname="how_to.gif")
 
 ## Why are all my `Javis` functions undefined? 
 
-If you have worked with the animation package [`Luxor.jl`](https://github.com/JuliaGraphics/Luxor.jl), you will be happy to that it provides all the drawing functions that `Javis` uses.
+If you have worked with the Julia drawing package [`Luxor.jl`](https://github.com/JuliaGraphics/Luxor.jl), you will be happy to see that it provides all the drawing functions that `Javis` uses.
 `Javis` is basically an abstraction layer built on on top of `Luxor.jl` which provides functions to animate the static images you can create with `Luxor` more easily.
 As one can't use `Javis` without using Luxor we decided to reexport all functions that `Luxor` exports.
 
 This means you **should not** call `using Luxor` in scripts that use `Javis`.
-Otherwise it will result in ambiguity errors such as all the `Javis` functions being undefined when you try to run a script with `Javis` in it or other strange conflicts.
+Otherwise it will result in ambiguity errors such as all the `Javis` functions becoming undefined when you try to run a Julia script with `Javis` in it or other strange conflicts.
 Another reason we reexport all functions from `Luxor` is that we sometimes need to add additional `Javis` functionality around certain `Luxor` functions to create better animations.
 
 ## How can I move a circle from A to B?
