@@ -35,7 +35,7 @@ Do not write `using Luxor` in your `Javis` scripts or Julia REPL session as this
 We make sure that every function you will need from `Luxor` can be accessed by writing `using Javis` 😉
 
 > **NOTE:** If you're interested in 2D graphics, you should definitely check out the awesome `Luxor.jl` package.
-> It has a [great tutorial](https://juliagraphics.github.io/Luxor.jl/stable/tutorial/) that will give you an even greater understanding of how `Javis.jl` works.
+> It has a [great tutorial](http://juliagraphics.github.io/Luxor.jl/stable/tutorial/basictutorial/) that will give you an even greater understanding of how `Javis.jl` works.
 
 
 
