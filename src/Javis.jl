@@ -428,6 +428,15 @@ function apply_layer_settings(layer_settings, pos)
     # translate back to the previous position
     translate(pos)
     scale(layer_settings.scale)
+
+    # routine for anim_rotate_around
+    rot_around_settings = layer_settings.misc
+    if get(rot_around_settings, :rotate_around, false)
+        translate(get(rot_around_settings, :translate, pos))
+        rotate(get(rot_around_settings, :angle, pos))
+        translate(get(rot_around_settings, :translate_back, pos))
+    end
+
     rotate(layer_settings.rotation_angle)
     translate(-pos)
 end
@@ -462,7 +471,6 @@ function place_layers(video, layers, frame)
                 apply_layer_settings(layer_settings, layer.position)
                 placeimage(layer.image_matrix, pt, alpha = layer.current_setting.opacity)
             end
-            # println(layer.position)
         end
 
         lc = layer.layer_cache

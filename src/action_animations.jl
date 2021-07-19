@@ -269,6 +269,27 @@ function _rotate_around(video, object, action, rel_frame, p)
     Luxor.translate(-r * pnormed)
 end
 
+function _rotate_around(video, layer::Layer, action, rel_frame, p)
+    # p should be global so without the translated start_pos
+    p = p - layer.position
+    # save the radius and start angle
+    r = get(action.defs, :rotate_radius, distance(p, O))
+    pnormed = get(action.defs, :pnormed, p / r)
+    if !haskey(action.defs, :rotate_radius)
+        action.defs[:rotate_radius] = r
+        action.defs[:pnormed] = pnormed
+    end
+    i = get_interpolation(action, rel_frame)
+    p1 = -r * pnormed
+    push!(
+        layer.current_setting.misc,
+        :rotate_around => true,
+        :angle => i,
+        :translate => p,
+        :translate_back => p1,
+    )
+end
+
 """
     scale()
 

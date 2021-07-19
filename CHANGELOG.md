@@ -1,5 +1,8 @@
 # Javis.jl - Changelog
 
+## Unreleased
+- Added the layers feature
+
 ## v0.5.2
 - Added support for local network live streaming
 
