@@ -254,7 +254,8 @@ end
     background(str)
 
 Has bacially the same functionality as Luxor.background() but overrides that method to allow for
-transparent layers with.
+transparent layers.
+
 Checks if a layer should be present, and if a background has been defined or not for the current layer.
 
 # Arguments

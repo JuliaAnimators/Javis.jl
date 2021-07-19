@@ -144,7 +144,7 @@ l1 = Javis.@Javis.Layer 20:60 100 100 Point(0, 0) begin
     act!(obj, Action(1:20, appear(:fade)))
 end
     
-act!(l2, anim_translate(Point(100, 100)))
+act!(l1, anim_translate(Point(100, 100)))
 ```
 """
 function act!(object::AbstractObject, action::AbstractAction)
