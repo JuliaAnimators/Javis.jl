@@ -158,29 +158,8 @@ video = Video(600, 600)
 
     render(video; tempdirectory = "images", pathname = "layer_test.gif")
 
-    for i in [
-        "03",
-        "05",
-        "08",
-        10,
-        18,
-        19,
-        20,
-        24,
-        33,
-        41,
-        43,
-        45,
-        49,
-        51,
-        59,
-        65,
-        71,
-        76,
-        77,
-        79,
-    ]
-        @test_reference "refs/layer$i.png" load("images/00000000$i.png")
+    for i in [3, 5, 8, 10, 18, 19, 20, 24, 33, 41, 43, 45, 49, 51, 59, 65, 71, 76, 77, 79]
+        @test_reference "refs/layer$i.png" load("images/$(lpad(i, 10, "0")).png")
         @test isfile("layer_test.gif")
     end
 
