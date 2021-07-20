@@ -1,5 +1,8 @@
 # Javis.jl - Changelog
 
+## Unreleased
+- `frames` keyword for `render` for faster rendering
+
 ## v0.5.2
 - Added support for local network live streaming
 
