@@ -57,7 +57,6 @@ include("structs/Object.jl")
 include("structs/Transitions.jl")
 include("structs/Action.jl")
 
-
 """
     Line
 
@@ -97,10 +96,12 @@ include("luxor_overrides.jl")
 include("backgrounds.jl")
 include("svg2luxor.jl")
 include("morphs.jl")
+include("structs/Creations.jl")
 include("action_animations.jl")
 include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
+include("shorthands.jl")
 
 """
     projection(p::Point, l::Line)
@@ -414,6 +415,7 @@ const LUXOR_DONT_EXPORT = [
     :get_fontsize,
     :scale,
     :text,
+    :Circle
 ]
 
 # Export each function from Luxor
