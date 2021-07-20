@@ -429,3 +429,42 @@ function _change(video, object, action, rel_frame, s)
     val = get_interpolation(action, rel_frame)
     object.change_keywords[s] = val
 end
+
+
+
+"""
+    sweep(s::Symbol, [val(s)])
+
+Changes the keyword `s` of the parent [`Object`](@ref) from `vals[1]` to `vals[2]`
+in an animated way if vals is given as a `Pair` otherwise it sets the keyword `s` to `val`.
+
+# Arguments
+- `s::Symbol` Change the keyword with the name `s`
+- `vals::Pair` If vals is given i.e `0 => 25` it will be animated from 0 to 25.
+    - The default is to use `0 => 1` or use the value given by the animation
+    defined in the [`Action`](@ref)
+
+# Example
+```julia
+Background(1:100, ground)
+obj = Object((args...; radius = 25, color="red") -> object(O, radius, color), Point(100, 0))
+act!(obj, Action(1:50, change(:radius, 25 => 0)))
+act!(Action(51:100, change(:radius, 0 => 25)))
+act!(Action(51:100, change(:color, "blue")))
+```
+"""
+function sweep(vals::Pair, c::String)
+    (video, object, action, rel_frame) -> _sweep(video, object, action, rel_frame, vals, c)
+end
+
+function _sweep(video, object, action, rel_frame, vals::Pair, c)
+    t = get_interpolation(action, rel_frame)
+
+    locations = Dict(
+        :TL => Point(video.width / -2 |> round, video.height / -2 |> round),
+        :BR => Point(video.width, video.height / 2),
+    )
+
+    # sethue("white")
+    box(locations[vals[1]] - locations[vals[1]] * 2t, locations[vals[2]], :fill)
+end
