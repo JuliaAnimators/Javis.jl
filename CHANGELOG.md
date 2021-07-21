@@ -1,5 +1,9 @@
 # Javis.jl - Changelog
 
+## Unreleased v0.6.0
+- Support for VideoIO v0.9 
+  - dropping support for v0.6-v0.8
+
 ## v0.5.2
 - Added support for local network live streaming
 
