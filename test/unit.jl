@@ -26,7 +26,7 @@
     @testset "translation" begin
         video = Video(500, 500)
         Background(1:100, (args...) -> 1)
-        object = Object(1:100, (args...) -> O)
+        object = Object(1:100, (args...) -> Point(1,1))
         act!(object, Action(1:100, anim_translate(Point(1, 1), Point(100, 100))))
         Javis.preprocess_frames!(video.objects)
 
@@ -38,7 +38,7 @@
         # with easing function
         video = Video(500, 500)
         Background(1:100, (args...) -> 1)
-        object = Object(1:100, (args...) -> O)
+        object = Object(1:100, (args...) -> Point(1,1))
         act!(object, Action(1:100, sineio(), anim_translate(Point(1, 1), Point(100, 100))))
 
         action = object.actions[1]
