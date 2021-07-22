@@ -180,7 +180,7 @@ end
         Object(:same, (video, args...) -> path!(path_of_blue, pos(blue_ball), "blue"))
     string = Object(1:25, (args...) -> rad(pos(red_ball), pos(blue_ball), "black"))
 
-    render(video; tempdirectory = "images", pathname = "", rescale_factor=0.5)
+    render(video; tempdirectory = "images", pathname = "", rescale_factor = 0.5)
 
     ref_image = load("refs/dancing_circles_16_rot_trans.png")
     new_size = trunc.(Int, size(ref_image) .* 0.5)
