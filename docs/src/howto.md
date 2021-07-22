@@ -197,3 +197,11 @@ A live view of the animation can be useful for creating an animation where one d
 The live viewer can be called with adding `; liveview=true` to the [`render`](@ref) call.
 
 > **NOTE:** If `liveview=true` the `tempdirectory` and `pathname` arguments are ignored and no file is created.
+
+## How to speed up rendering?
+
+For longer videos in can happen that rendering takes quite some time. It's often nice to render a scaled version of the video first to see whether everything looks perfectly animated.
+
+By using `render(video; pathname="how_to.gif", rescale_factor=0.5)` you'll often speed up the rendering by a factor of 2. This will scale the frames down by a factor of 2 such that a `Video(1000, 1000)` will be shown as a 500x500 rendered video. 
+
+> **Note:** You might want to experience with rendering to `mp4` instead of `gif` as well.

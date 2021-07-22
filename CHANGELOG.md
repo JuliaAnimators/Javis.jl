@@ -1,7 +1,11 @@
 # Javis.jl - Changelog
 
+## Unreleased (v0.5.3)
+- added support for `rescale_factor` keyword in `render` function
+- added support for `encoder_options` keyword in `render` function
+
 ## v0.5.2
-- Added support for local network live streaming
+- added support for local network live streaming
 
 ## v0.5.1
 - added support for Pluto notebooks
