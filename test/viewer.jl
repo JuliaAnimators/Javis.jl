@@ -132,7 +132,6 @@ end
     # @test test_local.processes isa Vector{Base.Process}
 
     cancel_stream()
-    rm("stream_local.gif")
     @test_throws ProcessFailedException run(
         pipeline(
             `ps aux`,
@@ -150,5 +149,4 @@ end
         pathname = "stream_twitch.gif",
         streamconfig = conf_twitch_err,
     )
-    rm("stream_twitch.gif")
 end
