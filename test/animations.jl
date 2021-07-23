@@ -108,8 +108,10 @@ end
 
     blue_ball = Object(@Frames(prev_start(), 25), (args...) -> circ(O, "blue"), p2)
     act!(blue_ball, Action(anim_rotate_around(to_rot, from_rot, red_ball)))
-    path_red =
-        Object(@Frames(prev_start(), stop=prev_start()+25-1), (video, args...) -> path!(path_of_red, get_position(red_ball), "red"))
+    path_red = Object(
+        @Frames(prev_start(), stop = prev_start() + 25 - 1),
+        (video, args...) -> path!(path_of_red, get_position(red_ball), "red"),
+    )
     path_blue =
         Object(:same, (video, args...) -> path!(path_of_blue, pos(blue_ball), "blue"))
     string = Object(1:25, (args...) -> rad(pos(red_ball), pos(blue_ball), "black"))

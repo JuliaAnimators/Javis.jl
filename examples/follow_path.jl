@@ -40,7 +40,7 @@ Background(1:220, ground)
 # let the points appear one by one
 objects = [
     Object(
-        @Frames(i == 1 ? 1 : prev_start()+2, stop = 200),
+        @Frames(i == 1 ? 1 : prev_start() + 2, stop = 200),
         (args...) -> circle(O, 10, :fill),
         points[i],
     ) for i in 1:npoints
