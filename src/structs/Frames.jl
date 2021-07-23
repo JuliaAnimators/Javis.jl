@@ -188,7 +188,7 @@ macro Frames(start, in_args...)
         end)
     elseif isempty(kwarg_symbols)
         esc(quote
-            Javis.Frames(nothing, () -> ($start):($start + $args[1] - 1))
+            Javis.Frames(nothing, () -> ($start):($start + $(args[1]) - 1))
         end)
     end
 end
