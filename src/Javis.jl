@@ -265,6 +265,7 @@ function render(
     # check if livestream is used and livestream if that's the case
     _livestream(streamconfig, framerate, video.width, video.height, pathname)
 
+    # clear all CURRENT_* constants to not accidentally use a previous video when creating a new one
     empty_CURRENT_constants()
 
     # even if liveview = false, show the rendered gif in the cell output
