@@ -149,4 +149,5 @@ end
         pathname = "stream_twitch.gif",
         streamconfig = conf_twitch_err,
     )
+    rm("stream_twitch.gif")
 end
