@@ -37,9 +37,9 @@ circle_obj = Object(11:20, acirc)
 act!(circle_obj, Action(:same, morph_to(astar)))
 ```
 """
-function morph_to(to_func::Function; do_action = :stroke)
+function morph_to(to_func::Function; style = :short, do_action = :stroke)
     return (video, object, action, frame) ->
-        _morph_to(video, object, action, frame, to_func; do_action = do_action)
+        _morph_to(video, object, action, frame, to_func; style = style, do_action = do_action)
 end
 
 
@@ -54,6 +54,7 @@ function _morph_to(
     action::Action,
     frame,
     to_func::Function;
+    style = :short,
     do_action = :stroke,
 )
     newpath()
@@ -66,7 +67,7 @@ function _morph_to(
     closepath()
     to_polys = pathtopoly()
 
-    return morph_between(video, action, frame, from_polys, to_polys; do_action = do_action)
+    return morph_between(video, action, frame, from_polys, to_polys, style; do_action = do_action)
 end
 
 """
@@ -81,7 +82,8 @@ function morph_between(
     action::Action,
     frame,
     from_polys::Vector{Vector{Point}},
-    to_polys::Vector{Vector{Point}};
+    to_polys::Vector{Vector{Point}},
+    style::Symbol;
     do_action = :stroke,
 )
     cs = get_current_setting()
@@ -89,7 +91,7 @@ function morph_between(
 
     # computation of the polygons and the best way to morph in the first frame
     if frame == first(get_frames(action))
-        save_morph_polygons!(action, from_polys, to_polys)
+        save_morph_polygons!(action, from_polys, to_polys, style)
     end
 
     # obtain the computed polygons. These polygons have the same number of points.
@@ -226,6 +228,7 @@ function save_morph_polygons!(
     action::Action,
     from_polys::Vector{Vector{Point}},
     to_polys::Vector{Vector{Point}},
+    style::Symbol,
 )
     # delete polygons with less than 2 points
     for i in length(from_polys):-1:1
@@ -277,7 +280,7 @@ function save_morph_polygons!(
                 )
             end
         else
-            from_shape, to_shape = prepare_to_interpolate(from_shape, to_shape)
+            from_shape, to_shape = prepare_to_interpolate(from_shape, to_shape, style)
 
             push!(action.defs[:from_shape], from_shape)
             push!(action.defs[:to_shape], to_shape)

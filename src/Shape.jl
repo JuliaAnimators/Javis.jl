@@ -221,7 +221,7 @@ function print_basic(s::Shape)
 end
 
 
-function prepare_to_interpolate(from_shape, to_shape)
+function prepare_to_interpolate(from_shape, to_shape, style)
     # match number of points for outer polygon
     from_outer, to_outer = match_num_points(from_shape.points, to_shape.points)
 
@@ -236,8 +236,12 @@ function prepare_to_interpolate(from_shape, to_shape)
     end
 
     # rotate outer polygon
-    rotate_i, _ = compute_shortest_morphing_dist(from_outer, to_outer)
-    new_from_outer = circshift(from_outer, -rotate_i + 1)
+    if style == :short
+        rotate_i, _ = compute_shortest_morphing_dist(from_outer, to_outer)
+        new_from_outer = circshift(from_outer, -rotate_i + 1)
+    elseif style == :long
+        new_from_outer = circshift(reverse!(from_outer), floor(-length(from_outer)/4))
+    end
 
     new_from_holes = Vector{Vector{Point}}()
 
