@@ -14,7 +14,7 @@ Defines what is drawn in a defined frame range.
 - `change_keywords::Dict{Symbol,Any}` the modified keywords changed by `change`
 - `result::Vector` the result of the object (if something gets returned)
 """
-struct Object <: AbstractObject
+mutable struct Object <: AbstractObject
     frames::Frames
     func::Function
     start_pos::Union{Object,Point}
