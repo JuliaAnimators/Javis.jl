@@ -95,7 +95,16 @@ end
     frames = Javis.preprocess_frames!(objects)
 
     @test v.filename === "foo.png"
-    img = Javis._pluto_viewer(vid, length(frames), objects)
+    img = Javis._pluto_viewer(vid, length(frames)-1, objects)
+    
+    # the object's function has been redefined for the last frame
+    # so this is bound to error after pluto_viewer has been called
+    # the the object's function is the on in the last frame hence corrupted for testing
+    # so we simply avoid the 100th(last) frame
+    
+    objects = vid.objects
+    frames = Javis.preprocess_frames!(objects)
+
     for i in 1:length(img)
         @test img[i] == Javis.get_javis_frame(vid, objects, i)
     end
