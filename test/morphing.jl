@@ -177,7 +177,7 @@ end
     # the star is formed at the incorrect position
     # the the origin is shifted and neve restored back
     # you can see this in the result of anim_translate actions
-    # fix this at some point!
+    # TODO: fix this at some point!
     act!(star_obj, Action(40:60, morph_to(astar)))
     act!(star_obj, Action(70:90, anim_translate(Point(100, -100))))
     act!(star_obj, Action(100:120, morph_to(abox)))
@@ -214,5 +214,4 @@ end
     for i in 1:200
         rm("images/$(lpad(i, 10, "0")).png")
     end
-    rm("images/palette.png")
 end
