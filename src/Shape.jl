@@ -236,11 +236,12 @@ function prepare_to_interpolate(from_shape, to_shape, style)
     end
 
     # rotate outer polygon
-    if style == :short
-        rotate_i, _ = compute_shortest_morphing_dist(from_outer, to_outer)
-        new_from_outer = circshift(from_outer, -rotate_i + 1)
-    elseif style == :long
-        new_from_outer = circshift(reverse!(from_outer), floor(-length(from_outer)/4))
+    rotate_i, _ = compute_shortest_morphing_dist(from_outer, to_outer)
+    new_from_outer = circshift(from_outer, -rotate_i + 1)
+
+    if style == :long
+        new_from_outer =
+            circshift(reverse!(new_from_outer), floor(-length(new_from_outer) / 2.6)) # found this to work best
     end
 
     new_from_holes = Vector{Vector{Point}}()

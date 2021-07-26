@@ -38,8 +38,15 @@ act!(circle_obj, Action(:same, morph_to(astar)))
 ```
 """
 function morph_to(to_func::Function; style = :short, do_action = :stroke)
-    return (video, object, action, frame) ->
-        _morph_to(video, object, action, frame, to_func; style = style, do_action = do_action)
+    return (video, object, action, frame) -> _morph_to(
+        video,
+        object,
+        action,
+        frame,
+        to_func;
+        style = style,
+        do_action = do_action,
+    )
 end
 
 
@@ -67,7 +74,15 @@ function _morph_to(
     closepath()
     to_polys = pathtopoly()
 
-    return morph_between(video, action, frame, from_polys, to_polys, style; do_action = do_action)
+    return morph_between(
+        video,
+        action,
+        frame,
+        from_polys,
+        to_polys,
+        style;
+        do_action = do_action,
+    )
 end
 
 """
