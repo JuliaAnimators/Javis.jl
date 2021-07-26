@@ -33,7 +33,7 @@
 
         for f in [1, 50, 100]
             Javis.get_javis_frame(video, [object], f)
-            @test get_position(objects[1,1]) == Point(f, f)
+            @test get_position(objects[1, 1]) == Point(f, f)
         end
 
         # with easing function
