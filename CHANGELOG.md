@@ -1,5 +1,8 @@
 # Javis.jl - Changelog
 
+## Unrealeased
+- Morhping mutates the object function 
+
 ## v0.5.2
 - Added support for local network live streaming
 
