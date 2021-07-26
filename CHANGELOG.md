@@ -1,6 +1,6 @@
 # Javis.jl - Changelog
 
-## Unreleased (v0.5.3)
+## v0.5.3 (26th of July 2021)
 - Allow all kinds of iterable ways in the `act!` function such that `act!(::Matrix, ::Action)` also works
 - Updated `anim_translate`
   - Docstring: `anim_translate` translates by a vector instead of to a point
