@@ -59,6 +59,7 @@ function _morph_to(
     if frame == last(get_frames(action))
         object.func = to_func
     else
+        object.func = get(object.opts, :original_func, to_func)
         newpath()
         object.func(video, object, frame; do_action = :none)
         closepath()

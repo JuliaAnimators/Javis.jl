@@ -90,6 +90,11 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
         Dict{Symbol,Any}(),
         Any[nothing],
     )
+
+    # store the original object func 
+    # for actions where the object fuction is mutated
+    push!(object.opts, :original_func => func)
+
     push!(CURRENT_VIDEO[1].objects, object)
     return object
 end
