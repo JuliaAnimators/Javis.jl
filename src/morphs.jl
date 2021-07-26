@@ -42,8 +42,6 @@ function morph_to(to_func::Function; do_action = :stroke)
         _morph_to(video, object, action, frame, to_func; do_action = do_action)
 end
 
-const PREVIOUS_MORPH_ACTION = Array{Action,1}()
-
 """
     _morph_to(video::Video, object::Object, action::Action, frame, to_func::Function; do_action=:stroke)
 
@@ -59,13 +57,9 @@ function _morph_to(
 )
     if frame == last(get_frames(action))
         object.func = to_func
-        if !isempty(PREVIOUS_MORPH_ACTION)
-            PREVIOUS_MORPH_ACTION[1] = action
-        else
-            push!(PREVIOUS_MORPH_ACTION, action)
-        end
+        push!(object.opts, :previous_morph_action => action)
     else
-        if isempty(PREVIOUS_MORPH_ACTION) || action == PREVIOUS_MORPH_ACTION[1]
+        if get(object.opts, :previous_morph_action, nothing) == action
             object.func = get(object.opts, :original_func, to_func)
         end
         newpath()
