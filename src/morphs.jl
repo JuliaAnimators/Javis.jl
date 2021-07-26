@@ -70,7 +70,14 @@ function _morph_to(
         closepath()
         to_polys = pathtopoly()
 
-        return morph_between(video, action, frame, from_polys, to_polys; do_action = do_action)
+        return morph_between(
+            video,
+            action,
+            frame,
+            from_polys,
+            to_polys;
+            do_action = do_action,
+        )
     end
 end
 
