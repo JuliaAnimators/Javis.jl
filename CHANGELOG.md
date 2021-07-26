@@ -1,5 +1,8 @@
 # Javis.jl - Changelog
 
+## Unreleased (v0.5.3)
+- Allow all kinds of iterable ways in the `act!` function such that `act!(::Matrix, ::Action)` also works
+
 ## v0.5.2
 - Added support for local network live streaming
 
