@@ -162,11 +162,11 @@ end
         background("black")
         sethue("white")
     end
-    
-    astar(args...; do_action=:stroke) = star(O, 50, 5, 0.5, 0, do_action)
-    abox(args...; do_action=:stroke) = rect(-50,-50, 100, 100, do_action)
-    acirc(args...; do_action=:stroke) = circle(Point(0, 0), 50, do_action)
-    
+
+    astar(args...; do_action = :stroke) = star(O, 50, 5, 0.5, 0, do_action)
+    abox(args...; do_action = :stroke) = rect(-50, -50, 100, 100, do_action)
+    acirc(args...; do_action = :stroke) = circle(Point(0, 0), 50, do_action)
+
     video = Video(500, 500)
     back = Background(1:200, ground)
     star_obj = Object(1:200, abox)
@@ -185,7 +185,29 @@ end
     act!(star_obj, Action(160:180, morph_to(acirc)))
     render(video; tempdirectory = "images", pathname = "")
 
-    for i in [1, 10, 20, 21, 30, 31, 40, 41, 60, 61, 70, 91, 101, 121, 126, 131, 150, 151, 161, 180, 190]
+    for i in [
+        1,
+        10,
+        20,
+        21,
+        30,
+        31,
+        40,
+        41,
+        60,
+        61,
+        70,
+        91,
+        101,
+        121,
+        126,
+        131,
+        150,
+        151,
+        161,
+        180,
+        190,
+    ]
         @test_reference "refs/morph_mutate$i.png" load("images/$(lpad(i, 10, "0")).png")
     end
 
