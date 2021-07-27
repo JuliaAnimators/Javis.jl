@@ -47,8 +47,8 @@ function make_animation()
     # Earth completes its one revolution in 365 days and Venus does that in 224.7 days.
     # Hence, we need to multiply (224.7/365) so that the time period matches properly i.e.,
     # when earth completes its full revolution, Venus has done (224.7/365) th of its revolution.
-    act!(earth, Action(anim_rotate_around(12.5 * 2π, O)))
-    act!(venus, Action(anim_rotate_around(12.5 * 2π * (224.7 / 365), O)))
+    act!(earth, Action(anim_rotate_around(12.5 * 2π * (224.7 / 365), O)))
+    act!(venus, Action(anim_rotate_around(12.5 * 2π, O)))
 
     # draw the connectors
     Object(1:frames, (args...) -> connector!(connection, pos(earth), pos(venus), "#f05a4f"))

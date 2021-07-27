@@ -100,9 +100,10 @@ interpolation_to_transition_val(t::Float64, trans::Rotation) = t
 interpolation_to_transition_val(t::Scale, trans::Scaling) = t
 
 function interpolation_to_transition_val(t, trans::Translation)
+    # does interpolate between `to` and `from` and assumes we are at `from` already
     from = get_position(trans.from)
     to = get_position(trans.to)
-    return from + t * (to - from)
+    return t * (to - from)
 end
 
 function interpolation_to_transition_val(t, trans::Scaling)

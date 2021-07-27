@@ -26,19 +26,20 @@
     @testset "translation" begin
         video = Video(500, 500)
         Background(1:100, (args...) -> 1)
-        object = Object(1:100, (args...) -> O)
-        act!(object, Action(1:100, anim_translate(Point(1, 1), Point(100, 100))))
+        # test objects matrix
+        objects = [Object(1:100, (args...) -> Point(1, 1)) for i in 1:9, j in 1:9]
+        act!(objects, Action(1:100, anim_translate(Point(1, 1), Point(100, 100))))
         Javis.preprocess_frames!(video.objects)
 
         for f in [1, 50, 100]
-            Javis.get_javis_frame(video, [object], f)
-            @test get_position(object) == Point(f, f)
+            Javis.get_javis_frame(video, [objects...], f)
+            @test get_position(objects[1, 1]) == Point(f, f)
         end
 
         # with easing function
         video = Video(500, 500)
         Background(1:100, (args...) -> 1)
-        object = Object(1:100, (args...) -> O)
+        object = Object(1:100, (args...) -> Point(1, 1))
         act!(object, Action(1:100, sineio(), anim_translate(Point(1, 1), Point(100, 100))))
 
         action = object.actions[1]
