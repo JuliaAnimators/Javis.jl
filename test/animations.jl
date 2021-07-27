@@ -135,13 +135,7 @@ end
     video = Video(500, 500)
     back = Object(1:25, ground, in_global_layer = true)
     act!(back, Action(anim_rotate(π / 2, π / 2)))
-    act!(
-        back,
-        Action(
-            @Frames(prev_start(), stop = 25),
-            anim_translate(Point(25, 25)),
-        ),
-    )
+    act!(back, Action(@Frames(prev_start(), stop = 1), anim_translate(Point(25, 25))))
 
     Object(latex_title)
     red_ball = Object(RFrames(-24:0), (args...) -> circ_ret_trans(O, "red"), p1)
