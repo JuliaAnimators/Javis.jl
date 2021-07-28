@@ -18,29 +18,3 @@ JPoly(
 ) =
     (args...; pointlist = pointlist, color = color, action = action) ->
         _JPoly(pointlist, color, action, close, reversepath)
-
-
-function _JShape(body)
-    eval.(body)
-end
-
-"""
-    JShape(body...)
-
-Creates a custom shape based on the luxor instructions in the begin...end block
-```julia
-somepath1 = Object(
-    Javis.@JShape action = :stroke color ="red" radius = 8 
-    begin
-        sethue(color)
-        poly(points, action, close= true)
-    end
-)
-```
-"""
-macro JShape(body...)
-    expr = quote
-        (args...) -> $_JShape($body)
-    end
-    esc(expr)
-end

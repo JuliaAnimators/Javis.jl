@@ -432,6 +432,7 @@ include("shorthands/JBox.jl")
 include("shorthands/JEllipse.jl")
 include("shorthands/JStar.jl")
 include("shorthands/JPoly.jl")
+include("shorthands/JShape.jl")
 
 export render, latex
 export Video, Object, Background, Action, RFrames, GFrames
@@ -443,6 +444,7 @@ export rev
 export scaleto
 export act!
 export anim_translate, anim_rotate, anim_rotate_around, anim_scale
+export JBox, JCircle, JEllipse, JLine, JPoly, JRect, JStar, @JShape
 
 # custom override of luxor extensions
 export setline, setopacity, fontsize, get_fontsize, scale, text

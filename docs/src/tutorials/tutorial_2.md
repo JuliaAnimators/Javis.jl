@@ -36,9 +36,9 @@ function ground(args...)
 end
 Background(1:1000, ground)
 frames =1000
-earth = Object(1:frames,Javis.JCircle(O, 10, color="blue", action=:fill), Point(200, 0))
+earth = Object(1:frames, JCircle(O, 10, color="blue", action=:fill), Point(200, 0))
 
-venus = Object(Javis.JCircle(O, 7, color="red", action=:fill), Point(144, 0))
+venus = Object(JCircle(O, 7, color="red", action=:fill), Point(144, 0))
 
 render(
     myvideo;
@@ -60,20 +60,20 @@ function ground(args...)
 end
 frames =1000
 Background(1:frames, ground)
-earth = Object(1:frames,Javis.JCircle(O, 10, color="blue", action=:fill), Point(200, 0))
-venus = Object(Javis.JCircle(O, 7, color="red", action=:fill), Point(144, 0))
+earth = Object(1:frames, JCircle(O, 10, color="blue", action=:fill), Point(200, 0))
+venus = Object(JCircle(O, 7, color="red", action=:fill), Point(144, 0))
 
-earth_orbit = Object(Javis.@JShape color= "white" action=:stroke edge = "solid" begin
+earth_orbit = Object(@JShape begin
                         sethue(color)
                         setdash(edge)
                         circle(O, 200, action)
-                    end)
+                    end color= "white" action=:stroke edge = "solid" )
     
-venus_orbit = Object(Javis.@JShape color= "white" action=:stroke edge = "solid" begin
+venus_orbit = Object(@JShape begin
                     sethue(color)
                     setdash(edge)
                     circle(O, 144, action)
-                end)
+                end color= "white" action=:stroke edge = "solid" )
 
 render(
     myvideo;
@@ -92,27 +92,27 @@ function ground(args...)
 end
 frames =1000
 Background(1:frames, ground)
-earth = Object(1:frames, Javis. JCircle(O, 10, color="blue", action=:fill), Point(200, 0))
-venus = Object(1:frames, Javis.JCircle(O, 7, color="red", action=:fill), Point(144, 0))
+earth = Object(1:frames, JCircle(O, 10, color="blue", action=:fill), Point(200, 0))
+venus = Object(1:frames, JCircle(O, 7, color="red", action=:fill), Point(144, 0))
 
-earth_orbit = Object(1:frames, Javis.@JShape color= "white" action=:stroke edge = "solid" begin
-                        sethue(color)
-                        setdash(edge)
-                        circle(O, 200, action)
-                    end)
+earth_orbit = Object(1:frames, @JShape begin
+                    sethue(color)
+                    setdash(edge)
+                    circle(O, 200, action)
+                end color= "white" action=:stroke edge = "solid" )
     
-venus_orbit = Object(1:frames, Javis.@JShape color= "white" action=:stroke edge = "solid" begin
+venus_orbit = Object(1:frames, @JShape begin
                     sethue(color)
                     setdash(edge)
                     circle(O, 144, action)
-                end)
+                end color= "white" action=:stroke edge = "solid")
 
 # We need the planets to revolve according to their time periods.
 # Earth completes its one revolution in 365 days and Venus does that in 224.7 days.
 # Hence, we need to multiply (224.7/365) so that the time period matches properly i.e.,
 # when earth completes its full revolution, Venus has done (224.7/365) th of its revolution.
-act!(earth, Action(anim_rotate_around(12.5 * 2π, O)))
-act!(venus, Action(anim_rotate_around(12.5 * 2π * (224.7 / 365), O)))
+act!(earth, Action(anim_rotate_around(12.5 * 2π * (224.7 / 365), O)))
+act!(venus, Action(anim_rotate_around(12.5 * 2π, O)))
 
 render(
     myvideo;
@@ -132,31 +132,35 @@ function ground(args...)
 end
 frames =1000
 Background(1:frames, ground)
-earth = Object(1:frames, Javis. JCircle(O, 10, color="blue", action=:fill), Point(200, 0))
-venus = Object(1:frames, Javis.JCircle(O, 7, color="red", action=:fill), Point(144, 0))
+earth = Object(1:frames, JCircle(O, 10, color="blue", action=:fill), Point(200, 0))
+venus = Object(1:frames, JCircle(O, 7, color="red", action=:fill), Point(144, 0))
 
-earth_orbit = Object(1:frames, Javis.@JShape color= "white" action=:stroke edge = "solid" begin
+earth_orbit = Object(1:frames, @JShape begin
                         sethue(color)
                         setdash(edge)
                         circle(O, 200, action)
-                    end)
+                    end color= "white" action=:stroke edge = "solid" )
     
-venus_orbit = Object(1:frames, Javis.@JShape color= "white" action=:stroke edge = "solid" begin
-                    sethue(color)
-                    setdash(edge)
-                    circle(O, 144, action)
-                end)
+venus_orbit = Object(1:frames, @JShape begin
+                        sethue(color)
+                        setdash(edge)
+                        circle(O, 144, action)
+                    end color= "white" action=:stroke edge = "solid" )
 
 # We need the planets to revolve according to their time periods.
 # Earth completes its one revolution in 365 days and Venus does that in 224.7 days.
 # Hence, we need to multiply (224.7/365) so that the time period matches properly i.e.,
 # when earth completes its full revolution, Venus has done (224.7/365) th of its revolution.
-act!(earth, Action(anim_rotate_around(12.5 * 2π, O)))
-act!(venus, Action(anim_rotate_around(12.5 * 2π * (224.7 / 365), O)))
+act!(earth, Action(anim_rotate_around(12.5 * 2π * (224.7 / 365), O)))
+act!(venus, Action(anim_rotate_around(12.5 * 2π, O)))
 
 # to store the connectors
 connection = []
-Object(1:frames, (args...) -> connector!(connection, pos(earth), pos(venus), "#f05a4f"))
+Object(@JShape begin
+                    sethue(color)
+                    push!(connection, [p1, p2])
+                    map(x -> line(x[1], x[2], :stroke), connection)
+                end connection = connection p1 = pos(earth) p2 = pos(venus) color = "#f05a4f")
 
 render(
     myvideo;
@@ -178,20 +182,20 @@ function ground(args...)
     background("black")
     sethue("white")
 end
-frames =1
+frames = 1
 Background(1:frames, ground)
 # Line
-Object(1:frames, Javis.JLine(Point(100, -250), color="yellow"))
+Object(1:frames, JLine(Point(100, -250), color="yellow"))
 # Box
-Object(Javis.JBox(Point(-200, -200), Point(200, 200), color="white", action=:stroke))
+Object(JBox(Point(-200, -200), Point(200, 200), color="white", action=:stroke))
 # Rect
-Object(Javis.JRect(175, 15, 30, 55, color="white", action=:fill))
+Object(JRect(175, 15, 30, 55, color="white", action=:fill))
 # Ellipse
-Object(Javis.JEllipse(-50, 25, 45, 25, color="yellow", action=:fill))
+Object(JEllipse(-50, 25, 45, 25, color="yellow", action=:fill))
 # Star
-Object(Javis.JStar(0, 120, 45, color="orange", action=:fill))
+Object(JStar(0, 120, 45, color="orange", action=:fill))
 # Polygon
-Object(Javis.JPoly(ngon(O, 150, 3, -π/2, vertices=true), color="yellow"))
+Object(JPoly(ngon(O, 150, 3, -π/2, vertices=true), color="yellow"))
 render(
     myvideo;
     pathname="shorthand_examples.gif"
@@ -199,7 +203,8 @@ render(
 ```
 ![](assets/shorthand_examples.gif)
 
-> **Author(s):** Arsh Sharma, Ved Mahajan \
+> **Author(s):** Arsh Sharma \
 > **Date:** July 7th, 2021 \
-> **Tag(s):** shorthands, object, action, rotation
+> **Tag(s):** shorthands, object, action, rotation \
+> **Credit(s):** Ved Mahajan for the cosmic dance example
 

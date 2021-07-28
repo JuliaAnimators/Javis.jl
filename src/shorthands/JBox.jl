@@ -43,7 +43,7 @@ end
     JBox(cornerpoint1::Point, cornerpoint2::Point; color="black", action=:stroke, vertices=false)
 
 Create a box (rectangle) between two points and do an action.
-Use vertices=true to return an array of the four corner points: bottom left, top left, top right, bottom right.
+Returns the top left corner point of the box.
 """
 JBox(
     cornerpoint1::Point,
@@ -65,7 +65,7 @@ JBox(
     JBox(points::Array; color="black", action=:stroke, vertices=false)
 
 Create a box/rectangle using the first two points of an array of Points to defined opposite corners.
-Use vertices=true to return an array of the four corner points: bottom left, top left, top right, bottom right.
+Returns the top left corner point of the box.
 """
 JBox(points::Array; color = "black", action = :stroke, vertices = false) =
     (args...; points = points, color = color, action = action, vertices = vertices) ->

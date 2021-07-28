@@ -14,7 +14,7 @@ Their level of difficulty starts from a beginner `Javis` user to advanced usages
 Currently, these tutorials are available:
 
 - [**Tutorial 1: Making Your First `Javis` Animation!**](tutorials/tutorial_1.md) - a step by step guide to making your first animation with `Javis`.
-- [**Tutorial 2: Using Shorthands in Javis!**](tutorials/tutorial_6.md) - Using shothands in `Javis`.
+- [**Tutorial 2: Using Shorthands in Javis!**](tutorials/tutorial_2.md) - Using shothands in `Javis`.
 - [**Tutorial 3: What Are Actions?**](tutorials/tutorial_3.md) - an introduction to the most important part of `Javis` - the `Action` object.
 - [**Tutorial 4: Rendering `LaTeX` with `Javis`!**](tutorials/tutorial_4.md) - a simple tutorial on how to render `LaTeX` in `Javis` animations.
 - [**Tutorial 5: Do You Know Our Mascot? Learn about Transitions and Actions!**](tutorials/tutorial_5.md) - a fun tutorial to make our mascot and learn about the `Action` and `Transition` type methods.
