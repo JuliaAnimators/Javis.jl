@@ -22,12 +22,13 @@ act!(obj, Action(1:50, anim_translate(10, 10)))
 ```
 
 # Options
-- `anim_translate(x::Real, y::Real)` define end point of translation
-- `anim_translate(tp::Union{Object,Point})` define end point with [`Object`](@ref) or `Point`
-- `anim_translate(fp::Union{Object,Point}, tp::Union{Object,Point})` define from and to point
+- `anim_translate(x::Real, y::Real)` define by how much the object should be translated. The end point will be current_pos + Point(x,y)
+- `anim_translate(tp::Point)` define direction and length of the translation vector by using `Point`
+- `anim_translate(fp::Union{Object,Point}, tp::Union{Object,Point})` define the from and to point of a translation. It will be translated by `tp - fp`.
+    - `Object` can be used to move to the position of another object
 """
 anim_translate(x::Real, y::Real) = anim_translate(Point(x, y))
-anim_translate(tp::Union{Object,Point}) = Translation(O, tp)
+anim_translate(tp::Point) = Translation(O, tp)
 anim_translate(fp::Union{Object,Point}, tp::Union{Object,Point}) = Translation(fp, tp)
 
 struct Rotation{T<:Real} <: AbstractTransition

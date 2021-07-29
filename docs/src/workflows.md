@@ -53,12 +53,12 @@ To make the Jupyter Notebook experience with Javis more easy, videos rendered as
 
 ![](assets/jupyter_viewer.gif)
 
-## Workflow for Pluto Notebooks :balloon:
+## Workflow for Pluto Notebooks
 
 **Supported Platforms:** Windows*, OSX, Linux
 
 The workflow for Pluto notebooks is very similar to using Jupyter notebooks but with some crucial differences!
-** PLEASE READ EACH OF SECTIONS CAREFULLY TO GET PLUTO NOTEBOOKS TO WORK WITH YOUR ANIMATIONS!**
+**Please read each of the sections carefully to create your animations with Pluto!**
 
 ### Install the Required Pluto Packages
 
@@ -182,7 +182,7 @@ If you don't want to use the interactivity and simply display the output, set th
 
 ![](assets/pluto_viewer.gif)
 
-## Live Streaming animations
+## Live Streaming
 
 Javis supports directing animations to streaming software after rendering a visualization.
 
@@ -243,11 +243,16 @@ Finally after that, go to the "Network" tab and, per the Javis default, put `udp
 
 ### Twitch Support - Coming Soon!
 
-<!--- ### Streaming to Twitch-->
-<!--Javis allows streaming animations directly to the [Twitch](twitch.tv) platform.-->
-<!--All you need to do is pass the symbol `:twitch` and your [twitch stream key](https://www.businessinsider.in/tech/how-to/how-to-find-your-twitch-stream-key-which-will-let-you-start-streaming-games-and-access-other-features/articleshow/76450099.cms) as arguments to the `stream_setup` method.-->
-<!--```julia-->
-<!--...-->
-<!--stream_conf = setup_stream(:twitch, twitch_key = "<twitch stream key>")-->
-<!--render(vid, streamconfig=stream_conf)-->
-<!--```-->
+````@meta
+### Streaming to Twitch
+
+
+Javis allows streaming animations directly to the [Twitch](twitch.tv) platform.
+All you need to do is pass the symbol `:twitch` and your [twitch stream key](https://www.businessinsider.in/tech/how-to/how-to-find-your-twitch-stream-key-which-will-let-you-start-streaming-games-and-access-other-features/articleshow/76450099.cms) as arguments to the `stream_setup` method.
+```julia
+...
+stream_conf = setup_stream(:twitch, twitch_key = "<twitch stream key>")
+render(vid, streamconfig=stream_conf)
+```
+````
+
