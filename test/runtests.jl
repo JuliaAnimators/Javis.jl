@@ -1,6 +1,6 @@
 using Animations
-using GtkReactive
-using Gtk: get_gtk_property, visible
+# using GtkReactive
+# using Gtk: get_gtk_property, visible
 using Images
 import Interact
 import Interact: @map, Widget, Widgets, @layout!, hbox, vbox
@@ -48,4 +48,22 @@ end
 end
 @testset "Javis Viewer" begin
     include("viewer.jl")
+end
+# @testset "Unit" begin
+#     include("unit.jl")
+# end
+# @testset "SVG LaTeX tests" begin
+#     include("svg.jl")
+# end
+# @testset "Animations" begin
+#     include("animations.jl")
+# end
+# @testset "Morphing" begin
+#     include("morphing.jl")
+# end
+# @testset "Javis Viewer" begin
+#     include("viewer.jl")
+# end
+@testset "Layers" begin
+    include("layers.jl")
 end
