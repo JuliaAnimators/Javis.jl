@@ -79,7 +79,7 @@ video = Video(600, 600)
         path_bball = Object(5:41, (args...) -> path!(path_of_blue, pos(bball), "blue"))
     end
 
-    # dont forget to update the reference images once anim_rotate is fixed
+    # dont forget to update the reference images once anim_rotate_around is fixed
     layer_actions = [
         Action(1:4, appear(:fade)),
         Action(5:25, anim_translate(l1.position, Point(300, 300))),
@@ -152,7 +152,11 @@ video = Video(600, 600)
     end
 
     act!(l4, Action(1:5, opacity_anim, setopacity()))
+    act!(l4, Action(10:15, anim_rotate_around(2pi, O)))
 
+
+
+    #test show_layer_frame
     Javis.show_layer_frame(71:79, 5:12, l1)
     Javis.show_layer_frame(71:79, 10, l4)
 
@@ -170,8 +174,11 @@ video = Video(600, 600)
     rm("images/palette.png")
     rm("layer_test.gif")
 
+
     Javis.CURRENT_VIDEO[1] = vid
     Background(1:20, ground)
+
+    # test @JLayer multiple dispatch
     l5 = @JLayer 5:20 200 200 Point(-50, 50) :transparent begin
         Background(1:14, ground2)
         rball1 = Object(1:14, (args...) -> object_layer(O, "black"), Point(50, 0))

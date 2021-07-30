@@ -240,7 +240,7 @@ end
 """
     rotate_around(p)
 
-Rotate an [`Object`](@ref) using an [`Action`](@ref) and an Animation defined
+Rotate an [`Object`](@ref) or a [`Layer`](@ref) using an [`Action`](@ref) and an Animation defined
 with Animations.jl around a point `p`. For [`rotate`](@ref) it rotates around the current origin.
 
 An example can be seen in [`rotate`](@ref).
