@@ -14,7 +14,7 @@ Defines what is drawn in a defined frame range.
 - `change_keywords::Dict{Symbol,Any}` the modified keywords changed by `change`
 - `result::Vector` the result of the object (if something gets returned)
 """
-mutable struct Object <: AbstractObject
+struct Object <: AbstractObject
     frames::Frames
     func::Function
     start_pos::Union{Object,Point}
@@ -99,10 +99,6 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
         push!(CURRENT_VIDEO[1].objects, object)
     end
 
-    # store the original object func 
-    # for actions where the object fuction is mutated
-    push!(object.opts, :original_func => func)
-    push!(CURRENT_VIDEO[1].objects, object)
     return object
 end
 
