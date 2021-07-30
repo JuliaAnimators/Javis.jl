@@ -1,7 +1,7 @@
 include("Shape.jl")
 
 """
-    morph_to(to_func::Function; object=:stroke)
+    morph_to(to_func::Function; style=:short, object=:stroke)
 
 A closure for the [`_morph_to`](@ref) function.
 This makes it easier to write the function inside an `Object`.
@@ -11,6 +11,7 @@ It especially does not work with functions which produce more than one polygon
 or which produce filled polygons.
 Blending between fills of polygons is definitely coming at a later stage.
 
+To get a more visually appealing morphing on can try setting `style = :long`.
 **Important:** The functions itself should not draw the polygon
 i.e. use `circle(Point(100,100), 50)` instead of `circle(Point(100,100), 50, :stroke)`
 
@@ -19,6 +20,7 @@ i.e. use `circle(Point(100,100), 50)` instead of `circle(Point(100,100), 50, :st
                        which will be displayed at the end of the Object
 
 # Keywords
+- `style::Symbol` Sets the style of morphing
 - `do_action::Symbol` defines whether the object has a fill or just a stroke. Defaults to `:stroke`.
 
 # Example
@@ -50,7 +52,7 @@ function morph_to(to_func::Function; style = :short, do_action = :stroke)
 end
 
 """
-    _morph_to(video::Video, object::Object, action::Action, frame, to_func::Function; do_action=:stroke)
+    _morph_to(video::Video, object::Object, action::Action, frame, to_func::Function; style=:short, do_action=:stroke)
 
 Internal version of [`morph_to`](@ref) but described there.
 """
@@ -95,7 +97,7 @@ end
 """
     morph_between(video::Video, action::Action, frame,
         from_polys::Vector{Vector{Point}}, to_polys::Vector{Vector{Point}};
-        do_action=:stroke)
+        style=:short, do_action=:stroke)
 
 Internal version of [`morph_to`](@ref) after the from poly is defined.
 """
@@ -237,7 +239,7 @@ end
 
 """
     save_morph_polygons!(action::Action, from_func::Vector{Vector{Point}},
-                                         to_func::Vector{Vector{Point}})
+                                         to_func::Vector{Vector{Point}}, style::Symbol)
 
 Calls the functions to polygons and calls [`match_num_points`](@ref)
 such that both polygons have the same number of points.
