@@ -127,9 +127,9 @@ Here the scaling is applied to the rectangle for the first fifty frames.
 
 2. A single object/layer and a list of actions:
 
-   `act!(object::AbstractObject, action::Vector{<:AbstractAction})`
+   `act!(object::AbstractObject, action)`
    - `object::AbstractObject` - the object actions are applied to
-   - `action::Vector{<:AbstractAction}` - the actions applied to an object
+   - `actions` - the actions applied to an object **Attention:** Will fail if `actions` is not iterable
 
 3. A list of objects/layers and a list of actions:
 
@@ -151,13 +151,13 @@ function act!(object::AbstractObject, action::AbstractAction)
     push!(object.actions, copy(action))
 end
 
-function act!(object::AbstractObject, actions::Vector{<:AbstractAction})
+function act!(object::AbstractObject, actions)
     for action in actions
         act!(object, action)
     end
 end
 
-function act!(objects::Vector{<:AbstractObject}, action)
+function act!(objects, action)
     for object in objects
         act!(object, action)
     end
