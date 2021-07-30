@@ -14,7 +14,7 @@ Defines what is drawn in a defined frame range.
 - `change_keywords::Dict{Symbol,Any}` the modified keywords changed by `change`
 - `result::Vector` the result of the object (if something gets returned)
 """
-struct Object <: AbstractObject
+mutable struct Object <: AbstractObject
     frames::Frames
     func::Function
     start_pos::Union{Object,Point}
@@ -92,7 +92,11 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
         Any[nothing],
     )
 
-    # should the object be push to the video or a layer
+    # store the original object func 
+    # for actions where the object fuction is mutated
+    push!(object.opts, :original_func => func)
+
+    # should the object be pushedsp to the video or a layer
     if PUSH_TO_LAYER[1]
         push!(CURRENT_LAYER[1].layer_objects, object)
     else
