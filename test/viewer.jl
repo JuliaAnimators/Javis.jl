@@ -113,6 +113,9 @@ end
 
     @test v.filename === "foo.png"
     img = Javis._pluto_viewer(vid, length(frames), objects)
+    objects = vid.objects
+    frames = Javis.preprocess_frames!(objects)
+
     for i in 1:length(img)
         @test img[i] == Javis.get_javis_frame(vid, objects, i, layers = [l1])
     end
