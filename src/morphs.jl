@@ -88,7 +88,7 @@ function _morph_to(
             frame,
             from_polys,
             to_polys;
-            style,
+            style = style,
             do_action = do_action,
         )
     end
@@ -107,7 +107,7 @@ function morph_between(
     frame,
     from_polys::Vector{Vector{Point}},
     to_polys::Vector{Vector{Point}};
-    style::Symbol,
+    style = :short,
     do_action = :stroke,
 )
     cs = get_current_setting()
