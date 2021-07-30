@@ -1,5 +1,8 @@
 # Javis.jl - Changelog
 
+## Unreleased
+- Add a manim-like :long morhping mode
+
 ## v0.5.2
 - Added support for local network live streaming
 
