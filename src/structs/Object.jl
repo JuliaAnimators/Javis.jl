@@ -14,7 +14,7 @@ Defines what is drawn in a defined frame range.
 - `change_keywords::Dict{Symbol,Any}` the modified keywords changed by `change`
 - `result::Vector` the result of the object (if something gets returned)
 """
-struct Object <: AbstractObject
+mutable struct Object <: AbstractObject
     frames::Frames
     func::Function
     start_pos::Union{Object,Point}
@@ -90,6 +90,11 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
         Dict{Symbol,Any}(),
         Any[nothing],
     )
+
+    # store the original object func 
+    # for actions where the object fuction is mutated
+    push!(object.opts, :original_func => func)
+
     push!(CURRENT_VIDEO[1].objects, object)
     return object
 end
@@ -116,29 +121,29 @@ Here the scaling is applied to the rectangle for the first fifty frames.
    - `object::AbstractObject` - the object the action is applied to
    - `action::AbstractAction` - the action applied to the object
 
-2. A single object and a list of actions:
+2. A single object and several actions:
 
-   `act!(object::AbstractObject, action::Vector{<:AbstractAction})`
+   `act!(object::AbstractObject, action)`
    - `object::AbstractObject` - the object actions are applied to
-   - `action::Vector{<:AbstractAction}` - the actions applied to an object
+   - `actions` - the actions applied to an object **Attention:** Will fail if `actions` is not iterable
 
-3. A list of objects and a list of actions:
+3. Several objects and several actions:
 
    `act!(object::Vector{<:AbstractObject}, action::Vector{<:AbstractAction})`
-   - `object::Vector{<:AbstractObject}` - the objects actions are applied to
-   - `action::Vector{<:AbstractAction}` - the actions applied to the objects
+   - `objects` - the objects actions are applied to **Attention:** Will fail if `objects` is not iterable
+   - `actions` - the actions applied to the objects **Attention:** Will fail if `actions` is not iterable
 """
 function act!(object::AbstractObject, action::AbstractAction)
     push!(object.actions, copy(action))
 end
 
-function act!(object::AbstractObject, actions::Vector{<:AbstractAction})
+function act!(object::AbstractObject, actions)
     for action in actions
         act!(object, action)
     end
 end
 
-function act!(objects::Vector{<:AbstractObject}, action)
+function act!(objects, action)
     for object in objects
         act!(object, action)
     end
