@@ -5,6 +5,7 @@
 - Updated `anim_translate`
   - Docstring: `anim_translate` translates by a vector instead of to a point
   - from->to assumes that we are at `from` already instead of adding it to it
+- Morhping mutates the object function 
 
 ## v0.5.2
 - Added support for local network live streaming
