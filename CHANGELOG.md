@@ -1,6 +1,6 @@
 # Javis.jl - Changelog
 
-## Unreleased
+## Unreleased (v0.6)
 - Added the layers feature
 
 ## v0.5.3 (26th of July 2021)
