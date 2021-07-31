@@ -11,7 +11,7 @@ It especially does not work with functions which produce more than one polygon
 or which produce filled polygons.
 Blending between fills of polygons is definitely coming at a later stage.
 
-To get a more visually appealing morphing on can try setting `style = :long`.
+To get a more visually appealing morphing one can try setting `style = :long`.
 **Important:** The functions itself should not draw the polygon
 i.e. use `circle(Point(100,100), 50)` instead of `circle(Point(100,100), 50, :stroke)`
 
