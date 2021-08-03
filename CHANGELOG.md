@@ -2,6 +2,7 @@
 
 # Unreleased
 - Add shorthands for basic shapes
+  - New functionsL `JBox, JCircle, JEllipse, JLine, JPoly, JRect, JStar, @JShape` 
 
 ## v0.5.3 (26th of July 2021)
 - Allow all kinds of iterable ways in the `act!` function such that `act!(::Matrix, ::Action)` also works
