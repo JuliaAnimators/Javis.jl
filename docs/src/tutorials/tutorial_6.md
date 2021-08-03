@@ -97,7 +97,7 @@ using Unitful
 
 > **NOTE:** For this tutorial, we will also use `Animations.jl` to provide what are called "easing functions".
 These are used to control the speed at which an animation is drawn.
-This is further explained in [Tutorial 6](tutorial_6.md) so for now, don't worry too much about what we are doing with it. 
+This is further explained in [Tutorial 7](tutorial_7.md) so for now, don't worry too much about what we are doing with it. 
 
 And let's define our background function.
 This background function will also write the current frame being drawn:
@@ -176,7 +176,7 @@ Let's add some more information to this animation! 📝
 To get the information about an element that we are currently previewing, we need to get information about our element.
 So, how do we do that?
 
-To identify the element and display its information properly, let's create an info box similar to what we made in [Tutorial 2](tutorial_2.md#As-You-Can-See-Here...)!
+To identify the element and display its information properly, let's create an info box similar to what we made in [Tutorial 3](tutorial_3.md#As-You-Can-See-Here...)!
 We do this by creating an `info_box` function that takes in an element:
 
 ```julia
