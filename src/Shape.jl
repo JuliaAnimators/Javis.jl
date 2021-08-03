@@ -246,7 +246,7 @@ function prepare_to_interpolate(from_shape, to_shape, style)
 
     if style == :long
         new_from_outer =
-            circshift(reverse!(new_from_outer), floor(-length(new_from_outer) / 2.6)) # found this to work best
+            circshift(reverse!(new_from_outer), floor(Int, -length(new_from_outer) / 2.6)) # found this to work best
     end
 
     new_from_holes = Vector{Vector{Point}}()
