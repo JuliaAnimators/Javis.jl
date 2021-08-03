@@ -220,7 +220,12 @@ function print_basic(s::Shape)
     println("#Holes: $(length(s.subpaths))")
 end
 
+"""
+    prepare_to_interpolate(from_shape, to_shape, style)
 
+Determines the way in which shapes are morphed to one another by manipulating the mapping of respective points
+of each shape. 
+"""
 function prepare_to_interpolate(from_shape, to_shape, style)
     # match number of points for outer polygon
     from_outer, to_outer = match_num_points(from_shape.points, to_shape.points)
