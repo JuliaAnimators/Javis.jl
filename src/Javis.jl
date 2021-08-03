@@ -278,7 +278,7 @@ function render(
 
     filecounter = 1
     @showprogress 1 "Rendering frames..." for frame in frames
-        frame_image = convert.(RGB, get_javis_frame(video, objects, frame; layers=layers))
+        frame_image = convert.(RGB, get_javis_frame(video, objects, frame; layers = layers))
         # rescale the frame for faster rendering if the rescale_factor is not 1
         if !isone(rescale_factor)
             new_size = trunc.(Int, size(frame_image) .* rescale_factor)
