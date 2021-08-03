@@ -57,7 +57,7 @@ end
 """
     disappear(s::Symbol)
 
-Disappear can be used inside an [`Action`](@ref) to make an [`Object`](@ref) or an entire [`Object`](@ref) (including it's objects) to appear.
+Disappear can be used inside an [`Action`](@ref) to make an [`Object`](@ref) or an entire [`Layer`](@ref) (including it's objects) to appear.
 
 # Example
 ```
@@ -92,6 +92,7 @@ function _disappear(video, object, action, rel_frame, symbol::Val{:fade})
     t = get_interpolation(action, rel_frame)
     object.current_setting.mul_opacity = 1 - t
 end
+
 # for layer only disappear(:fade) is possible
 function _disappear(video, layer::Layer, action, rel_frame, symbol::Val{:fade})
     t = get_interpolation(action, rel_frame)
