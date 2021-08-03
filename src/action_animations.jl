@@ -57,7 +57,7 @@ end
 """
     disappear(s::Symbol)
 
-Disappear can be used inside an [`Action`](@ref) to make an [`Object`](@ref) or an entire [`Layer`](@ref) (including it's objects) to appear.
+Disappear can be used inside an [`Action`](@ref) to make an [`Object`](@ref) or an entire [`Layer`](@ref) (including it's objects) to disappear.
 
 # Example
 ```
