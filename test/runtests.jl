@@ -52,3 +52,6 @@ end
 @testset "Shorthands" begin
     include("shorthands.jl")
 end
+@testset "Layers" begin
+    include("layers.jl")
+end
