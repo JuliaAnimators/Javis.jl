@@ -1,6 +1,7 @@
 # Javis.jl - Changelog
 
-## Unreleased
+## Unreleased (v0.6)
+- Added the layers feature
 - Add a manim-like :long morhping mode
 
 ## v0.5.3 (26th of July 2021)
@@ -8,7 +9,7 @@
 - Updated `anim_translate`
   - Docstring: `anim_translate` translates by a vector instead of to a point
   - from->to assumes that we are at `from` already instead of adding it to it
-- Morhping mutates the object function 
+- Morphing mutates the object function 
 
 ## v0.5.2
 - Added support for local network live streaming

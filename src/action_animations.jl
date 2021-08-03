@@ -1,7 +1,7 @@
 """
     appear(s::Symbol)
 
-Appear can be used inside an [`Action`](@ref) to make an [`Object`](@ref) appear.
+Appear can be used inside an [`Action`](@ref) to make an [`Object`](@ref) or an entire [`Object`](@ref) (including it's objects) to appear.
 
 # Example
 ```
@@ -22,6 +22,8 @@ of the [`Object`](@ref) so `101-120`.
     - `:scale` which increases the scale up to the default value `1`
        or the value specified by [`scale`](@ref)
     - `:draw_text` which only works for [`text`](@ref) and lets it appear from left to right.
+
+For a layer only `appear(:fade)` is supported
 """
 function appear(s::Symbol)
     (video, object, action, rel_frame) -> _appear(video, object, action, rel_frame, Val(s))
@@ -37,6 +39,11 @@ function _appear(video, object, action, rel_frame, symbol::Val{:fade})
     object.current_setting.mul_opacity = t
 end
 
+function _appear(video, layer::Layer, action, rel_frame, symbol::Val{:fade})
+    t = get_interpolation(action, rel_frame)
+    layer.current_setting.opacity = t
+end
+
 function _appear(video, object, action, rel_frame, symbol::Val{:scale})
     t = get_interpolation(action, rel_frame)
     object.current_setting.mul_scale = t
@@ -50,7 +57,7 @@ end
 """
     disappear(s::Symbol)
 
-Disappear can be used inside an [`Action`](@ref) to make an [`Object`](@ref) disappear.
+Disappear can be used inside an [`Action`](@ref) to make an [`Object`](@ref) or an entire [`Layer`](@ref) (including it's objects) to disappear.
 
 # Example
 ```
@@ -68,6 +75,8 @@ of the [`Object`](@ref) so `181-200`.
     - `:fade` which decreases the opacity down to `0`
     - `:scale` which decreases the scale down to `0`
     - `:draw_text` which only works for text and let the text disappear from right to left.
+
+For a layer only `disappear(:fade)` is supported
 """
 function disappear(s::Symbol)
     (video, object, action, rel_frame) ->
@@ -84,6 +93,13 @@ function _disappear(video, object, action, rel_frame, symbol::Val{:fade})
     object.current_setting.mul_opacity = 1 - t
 end
 
+# for layer only disappear(:fade) is possible
+function _disappear(video, layer::Layer, action, rel_frame, symbol::Val{:fade})
+    t = get_interpolation(action, rel_frame)
+    layer.current_setting.opacity = 1 - t
+end
+
+
 function _disappear(video, object, action, rel_frame, symbol::Val{:scale})
     t = get_interpolation(action, rel_frame)
     object.current_setting.mul_scale = 1 - t
@@ -97,7 +113,7 @@ end
 """
     translate()
 
-Translate an [`Object`](@ref) using an [`Action`](@ref) and an Animation defined
+Translate an [`Object`](@ref) or a [`Layer`](@ref) using an [`Action`](@ref) and an Animation defined
 with Animations.jl.
 
 If you're used to working with Animations.jl this should feel quite natural.
@@ -154,10 +170,15 @@ function _translate(video, object, action, rel_frame)
     Luxor.translate(p)
 end
 
+function _translate(video, layer::Layer, action, rel_frame)
+    p = get_interpolation(action, rel_frame)
+    layer.position = p
+end
+
 """
     rotate()
 
-Rotate an [`Object`](@ref) using an [`Action`](@ref) and an Animation defined
+Rotate an [`Object`](@ref) or a [`Layer`](@ref) using an [`Action`](@ref) and an Animation defined
 with Animations.jl.
 
 If you're used to working with Animations.jl this should feel quite natural.
@@ -212,10 +233,15 @@ function _rotate(video, object, action, rel_frame)
     Luxor.rotate(a)
 end
 
+function _rotate(video, layer::Layer, action, rel_frame)
+    a = get_interpolation(action, rel_frame)
+    layer.current_setting.rotation_angle = a
+end
+
 """
     rotate_around(p)
 
-Rotate an [`Object`](@ref) using an [`Action`](@ref) and an Animation defined
+Rotate an [`Object`](@ref) or a [`Layer`](@ref) using an [`Action`](@ref) and an Animation defined
 with Animations.jl around a point `p`. For [`rotate`](@ref) it rotates around the current origin.
 
 An example can be seen in [`rotate`](@ref).
@@ -244,6 +270,27 @@ function _rotate_around(video, object, action, rel_frame, p)
     Luxor.translate(-r * pnormed)
 end
 
+function _rotate_around(video, layer::Layer, action, rel_frame, p)
+    # p should be global so without the translated start_pos
+    p = p - layer.position
+    # save the radius and start angle
+    r = get(action.defs, :rotate_radius, distance(p, O))
+    pnormed = get(action.defs, :pnormed, p / r)
+    if !haskey(action.defs, :rotate_radius)
+        action.defs[:rotate_radius] = r
+        action.defs[:pnormed] = pnormed
+    end
+    i = get_interpolation(action, rel_frame)
+    p1 = -r * pnormed
+    push!(
+        layer.current_setting.misc,
+        :rotate_around => true,
+        :angle => i,
+        :translate => p,
+        :translate_back => p1,
+    )
+end
+
 """
     scale()
 
@@ -259,6 +306,11 @@ end
 function _scale(video, object, action, rel_frame)
     s = get_interpolation(action, rel_frame)
     scaleto(s)
+end
+
+function _scale(video, layer::Layer, action, rel_frame)
+    s = get_interpolation(action, rel_frame)
+    layer.current_setting.scale = s
 end
 
 """
@@ -296,7 +348,7 @@ end
 """
     setopacity()
 
-Set the color of an [`Object`](@ref) using an [`Action`](@ref) and an Animation defined
+Set the color of an [`Object`](@ref) or a [`Layer`](@ref) using an [`Action`](@ref) and an Animation defined
 with Animations.jl.
 
 # Example
@@ -323,6 +375,11 @@ end
 function _setopacity(video, object, action, rel_frame)
     opacity = get_interpolation(action, rel_frame)
     setopacity(opacity)
+end
+
+function _setopacity(video, layer::Layer, action, rel_frame)
+    opacity = get_interpolation(action, rel_frame)
+    layer.current_setting.opacity = opacity
 end
 
 """

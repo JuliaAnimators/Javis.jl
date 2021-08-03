@@ -1,5 +1,5 @@
-include("structs/plutoviewer.jl")
-include("structs/livestream.jl")
+include("structs/PlutoViewer.jl")
+include("structs/Livestream.jl")
 
 """
     _draw_image(video::Video, objects::Vector, frame::Int, canvas::Gtk.Canvas,
@@ -16,7 +16,7 @@ function _draw_image(
 )
     @guarded draw(canvas) do widget
         # Gets a specific frame from graphic; transposed due to returned matrix
-        frame_mat = transpose(get_javis_frame(video, objects, frame))
+        frame_mat = transpose(get_javis_frame(video, objects, frame; layers = video.layers))
 
         # Gets the correct Canvas context to draw on
         context = getgc(canvas)
@@ -28,7 +28,7 @@ end
 
 """
     _increment(video::Video, widgets::Vector, objects::Vector, dims::Vector,
-        canvas::Gtk.Canvas, frames::Int)
+        canvas::Gtk.Canvas, frames::Int, layers=Vector)
 
 Increments a given value and returns the associated frame.
 """
@@ -55,7 +55,7 @@ end
 
 """
     _decrement(video::Video, widgets::Vector, objects::Vector, dims::Vector,
-        canvas::Gtk.Canvas, frames::Int)
+        canvas::Gtk.Canvas, frames::Int, layers::Vector)
 
 Decrements a given value and returns the associated frame.
 """
@@ -236,19 +236,22 @@ function _javis_viewer(
     else
         return win, frame_dims, slide, tbox, canvas, object_list, total_frames, video
     end
-
 end
 
 """
     _jupyter_viewer(video::Video, frames::Int, actions::Vector)
-
 Creates an interactive viewer in a Jupyter Notebook.
 """
-function _jupyter_viewer(video::Video, frames::Int, objects::Vector, framerate::Int)
+function _jupyter_viewer(
+    video::Video,
+    frames::Int,
+    objects::Vector{AbstractObject},
+    framerate::Int,
+)
     t = Interact.textbox(1:frames, value = 1, typ = Int)
     f = Interact.slider(1:frames, label = "Frame", value = t)
     obs = Interact.Observables.throttle(1 / framerate, f)
-    output = @map get_javis_frame(video, objects, &obs)
+    output = @map get_javis_frame(video, objects, &obs; layers = video.layers)
     wdg = Widget(["f" => f, "t" => t], output = output)
     @layout! wdg vbox(hbox(:f, :t), output)
 end
@@ -259,7 +262,6 @@ end
 
 """
     _pluto_viewer(video::Video, frames::Int, actions::Vector)
-
 Creates an interactive viewer in a Pluto Notebook by storing all the frames in-memory
 ```
 # In separate Pluto notebook cells
@@ -275,8 +277,10 @@ anim = render(
 anim[x]
 ```
 """
-function _pluto_viewer(video::Video, frames::Int, objects::Vector)
-    arr = collect(get_javis_frame(video, objects, frame) for frame in 1:frames)
+function _pluto_viewer(video::Video, frames::Int, objects::Vector;)
+    arr = collect(
+        get_javis_frame(video, objects, frame; layers = video.layers) for frame in 1:frames
+    )
     return arr
 end
 

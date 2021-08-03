@@ -27,7 +27,7 @@ end
 """
     Action([frames], [Animation], func::Function; keep=true)
 
-An `Action` gives an [`Object`](@ref) the opportunity to move, change color or much more.
+An `Action` gives an [`Object`](@ref) or a [`Layer`](@ref) the opportunity to move, change color or much more.
 It can be defined in many different ways.
 
 # Arguments
@@ -70,6 +70,16 @@ act!(obj, Action(21:50, Translation(50, 50)))
 act!(obj, Action(51:80, Translation(-50, -50)))
 act!(obj, Action(81:100, disappear(:fade)))
 render(video; pathname="test.gif")
+```
+
+Actions can be applied to a layer using a similar syntax
+```julia
+l1 = @JLayer 20:60 100 100 Point(0, 0) begin
+    obj = Object((args...)->circle(O, 50, :fill))
+    act!(obj, Action(1:20, appear(:fade)))
+end
+
+act!(l2, anim_translate(Point(100, 100)))
 ```
 """
 Action(func::Union{Function,AbstractTransition}; keep = true) =
