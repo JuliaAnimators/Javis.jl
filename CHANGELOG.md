@@ -1,11 +1,14 @@
 # Javis.jl - Changelog
 
+## Unreleased (v0.6)
+- Added the layers feature
+
 ## v0.5.3 (26th of July 2021)
 - Allow all kinds of iterable ways in the `act!` function such that `act!(::Matrix, ::Action)` also works
 - Updated `anim_translate`
   - Docstring: `anim_translate` translates by a vector instead of to a point
   - from->to assumes that we are at `from` already instead of adding it to it
-- Morhping mutates the object function 
+- Morphing mutates the object function 
 
 ## v0.5.2
 - Added support for local network live streaming
