@@ -34,8 +34,8 @@ function ground(args...)
     background("black")
     sethue("white")
 end
-Background(1:1000, ground)
-frames =1000
+frames = 1000
+Background(1:, ground)
 earth = Object(1:frames, JCircle(O, 10, color="blue", action=:fill), Point(200, 0))
 
 venus = Object(JCircle(O, 7, color="red", action=:fill), Point(144, 0))
@@ -58,7 +58,7 @@ function ground(args...)
     background("black")
     sethue("white")
 end
-frames =1000
+frames = 1000
 Background(1:frames, ground)
 earth = Object(1:frames, JCircle(O, 10, color="blue", action=:fill), Point(200, 0))
 venus = Object(JCircle(O, 7, color="red", action=:fill), Point(144, 0))
@@ -90,7 +90,7 @@ function ground(args...)
     background("black")
     sethue("white")
 end
-frames =1000
+frames = 1000
 Background(1:frames, ground)
 earth = Object(1:frames, JCircle(O, 10, color="blue", action=:fill), Point(200, 0))
 venus = Object(1:frames, JCircle(O, 7, color="red", action=:fill), Point(144, 0))
@@ -130,7 +130,7 @@ function ground(args...)
     background("black")
     sethue("white")
 end
-frames =1000
+frames = 1000
 Background(1:frames, ground)
 earth = Object(1:frames, JCircle(O, 10, color="blue", action=:fill), Point(200, 0))
 venus = Object(1:frames, JCircle(O, 7, color="red", action=:fill), Point(144, 0))
