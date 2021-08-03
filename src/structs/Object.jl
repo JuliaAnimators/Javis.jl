@@ -14,7 +14,7 @@ Defines what is drawn in a defined frame range.
 - `change_keywords::Dict{Symbol,Any}` the modified keywords changed by `change`
 - `result::Vector` the result of the object (if something gets returned)
 """
-struct Object <: AbstractObject
+mutable struct Object <: AbstractObject
     frames::Frames
     func::Function
     start_pos::Union{Object,Point}
@@ -73,6 +73,7 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
     if isempty(CURRENT_VIDEO)
         throw(ErrorException("A `Video` must be defined before an `Object`"))
     end
+
     CURRENT_VIDEO[1].defs[:last_frames] = frames
     opts = Dict(kwargs...)
 
@@ -90,15 +91,27 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
         Dict{Symbol,Any}(),
         Any[nothing],
     )
-    push!(CURRENT_VIDEO[1].objects, object)
+
+    # store the original object func 
+    # for actions where the object fuction is mutated
+    push!(object.opts, :original_func => func)
+
+    # should the object be pushedsp to the video or a layer
+    if PUSH_TO_LAYER[1]
+        push!(CURRENT_LAYER[1].layer_objects, object)
+    else
+        push!(CURRENT_VIDEO[1].objects, object)
+    end
+
     return object
 end
 
 """
     act!
 
-Adds an [`Action`] or a list of actions to an [`Object`](@ref) or a list of objects.
-
+Adds an [`Action`] or a list of actions to an [`Object`](@ref) /
+[`Layer`](@ref) or a list of objects/layers.
+One key different to note is that an action is applied to a layer as a whole and not on the objects inside it.
 
 # Example
 ```julia
@@ -110,23 +123,33 @@ act!(obj, Action(1:50, anim_scale(1.5)))
 Here the scaling is applied to the rectangle for the first fifty frames.
 
 # Options
-1. A single object and action:
+1. A single object/layer and action:
 
    `act!(object::AbstractObject, action::AbstractAction)`
    - `object::AbstractObject` - the object the action is applied to
    - `action::AbstractAction` - the action applied to the object
 
-2. A single object and several actions:
+2. A single object/layer and a list of actions:
 
    `act!(object::AbstractObject, action)`
    - `object::AbstractObject` - the object actions are applied to
    - `actions` - the actions applied to an object **Attention:** Will fail if `actions` is not iterable
 
-3. Several objects and several actions:
+3. A list of objects/layers and a list of actions:
 
    `act!(object::Vector{<:AbstractObject}, action::Vector{<:AbstractAction})`
-   - `objects` - the objects actions are applied to **Attention:** Will fail if `objects` is not iterable
-   - `actions` - the actions applied to the objects **Attention:** Will fail if `actions` is not iterable
+   - `object::Vector{<:AbstractObject}` - the objects actions are applied to
+   - `action::Vector{<:AbstractAction}` - the actions applied to the objects
+
+Actions can be applied to a layer using a similar syntax
+```julia
+l1 = Javis.@Javis.Layer 20:60 100 100 Point(0, 0) begin
+    obj = Object((args...)->circle(O, 50, :fill))
+    act!(obj, Action(1:20, appear(:fade)))
+end
+    
+act!(l1, anim_translate(Point(100, 100)))
+```
 """
 function act!(object::AbstractObject, action::AbstractAction)
     push!(object.actions, copy(action))
@@ -167,5 +190,9 @@ render(video; pathname="test.gif")
 This draws a white circle on a black background as `sethue` is defined for the global frame.
 """
 function Background(frames, func::Function, args...; kwargs...)
-    Object(frames, func, args...; in_global_layer = true, kwargs...)
+    if PUSH_TO_LAYER[1]
+        Object(frames, func, args...; in_local_layer = true, kwargs...)
+    else
+        Object(frames, func, args...; in_global_layer = true, kwargs...)
+    end
 end
