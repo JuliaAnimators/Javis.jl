@@ -1,7 +1,7 @@
 # Javis.jl - Changelog
 
-## Unreleased (v0.6)
-- Added the layers feature
+## v0.6.0 (3rd of August 2021)
+- Added layers see `@JLayer`
 
 ## v0.5.3 (26th of July 2021)
 - Allow all kinds of iterable ways in the `act!` function such that `act!(::Matrix, ::Action)` also works
