@@ -132,7 +132,6 @@ function to_layer_m(
             Javis.CURRENT_LAYER[1] = layer
         end
         Javis.PUSH_TO_LAYER[1] = true
-        # eval($body)
         $body
         Javis.PUSH_TO_LAYER[1] = false
 
@@ -140,7 +139,7 @@ function to_layer_m(
         # remove duplicate backgrounds
         # if layer's background is defined, delete the first object 
         # which is the video's background
-        return layer
+        layer
     end
 end
 
