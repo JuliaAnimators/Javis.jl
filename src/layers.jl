@@ -37,9 +37,13 @@ function ground(args...)
     sethue("black")
 end
 
+function object(p = O, color = "black")
+    sethue(color)
+    circle(p, 50, :fill)
+end
+
 video = Video(500, 500)
 Background(1:100, ground)
-object((args...)->circle(O, 50, :fill))
 
 l1 = @JLayer 10:70 100 100 Point(150, 150) begin
     red_ball = Object(20:60, (args...)->object(O, "red"), Point(50,0))
