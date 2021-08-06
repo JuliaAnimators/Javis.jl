@@ -107,8 +107,8 @@ Returns an expression that creates a layer and pushes the objects defined within
 function to_layer_m(
     frames,
     body;
-    width = CURRENT_VIDEO[1].width,
-    height = CURRENT_VIDEO[1].height,
+    width = nothing, # will be set to CURRENT_VIDEO[1].width inside Javis.Layer
+    height = nothing,
     position = Point(0, 0),
     transparent = QuoteNode(:transparent),
 )
