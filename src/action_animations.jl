@@ -145,21 +145,21 @@ act!(obj, Action(1:150, circle_anim, translate()))
 render(video)
 ```
 
+Here `circle_anim` defines the movement of the circle. The most important part is that the
+time in animations has to be from `0.0` to `1.0`.
+
 This notation uses the Animations.jl library very explicitly. It's also possible to do the
 same with:
 
 ```
 obj = Object((args...)->circle(O, 25, :fill))
-act!(obj, Action(1:50, sineio(), Translation(150, 0)))
-act!(obj, Action(51:100, polyin(2), Translation(0, 150)))
-act!(obj, Action(101:150, expin(8), Translation(-150, -150)))
+act!(obj, Action(1:50, sineio(), anim_translate(150, 0)))
+act!(obj, Action(51:100, polyin(2), anim_translate(0, 150)))
+act!(obj, Action(101:150, expin(8), anim_translate(-150, -150)))
 ```
 
 which uses the `Action` syntax three times and only uses easing functions instead of
-specifying the `Animation` directly.
-
-Here `circle_anim` defines the movement of the circle. The most important part is that the
-time in animations has to be from `0.0` to `1.0`.
+specifying the `Animation` directly. Have a look at [`anim_translate`](@ref) for details.
 """
 function Luxor.translate()
     (video, object, action, rel_frame) -> _translate(video, object, action, rel_frame)
