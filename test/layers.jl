@@ -14,7 +14,7 @@ video = Video(600, 600)
             sethue(color)
             circle(p, 7, :fill)
             return p
-        end color=color
+        end color = color
     end
 
     function path!(points, pos, color)
