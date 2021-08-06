@@ -10,9 +10,11 @@ video = Video(600, 600)
     Background(1:80, ground)
 
     function object_layer(p = O, color = "black")
-        sethue(color)
-        circle(p, 7, :fill)
-        return p
+        @JShape begin
+            sethue(color)
+            circle(p, 7, :fill)
+            return p
+        end color=color
     end
 
     function path!(points, pos, color)
@@ -41,9 +43,9 @@ video = Video(600, 600)
 
     l1 = @JLayer 20:60 600 600 Point(0, 0) begin
         Background(5:41, ground1)
-        red_ball = Object(5:41, (args...) -> object_layer(O, "red"), Point(50, 0))
+        red_ball = Object(5:41, object_layer(O, "red"), Point(50, 0))
         act!(red_ball, Action(anim_rotate_around(2π, O)))
-        blue_ball = Object(5:41, (args...) -> object_layer(O, "blue"), Point(100, 40))
+        blue_ball = Object(5:41, object_layer(O, "blue"), Point(100, 40))
         act!(blue_ball, Action(anim_rotate_around(2π, 0.0, red_ball)))
 
         # the frame range for actions have 2 level nesting(check for that)
@@ -57,9 +59,9 @@ video = Video(600, 600)
 
     l2 = @JLayer 20:60 begin
         Background(5:41, ground1)
-        ball1 = Object(5:41, (args...) -> object_layer(O, "red"), Point(50, 0))
+        ball1 = Object(5:41, object_layer(O, "red"), Point(50, 0))
         act!(ball1, Action(anim_rotate_around(2π, O)))
-        ball2 = Object(5:41, (args...) -> object_layer(O, "blue"), Point(100, 40))
+        ball2 = Object(5:41, object_layer(O, "blue"), Point(100, 40))
         act!(ball2, Action(anim_rotate_around(2π, 0.0, ball1)))
         act!(ball2, Action(5:30, appear(:fade)))
         conn = Object(5:41, (args...) -> connector(pos(ball1), pos(ball2), "black"))
@@ -69,9 +71,9 @@ video = Video(600, 600)
 
     l3 = @JLayer 20:60 600 600 begin
         Background(5:41, ground1)
-        rball = Object(5:41, (args...) -> object_layer(O, "red"), Point(50, 0))
+        rball = Object(5:41, object_layer(O, "red"), Point(50, 0))
         act!(rball, Action(anim_rotate_around(2π, O)))
-        bball = Object(5:41, (args...) -> object_layer(O, "blue"), Point(100, 40))
+        bball = Object(5:41, object_layer(O, "blue"), Point(100, 40))
         act!(bball, Action(anim_rotate_around(2π, 0.0, rball)))
         act!(bball, Action(5:30, appear(:fade)))
         con = Object(5:41, (args...) -> connector(pos(rball), pos(bball), "black"))
@@ -90,9 +92,9 @@ video = Video(600, 600)
 
     act!([l1, l2, l3], layer_actions)
 
-    ball1 = Object(5:41, (args...) -> object_layer(O, "red"), Point(50, 0))
+    ball1 = Object(5:41, object_layer(O, "red"), Point(50, 0))
     act!(ball1, Action(anim_rotate_around(2π, O)))
-    ball2 = Object(5:41, (args...) -> object_layer(O, "blue"), Point(100, 40))
+    ball2 = Object(5:41, object_layer(O, "blue"), Point(100, 40))
     act!(ball2, Action(anim_rotate_around(2π, 0.0, ball1)))
     act!(ball2, Action(10:30, disappear(:fade)))
     conn = Object(5:41, (args...) -> connector(pos(ball1), pos(ball2), "black"))
@@ -147,7 +149,7 @@ video = Video(600, 600)
 
     l4 = @JLayer 5:20 200 200 Point(-50, 50) :transparent begin
         Background(1:14, ground2)
-        rball = Object(1:14, (args...) -> object_layer(O, "black"), Point(0, 0))
+        rball = Object(1:14, object_layer(O, "black"), Point(0, 0))
         act!(rball, Action(anim_translate(Point(20, -20))))
     end
 
@@ -181,33 +183,33 @@ video = Video(600, 600)
     # test @JLayer multiple dispatch
     l5 = @JLayer 5:20 200 200 Point(-50, 50) :transparent begin
         Background(1:14, ground2)
-        rball1 = Object(1:14, (args...) -> object_layer(O, "black"), Point(50, 0))
+        rball1 = Object(1:14, object_layer(O, "black"), Point(50, 0))
     end
 
     l6 = @JLayer 5:20 200 200 Point(-50, 50) begin
         Background(1:14, ground2)
-        rball2 = Object(1:14, (args...) -> object_layer(O, "black"), Point(50, 0))
+        rball2 = Object(1:14, object_layer(O, "black"), Point(50, 0))
     end
 
     l7 = @JLayer 5:20 200 200 begin
         Background(1:14, ground2)
-        rball3 = Object(1:14, (args...) -> object_layer(O, "black"), Point(50, 0))
+        rball3 = Object(1:14, object_layer(O, "black"), Point(50, 0))
     end
 
     l9 = @JLayer 5:20 200 200 :transparent begin
         Background(1:14, ground2)
-        rball4 = Object(1:14, (args...) -> object_layer(O, "black"), Point(50, 0))
+        rball4 = Object(1:14, object_layer(O, "black"), Point(50, 0))
     end
 
     l6 = @JLayer 5:20 :transparent begin
         Background(1:14, ground2)
-        rball2 = Object(1:14, (args...) -> object_layer(O, "black"), Point(50, 0))
+        rball2 = Object(1:14, object_layer(O, "black"), Point(50, 0))
     end
 
     # a layer always has n+1 objects 
     # the first object in a layer is always the video's background
     # check L-122 in src/layers.jl
-    rball_n = Object(3:6, (args...) -> object_layer(O, "white"), Point(0, 0))
+    rball_n = Object(3:6, object_layer(O, "white"), Point(0, 0))
     @test length(l6.layer_objects) == 3
     Javis.to_layer!(l6, rball_n)
     @test length(l6.layer_objects) == 4
