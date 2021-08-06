@@ -6,7 +6,7 @@ video = Video(800, 800)
         sethue("black")
     end
 
-    Background(1:70, ground)
+    Background(1:90, ground)
 
     line = Object(JLine(Point(100, -250)))
     line1 = Object(JLine(Point(-350, 350), Point(100, -250)))
@@ -89,6 +89,7 @@ video = Video(800, 800)
     act!(
         [
             line,
+            line1,
             circle0,
             circle1,
             box,
@@ -109,15 +110,33 @@ video = Video(800, 800)
         ],
         Action(40:51, change(:color, "blue")),
     )
+    act!(
+        [
+            line,
+            circle0,
+            circle1,
+            rect,
+            rect1,
+            ellipse,
+            ellipse0,
+            ellipse1,
+            ellipse2,
+            star,
+            star1,
+            poly0,
+            poly1,
+        ],
+        Action(71:90, change(:linewidth, 1 => 5)),
+    )
 
     render(video; tempdirectory = "images", pathname = "shorthands.gif")
 
-    for i in ["01", 20, 21, 39, 40, 59, 65]
+    for i in ["01", 20, 21, 39, 40, 59, 65, 85]
         @test_reference "refs/shorthands$i.png" load("images/00000000$i.png")
         @test isfile("shorthands.gif")
     end
 
-    for i in 1:70
+    for i in 1:90
         rm("images/$(lpad(i, 10, "0")).png")
     end
 

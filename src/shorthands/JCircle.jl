@@ -1,4 +1,4 @@
-function _JCircle(center, radius, linewidth, color, action)
+function _JCircle(center, radius, color, linewidth, action)
     sethue(color)
     setline(linewidth)
     circle(center, radius, action)
@@ -13,6 +13,8 @@ end
     4. JCircle(radius::Real)
         - A circle at the origin
 
+Draw a circle at `center` with the given `radius`
+
 # Keywords for all
 - `color` = "black"
 - `linewidth` = 1
@@ -21,8 +23,14 @@ end
 Returns the center of the circle
 """
 JCircle(center::Point, radius::Real; color = "black", linewidth = 1, action = :stroke) =
-    (args...; center = center, radius = radius, color = color, action = action) ->
-        _JCircle(center, radius, linewidth, color, action)
+    (
+        args...;
+        center = center,
+        radius = radius,
+        color = color,
+        linewidth = linewidth,
+        action = action,
+    ) -> _JCircle(center, radius, color, linewidth, action)
 
 JCircle(center_x::Real, center_y::Real, radius::Real; kwargs...) =
     JCircle(Point(center_x, center_y), radius; kwargs...)
