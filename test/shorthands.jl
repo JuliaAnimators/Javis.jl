@@ -113,6 +113,7 @@ video = Video(800, 800)
     act!(
         [
             line,
+            line1,
             circle0,
             circle1,
             rect,
