@@ -49,3 +49,6 @@ end
 @testset "Javis Viewer" begin
     include("viewer.jl")
 end
+@testset "Layers" begin
+    include("layers.jl")
+end

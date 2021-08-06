@@ -12,7 +12,7 @@ import Interact: @map, Widget, Widgets, @layout!, hbox, vbox # not exporting tex
 using LaTeXStrings
 using LightXML
 import Luxor
-import Luxor: Point, @layer, translate, rotate
+import Luxor: Point, @layer, translate, rotate, @imagematrix
 using ProgressMeter
 using Random
 using Statistics
@@ -56,7 +56,9 @@ include("structs/ObjectSetting.jl")
 include("structs/Object.jl")
 include("structs/Transitions.jl")
 include("structs/Action.jl")
-
+include("structs/LayerSetting.jl")
+include("structs/LayerCache.jl")
+include("structs/Layer.jl")
 
 """
     Line
@@ -92,6 +94,7 @@ function Base.:*(m::Array{Float64,2}, transformation::Transformation)
     return Transformation(Point(gettranslation(res)...), getrotation(res), getscale(res))
 end
 
+include("layers.jl")
 include("util.jl")
 include("luxor_overrides.jl")
 include("backgrounds.jl")
@@ -118,11 +121,22 @@ function projection(p::Point, l::Line)
     c = (x.x * v.x + x.y * v.y) / (v.x^2 + v.y^2)
     return c * v + o
 end
+"""
+    centered_point(pos::Point, width::Int, height::Int)
+Returns pre-centered points to be used in the place image functions
+rather than using centered=true 
+https://github.com/JuliaGraphics/Luxor.jl/issues/155
+# Returns
+- `pt::Point`: the location of the center of a layer wrt global canvas
+"""
+function centered_point(pos::Point, width::Int, height::Int)
+    Point(pos.x - width / 2, pos.y - height / 2)
+end
 
 """
     preprocess_frames!(objects::Vector{<:AbstractObject})
 
-Computes the frames for each object and action based on the user defined frames that the
+Computes the frames for each object(of both the main canvas and layers) and action based on the user defined frames that the
 user can provide like [`RFrames`](@ref), [`GFrames`](@ref) and `:same`.
 
 This function needs to be called before calling [`get_javis_frame`](@ref) as it computes
@@ -158,6 +172,30 @@ function preprocess_frames!(objects::Vector{<:AbstractObject})
 end
 
 """
+flatten(layers::Vector{AbstractObject})
+
+Takes out all the objects from each layer and puts them into a single list.
+This makes things easier for the [`preprocess_frames!`](@ref) method
+# Returns
+- `objects::Vector{AbstractObject}` - list of all objects in each layer
+"""
+function flatten(layers::Vector{AbstractObject})
+    objects = AbstractObject[]
+    for layer in layers
+        flatten!(objects, layer)
+    end
+    return objects
+end
+
+function flatten!(objects::Array{AbstractObject}, l::Layer)
+    for obj in l.layer_objects
+        flatten!(objects, obj)
+    end
+end
+# finally objects
+flatten!(objects::Array{AbstractObject}, object::Object) = push!(objects, object)
+
+"""
     render(
         video::Video;
         framerate=30,
@@ -165,7 +203,8 @@ end
         liveview=false,
         streamconfig::Union{StreamConfig, Nothing} = nothing,
         tempdirectory="",
-        ffmpeg_loglevel="panic"
+        ffmpeg_loglevel="panic",
+        rescale_factor=1.0,
     )
 
 Renders all previously defined [`Object`](@ref) drawings to the user-defined `Video` as a gif or mp4.
@@ -185,6 +224,7 @@ Streaming to Twitch or other platforms are not yet supported.
 - `ffmpeg_loglevel::String`:
     - Can be used if there are errors with ffmpeg. Defaults to panic:
     All other options are described here: https://ffmpeg.org/ffmpeg.html
+- `rescale_factor::Float64` factor to which the frames should be rescaled for faster rendering
 """
 function render(
     video::Video;
@@ -194,9 +234,16 @@ function render(
     streamconfig::Union{StreamConfig,Nothing} = nothing,
     tempdirectory = "",
     ffmpeg_loglevel = "panic",
+    rescale_factor = 1.0,
 )
+    layers = video.layers
+    layer_flat = flatten(layers)
     objects = video.objects
-    frames = preprocess_frames!(objects)
+    if isempty(layers)
+        frames = preprocess_frames!(objects)
+    else
+        frames = preprocess_frames!([objects..., layer_flat...])
+    end
 
     if liveview
         if isdefined(Main, :IJulia) && Main.IJulia.inited
@@ -220,14 +267,20 @@ function render(
         video_io = Base.open("temp.stream", "w")
     end
     video_encoder = nothing
-    # if we render a gif and the user hasn't set a tempdirectory
+    # if we render a gif and the user hasn't set a tempdirectory => create one
     if !render_mp4 && isempty(tempdirectory)
         tempdirectory = mktempdir()
     end
 
     filecounter = 1
     @showprogress 1 "Rendering frames..." for frame in frames
-        frame_image = convert.(RGB, get_javis_frame(video, objects, frame))
+        frame_image = convert.(RGB, get_javis_frame(video, objects, frame; layers = layers))
+        # rescale the frame for faster rendering if the rescale_factor is not 1
+        if !isone(rescale_factor)
+            new_size = trunc.(Int, size(frame_image) .* rescale_factor)
+            frame_image = imresize(frame_image, new_size)
+        end
+
         if !isempty(tempdirectory)
             Images.save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
         end
@@ -277,27 +330,19 @@ function render(
     return pathname
 end
 
-
 """
-    get_javis_frame(video, objects, frame)
-
-Get a frame from an animation given a video object, its objects, and frame.
-
-If one wants to use this without calling [`render`](@ref), [`preprocess_frames!`](@ref)
-needs to be called before. That way each object and action has the correct frames it should
-be applied to.
+    render_objects(objects, video, frame; layer_frames=nothing)
+Is called inside the [`get_javis_frame`](@ref) function and renders objects(both individual and ones belonging to a layer).
 
 # Arguments
+- `object::Object`: The object to be rendered
 - `video::Video`: The video which defines the dimensions of the output
-- `objects::Vector{Object}`: All objects that are performed
-- `frame::Int`: Specific frame to be returned
-
-# Returns
-- `Array{ARGB32, 2}` - request frame as a matrix
+- `frame::Int`: The frame number to be rendered
+- `layer_frames::UnitRange`: The frames of the layer to which the object belongs(`nothing` for independent objects)
 """
-function get_javis_frame(video, objects, frame)
+function render_objects(objects, video, frame; layer_frames = nothing)
+    CURRENT_OBJECT[1] = objects[1]
     background_settings = ObjectSetting()
-    Drawing(video.width, video.height, :image)
     origin()
     origin_matrix = cairotojuliamatrix(getmatrix())
     # this frame needs doing, see if each of the scenes defines it
@@ -306,22 +351,216 @@ function get_javis_frame(video, objects, frame)
         # from the parent background object
         update_object_settings!(object, background_settings)
         CURRENT_OBJECT[1] = object
-        if frame in get_frames(object)
-            # check if the object should be part of the global layer (i.e Background)
-            # or in its own layer (default)
-            in_global_layer = get(object.opts, :in_global_layer, false)::Bool
-            if !in_global_layer
-                @layer begin
-                    draw_object(object, video, frame, origin_matrix)
-                end
-            else
-                draw_object(object, video, frame, origin_matrix)
-                # update origin_matrix as it's inside the global layer
-                origin_matrix = cairotojuliamatrix(getmatrix())
-            end
+
+        # checks if independent object is in the current frame
+        # also checks the realtive frame of an object in a layer 
+        # if none is true then the object doesn't exist for that frame at all
+        if !(
+            (layer_frames == nothing && frame in get_frames(object)) ||
+            layer_frames isa Frames &&
+            (frame - first(layer_frames.frames) + 1) in get_frames(object)
+        )
+            continue
         end
+
+        # check if the object should be part of the global layer (i.e Background)
+        # or in its own layer (default)
+        in_global_layer = get(object.opts, :in_global_layer, false)::Bool
+        in_local_layer = get(object.opts, :in_local_layer, false)::Bool
+        if !in_global_layer && !in_local_layer
+            @layer begin
+                draw_object(object, video, frame, origin_matrix, layer_frames)
+            end
+        else
+            draw_object(object, video, frame, origin_matrix, layer_frames)
+            # update origin_matrix as it's inside the global layer
+            origin_matrix = cairotojuliamatrix(getmatrix())
+        end
+
         # if object is in global layer this changes the background settings
         update_background_settings!(background_settings, object)
+    end
+end
+
+"""
+    get_layer_frame(video, layer, frame)
+
+Is called inside [`get_javis_frame`](@ref) and does two things viz.
+    - Creates a Luxor Drawing and renders the object of each layer
+    - computes the actions applies on the layer and stores them
+
+Returns the Drawing of the layer as an image matrix.
+"""
+function get_layer_frame(video, layer, frame)
+    Drawing(layer.width, layer.height, :image)
+    layer_frames = layer.frames
+    render_objects(layer.layer_objects, video, frame, layer_frames = layer_frames)
+
+    if frame in get_frames(layer)
+        # call currently active actions and their transformations for each layer
+        actions = layer.actions
+        for action in actions
+            get_frames(action) isa Nothing &&
+                error("Frame range for the layer's action might be missing")
+            rel_frame = frame - first(layer_frames.frames) + 1
+            if rel_frame in get_frames(action)
+                action.func(video, layer, action, rel_frame)
+            elseif rel_frame > last(get_frames(action)) && action.keep
+                # call the action on the last frame i.e. disappeared things stay disappeared
+                action.func(video, layer, action, last(get_frames(action)))
+            end
+        end
+    end
+    img_layer = image_as_matrix()
+    finish()
+    return img_layer
+end
+
+"""
+    apply_layer_settings(layer_settings, pos)
+
+Applies the computed actions to the image matrix of the layer to it's image matrix
+Actions supported:
+- `anim_translate`:translates the entire layer to a specified position
+- `setopacity`:changes the opacity of the entire layer
+- `anim_rotate`:rotates the layer by a given angle 
+- `appear(:fade)`:fades in the layer
+- `disappear(:fade)`:fades out the layer
+
+It reads and applies the layer settings(computed by [`get_layer_frame`](@ref) function))
+"""
+function apply_layer_settings(layer_settings, pos)
+    # final actions on the layer are applied here
+    # currently scale and translate are support
+
+    # translate origin to the center of the layer, apply the settings and
+    # translate back to the previous position
+    translate(pos)
+    scale(layer_settings.scale)
+
+    # routine for anim_rotate_around
+    rot_around_settings = layer_settings.misc
+    if get(rot_around_settings, :rotate_around, false)
+        translate(get(rot_around_settings, :translate, pos))
+        rotate(get(rot_around_settings, :angle, pos))
+        translate(get(rot_around_settings, :translate_back, pos))
+    end
+
+    rotate(layer_settings.rotation_angle)
+    translate(-pos)
+end
+
+"""
+    place_layers(video, layers, frame)
+
+Places the layers on an empty drawing
+It does 4 things:
+- creates an empty Drawing of the same size as video
+- calls the [`apply_layer_settings`](@ref)
+- places every layer's image matrix on the drawing
+- Repeats the above two steps if the [`show_layer_frame`](@ref) is defined for that layer(and frame)
+    But fetches image matrix, position and settings from the layer cache
+
+Returns the Drawing containing all the layers as an image matrix.
+"""
+function place_layers(video, layers, frame)
+    # create an empty drawing of size same as the main video
+    Drawing(video.width, video.height, :image)
+    origin()
+
+    for layer in layers
+        CURRENT_LAYER[1] = layer
+        if frame in get_frames(layer)
+            pt = centered_point(layer.position, layer.width, layer.height)
+            @layer begin
+                # any actions on the layer go in this block
+
+                layer_settings = layer.current_setting
+
+                apply_layer_settings(layer_settings, layer.position)
+                placeimage(layer.image_matrix, pt, alpha = layer.current_setting.opacity)
+            end
+        end
+
+        lc = layer.layer_cache
+        if frame in lc.frames
+            if lc.frame_counter < length(lc.layer_frames)
+                lc.frame_counter += 1
+            else
+                lc.frame_counter = 1
+            end
+            pt = centered_point(lc.position[lc.frame_counter], layer.width, layer.height)
+            @layer begin
+                settings = lc.settings_cache[lc.frame_counter]
+                apply_layer_settings(settings, lc.position[lc.frame_counter])
+                placeimage(lc.matrix_cache[lc.frame_counter], pt, alpha = settings.opacity)
+            end
+        end
+    end
+
+
+    # matrix of a transparent drawing with all the layers 
+    img_layers = image_as_matrix()
+    finish()
+    return img_layers
+end
+
+"""
+    get_javis_frame(video, objects, frame; layers = Layer[])
+
+Is called inside the [`render`](@ref) function.
+It is a 5-step process:
+- for each layer fetch it's image matrix and store it into the layer's struct
+- if the [`show_layer_frame`](@ref) method is defined for a layer, save the 
+position, image matrix and layer settings for that frame of the layer in a [`LayerCache`](@ref)
+- place the layers on an empty drawing
+- creates the main canvas and renders the independent objects
+- places the drawing containing all the layers on the main drawing
+
+Returens the final rendered frame
+"""
+function get_javis_frame(video, objects, frame; layers = Layer[])
+
+    # check if any layers have been defined
+    if !isempty(layers)
+
+        # render each layer's objects and store the layer's Drawing as an image matrix
+        for layer in layers
+            if isempty(Javis.CURRENT_LAYER)
+                push!(Javis.CURRENT_LAYER, layer)
+            else
+                Javis.CURRENT_LAYER[1] = layer
+            end
+            if frame in get_frames(layer)
+                mat = get_layer_frame(video, layer, frame)
+                layer.image_matrix = mat
+            end
+
+            # check if the layer's frame needs to be cached for vewing layer  
+            lc = layer.layer_cache
+            if frame in lc.layer_frames
+                push!(lc.position, deepcopy(layer.position))
+                push!(lc.settings_cache, deepcopy(layer.current_setting))
+                push!(lc.matrix_cache, mat)
+
+            end
+        end
+
+        img_layers = place_layers(video, layers, frame)
+    end
+
+    empty!(CURRENT_LAYER)
+
+    # now that the layers have been handled
+    # finally render the independent objects on a separate/main drawing
+    Drawing(video.width, video.height, :image)
+
+    # sends over the independent objects for rendering
+    render_objects(objects, video, frame)
+
+    if !isempty(layers)
+        # place the matrix containing all the layers over the global matrix
+        placeimage(img_layers, Point(-video.width / 2, -video.height / 2))
     end
     img = image_as_matrix()
     finish()
@@ -329,8 +568,7 @@ function get_javis_frame(video, objects, frame)
 end
 
 """
-    draw_object(object, video, frame, origin_matrix)
-
+    draw_object(video, layer, frame, origin_matrix, layer_frames)
 Is called inside the [`render`](@ref) and does everything handled for an `AbstractObject`.
 It is a 4-step process:
 - translate to the start position
@@ -338,7 +576,7 @@ It is a 4-step process:
 - call the object function
 - save the result of the object if wanted inside `video.defs`
 """
-function draw_object(object, video, frame, origin_matrix)
+function draw_object(object, video, frame, origin_matrix, layer_frames)
     # translate the object to it's starting position.
     # It's better to draw the object always at the origin and use `star_pos` to shift it
     translate(get_position(object.start_pos))
@@ -348,7 +586,14 @@ function draw_object(object, video, frame, origin_matrix)
 
     # first compute and perform the global transformations of this object
     # relative frame number for actions
-    rel_frame = frame - first(get_frames(object)) + 1
+    if layer_frames == nothing
+        rel_frame = frame - first(get_frames(object)) + 1
+    else
+        # actions of objects in a layer
+        # this is somewhat nested since object and action defined in a layer
+        # both have their respective frame ranges that need to be calculated relatively
+        rel_frame = frame - first(get_frames(object)) - first(layer_frames.frames) + 1
+    end
     # call currently active actions and their transformations
     for action in object.actions
         if rel_frame in get_frames(action)
@@ -414,6 +659,7 @@ const LUXOR_DONT_EXPORT = [
     :get_fontsize,
     :scale,
     :text,
+    :background,
 ]
 
 # Export each function from Luxor
@@ -426,6 +672,7 @@ end
 
 export render, latex
 export Video, Object, Background, Action, RFrames, GFrames
+export @JLayer, background
 export Line, Transformation
 export val, pos, ang, scl, get_value, get_position, get_angle, get_scale
 export projection, morph_to

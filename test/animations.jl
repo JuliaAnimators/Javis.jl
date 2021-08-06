@@ -157,6 +157,43 @@ end
     end
 end
 
+@testset "Dancing circles layered return Transformation rescale_factor" begin
+    p1 = Point(100, 0)
+    p2 = Point(200, 80)
+    from_rot = 0.0
+    to_rot = 2π
+    path_of_blue = Point[]
+    path_of_red = Point[]
+
+    video = Video(500, 500)
+    back = Object(1:25, ground, in_global_layer = true)
+    act!(back, Action(anim_rotate(π / 2, π / 2)))
+    act!(back, Action(1:1, anim_translate(Point(25, 25))))
+
+    Object(latex_title)
+    red_ball = Object(RFrames(-24:0), (args...) -> circ_ret_trans(O, "red"), p1)
+    act!(red_ball, Action(anim_rotate_around(from_rot, to_rot, O)))
+
+    blue_ball = Object(:all, (args...) -> circ_ret_trans(O, "blue"), p2)
+    act!(blue_ball, Action(anim_rotate_around(to_rot, from_rot, red_ball)))
+    path_red =
+        Object(1:25, (video, args...) -> path!(path_of_red, get_position(red_ball), "red"))
+    path_blue =
+        Object(:same, (video, args...) -> path!(path_of_blue, pos(blue_ball), "blue"))
+    string = Object(1:25, (args...) -> rad(pos(red_ball), pos(blue_ball), "black"))
+
+    render(video; tempdirectory = "images", pathname = "", rescale_factor = 0.5)
+
+    ref_image = load("refs/dancing_circles_16_rot_trans.png")
+    new_size = trunc.(Int, size(ref_image) .* 0.5)
+    ref_image = imresize(ref_image, new_size)
+
+    @test load("images/0000000016.png") == ref_image
+    for i in 1:25
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
 @testset "Drawing grid" begin
     video = Video(500, 500)
     Object(1:40, ground_black_on_white; in_global_layer = true)

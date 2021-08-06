@@ -2,15 +2,20 @@
 
 ## Unreleased
 - added `@Frames` macro for full power mode of defining frames
+- added support for `rescale_factor` keyword in `render` function
+
+## v0.6.0 (3rd of August 2021)
+- Added layers see `@JLayer`
 
 ## v0.5.3 (26th of July 2021)
 - Allow all kinds of iterable ways in the `act!` function such that `act!(::Matrix, ::Action)` also works
 - Updated `anim_translate`
   - Docstring: `anim_translate` translates by a vector instead of to a point
   - from->to assumes that we are at `from` already instead of adding it to it
+- Morphing mutates the object function 
 
 ## v0.5.2
-- Added support for local network live streaming
+- added support for local network live streaming
 
 ## v0.5.1
 - added support for Pluto notebooks
