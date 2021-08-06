@@ -43,4 +43,5 @@ JRect(
         action = action,
     ) -> _JRect(cornerpoint, w, h, color, linewidth, action)
 
-JRect(xmin::Int64, ymin::Int64, w::Real, h::Real; kwargs...) = JRect(Point(xmin, ymin), w, h; kwargs...)
+JRect(xmin::Int64, ymin::Int64, w::Real, h::Real; kwargs...) =
+    JRect(Point(xmin, ymin), w, h; kwargs...)
