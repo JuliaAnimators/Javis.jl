@@ -2,7 +2,7 @@
 
 ## Unreleased
 - Add shorthands for basic shapes
-  - New functionsL `JBox, JCircle, JEllipse, JLine, JPoly, JRect, JStar, @JShape` 
+  - New functions `JBox, JCircle, JEllipse, JLine, JPoly, JRect, JStar, @JShape` 
 - added support for `rescale_factor` keyword in `render` function
 
 
