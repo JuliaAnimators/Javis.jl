@@ -20,7 +20,7 @@ end
 
 Returns the center of the circle
 """
-JCircle(center::Point, radius::Real; color = "black", linewidth=1, action = :stroke) =
+JCircle(center::Point, radius::Real; color = "black", linewidth = 1, action = :stroke) =
     (args...; center = center, radius = radius, color = color, action = action) ->
         _JCircle(center, radius, linewidth, color, action)
 
