@@ -19,7 +19,6 @@ LightXML = "9c8b4983-aa76-5018-a973-4c85ecc9e179"
 Luxor = "ae8d54c2-7ccd-5906-9d76-62fc9837b5bc"
 ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-ReTest = "e0db7c4e-2690-44b9-bad6-7687da720f89"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 VideoIO = "d6d074c3-1acf-5d4c-9a43-ef38773959a2"
 

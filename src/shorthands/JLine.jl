@@ -6,7 +6,7 @@ function _JLine(p1, p2, linewidth, color)
 end
 
 """
-    1. JLine(p1::Point, p2::Point; kwargs...)
+    1. JLine(pt1::Point, pt2::Point; kwargs...)
     2. JLine(pt2::Point; kwargs...)
         - `pt1` is set as the origin `O`
 
@@ -17,7 +17,7 @@ end
 Draw a line between the points pt1 and pt2.
 Returns the final point of the line
 """
-JLine(p1::Point, p2::Point; linewidth = 1, color = "black") =
-    (args...; color = color, linewidth = linewidth, p1 = p1, p2 = p2) -> _JLine(p1, p2, linewidth, color)
+JLine(pt1::Point, pt2::Point; linewidth = 1, color = "black") =
+    (args...; color = color, linewidth = linewidth, pt1 = pt1, pt2 = pt2) -> _JLine(pt1, pt2, linewidth, color)
 
 JLine(pt::Point; kwargs...) = JLine(O, pt; kwargs...)
