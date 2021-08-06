@@ -2,6 +2,7 @@
 
 ## Unreleased
 - added support for `rescale_factor` keyword in `render` function
+- bugfix in `@JLayer` when dimensions are not defined explicitly
 
 ## v0.6.0 (3rd of August 2021)
 - Added layers see `@JLayer`

@@ -103,25 +103,25 @@
     @test l1.height == l2.height == l3.height == 600
     @test l1.position == l2.position == l3.position == Point(0, 0)
     @test length(l1.layer_objects) ==
-            length(l2.layer_objects) ==
-            length(l3.layer_objects) ==
-            length(layer_objects) + 2
+          length(l2.layer_objects) ==
+          length(l3.layer_objects) ==
+          length(layer_objects) + 2
     @test length(l1.actions) ==
-            length(l2.actions) ==
-            length(l3.actions) ==
-            length(layer_actions)
+          length(l2.actions) ==
+          length(l3.actions) ==
+          length(layer_actions)
     @test l1.current_setting.opacity ==
-            l2.current_setting.opacity ==
-            l3.current_setting.opacity ==
-            1.0
+          l2.current_setting.opacity ==
+          l3.current_setting.opacity ==
+          1.0
     @test l1.current_setting.scale ==
-            l2.current_setting.scale ==
-            l3.current_setting.scale ==
-            Javis.Scale(1.0, 1.0)
+          l2.current_setting.scale ==
+          l3.current_setting.scale ==
+          Javis.Scale(1.0, 1.0)
     @test l1.current_setting.rotation_angle ==
-            l2.current_setting.rotation_angle ==
-            l3.current_setting.rotation_angle ==
-            0.0
+          l2.current_setting.rotation_angle ==
+          l3.current_setting.rotation_angle ==
+          0.0
     @test l1.image_matrix == l2.image_matrix == l3.image_matrix == nothing
 
     # remove duplicate layers after above testing
@@ -209,7 +209,7 @@
     @test length(l6.layer_objects) == 4
 
     act!(l5, Action(opacity_anim, setopacity()))
-    
+
     Javis.preprocess_frames!([vid.objects..., Javis.flatten(vid.layers)...])
     @test_throws ErrorException Javis.get_layer_frame(vid, l5, 6)
 end
