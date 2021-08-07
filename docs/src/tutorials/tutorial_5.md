@@ -1,322 +1,347 @@
-# **Tutorial 5:** Taming the Elements
+# **Tutorial 5:** Do You Know Our Mascot? - Learn About Transitions And Actions!
 
-## Introduction
+You have learned a couple of cool features of Javis already. 
+Now you're ready to finally meet our little mascot. 
+Well actually you can't see him just yet - we have to create him first. 😄
 
-The world is built up of tiny tiny building blocks known as atoms. ⚛️
-These atoms come in many different sizes and each has different properties.
-Let's visualize these atoms and show their uniqueness!
+## Our goal
 
-## Learning Outcomes 📚
+Let's create a list of what we want first:
+- a circular head
+- some hair
+- eyes
+- a nose
+- a moving mouth
+- he should say something
 
-In this tutorial you'll learn:
+## Learning Outcomes
 
-- How to use [`change`](@ref) to change a variable inside of an animation.
-- To use `Javis.jl` to interact with the following Julia packages:
-    - [`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl)
-    - [`PeriodicTable.jl`](https://github.com/JuliaPhysics/PeriodicTable.jl)
+This tutorial demonstrates the power of actions a bit more than the previous tutorials.
+An [`Action`](@ref) can be used to finely manipulate objects in your animation or visualization. 
 
-- Ways of creating educational gifs
+From this tutorial, you will learn how to:
 
-By the end of this tutorial, you will have made the following animation:
+1. Finely control objects by making them appear and disappear using an `Action`.
+2. Move objects using an `Action`.
+3. Learn how to create several objects quickly
 
-![](assets/atomic.gif)
+## Starting with the Basics of Action
 
-## `PeriodicTable.jl` and `Unitful.jl`
-
-As normal with our tutorials, we need to import first the packages we will be using.
-In this tutorial, we are introducing two new packages:
-
-1. `PeriodicTable.jl` - Periodic table render in Julia
-2. `Unitful.jl` - Physical quantities with arbitrary units
-
-These are straightforward to add to your Julia installation by executing the following in your Julia REPL:
-
-```julia
-julia> ] add Unitful, PeriodicTable
-```
-
-You might be wondering what these packages do.
-Let's dive into them then!
-
-`PeriodicTable.jl` enables one to look at information quickly related to the periodic table of elements.
-One can even print out such a table in their Julia REPL by doing the following:
+The `ground` function should be familiar to you as well as the general structure of the code if you have seen the first [tutorial](tutorial_1.md).
+In this tutorial, rather than calling the `render` function in the global space, we are going to be calling it from the function we are creating to create our mascot, `face`: 
 
 ```julia
-julia> using PeriodicTable
-
-julia> elements
- Elements(…119 elements…):
-H                                                  He
-Li Be                               B  C  N  O  F  Ne
-Na Mg                               Al Si P  S  Cl Ar
-K  Ca Sc Ti V  Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr
-Rb Sr Y  Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I  Xe
-Cs Ba    Hf Ta W  Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn
-Fr Ra    Rf Db Sg Bh Hs Mt Ds Rg Cn Nh Fl Mc Lv Ts Og
-Uue
-      La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu
-      Ac Th Pa U  Np Pu Am Cm Bk Cf Es Fm Md No Lr
-```
-
-As the famous Mythbuster, Adam Savage once said, "IT'S SCIENTIFIC!" 🧪 🤓
-One can even query `PeriodicTable` to find out information on specific elements.
-Let's look up Oxygen (O) here!
-
-```julia
-julia> elements[8]
- Oxygen (O), number 8:
-        category: diatomic nonmetal
-     atomic mass: 15.999 u
-         density: 1.429 g/cm³
-   melting point: 54.36 K
-   boiling point: 90.188 K
-           phase: Gas
-          shells: [2, 6]
-e⁻-configuration: 1s² 2s² 2p⁴
-         summary: Oxygen is a chemical element with symbol O and atomic number 8. It is a member of the chalcogen group on the periodic table and is a highly reactive nonmetal and oxidizing agent that readily forms compounds (notably oxides) with most elements. By mass, oxygen is the third-most abundant element in the universe, after hydrogen and helium.
-   discovered by: Carl Wilhelm Scheele
-        named by: Antoine Lavoisier
-          source: https://en.wikipedia.org/wiki/Oxygen
-  spectral image: https://en.wikipedia.org/wiki/File:Oxygen_spectre.jpg
-```
-
-As fellow Julian, Johann-Tobias Schäg, said, one should learn `Unitful.jl` if they want to interact with the real world.
-`Unitful.jl` handles physical quantities such as pounds, meters, mols, etc. with minimal overhead in Julia.
-Further, it helps one to keep track of units and easily convert between different measurement systems.
-
-## Setting Up Our Animation
-
-As always, let's import our needed packages:
-
-```julia
-using Animations
 using Javis
-using PeriodicTable
-using Unitful
-```
 
-> **NOTE:** For this tutorial, we will also use `Animations.jl` to provide what are called "easing functions".
-These are used to control the speed at which an animation is drawn.
-This is further explained in [Tutorial 6](tutorial_6.md) so for now, don't worry too much about what we are doing with it. 
-
-And let's define our background function.
-This background function will also write the current frame being drawn:
-
-```julia
-function ground(video, action, frame)
+function ground(args...)
     background("white")
     sethue("black")
 end
+
+function title(args...)
+    fontsize(20)
+    text("Our Mascot", Point(0, -200),
+        valign=:middle, halign=:center)
+end
+
+function face()
+    video = Video(500, 500)
+    Background(1:150, ground)
+    the_title = Object(title)
+    act!(the_title, Action(1:5, appear(:fade)))
+    render(video; pathname="jarvis.gif", framerate=15)
+end
 ```
 
-Finally, let's get started with creating our `render` function:
+> **NOTE:** For an `Object` you can leave the frames arg blank. 
+> The frames from the previous action are used. 
+
+A function of an `Action` is normally either [`appear`](@ref) or [`disappear`](@ref) or one of these transformations: [`anim_translate`](@ref), [`anim_rotate`](@ref)/[`anim_rotate_around`](@ref) and [`anim_scale`](@ref).
+
+In theory you can define your own but that is way outside of this tutorial.
+
+**Let's summarize the functionality:**
+
+We have created a [`Background`](@ref) as usual and an [`Object`](@ref) with the same number of frames. 
+The object is saved in a variable `the_title` such that we can [`act!`](@ref) on it with an [`Action`](@ref).
+In this case we let the title fade in for the first five frames.
+
+## The Upper Part of the Head
+
+Let's continue with a bit more before we draw part of the mascot.
+
+The following actions will be added below the last action.
 
 ```julia
-demo = Video(500, 500)
-Background(1:550, ground)
-render(demo, pathname="tutorial5.gif", framerate = 10)
+head = Object(16:150, (args...)->circle(O, 100, :stroke))
+act!(head, Action(1:15, appear(:fade)))
 ```
 
-As you can see, the animation we are creating is going to have many frames!
-This is the longest animation we have made so far.
-Why?
-Not only are we going to examine many different elements, this tutorial also serves to illustrate how one can make longer animations to convey ideas.
-Think of it as your directoral debut! 🎬 🎥
+This is very similar to the previous code.
+Here we can see that the `Action` uses relative frame numbers such that the head appears in the frames `16:30` and then is at full opacity afterwards.
 
-## Taming the Elements!
+> **NOTE:** Just a small refresher: We need the anonymous function `(args...)->circle(O, 100, :stroke)` as each function gets called with the three arguments `video, action, frame`.
 
-Each element has a different atomic mass.
-This atomic mass is measured in the unit called a "Dalton" (symbol: u) which is equivalent to 1/12 of the mass of a stationary carbon-12 atom.
-We can use the [`change`](@ref) functionality that `Javis.jl` provides to visualize different elements!
+### Javis Regrows Hair!
 
-To accomplish this, we need to make a function that shows our currently viewed element:
+Jarvis is bald currently!
+Okay let's add some hair shall we?
+
+I want to have some randomness in his hair so let's define:
 
 ```julia
-function element(; radius = 1, color = "black")
+hair_angle = rand(-0.9:0.1:0.9, 20)
+```
+
+at the beginning of the `face` function.
+
+and have a hair function:
+
+```julia
+function hair_blob(angle)
+    sethue("brown")
+    rotate(angle)
+    circle(Point(0, -100), 20, :fill)
+end
+```
+
+It draws one brown hair blob given the angle. We basically rotate the whole canvas and then draw the circle always at the same local position. 
+
+Now how do we draw the hair without creating an action for each blob?
+
+Well we actually create an Action for each blob but only internally. You can use the [`act!`](@ref) function.
+
+```julia
+hair = Object[]
+for i = 1:20
+    push!(hair, Object(26:150, (args...)->hair_blob(hair_angle[i])))
+end
+act!(hair, Action(1:25, appear(:fade)))
+```
+
+We first create a vector where we define that its a vector of `Object` and then push new objects to it.
+Afterwards we can apply an action to the whole group.
+
+I think you get the idea of how to use `appear` now.
+Let's add some eyes and a nose quickly before we draw our first gif.
+
+```julia
+the_eyes = Object(30:150, (args...)->eyes(eye_centers, 10, "darkblue"))
+act!(the_eyes, Action(1:15, appear(:fade)))
+
+the_nose = Object(45:150, (args...)->poly(nose, :fill))
+act!(the_nose, Action(1:15, appear(:fade)))
+```
+
+with:
+
+```julia
+eye_centers = [Point(-40,-30), Point(40,-30)]
+nose = [O, Point(-10,20), Point(10, 20), O]
+```
+
+and
+
+```julia
+function eyes(centers, radius, color)
     sethue(color)
-    circle(O, radius + 4, :fill) # The 4 is to make the circle not so small
+    circle.(centers, radius, :fill)
+    setcolor("white")
+    circle.(centers, radius/5, :fill)
 end
 ```
 
-Essentially, all the `element` function does is create a circle in the middle of the frame with a radius of 5.
+![Up to the nose](./assets/jarvis_nose.gif)
 
-From there, we need to define one `Object` for our animation to display the element we are viewing and scaling:
+## Talk to Me, Jarvis
+
+Let's give him some moving lips so he can communicate with us:
 
 ```julia
-...
-atom = Object(1:550, (args...; radius = 1) -> element(; radius = radius, color = "black"))
-act!(
-    atom,
-    [
-        Action(101:140, change(:radius, 1 => 12)),
-        Action(241:280, change(:radius, 12 => 20)),
-        Action(381:420, change(:radius, 20 => 7)),
-        Action(521:550, change(:radius, 7 => 1)),
-    ],
-)
-...
+upper_lip = [Point(-40, 45), Point(40, 45)]
+lower_lip = [Point(-40, 55), Point(40, 55)]
 ```
 
-[`change`](@ref) is used here to change the given radius of the circle in `element` from `1` to `12`, from `12` to `20`, `20` to `7`, and finally `7` to `1`.
-This updates the circle being drawn and gives a growing or shrinking effect.
-[`change`](@ref) interpolates the values in between what we want to change the value from to what the value we want to change to. 
-It can be additionally used to simply set a value without interpolation (since v0.3.3).
-
-That scaling looks like this:
-
-![](assets/blank_atom_scaling.gif)
-
-Staring at this somewhat makes me think of a black hole... ⚫
-But great!
-The only question now is... What are we looking at?
-Let's add some more information to this animation! 📝
-
-## How Much Does an Atom Weigh? ⚖️
-
-To get the information about an element that we are currently previewing, we need to get information about our element.
-So, how do we do that?
-
-To identify the element and display its information properly, let's create an info box similar to what we made in [Tutorial 2](tutorial_2.md#As-You-Can-See-Here...)!
-We do this by creating an `info_box` function that takes in an element:
+These are just the outer points of the lips:
 
 ```julia
-function info_box(element)
-    fontsize(12)
-    box(140, -210, 170, 40, :stroke)
-    box(0, 175, 450, 100, :stroke)
-    text("Element name: $(element.name)", 140, -220, valign = :middle, halign = :center)
-    text(
-        "Atomic Mass: $(round(ustrip(element.atomic_mass)))",
-        140,
-        -200,
-        valign = :middle,
-        halign = :center,
-    )
-    textwrap("Description: $(element.summary)", 400, Point(-200, 125))
+function lip(p1, p2)
+    setline(2)
+    move(p1)
+    c1 = p1 + Point(10, 10)
+    c2 = p2 + Point(-10, 10)
+    curve(c1, c2, p2)
+    do_action(:stroke)
 end
 ```
 
-To pass the element into the `info_box` function, we need to define an `Object` command to create our boxes.
-Then, we can change the element being passed in:
+This function uses some more functions of the awesome Luxor package.
+
+The lips should be a little thicker than the other lines that we have drawn so far so let's set `setline(2)` (default is 1).
+First we move to the starting point of the lip and create two control points a bit below and to the vertical center.
+
+The `curve` function is used to draw a cubic [Bézier curve](https://en.wikipedia.org/wiki/B%C3%A9zier_curve). 
+It unfortunately doesn't support the `:stroke` at the end so we have to do this with `do_action(:stroke)` this time.
+
+Now our two actions:
 
 ```julia
-...
-info = Object(1:550, (args...; elem = 1) -> info_box(element = elements[round(Int, elem)]))
+lip_fade_in = Action(1:15, appear(:fade))
+the_upper_lip = Object(60:150, (args...)->lip(upper_lip...))
+act!(the_upper_lip, lip_fade_in)
+act!(the_upper_lip, [Action(20i:20i+10, anim_translate(0, -5)) for i in 1:5])
+act!(the_upper_lip, [Action(20i+10:20i+20, anim_translate(0, 5)) for i in 1:5])
 
-act!(info, Action(1:30, sineio(), appear(:fade)))
-act!(info, Action(71:100, sineio(), disappear(:fade)))
-act!(info, Action(101:101, change(:elem, 1 => 12)))
-
-act!(info, Action(140:170, sineio(), appear(:fade)))
-act!(info, Action(210:241, sineio(), disappear(:fade)))
-act!(info, Action(280:280, change(:elem, 12 => 20)))
-
-act!(info, Action(280:310, sineio(), appear(:fade)))
-act!(info, Action(350:381, sineio(), disappear(:fade)))
-act!(info, Action(381:420, change(:elem, 20 => 7)))
-
-act!(info, Action(420:450, sineio(), appear(:fade)))
-act!(info, Action(490:521, sineio(), disappear(:fade)))
-act!(info, Action(520:550, change(:elem, 7 => 1)))
-...
+the_lower_lip = Object(60:150, (args...)->lip(lower_lip...))
+act!(the_lower_lip, lip_fade_in)
+act!(the_lower_lip, [Action(20i:20i+10, anim_translate(0, 5)) for i in 1:5])
+act!(the_lower_lip, [Action(20i+10:20i+20, anim_translate(0, -5)) for i in 1:5])
 ```
 
-Here, [`change`](@ref) is being used to change the element, `elem`, being queried from `PeriodicTable.jl` over one frame.
-This gives us the updated information about each atom!
-Furthermore, using the method `appear(:fade)` and `disappear(:fade)` and `sineio()`, we get a nice fading effect to easily transition between each element.
+We fade them in at the beginning and then they shall move up and down a couple of times.
 
-> **NOTE:** `sineio()` comes from `Animations.jl` and is an easing function.
-More on this in [Tutorial 6](tutorial_6.md).
+In this snippet you can see that we can define a more general action which isn't applied to an object at the stage of creation.
+You can also use the `act!` function to apply a list of actions to an object like. 
 
-Now, let's look at that gif shall we?
+Finally let him speak:
 
-![](assets/atomic.gif)
+```julia
+function speak(str)
+    fontsize(15)
+    text(str, Point(100, 50))
+end
+```
 
-Hooray! 🎉🎉🎉
-We now have a very educational gif that tells us all about the elements we are viewing.
-We are basically physicists at this point. 😉
+
+```julia
+speaking1 = Object(80:120, (args...)->speak("I'm Jarvis"))
+act!(speaking1, Action(1:5, appear(:draw_text)))
+act!(speaking1, Action(36:40, disappear(:draw_text)))
+
+speaking2 = Object(120:150, (args...)->speak("How are you?"))
+act!(speaking2, Action(1:5, appear(:draw_text)))
+act!(speaking2, Action(36:40, disappear(:draw_text)))  
+```
+
+This time we also use the [`disappear`](@ref) function to fade out the text. Additionally, it shows you a new input into [`appear`](@ref) and [`disappear`](@ref) which only works for text namely `:draw_text` which draws the text from left to right.
+
+Now, with everything properly defined within the `face` function one can simply execute the following from your Julia REPL:
+
+```
+julia> face()
+```
+
+To produce the following:
+
+![Jarvis](./assets/jarvis.gif)
+
+Jarvis is alive! 
 
 ## Conclusion
 
-Great work getting through this tutorial!
-This tutorial was a little more complicated as you learned the following:
+To recap, by working through this animation you should now:
 
-- Using `Javis.jl` to [`change`](@ref) animations in progress
-- Having `Javis.jl` interact with other Julia packages
-- Creating extended animations for use in education
+1. Understand how to make objects appear and disappear using actions
+2. Be able to move objects inside actions to have a finer control of the movement
+3. Know how to use apply several actions to an object
 
-Our hope with this tutorial is that it inspires you to create more comprehensive and informative animations with `Javis.jl`
-Good luck and have fun making more animations!
+Hope you had as much fun reading this tutorial as I had creating our mascot.
 
-## Full Code
+You're now ready to create your own big project.
+
+## The Code
 
 ```julia
-using Animations
 using Javis
-using PeriodicTable
-using Unitful
 
-function ground(video, action, frame)
+function ground(args...)
     background("white")
     sethue("black")
 end
 
-function element(; radius = 1, color = "black")
+function title(args...)
+    fontsize(20)
+    text("Our Mascot", Point(0, -200),
+        valign=:middle, halign=:center)
+end
+
+function hair_blob(angle)
+    sethue("brown")
+    rotate(angle)
+    circle(Point(0, -100), 20, :fill)
+end
+
+function eyes(centers, radius, color)
     sethue(color)
-    circle(O, radius + 4, :fill)
+    circle.(centers, radius, :fill)
+    setcolor("white")
+    circle.(centers, radius/5, :fill)
 end
 
-function info_box(element)
-    fontsize(12)
-    box(140, -210, 170, 40, :stroke)
-    box(0, 175, 450, 100, :stroke)
-    text("Element name: $(element.name)", 140, -220, valign = :middle, halign = :center)
-    text(
-        "Atomic Mass: $(round(ustrip(element.atomic_mass)))",
-        140,
-        -200,
-        valign = :middle,
-        halign = :center,
-    )
-    textwrap("Description: $(element.summary)", 400, Point(-200, 125))
+function lip(p1, p2)
+    setline(2)
+    move(p1)
+    c1 = p1 + Point(10, 10)
+    c2 = p2 + Point(-10, 10)
+    curve(c1, c2, p2)
+    do_action(:stroke)
 end
 
-demo = Video(500, 500)
+function speak(str)
+    fontsize(15)
+    text(str, Point(100, 50))
+end
 
-Background(1:550, ground)
+function face()
+    eye_centers = [Point(-40,-30), Point(40,-30)]
+    nose = [O, Point(-10,20), Point(10, 20), O]
+    upper_lip = [Point(-40, 45), Point(40, 45)]
+    lower_lip = [Point(-40, 55), Point(40, 55)]
+    hair_angle = rand(-0.9:0.1:0.9, 20)
 
-atom = Object(1:550, (args...; radius = 1) -> element(; radius = radius, color = "black"))
-act!(
-    atom,
-    [
-        Action(101:140, change(:radius, 1 => 12)),
-        Action(241:280, change(:radius, 12 => 20)),
-        Action(381:420, change(:radius, 20 => 7)),
-        Action(521:550, change(:radius, 7 => 1)),
-    ],
-)
+    video = Video(500, 500)
+    Background(1:150, ground)
+    the_title = Object(title)
+    act!(the_title, Action(1:5, appear(:fade)))
+    a = Object(16:150, (args...)->circle(O, 100, :stroke))
+    act!(a, Action(1:15, appear(:fade)))
+    
+    hair = Object[]
+    for i = 1:20
+        push!(hair, Object(26:150, (args...)->hair_blob(hair_angle[i])))
+    end
+    act!(hair, Action(1:25, appear(:fade)))
+    
+    the_eyes = Object(30:150, (args...)->eyes(eye_centers, 10, "darkblue"))
+    act!(the_eyes, Action(1:15, appear(:fade)))
 
-info = Object(1:550, (args...; elem = 1) -> info_box(element = elements[round(Int, elem)]))
+    the_nose = Object(45:150, (args...)->poly(nose, :fill))
+    act!(the_nose, Action(1:15, appear(:fade)))
+    
+    lip_fade_in = Action(1:15, appear(:fade))
+    the_upper_lip = Object(60:150, (args...)->lip(upper_lip...))
+    act!(the_upper_lip, lip_fade_in)
+    act!(the_upper_lip, [Action(20i:20i+10, anim_translate(0, -5)) for i in 1:5])
+    act!(the_upper_lip, [Action(20i+10:20i+20, anim_translate(0, 5)) for i in 1:5])
 
-act!(info, Action(1:30, sineio(), appear(:fade)))
-act!(info, Action(71:100, sineio(), disappear(:fade)))
-act!(info, Action(101:101, change(:elem, 1 => 12)))
+    the_lower_lip = Object(60:150, (args...)->lip(lower_lip...))
+    act!(the_lower_lip, lip_fade_in)
+    act!(the_lower_lip, [Action(20i:20i+10, anim_translate(0, 5)) for i in 1:5])
+    act!(the_lower_lip, [Action(20i+10:20i+20, anim_translate(0, -5)) for i in 1:5])
 
-act!(info, Action(140:170, sineio(), appear(:fade)))
-act!(info, Action(210:241, sineio(), disappear(:fade)))
-act!(info, Action(280:280, change(:elem, 12 => 20)))
+    speaking1 = Object(80:120, (args...)->speak("I'm Jarvis"))
+    act!(speaking1, Action(1:5, appear(:draw_text)))
+    act!(speaking1, Action(36:40, disappear(:draw_text)))
 
-act!(info, Action(280:310, sineio(), appear(:fade)))
-act!(info, Action(350:381, sineio(), disappear(:fade)))
-act!(info, Action(381:420, change(:elem, 20 => 7)))
+    speaking2 = Object(120:150, (args...)->speak("How are you?"))
+    act!(speaking2, Action(1:5, appear(:draw_text)))
+    act!(speaking2, Action(36:40, disappear(:draw_text)))    
+    render(video; pathname="jarvis.gif", framerate=15)
+end
 
-act!(info, Action(420:450, sineio(), appear(:fade)))
-act!(info, Action(490:521, sineio(), disappear(:fade)))
-act!(info, Action(520:550, change(:elem, 7 => 1)))
-
-render(demo, pathname="tutorial5.gif", framerate = 10)
+face()
 ```
 
-> **Author(s):** Jacob Zelko \
-> **Date:** September 10, 2020 \
-> **Tag(s):** change, atoms, elements, appear, disappear, fade, unitful, periodictable
+> **Author(s):** Ole Kröger, Jacob Zelko \
+> **Date:** August 14th, 2020 \
+> **Tag(s):** jarvis, actions, fade, transformations
