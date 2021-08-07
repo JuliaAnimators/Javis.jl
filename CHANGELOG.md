@@ -2,7 +2,10 @@
 
 ## Unreleased
 - added `@Frames` macro for full power mode of defining frames
+- Add shorthands for basic shapes
+  - New functions `JBox, JCircle, JEllipse, JLine, JPoly, JRect, JStar, @JShape` 
 - added support for `rescale_factor` keyword in `render` function
+
 
 ## v0.6.0 (3rd of August 2021)
 - Added layers see `@JLayer`

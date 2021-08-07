@@ -14,10 +14,11 @@ Their level of difficulty starts from a beginner `Javis` user to advanced usages
 Currently, these tutorials are available:
 
 - [**Tutorial 1: Making Your First `Javis` Animation!**](tutorials/tutorial_1.md) - a step by step guide to making your first animation with `Javis`.
-- [**Tutorial 2: What Are Actions?**](tutorials/tutorial_2.md) - an introduction to the most important part of `Javis` - the `Action` object.
-- [**Tutorial 3: Rendering `LaTeX` with `Javis`!**](tutorials/tutorial_3.md) - a simple tutorial on how to render `LaTeX` in `Javis` animations.
-- [**Tutorial 4: Do You Know Our Mascot? Learn about Transitions and Actions!**](tutorials/tutorial_4.md) - a fun tutorial to make our mascot and learn about the `Action` and `Transition` type methods.
-- [**Tutorial 5: Taming the Elements**](tutorials/tutorial_5.md) - how to use `change` to grow or shrink arbitrary objects and using `Javis` with other Julia packages.
-- [**Tutorial 6: Using Animations.jl to Create something with more Pep!**](tutorials/tutorial_6.md) - an advanced tutorial to make your animations more interesting.
+- [**Tutorial 2: Using Shorthands in Javis!**](tutorials/tutorial_2.md) - Using shothands in `Javis`.
+- [**Tutorial 3: What Are Actions?**](tutorials/tutorial_3.md) - an introduction to the most important part of `Javis` - the `Action` object.
+- [**Tutorial 4: Rendering `LaTeX` with `Javis`!**](tutorials/tutorial_4.md) - a simple tutorial on how to render `LaTeX` in `Javis` animations.
+- [**Tutorial 5: Do You Know Our Mascot? Learn about Transitions and Actions!**](tutorials/tutorial_5.md) - a fun tutorial to make our mascot and learn about the `Action` and `Transition` type methods.
+- [**Tutorial 6: Taming the Elements**](tutorials/tutorial_6.md) - how to use `change` to grow or shrink arbitrary objects and using `Javis` with other Julia packages.
+- [**Tutorial 7: Using Animations.jl to Create something with more Pep!**](tutorials/tutorial_7.md) - an advanced tutorial to make your animations more interesting.
 
 If you spot an issue with any of these tutorials, please let us know! Thank you!
