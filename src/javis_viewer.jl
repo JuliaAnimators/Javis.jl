@@ -291,13 +291,14 @@ Sets up the livestream configuration.
 **NOTE:** Twitch not fully implemented, do not use.
 """
 function setup_stream(
-    livestreamto::Symbol = :local;
+    livestreamto::Symbol = :local,
+    frames::Union{UnitRange{Int},Symbol} = :all;
     protocol::String = "udp",
     address::String = "0.0.0.0",
     port::Int = 14015,
     twitch_key::String = "",
 )
-    StreamConfig(livestreamto, protocol, address, port, twitch_key)
+    StreamConfig(livestreamto, protocol, address, port, twitch_key, frames)
 end
 
 """
@@ -332,7 +333,7 @@ function cancel_stream()
             ),
         ),
     )
-    return "Livestream Cancelled!"
+    return @info "Livestream Cancelled!"
 end
 
 """
@@ -342,18 +343,35 @@ Internal method for livestreaming
 """
 function _livestream(
     streamconfig::StreamConfig,
-    framerate::Int,
-    width::Int,
-    height::Int,
-    pathname::String,
+    framerate,
+    video,
+    objects,
+    layers,
+    frames,
+    tempdirectory,
 )
+    # kill any existing stream
     cancel_stream()
 
     livestreamto = streamconfig.livestreamto
+    config_frames = streamconfig.frames
     twitch_key = streamconfig.twitch_key
 
     if livestreamto == :twitch && isempty(twitch_key)
         return error("Please enter your twitch stream key")
+    end
+
+    stream_frames = config_frames == :all ? frames : config_frames
+    stream_filecounter = 1
+    for frame in stream_frames
+        frame_image = convert.(RGB, get_javis_frame(video, objects, frame; layers = layers))
+        if !isempty(tempdirectory)
+            Images.save(
+                "$(tempdirectory)/$(lpad(stream_filecounter, 10, "0")).png",
+                frame_image,
+            )
+        end
+        stream_filecounter += 1
     end
 
     command = [
@@ -366,15 +384,14 @@ function _livestream(
         "error",
         "-re", # read input at native frame rate
         "-i", # input file
-        "$pathname",
+        "$(tempdirectory)/%10d.png",
     ]
 
     if livestreamto == :twitch
         if isempty(twitch_key)
-            error("Please enter your twitch api key")
+            error("Please enter your twitch stream key")
         end
 
-        # 
         twitch_cmd = [
             "-f",
             "flv", # force the file to flv format
@@ -399,8 +416,10 @@ end
 
 _livestream(
     streamconfig::Nothing,
-    framerate::Int,
-    width::Int,
-    height::Int,
-    pathname::String,
+    framerate,
+    video,
+    objects,
+    layers,
+    frames,
+    tempdirectory,
 ) = return
