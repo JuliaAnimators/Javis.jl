@@ -155,7 +155,7 @@ end
             pipeline(`grep ffmpeg`, pipeline(`grep stream_loop`, `awk '{print $2}'`)),
         ),
     )
-    
+
     # can't actually test the streamed frames but let's check if they're atleast created
     conf_local = setup_stream(:local, 56:60)
     render(vid, tempdirectory = "images", streamconfig = conf_local)
