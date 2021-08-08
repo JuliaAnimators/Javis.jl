@@ -134,6 +134,14 @@ function centered_point(pos::Point, width::Int, height::Int)
 end
 
 """
+    preprocess_frames!(video::Video)
+
+"""
+function preprocess_frames!(video::Video)
+    return preprocess_frames!([video.objects..., flatten(video.layers)...])
+end
+
+"""
     preprocess_frames!(objects::Vector{<:AbstractObject})
 
 Computes the frames for each object(of both the main canvas and layers) and action based on the user defined frames that the
@@ -241,13 +249,8 @@ function render(
     rescale_factor = 1.0,
 )
     layers = video.layers
-    layer_flat = flatten(layers)
     objects = video.objects
-    if isempty(layers)
-        frames = preprocess_frames!(objects)
-    else
-        frames = preprocess_frames!([objects..., layer_flat...])
-    end
+    frames = preprocess_frames!(video)
 
     if liveview
         if isdefined(Main, :IJulia) && Main.IJulia.inited
