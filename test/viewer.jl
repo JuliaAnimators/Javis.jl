@@ -142,20 +142,7 @@ end
     @test isempty(conf_twitch_err.twitch_key)
     @test conf_twitch.twitch_key == "foo"
 
-    render(vid, tempdirectory = "images", streamconfig = conf_local)
-
-    # can't actually test the streamed frames but let's check if they're atleast created
-    conf_local = setup_stream(:local, 56:60)
-    for i in 56:60
-        @test_reference "refs/livestream_frames$i.png" load(
-            "images/$(lpad((i-55), 10, "0")).png",
-        )
-    end
-
-    for i in 1:100
-        rm("images/$(lpad(i, 10, "0")).png")
-    end
-
+    render(vid, pathname = "test_stream.gif", streamconfig = conf_local)
     # errors with macos; a good test to have
     # test_local = run(pipeline(`lsof -i -P -n`, `grep ffmpeg`))
     # @test test_local isa Base.ProcessChain
@@ -168,6 +155,20 @@ end
             pipeline(`grep ffmpeg`, pipeline(`grep stream_loop`, `awk '{print $2}'`)),
         ),
     )
+    
+    # can't actually test the streamed frames but let's check if they're atleast created
+    conf_local = setup_stream(:local, 56:60)
+    render(vid, tempdirectory = "images", streamconfig = conf_local)
+
+    for i in 56:60
+        @test_reference "refs/livestream_frames$i.png" load(
+            "images/$(lpad((i-55), 10, "0")).png",
+        )
+    end
+
+    for i in 1:5
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
 
     @test_throws ErrorException render(vid, streamconfig = conf_twitch_err)
 end
