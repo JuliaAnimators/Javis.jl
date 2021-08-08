@@ -1,8 +1,13 @@
 # Javis.jl - Changelog
 
-## Unreleased
-- added support for `rescale_factor` keyword in `render` function
+## Unreleased 
 - bugfix in `@JLayer` when dimensions are not defined explicitly
+
+## v0.6.1 (7th of August 2021)
+- Add shorthands for basic shapes
+  - New functions `JBox, JCircle, JEllipse, JLine, JPoly, JRect, JStar, @JShape` 
+- added support for `rescale_factor` keyword in `render` function
+- Docstring improvements to `translate`
 
 ## v0.6.0 (3rd of August 2021)
 - Added layers see `@JLayer`
