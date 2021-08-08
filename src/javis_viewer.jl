@@ -413,13 +413,3 @@ function _livestream(
         ffmpeg_exe(`$command`)
     end)
 end
-
-_livestream(
-    streamconfig::Nothing,
-    framerate,
-    video,
-    objects,
-    layers,
-    frames,
-    tempdirectory,
-) = return
