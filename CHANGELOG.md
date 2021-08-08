@@ -6,6 +6,7 @@
 - added support for `rescale_factor` keyword in `render` function
 - Docstring improvements to `translate`
 
+
 ## v0.6.0 (3rd of August 2021)
 - Added layers see `@JLayer`
 
