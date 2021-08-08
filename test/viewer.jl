@@ -148,14 +148,6 @@ end
     # @test test_local isa Base.ProcessChain
     # @test test_local.processes isa Vector{Base.Process}
 
-    cancel_stream()
-    @test_throws ProcessFailedException run(
-        pipeline(
-            `ps aux`,
-            pipeline(`grep ffmpeg`, pipeline(`grep stream_loop`, `awk '{print $2}'`)),
-        ),
-    )
-
     # can't actually test the streamed frames but let's check if they're atleast created
     conf_local = setup_stream(:local, 56:60)
     render(vid, tempdirectory = "images", streamconfig = conf_local)
@@ -169,6 +161,13 @@ end
     for i in 1:5
         rm("images/$(lpad(i, 10, "0")).png")
     end
+
+    @test_throws ProcessFailedException run(
+        pipeline(
+            `ps aux`,
+            pipeline(`grep ffmpeg`, pipeline(`grep stream_loop`, `awk '{print $2}'`)),
+        ),
+    )
 
     @test_throws ErrorException render(vid, streamconfig = conf_twitch_err)
 end
