@@ -207,7 +207,8 @@ flatten!(objects::Array{AbstractObject}, object::Object) = push!(objects, object
         liveview=false,
         streamconfig::Union{StreamConfig, Nothing} = nothing,
         tempdirectory="",
-        ffmpeg_loglevel="panic"
+        ffmpeg_loglevel="panic",
+        rescale_factor=1.0,
     )
 
 Renders all previously defined [`Object`](@ref) drawings to the user-defined `Video` as a gif or mp4.
@@ -227,6 +228,7 @@ Streaming to Twitch or other platforms are not yet supported.
 - `ffmpeg_loglevel::String`:
     - Can be used if there are errors with ffmpeg. Defaults to panic:
     All other options are described here: https://ffmpeg.org/ffmpeg.html
+- `rescale_factor::Float64` factor to which the frames should be rescaled for faster rendering
 """
 function render(
     video::Video;
@@ -236,6 +238,7 @@ function render(
     streamconfig::Union{StreamConfig,Nothing} = nothing,
     tempdirectory = "",
     ffmpeg_loglevel = "panic",
+    rescale_factor = 1.0,
 )
     layers = video.layers
     layer_flat = flatten(layers)
@@ -268,7 +271,7 @@ function render(
         video_io = Base.open("temp.stream", "w")
     end
     video_encoder = nothing
-    # if we render a gif and the user hasn't set a tempdirectory
+    # if we render a gif and the user hasn't set a tempdirectory => create one
     if !render_mp4 && isempty(tempdirectory)
         tempdirectory = mktempdir()
     end
@@ -281,6 +284,12 @@ function render(
     filecounter = 1
     @showprogress 1 "Rendering frames..." for frame in frames
         frame_image = convert.(RGB, get_javis_frame(video, objects, frame; layers = layers))
+        # rescale the frame for faster rendering if the rescale_factor is not 1
+        if !isone(rescale_factor)
+            new_size = trunc.(Int, size(frame_image) .* rescale_factor)
+            frame_image = imresize(frame_image, new_size)
+        end
+
         if !isempty(tempdirectory)
             Images.save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
         end
@@ -664,6 +673,16 @@ for func in names(Luxor; imported = true)
     end
 end
 
+# shorthands declarations
+include("shorthands/JLine.jl")
+include("shorthands/JCircle.jl")
+include("shorthands/JRect.jl")
+include("shorthands/JBox.jl")
+include("shorthands/JEllipse.jl")
+include("shorthands/JStar.jl")
+include("shorthands/JPoly.jl")
+include("shorthands/JShape.jl")
+
 export render, latex
 export Video, Object, Background, Action, RFrames, GFrames
 export @JLayer, background
@@ -675,6 +694,7 @@ export rev
 export scaleto
 export act!
 export anim_translate, anim_rotate, anim_rotate_around, anim_scale
+export JBox, JCircle, JEllipse, JLine, JPoly, JRect, JStar, @JShape
 
 # custom override of luxor extensions
 export setline, setopacity, fontsize, get_fontsize, scale, text
