@@ -231,8 +231,8 @@ end
     back = Background(1:50, ground)
     star_obj = Object(1:50, astar)
     box_obj = Object(1:50, abox)
-    act!(star_obj, Action(5:20, morph_to(acirc, style = :long)))
-    act!(box_obj, Action(30:50, morph_to(astar, style = :long)))
+    act!(star_obj, Action(5:20, morph_to(acirc, style = :mode1)))
+    act!(box_obj, Action(30:50, morph_to(astar, style = :mode1)))
     render(video; tempdirectory = "images", pathname = "")
 
     for i in [5, 10, 15, 19, 20, 21, 30, 35, 40, 45, 49, 50]

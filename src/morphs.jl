@@ -1,7 +1,7 @@
 include("Shape.jl")
 
 """
-    morph_to(to_func::Function; style=:short, object=:stroke)
+    morph_to(to_func::Function; style=:default, object=:stroke)
 
 A closure for the [`_morph_to`](@ref) function.
 This makes it easier to write the function inside an `Object`.
@@ -39,7 +39,7 @@ circle_obj = Object(11:20, acirc)
 act!(circle_obj, Action(:same, morph_to(astar)))
 ```
 """
-function morph_to(to_func::Function; style = :short, do_action = :stroke)
+function morph_to(to_func::Function; style = :default, do_action = :stroke)
     return (video, object, action, frame) -> _morph_to(
         video,
         object,
@@ -53,7 +53,7 @@ end
 
 
 """
-    _morph_to(video::Video, object::Object, action::Action, frame, to_func::Function; style=:short, do_action=:stroke)
+    _morph_to(video::Video, object::Object, action::Action, frame, to_func::Function; style=:default, do_action=:stroke)
 
 Internal version of [`morph_to`](@ref) but described there.
 """
@@ -63,7 +63,7 @@ function _morph_to(
     action::Action,
     frame,
     to_func::Function;
-    style = :short,
+    style = :default,
     do_action = :stroke,
 )
     if frame == last(get_frames(action))
@@ -98,7 +98,7 @@ end
 """
     morph_between(video::Video, action::Action, frame,
         from_polys::Vector{Vector{Point}}, to_polys::Vector{Vector{Point}};
-        style=:short, do_action=:stroke)
+        style=:default, do_action=:stroke)
 
 Internal version of [`morph_to`](@ref) after the from poly is defined.
 """
@@ -108,7 +108,7 @@ function morph_between(
     frame,
     from_polys::Vector{Vector{Point}},
     to_polys::Vector{Vector{Point}};
-    style = :short,
+    style = :default,
     do_action = :stroke,
 )
     cs = get_current_setting()

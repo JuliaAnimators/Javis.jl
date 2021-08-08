@@ -244,7 +244,7 @@ function prepare_to_interpolate(from_shape, to_shape, style)
     rotate_i, _ = compute_shortest_morphing_dist(from_outer, to_outer)
     new_from_outer = circshift(from_outer, -rotate_i + 1)
 
-    if style == :long
+    if style == :mode1
         new_from_outer =
             circshift(reverse!(new_from_outer), floor(Int, -length(new_from_outer) / 2.6)) # found this to work best
     end
