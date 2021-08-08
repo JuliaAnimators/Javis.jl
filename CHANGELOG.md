@@ -1,8 +1,5 @@
 # Javis.jl - Changelog
 
-## Unreleased
-- Add a manim-like :long morhping mode
-
 ## v0.6.1 (7th of August 2021)
 - Add shorthands for basic shapes
   - New functions `JBox, JCircle, JEllipse, JLine, JPoly, JRect, JStar, @JShape` 
