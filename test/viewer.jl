@@ -170,6 +170,4 @@ end
     )
 
     @test_throws ErrorException render(vid, streamconfig = conf_twitch_err)
-    cancel_stream()
-    rm("images/palette.png")
 end
