@@ -5,7 +5,6 @@
 - bugfix in `@JLayer` when dimensions are not defined explicitly
 
 ## v0.6.1 (7th of August 2021)
-
 - Add shorthands for basic shapes
   - New functions `JBox, JCircle, JEllipse, JLine, JPoly, JRect, JStar, @JShape` 
 - added support for `rescale_factor` keyword in `render` function
