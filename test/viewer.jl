@@ -152,7 +152,7 @@ end
         )
     end
 
-    for i in 56:60
+    for i in 1:100
         rm("images/$(lpad(i, 10, "0")).png")
     end
 
@@ -170,4 +170,6 @@ end
     )
 
     @test_throws ErrorException render(vid, streamconfig = conf_twitch_err)
+    cancel_stream()
+    rm("images/palette.png")
 end
