@@ -134,6 +134,14 @@ function centered_point(pos::Point, width::Int, height::Int)
 end
 
 """
+    preprocess_frames!(video::Video)
+
+"""
+function preprocess_frames!(video::Video)
+    return preprocess_frames!([video.objects..., flatten(video.layers)...])
+end
+
+"""
     preprocess_frames!(objects::Vector{<:AbstractObject})
 
 Computes the frames for each object(of both the main canvas and layers) and action based on the user defined frames that the
@@ -167,11 +175,7 @@ function preprocess_frames!(objects::Vector{<:AbstractObject})
         )
     end
 
-    if isempty(CURRENT_OBJECT)
-        push!(CURRENT_OBJECT, objects[1])
-    else
-        CURRENT_OBJECT[1] = objects[1]
-    end
+    set_current_object(objects[1])
     return frames
 end
 
@@ -241,13 +245,8 @@ function render(
     rescale_factor = 1.0,
 )
     layers = video.layers
-    layer_flat = flatten(layers)
     objects = video.objects
-    if isempty(layers)
-        frames = preprocess_frames!(objects)
-    else
-        frames = preprocess_frames!([objects..., layer_flat...])
-    end
+    frames = preprocess_frames!(video)
 
     if liveview
         if isdefined(Main, :IJulia) && Main.IJulia.inited
@@ -323,6 +322,12 @@ function render(
     else
         @error "Currently, only gif and mp4 creation is supported. Not a $ext."
     end
+
+     # check if livestream is used and livestream if that's the case
+    _livestream(streamconfig, framerate, video.width, video.height, pathname)
+
+    # clear all CURRENT_* constants to not accidentally use a previous video when creating a new one
+    empty_CURRENT_constants()
 
     # even if liveview = false, show the rendered gif in the cell output
     if isdefined(Main, :IJulia) && Main.IJulia.inited
@@ -694,6 +699,8 @@ export rev
 export scaleto
 export act!
 export anim_translate, anim_rotate, anim_rotate_around, anim_scale
+
+export @Frames, prev_start, prev_end, startof, endof
 export JBox, JCircle, JEllipse, JLine, JPoly, JRect, JStar, @JShape
 
 # custom override of luxor extensions

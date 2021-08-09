@@ -1,13 +1,8 @@
-vid = Video(600, 600)
-video = Video(600, 600)
-
 @testset "Layers Feature" begin
     function ground(args...)
         background("white")
         sethue("black")
     end
-
-    Background(1:80, ground)
 
     function object_layer(p = O, color = "black")
         @JShape begin
@@ -27,6 +22,9 @@ video = Video(600, 600)
         sethue(color)
         line(p1, p2, :stroke)
     end
+
+    video = Video(600, 600)
+    Background(1:80, ground)
 
     path_of_red = Point[]
     path_of_blue = Point[]
@@ -102,33 +100,31 @@ video = Video(600, 600)
     pob = Object(5:41, (args...) -> path!(path_of_blue, pos(ball2), "blue"))
     layer_objects = [ball1, ball2, conn, por, pob]
 
-    @testset "Layer macro" begin
-        @test l1.frames.frames == l2.frames.frames == l3.frames.frames
-        @test l1.width == l2.width == l3.width == 600
-        @test l1.height == l2.height == l3.height == 600
-        @test l1.position == l2.position == l3.position == Point(0, 0)
-        @test length(l1.layer_objects) ==
-              length(l2.layer_objects) ==
-              length(l3.layer_objects) ==
-              length(layer_objects) + 2
-        @test length(l1.actions) ==
-              length(l2.actions) ==
-              length(l3.actions) ==
-              length(layer_actions)
-        @test l1.current_setting.opacity ==
-              l2.current_setting.opacity ==
-              l3.current_setting.opacity ==
-              1.0
-        @test l1.current_setting.scale ==
-              l2.current_setting.scale ==
-              l3.current_setting.scale ==
-              Javis.Scale(1.0, 1.0)
-        @test l1.current_setting.rotation_angle ==
-              l2.current_setting.rotation_angle ==
-              l3.current_setting.rotation_angle ==
-              0.0
-        @test l1.image_matrix == l2.image_matrix == l3.image_matrix == nothing
-    end
+    @test l1.frames.frames == l2.frames.frames == l3.frames.frames
+    @test l1.width == l2.width == l3.width == 600
+    @test l1.height == l2.height == l3.height == 600
+    @test l1.position == l2.position == l3.position == Point(0, 0)
+    @test length(l1.layer_objects) ==
+          length(l2.layer_objects) ==
+          length(l3.layer_objects) ==
+          length(layer_objects) + 2
+    @test length(l1.actions) ==
+          length(l2.actions) ==
+          length(l3.actions) ==
+          length(layer_actions)
+    @test l1.current_setting.opacity ==
+          l2.current_setting.opacity ==
+          l3.current_setting.opacity ==
+          1.0
+    @test l1.current_setting.scale ==
+          l2.current_setting.scale ==
+          l3.current_setting.scale ==
+          Javis.Scale(1.0, 1.0)
+    @test l1.current_setting.rotation_angle ==
+          l2.current_setting.rotation_angle ==
+          l3.current_setting.rotation_angle ==
+          0.0
+    @test l1.image_matrix == l2.image_matrix == l3.image_matrix == nothing
 
     # remove duplicate layers after above testing
     video.layers = [l1]
@@ -177,7 +173,7 @@ video = Video(600, 600)
     rm("layer_test.gif")
 
 
-    Javis.CURRENT_VIDEO[1] = vid
+    vid = Video(600, 600)
     Background(1:20, ground)
 
     # test @JLayer multiple dispatch
@@ -216,6 +212,6 @@ video = Video(600, 600)
 
     act!(l5, Action(opacity_anim, setopacity()))
 
+    Javis.preprocess_frames!([vid.objects..., Javis.flatten(vid.layers)...])
     @test_throws ErrorException Javis.get_layer_frame(vid, l5, 6)
-
 end

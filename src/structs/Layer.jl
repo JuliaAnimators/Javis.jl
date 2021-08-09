@@ -38,8 +38,8 @@ const CURRENT_LAYER = Array{Layer,1}()
 # for width, height and position defaults are defined in the to_layer_m function
 function Layer(
     frames,
-    width::Int,
-    height::Int,
+    width,
+    height,
     position::Point;
     layer_objects::Vector{AbstractObject} = AbstractObject[],
     actions::Vector{AbstractAction} = AbstractAction[],
@@ -48,6 +48,13 @@ function Layer(
     mat = nothing,
     layer_cache::LayerCache = LayerCache(),
 )
+    if width === nothing
+        width = CURRENT_VIDEO[1].width
+    end
+    if height === nothing
+        height = CURRENT_VIDEO[1].height
+    end
+
     layer = Layer(
         frames,
         width,
