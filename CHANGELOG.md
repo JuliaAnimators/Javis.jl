@@ -1,6 +1,7 @@
 # Javis.jl - Changelog
 
-## Unreleased 
+## Unreleased
+- added `@Frames` macro for full power mode of defining frames
 - bugfix in `@JLayer` when dimensions are not defined explicitly
 
 ## v0.6.1 (7th of August 2021)
