@@ -275,7 +275,7 @@ function render(
         tempdirectory = mktempdir()
     end
 
-    if streamconfig != nothing
+    if streamconfig !== nothing
         _livestream(streamconfig, framerate, video, objects, layers, frames, tempdirectory)
         return
     end
