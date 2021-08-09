@@ -323,9 +323,6 @@ function render(
         @error "Currently, only gif and mp4 creation is supported. Not a $ext."
     end
 
-     # check if livestream is used and livestream if that's the case
-    _livestream(streamconfig, framerate, video.width, video.height, pathname)
-
     # clear all CURRENT_* constants to not accidentally use a previous video when creating a new one
     empty_CURRENT_constants()
 
