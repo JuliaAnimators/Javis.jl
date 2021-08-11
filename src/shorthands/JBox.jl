@@ -1,7 +1,7 @@
 function _JBox(
     cornerpoint1::Point,
     cornerpoint2::Point,
-    color::String,
+    color,
     action::Symbol,
     vertices::Bool,
 )
@@ -9,7 +9,7 @@ function _JBox(
     verts = box(cornerpoint1, cornerpoint2, action, vertices = vertices)
     return verts[2]
 end
-function _JBox(points::Array, color::String, action::Symbol, vertices::Bool)
+function _JBox(points::Array, color, action::Symbol, vertices::Bool)
     sethue(color)
     verts = box(points, action, vertices = vertices)
     return verts[2]
@@ -18,7 +18,7 @@ function _JBox(
     pt::Point,
     width::Real,
     height::Real,
-    color::String,
+    color,
     action::Symbol,
     vertices::Bool,
 )
@@ -31,7 +31,7 @@ function _JBox(
     width::Real,
     height::Real,
     cornerradius::Float64,
-    color::String,
+    color,
     action::Symbol,
 )
     sethue(color)

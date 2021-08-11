@@ -3,6 +3,8 @@
 ## Unreleased
 - added `@Frames` macro for full power mode of defining frames
 - bugfix in `@JLayer` when dimensions are not defined explicitly
+- allow color interpolation in `change`
+- bugfix `color` can be a non string value in `JBox`
 
 ## v0.6.1 (7th of August 2021)
 - Add shorthands for basic shapes
