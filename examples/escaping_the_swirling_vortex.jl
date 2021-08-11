@@ -168,13 +168,11 @@ end
 
 """
     ode_arrow(x, y, t, frm_scl, color_min, color_max)
-    ode_arrow(x, y, t, frm_scl, arrow_color)
 
 Create one arrow at the base point `(x,y)` and arrow vector given by `dudt(x, y, t)`.
 The arrow is properly scaled by the factor `frm_scl` and the orientation takes into
 account that the vertical coordinate increases downwards. Depending on the magnitude
-of the vector field at that point, the color ranges from `color_min` to `color_max`,
-unless only a single color `arrow_color` is given, in which case takes this color.
+of the vector field at that point, the color ranges from `color_min` to `color_max`.
 """
 function ode_arrow(x, y, t, frm_scl, color_min, color_max)
 	@JShape begin
@@ -194,10 +192,6 @@ function ode_arrow(x, y, t, frm_scl, color_min, color_max)
             )
 		end
 	end x=x y=y t=t frm_scl=frm_scl
-end
-
-function ode_arrow(x, y, t, frm_scl, arrow_color)
-    ode_arrow(x, y, t, frm_scl, [arrow_color, arrow_color])
 end
 
 """
