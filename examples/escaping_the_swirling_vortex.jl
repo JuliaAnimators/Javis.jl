@@ -22,8 +22,8 @@ using LinearAlgebra
 Define the background and the initial "foreground" color.
 """
 function ground(args...)
-	background("black")
-	sethue("white")
+    background("black")
+    sethue("white")
     return nothing
 end
 
@@ -38,7 +38,7 @@ where u=[x,y]. In this case, the equation takes the from
 function dudt(x, y, t)
     ct = cos(t)
     st = sin(t)
-    dxdt = (-1.0 + 1.5 * ct^2) * x  + (1.0 - 1.5 * ct * st) * y
+    dxdt = (-1.0 + 1.5 * ct^2) * x + (1.0 - 1.5 * ct * st) * y
     dydt = (-1.0 - 1.5 * st * ct) * x + (-1.0 + 1.5 * st^2) * y
     return dxdt, dydt
 end
@@ -52,10 +52,10 @@ Return (and modify in place) the linear part `A(t)` of the equation `u'=A(t)u`
 function jacobian!(mat, t)
     ct = cos(t)
     st = sin(t)
-    mat[1,1] = -1.0 + 1.5 * ct^2
-    mat[1,2] = 1.0 - 1.5 * ct * st
-    mat[2,1] = -1.0 - 1.5 * st * ct
-    mat[2,2] = -1.0 + 1.5 * st^2
+    mat[1, 1] = -1.0 + 1.5 * ct^2
+    mat[1, 2] = 1.0 - 1.5 * ct * st
+    mat[2, 1] = -1.0 - 1.5 * st * ct
+    mat[2, 2] = -1.0 + 1.5 * st^2
     return mat
 end
 
@@ -66,8 +66,8 @@ Return a particular solution of the equation `u'=A(t)u`, given by
 `u = exp(t/2)  * [-cos(t), sin(t)] / 20.0` corresponding to the initial condition
 `u(0) = [-0.05, 0.0]`
 """
-function solution!(u,t)
-    et2 = exp(t/2) / 20.0
+function solution!(u, t)
+    et2 = exp(t / 2) / 20.0
     u[1] = -et2 * cos(t)
     u[2] = et2 * sin(t)
     return u
@@ -81,7 +81,7 @@ They are related according to `X = frm_scl * x` and `Y = - frm_scl * y`,
 for a given scale factor `frm_scl`.
 """
 space_to_frame_coordinates(u, frm_scl) = frm_scl * Point(u[1], -u[2])
-space_to_frame_coordinates(x, y, frm_scl) = space_to_frame_coordinates([x,y], frm_scl)
+space_to_frame_coordinates(x, y, frm_scl) = space_to_frame_coordinates([x, y], frm_scl)
 
 """
     ellipse_level_set!(u, t, mat, σ₁, σ₂, frm_scl)
@@ -121,10 +121,10 @@ frame coordinates.
 function ellipse_level_set!(u, t, mat, σ₁, σ₂, frm_scl)
     sethue("white")
     jacobian!(mat, t)
-    v = eigen(mat).vectors[:,1]
+    v = eigen(mat).vectors[:, 1]
     U = svd([real(v) imag(v)]).U
-    x, y = transpose(U) * solution!(u,t)
-    γ = sqrt(x^2/σ₁^2 + y^2/σ₂^2) # level
+    x, y = transpose(U) * solution!(u, t)
+    γ = sqrt(x^2 / σ₁^2 + y^2 / σ₂^2) # level
     σ̃₁ = γ * σ₁ # semi-major
     σ̃₂ = γ * σ₂ # semi-minor
     fd = sqrt(abs(σ̃₁^2 - σ̃₂^2)) # focal distance to the origin/center
@@ -133,9 +133,10 @@ function ellipse_level_set!(u, t, mat, σ₁, σ₂, frm_scl)
         ellipse(
             space_to_frame_coordinates(f, frm_scl), # focus in frame coordinates
             -space_to_frame_coordinates(f, frm_scl), # the other focus
-            space_to_frame_coordinates(u, frm_scl) # ellipse/level containing u(t)
+            space_to_frame_coordinates(u, frm_scl), # ellipse/level containing u(t)
         ),
-        :stroke, close=true
+        :stroke,
+        close = true,
     )
     return nothing
 end
@@ -145,7 +146,7 @@ end
 
 Draw a filled circle of size `size` and color `color` around the point `p`
 """
-function ball(p=O, size=4, color="red")
+function ball(p = O, size = 4, color = "red")
     sethue(color)
     circle(p, size, :fill)
     return p
@@ -175,23 +176,26 @@ account that the vertical coordinate increases downwards. Depending on the magni
 of the vector field at that point, the color ranges from `color_min` to `color_max`.
 """
 function ode_arrow(x, y, t, frm_scl, color_min, color_max)
-	@JShape begin
+    @JShape begin
         translate(space_to_frame_coordinates(x, y, frm_scl))
         dx, dy = dudt(x, y, t)
-        delta_t=0.1
-		ξ = dx * delta_t
-		η = dy * delta_t
-		l = sqrt(ξ^2+η^2)
+        delta_t = 0.1
+        ξ = dx * delta_t
+        η = dy * delta_t
+        l = sqrt(ξ^2 + η^2)
         len_colors = 100
-		color_range = range(color(color_min), stop=color(color_max), length=len_colors)
-		idx = clamp(floor(Int, l*len_colors), 1, len_colors)
-		sethue(color_range[idx])
-		if ξ != 0 || η != 0
-			arrow(O, space_to_frame_coordinates(ξ, η, frm_scl);
-                linewidth=2, arrowheadlength=8
+        color_range = range(color(color_min), stop = color(color_max), length = len_colors)
+        idx = clamp(floor(Int, l * len_colors), 1, len_colors)
+        sethue(color_range[idx])
+        if ξ != 0 || η != 0
+            arrow(
+                O,
+                space_to_frame_coordinates(ξ, η, frm_scl);
+                linewidth = 2,
+                arrowheadlength = 8,
             )
-		end
-	end x=x y=y t=t frm_scl=frm_scl
+        end
+    end x = x y = y t = t frm_scl = frm_scl
 end
 
 """
@@ -200,11 +204,11 @@ end
 Create an horizontal grid line at `y=c`
 """
 function horizontal_grid_line(video, r, frm_scl)
-	if r == 0
-		setline(1.5) 
-	end
-	sethue("gray")
-	line(Point(-video.width/2, r*frm_scl), Point(video.width/2, r*frm_scl), :stroke)
+    if r == 0
+        setline(1.5)
+    end
+    sethue("gray")
+    line(Point(-video.width / 2, r * frm_scl), Point(video.width / 2, r * frm_scl), :stroke)
     return nothing
 end
 
@@ -214,11 +218,15 @@ end
 Create a vertical grid line at `x=c`.
 """
 function vertical_grid_line(video, c, frm_scl)
-	if c == 0
-		setline(1.5) 
-	end
-	sethue("gray")
-	line(Point(c*frm_scl, -video.height/2), Point(c*frm_scl, video.height/2), :stroke)
+    if c == 0
+        setline(1.5)
+    end
+    sethue("gray")
+    line(
+        Point(c * frm_scl, -video.height / 2),
+        Point(c * frm_scl, video.height / 2),
+        :stroke,
+    )
     return nothing
 end
 
@@ -230,57 +238,63 @@ Create the animation. 😃
 function animate()
     # initial setup
     vid = Video(500, 500)
-	nframes = 200
+    nframes = 200
     xgrid = -2.0:0.25:2.0 # grid for bars and arrow base points
     ygrid = -2.0:0.25:2.0 # grid for bars and arrow base points
-    t₀, tf = 0.0, 5π/2 # time interval for the simulation
+    t₀, tf = 0.0, 5π / 2 # time interval for the simulation
     u = [0.0, 0.0] # dummy initizaliation of the solution vector
     solution!(u, t₀) # initial vector
-    mat = zeros(2,2) # dummy initialization of the jacobian
+    mat = zeros(2, 2) # dummy initialization of the jacobian
     jacobian!(mat, t₀) # jacobian at time t₀  
-    v = eigen(mat).vectors[:,1] # first eigenvector
+    v = eigen(mat).vectors[:, 1] # first eigenvector
     svd_P = svd([real(v) imag(v)]) # P = [real(v) imag(v)] => inv(P) * mat * P = [α β; -β α]
     σ₁, σ₂ = svd_P.S # the semi-major and semi-minor axes are constant in this problem
     t = t₀ # set t to initial time
-	frm_scl = 120 # frame scale
+    frm_scl = 120 # frame scale
     solution_trail = Point[] # initialize history vector for the solution path
 
     # objects
     ## set background for all frames
     Background(1:nframes, ground)
     ## grids
-	[Object(1:nframes, (args...) -> horizontal_grid_line(args[1], x, frm_scl)) for x in xgrid]
-	[Object(1:nframes, (args...) -> vertical_grid_line(args[1], y, frm_scl)) for y in ygrid]
+    [
+        Object(1:nframes, (args...) -> horizontal_grid_line(args[1], x, frm_scl)) for
+        x in xgrid
+    ]
+    [Object(1:nframes, (args...) -> vertical_grid_line(args[1], y, frm_scl)) for y in ygrid]
     ## vector field
     arrows = [
-        Object(1:nframes, ode_arrow(x, y, t, frm_scl, "yellow", "red")) 
-        for x in xgrid, y = ygrid
+        Object(1:nframes, ode_arrow(x, y, t, frm_scl, "yellow", "red")) for x in xgrid,
+        y in ygrid
     ]
     ## solution at time t
-    sol_pos = Object(1:nframes,
+    sol_pos = Object(
+        1:nframes,
         (args...; t) -> ball(
             space_to_frame_coordinates(solution!(u, t), frm_scl),
-            6, "lightskyblue"
-        )
+            6,
+            "lightskyblue",
+        ),
     )
     ## solution trail
     Object(1:nframes, (args...) -> path!(solution_trail, pos(sol_pos), "lightskyblue"))
     ## ellipse
-    obj_ellipse = Object(
-        1:nframes, (args...; t) -> ellipse_level_set!(u, t, mat, σ₁, σ₂, frm_scl)
-    )
+    obj_ellipse =
+        Object(1:nframes, (args...; t) -> ellipse_level_set!(u, t, mat, σ₁, σ₂, frm_scl))
 
     # animation
     ## update solution, vector field and ellipse
     ## rmk: animation of the solution trail is a byproduct of updating solution
     act!(sol_pos, Action(1:nframes, change(:t, t₀ => tf)))
-	act!(arrows, Action(1:nframes, change(:t, t₀ => tf)))
+    act!(arrows, Action(1:nframes, change(:t, t₀ => tf)))
     act!(obj_ellipse, Action(1:nframes, change(:t, t₀ => tf)))
-	
+
     # rendering
     ## render and generate gif
-    render(vid; framerate=15,
-        pathname=joinpath(@__DIR__, "gifs/escaping_the_swirling_vortex.gif")
+    render(
+        vid;
+        framerate = 15,
+        pathname = joinpath(@__DIR__, "gifs/escaping_the_swirling_vortex.gif"),
     )
 
     return nothing
