@@ -14,14 +14,7 @@ function _JBox(points::Array, color, action::Symbol, vertices::Bool)
     verts = box(points, action, vertices = vertices)
     return verts[2]
 end
-function _JBox(
-    pt::Point,
-    width::Real,
-    height::Real,
-    color,
-    action::Symbol,
-    vertices::Bool,
-)
+function _JBox(pt::Point, width::Real, height::Real, color, action::Symbol, vertices::Bool)
     sethue(color)
     box(pt, width, height, action, vertices = vertices)
     return Point(pt.x - width / 2, pt.y + height / 2)
