@@ -473,10 +473,10 @@ end
 
 function _change(video, object, action, rel_frame, s, vals::Pair)
     t = get_interpolation(action, rel_frame)
-    val = vals[1] + t * (vals[2] - vals[1])
-    object.change_keywords[s] = val
+    # use the linear animation power by the Animation package to interpolate colors as well
+    lin_anim = Animation([0.0, 1.0], interpolateable([vals...]))
+    object.change_keywords[s] = at(lin_anim, t)
 end
-
 
 function _change(video, object, action, rel_frame, s, val)
     object.change_keywords[s] = val
