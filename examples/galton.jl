@@ -57,13 +57,12 @@ function flip_coin()
     return rand() < 0.5 ? 1 : -1
 end
 
-# Moves the ball from the top level all the to the bottom level
 """
     move_ball(ball, first, last, offset, fno)
 
-Moves `ball` from the `first` level of pins to the `last` level of pins. `offset` should be the same offset
-used when creating the bins using `draw_separators`. The value `fno` is the frame number from which the ball
-should start moving.
+Moves `ball` from the `first` level of pins to the `last` level of pins (i.e. top to bottom). `offset` should
+be the same offset used when creating the bins using `draw_separators`. The value `fno` is the frame number
+from which the ball should start moving.
 
 Returns (fno, pos), where `fno` represents the last frame of the ball when it has reached it's destination,
 and pos represents the "sum" of the direction movements. For example, a ball that moved 5 times left, and
