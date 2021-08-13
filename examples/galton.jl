@@ -119,7 +119,7 @@ function galton(seed)
             7;
             color = logocolors.purple,
             action = :fill,
-        )
+        ),
     )
 
     # Draws the pins starting from the bottom most level (closest to base)
