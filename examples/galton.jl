@@ -49,31 +49,32 @@ function draw_pins(n, xpos, ypos, offset; color = "white")
 end
 
 """
-    flip_coin()
+    flip_coin(p)
 
-Simulates flipping a coin, returning -1 and 1 with equal probability. Helper function used in `move_ball`.
+Simulates flipping a coin, returning -1 with probability `p` and 1 with probability (1 - p). Helper function
+used in `move_ball`.
 """
-function flip_coin()
-    return rand() < 0.5 ? 1 : -1
+function flip_coin(p)
+    return rand() < p ? 1 : -1
 end
 
 """
-    move_ball(ball, first, last, offset, fno)
+    move_ball(ball, first, last, offset, p, fno)
 
 Moves `ball` from the `first` level of pins to the `last` level of pins (i.e. top to bottom). `offset` should
-be the same offset used when creating the bins using `draw_separators`. The value `fno` is the frame number
-from which the ball should start moving.
+be the same offset used when creating the bins using `draw_separators`. The value `p` is the probability that
+a ball will go left at each pin, and the value `fno` is the frame number from which the ball should start moving.
 
 Returns (fno, pos), where `fno` represents the last frame of the ball when it has reached it's destination,
 and pos represents the "sum" of the direction movements. For example, a ball that moved 5 times left, and
 7 times right would have a "sum" of -5 + 7 = 2.
 """
-function move_ball(ball, first, last, offset, fno)
+function move_ball(ball, first, last, offset, p, fno)
     pos = 0
     act!(ball, Action((fno + 1):(fno + 5), anim_translate(0, offset / 2)))
     fno += 5
     for i in first:last
-        direction = flip_coin()
+        direction = flip_coin(p)
         pos += direction
         act!(ball, Action((fno + 1):(fno + 5), anim_translate(direction * offset / 2, 0)))
         fno += 5
@@ -106,6 +107,7 @@ function galton(seed)
     height = 350
     offset = width / (n - 1)
     radius = offset / 4
+    p = 0.5
 
     # Draws the line separators or "bins"
     draw_separators(n, xpos, ypos + gap, offset, height)
@@ -139,7 +141,7 @@ function galton(seed)
         # Start each ball at the topmost level
         ball = Object(JCircle(Point(0, ypos), radius; color = colors[i], action = :fill))
         # Move the ball to the top of a bin
-        fno_end, pos = move_ball(ball, 1, n, offset, fno)
+        fno_end, pos = move_ball(ball, 1, n, offset, p, fno)
 
         # Map from "sum" of directions to bin number
         index = (pos + n) ÷ 2 + 1
