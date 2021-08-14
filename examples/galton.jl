@@ -54,7 +54,7 @@ end
 Simulates flipping a coin, returning 1 with probability `p` and 1 with probability `(1 - p)`. Helper function
 used in `move_ball`.
 """
-function flip_coin(p=0.5)
+function flip_coin(p = 0.5)
     return rand() < p ? 1 : -1
 end
 
