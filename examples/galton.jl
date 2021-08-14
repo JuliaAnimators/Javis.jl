@@ -51,10 +51,10 @@ end
 """
     flip_coin(p)
 
-Simulates flipping a coin, returning -1 with probability `p` and 1 with probability (1 - p). Helper function
+Simulates flipping a coin, returning 1 with probability `p` and 1 with probability `(1 - p)`. Helper function
 used in `move_ball`.
 """
-function flip_coin(p)
+function flip_coin(p=0.5)
     return rand() < p ? 1 : -1
 end
 
@@ -63,7 +63,7 @@ end
 
 Moves `ball` from the `first` level of pins to the `last` level of pins (i.e. top to bottom). `offset` should
 be the same offset used when creating the bins using `draw_separators`. The value `p` is the probability that
-a ball will go left at each pin, and the value `fno` is the frame number from which the ball should start moving.
+a ball will go right at each pin, and the value `fno` is the frame number from which the ball should start moving.
 
 Returns (fno, pos), where `fno` represents the last frame of the ball when it has reached it's destination,
 and pos represents the "sum" of the direction movements. For example, a ball that moved 5 times left, and
