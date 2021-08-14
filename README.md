@@ -96,3 +96,4 @@ We want to thank a couple of people who helped make this possible.
 - [@XRFXLP](https://github.com/XRFXLP) - fixing typo in docs
 - [@Ved-Mahajan](https://github.com/Ved-Mahajan) - for adding an example on Earth Venus cosmic dance
 - [@rmsrosa](https://github.com/rmsrosa) - for adding an example on escaping the swirling vortex
+- [@EnzioKam](https://github.com/EnzioKam) - for adding an example on the Galton Board
