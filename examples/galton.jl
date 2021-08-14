@@ -90,7 +90,7 @@ end
 Create the Galton Board animation and saves it in the file `galton.gif`. `seed` is used to determine the seed
 value for the pseudorandom number generation, and is used for reproducability.
 """
-function galton(seed)
+function galton(seed, p)
     nframes = 1200
     video = Video(250, 600)
     Background(1:nframes, ground)
@@ -107,7 +107,6 @@ function galton(seed)
     height = 350
     offset = width / (n - 1)
     radius = offset / 4
-    p = 0.5
 
     # Draws the line separators or "bins"
     draw_separators(n, xpos, ypos + gap, offset, height)
@@ -161,4 +160,5 @@ function galton(seed)
     return slots
 end
 
-galton(94)
+# Generate the "galton.gif" file.
+galton(94, 0.5)
