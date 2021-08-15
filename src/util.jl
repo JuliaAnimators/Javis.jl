@@ -251,3 +251,12 @@ function empty_CURRENT_constants()
     empty!(PREVIOUS_ACTION)
     empty!(CURRENT_OBJECT_ACTION_TYPE)
 end
+
+"""
+    interpolateable(x::AbstractVector)
+
+Return the vector in a datatype that is interpolateable. 
+Currently only implemented is to change from `<:Integer` to `float`
+"""
+interpolateable(x::AbstractVector) = x
+interpolateable(x::AbstractVector{<:Integer}) = float.(x)

@@ -13,7 +13,7 @@ end action = :stroke color = "red" radius = 8)
 ```
 
 In this example, the arguments after the `end` (i.e. `action = :stroke color = "red" radius = 8`)
-can be used inside the `bgein...end` block and animated using the [`change`](@ref) action.
+can be used inside the `begin...end` block and animated using the [`change`](@ref) action.
 """
 macro JShape(body::Expr, expr...)
     leftside = Expr(
