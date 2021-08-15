@@ -100,7 +100,7 @@ end
 
 """
     to_layer_m( frames, body; width, height, position)
-Helper method for the [`JLayer`](@ref) macro
+Helper method for the [`@JLayer`](@ref) macro
 Returns an expression that creates a layer and pushes the objects defined withing the body to the layer
 :transparent is the default while the other :opaque copies the video's background
 """
@@ -213,7 +213,7 @@ end
     remove_from_video(object::Object)
 
 Removes an object or a list of objects from the main video.
-This is a helper method for the [`@to_layer!`](@ref) method and is supposed to be used internally
+This is a helper method for the [`to_layer!`](@ref) method and is supposed to be used internally
 """
 function remove_from_video(object::Object)
     filter!(x -> x != object, CURRENT_VIDEO[1].objects)
