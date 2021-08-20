@@ -1,5 +1,9 @@
 # Javis.jl - Changelog
 
+## Unreleased
+- Make livestreaming faster
+- Allow specifying frames to livestream 
+
 ## v0.6.2 (12th of August 2021)
 - added `@Frames` macro for full power mode of defining frames
 - bugfix in `@JLayer` when dimensions are not defined explicitly

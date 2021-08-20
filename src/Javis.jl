@@ -275,6 +275,11 @@ function render(
         tempdirectory = mktempdir()
     end
 
+    if streamconfig !== nothing
+        _livestream(streamconfig, framerate, video, objects, layers, frames, tempdirectory)
+        return
+    end
+
     filecounter = 1
     @showprogress 1 "Rendering frames..." for frame in frames
         frame_image = convert.(RGB, get_javis_frame(video, objects, frame; layers = layers))
@@ -317,9 +322,6 @@ function render(
     else
         @error "Currently, only gif and mp4 creation is supported. Not a $ext."
     end
-
-    # check if livestream is used and livestream if that's the case
-    _livestream(streamconfig, framerate, video.width, video.height, pathname)
 
     # clear all CURRENT_* constants to not accidentally use a previous video when creating a new one
     empty_CURRENT_constants()

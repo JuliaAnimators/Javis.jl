@@ -133,6 +133,7 @@ end
     @test conf_local.protocol == "udp"
     @test conf_local.address == "0.0.0.0"
     @test conf_local.port == 8081
+    @test conf_local.frames == :all
 
     conf_twitch_err = setup_stream(:twitch)
     conf_twitch = setup_stream(:twitch, twitch_key = "foo")
@@ -141,14 +142,27 @@ end
     @test isempty(conf_twitch_err.twitch_key)
     @test conf_twitch.twitch_key == "foo"
 
-    render(vid, pathname = "stream_local.gif", streamconfig = conf_local)
+    render(vid, pathname = "test_stream.gif", streamconfig = conf_local)
 
     # errors with macos; a good test to have
     # test_local = run(pipeline(`lsof -i -P -n`, `grep ffmpeg`))
     # @test test_local isa Base.ProcessChain
     # @test test_local.processes isa Vector{Base.Process}
 
-    cancel_stream()
+    # can't actually test the streamed frames but let's check if they're atleast created
+    conf_local = setup_stream(:local, 56:60)
+    render(vid, tempdirectory = "images", streamconfig = conf_local)
+
+    for i in 56:60
+        @test_reference "refs/livestream_frames$i.png" load(
+            "images/$(lpad((i-55), 10, "0")).png",
+        )
+    end
+
+    for i in 1:5
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+
     @test_throws ProcessFailedException run(
         pipeline(
             `ps aux`,
@@ -166,5 +180,4 @@ end
         pathname = "stream_twitch.gif",
         streamconfig = conf_twitch_err,
     )
-    rm("stream_twitch.gif")
 end

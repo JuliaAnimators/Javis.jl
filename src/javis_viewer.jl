@@ -291,13 +291,14 @@ Sets up the livestream configuration.
 **NOTE:** Twitch not fully implemented, do not use.
 """
 function setup_stream(
-    livestreamto::Symbol = :local;
+    livestreamto::Symbol = :local,
+    frames::Union{UnitRange{Int},Symbol} = :all;
     protocol::String = "udp",
     address::String = "0.0.0.0",
     port::Int = 14015,
     twitch_key::String = "",
 )
-    StreamConfig(livestreamto, protocol, address, port, twitch_key)
+    StreamConfig(livestreamto, protocol, address, port, twitch_key, frames)
 end
 
 """
@@ -332,7 +333,7 @@ function cancel_stream()
             ),
         ),
     )
-    return "Livestream Cancelled!"
+    return @info "Livestream Cancelled!"
 end
 
 """
@@ -342,14 +343,18 @@ Internal method for livestreaming
 """
 function _livestream(
     streamconfig::StreamConfig,
-    framerate::Int,
-    width::Int,
-    height::Int,
-    pathname::String,
+    framerate,
+    video,
+    objects,
+    layers,
+    frames,
+    tempdirectory,
 )
+    # kill any existing stream
     cancel_stream()
 
     livestreamto = streamconfig.livestreamto
+    config_frames = streamconfig.frames
     twitch_key = streamconfig.twitch_key
 
     if livestreamto == :twitch && isempty(twitch_key)
@@ -357,24 +362,16 @@ function _livestream(
     end
 
     command = [
-        "-stream_loop", # loop the stream -1 times i.e. indefinitely
-        "-1",
-        "-r", # frames per second
-        "$framerate",
+        "ffmpeg",
+        "-f", "image2pipe", 
         "-an",  # Tells FFMPEG not to expect any audio
         "-loglevel", # show only ffmpeg errors
         "error",
-        "-re", # read input at native frame rate
         "-i", # input file
-        "$pathname",
+        "-"
     ]
 
     if livestreamto == :twitch
-        if isempty(twitch_key)
-            error("Please enter your twitch api key")
-        end
-
-        # 
         twitch_cmd = [
             "-f",
             "flv", # force the file to flv format
@@ -386,21 +383,46 @@ function _livestream(
         protocol = streamconfig.protocol
         address = streamconfig.address
         port = streamconfig.port
-        local_command = ["-f", "mpegts", "$protocol://$address:$port"] # use an mpeg-ts format, and stream to the given address/port using the protocol
+        local_command = ["-f", "mpegts","$protocol://$address:$port"] # use an mpeg-ts format, and stream to the given address/port using the protocol
         push!(command, local_command...)
         @info "Livestream Started at $protocol://$address:$port"
     end
 
+    stream_filecounter = 1
+    
+    stream_frames = config_frames == :all ? frames : config_frames
+    open(`$command`,  "w", stdout) do io
+        for frame in stream_frames
+            frame_image = convert.(RGB, get_javis_frame(video, objects, frame; layers = layers))
+            Images.save(Images.Stream{Images.format"PNG"}(io), frame_image)
+            if !isempty(tempdirectory)
+                Images.save("$(tempdirectory)/$(lpad(stream_filecounter, 10, "0")).png", frame_image)
+            end
+            stream_filecounter += 1
+        end
+    end
+
+
+    command_further_loops = [
+        "ffmpeg",
+        "-stream_loop", # loop the stream -1 times i.e. indefinitely
+        "-1",
+        "-f", "image2pipe", 
+        "-r", # frames per second
+        "$framerate",
+        "-an",  # Tells FFMPEG not to expect any audio
+        "-loglevel", # show only ffmpeg errors
+        "error",
+        "-re", # read input at native frame rate
+        "-i", # input file
+        "$(tempdirectory)/%10d.png",
+    ]
+
+    push!(command_further_loops, local_command...)
+        
     # schedule the streaming process and allow it to run asynchronously
     schedule(@task begin
-        ffmpeg_exe(`$command`)
+        ffmpeg_exe(`$command_further_loops`)
     end)
-end
 
-_livestream(
-    streamconfig::Nothing,
-    framerate::Int,
-    width::Int,
-    height::Int,
-    pathname::String,
-) = return
+end
