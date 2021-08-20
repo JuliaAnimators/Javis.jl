@@ -106,10 +106,12 @@ end
     red_ball = Object(RFrames(-24:0), (args...) -> circ(O, "red"), p1)
     act!(red_ball, Action(anim_rotate_around(from_rot, to_rot, O)))
 
-    blue_ball = Object(1:25, (args...) -> circ(O, "blue"), p2)
+    blue_ball = Object(@Frames(prev_start(), 25), (args...) -> circ(O, "blue"), p2)
     act!(blue_ball, Action(anim_rotate_around(to_rot, from_rot, red_ball)))
-    path_red =
-        Object(1:25, (video, args...) -> path!(path_of_red, get_position(red_ball), "red"))
+    path_red = Object(
+        @Frames(prev_start(), stop = prev_start() + 25 - 1),
+        (video, args...) -> path!(path_of_red, get_position(red_ball), "red"),
+    )
     path_blue =
         Object(:same, (video, args...) -> path!(path_of_blue, pos(blue_ball), "blue"))
     string = Object(1:25, (args...) -> rad(pos(red_ball), pos(blue_ball), "black"))
@@ -133,7 +135,7 @@ end
     video = Video(500, 500)
     back = Object(1:25, ground, in_global_layer = true)
     act!(back, Action(anim_rotate(π / 2, π / 2)))
-    act!(back, Action(1:1, anim_translate(Point(25, 25))))
+    act!(back, Action(@Frames(prev_start(), stop = 1), anim_translate(Point(25, 25))))
 
     Object(latex_title)
     red_ball = Object(RFrames(-24:0), (args...) -> circ_ret_trans(O, "red"), p1)
@@ -220,7 +222,7 @@ end
     p = Point(100, 0)
 
     Background(1:10, ground_black_on_white)
-    circ = Object((args...) -> circ_ret_trans(), p)
+    circ = Object(@Frames(1, stop = prev_end()), (args...) -> circ_ret_trans(), p)
     act!(circ, Action(anim_rotate_around(0.0, 2π, O)))
     Object((args...) -> line(Point(-200, 0), Point(-200, -10 * ang(circ)), :stroke))
 

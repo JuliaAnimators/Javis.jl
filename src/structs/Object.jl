@@ -31,8 +31,11 @@ end
 holds the current object in an array to be declared as a constant
 The current object can be accessed using CURRENT_OBJECT[1]
 """
-
 const CURRENT_OBJECT = Array{Object,1}()
+
+
+const PREVIOUS_OBJECT = Array{Object,1}()
+const CURRENT_OBJECT_ACTION_TYPE = Array{Symbol,1}()
 
 Object(func::Function, args...; kwargs...) = Object(:same, func, args...; kwargs...)
 

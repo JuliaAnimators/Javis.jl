@@ -19,6 +19,15 @@ function compute_frames!(
     is_first = true
     counter = 1
     for elem in elements
+        # update (CURRENT/PREVIOUS)_(OBJECT/ACTION) and CURRENT_OBJECT_ACTION_TYPE
+        if elem isa Object
+            set_current_object(elem)
+            empty!(CURRENT_ACTION)
+        elseif elem isa Action
+            set_current_action(elem)
+        end
+        set_current_action_type(elem)
+
         if last_frames === nothing && get_frames(elem) === nothing
             throw(ArgumentError("Frames need to be defined explicitly in the initial
                 Object/Background or Action."))
@@ -138,3 +147,116 @@ function get_polypoint_at(points, t; pdist = polydistances(points))
     )
     return overshootpoint
 end
+
+"""
+    set_previous_object(object::Object)
+
+Set the `object` as `PREVIOUS_OBJECT`
+"""
+function set_previous_object(object::Object)
+    if isempty(PREVIOUS_OBJECT)
+        push!(PREVIOUS_OBJECT, object)
+    else
+        PREVIOUS_OBJECT[1] = object
+    end
+end
+
+"""
+    set_previous_action(action::Action)
+
+Set the `action` as `PREVIOUS_ACTION`
+"""
+function set_previous_action(action::Action)
+    if isempty(PREVIOUS_ACTION)
+        push!(PREVIOUS_ACTION, action)
+    else
+        PREVIOUS_ACTION[1] = action
+    end
+end
+
+"""
+    set_current_object(object::Object)
+
+Set the `object` as `CURRENT_OBJECT` and update `PREVIOUS_OBJECT`/`PREVIOUS_ACTION`
+"""
+function set_current_object(object::Object)
+    update_previous_object_or_action()
+
+    if isempty(CURRENT_OBJECT)
+        push!(CURRENT_OBJECT, object)
+    else
+        CURRENT_OBJECT[1] = object
+    end
+end
+
+"""
+    set_current_action(action::Action)
+
+Set the `action` as `CURRENT_ACTION` and update `PREVIOUS_OBJECT`/`PREVIOUS_ACTION`
+"""
+function set_current_action(action::Action)
+    update_previous_object_or_action()
+
+    if isempty(CURRENT_ACTION)
+        push!(CURRENT_ACTION, action)
+    else
+        CURRENT_ACTION[1] = action
+    end
+end
+
+"""
+    update_previous_object_or_action() 
+
+Update the `PREVIOUS_OBJECT` or `PREVIOUS_ACTION` depending on whether the 
+last element was an object or an action. This is still saved in `CURRENT_OBJECT_ACTION_TYPE`.
+"""
+function update_previous_object_or_action()
+    if !isempty(CURRENT_OBJECT_ACTION_TYPE)
+        if CURRENT_OBJECT_ACTION_TYPE[1] == :Object
+            !isempty(CURRENT_OBJECT) && set_previous_object(CURRENT_OBJECT[1])
+        else
+            !isempty(CURRENT_ACTION) && set_previous_action(CURRENT_ACTION[1])
+        end
+    end
+end
+
+"""
+    set_current_action_type(t)
+
+Set `CURRENT_OBJECT_ACTION_TYPE` to `:Object` or `:Action` depending 
+on the type of `t`.
+"""
+function set_current_action_type(t)
+    type = :Object
+    if t isa AbstractAction
+        type = :Action
+    end
+    if isempty(CURRENT_OBJECT_ACTION_TYPE)
+        push!(CURRENT_OBJECT_ACTION_TYPE, type)
+    else
+        CURRENT_OBJECT_ACTION_TYPE[1] = type
+    end
+end
+
+"""
+    empty_CURRENT_constants()
+
+empty all `CURRENT_` constants like `CURRENT_OBJECT`
+"""
+function empty_CURRENT_constants()
+    empty!(CURRENT_VIDEO)
+    empty!(CURRENT_OBJECT)
+    empty!(CURRENT_ACTION)
+    empty!(PREVIOUS_OBJECT)
+    empty!(PREVIOUS_ACTION)
+    empty!(CURRENT_OBJECT_ACTION_TYPE)
+end
+
+"""
+    interpolateable(x::AbstractVector)
+
+Return the vector in a datatype that is interpolateable. 
+Currently only implemented is to change from `<:Integer` to `float`
+"""
+interpolateable(x::AbstractVector) = x
+interpolateable(x::AbstractVector{<:Integer}) = float.(x)

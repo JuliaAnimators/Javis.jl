@@ -24,6 +24,9 @@ mutable struct Action <: AbstractAction
     defs::Dict{Symbol,Any}
 end
 
+const CURRENT_ACTION = Array{Action,1}()
+const PREVIOUS_ACTION = Array{Action,1}()
+
 """
     Action([frames], [Animation], func::Function; keep=true)
 
