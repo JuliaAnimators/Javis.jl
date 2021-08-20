@@ -170,7 +170,7 @@ function show_layer_frame(
 end
 
 """
-    get_position(obj::Object)
+    get_position(l::Layer)
 
 Get access to the position of a layer.
 

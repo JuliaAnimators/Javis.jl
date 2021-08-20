@@ -108,7 +108,10 @@ video = Video(800, 800)
             poly0,
             poly1,
         ],
-        Action(40:51, change(:color, "blue")),
+        [
+            Action(40:51, change(:color, "red")),
+            Action(52:61, change(:color, colorant"red" => colorant"blue")),
+        ],
     )
     act!(
         [
