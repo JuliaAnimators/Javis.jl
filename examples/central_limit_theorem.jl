@@ -80,7 +80,7 @@ function hist_bar(; color)
 end
 
 # This can be changed to any distribution from Distribtuions.jl
-dist = Bernoulli(0.2)
+dist = Bernoulli(0.3)
 
 # Parameters for the barchart function 
 boundingbox = BoundingBox(O + (-250, -120), O + (250, 120))
@@ -144,7 +144,7 @@ final_hist = steps[end]
 for (frame_n, hist) in zip(frame_brakes, steps[1:end])
 
     Object(
-        frame_n:(frame_n + step_size),
+        frame_n : frame_n + step_size - 1,
         @JShape begin
             barchart(
                 hist.weights,
@@ -163,7 +163,7 @@ for (frame_n, hist) in zip(frame_brakes, steps[1:end])
 
     # The counter digits
     Object(
-        frame_n:(frame_n + step_size),
+        frame_n : frame_n + step_size - 1,
         @JShape begin
             @layer begin
                 sethue(barcolor)
