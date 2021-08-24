@@ -34,29 +34,33 @@ bottom tickline.
 """
 function fixed_gaussian(loc_hist; color)
     (values, i, lowpos, highpos, barwidth, scaledvalue) -> begin
-    
+
         minvalue, maxvalue = extrema(loc_hist.weights)
         barchartheight = boxheight(boundingbox) - 2margin
         minbarrange = minvalue - abs(minvalue)
         maxbarrange = maxvalue + abs(maxvalue)
         @layer begin
-            
+
             sethue(color)
             if i <= length(loc_hist.edges[1])
-                scaledgaussvalue = rescale(
-                    pdf(gauss, loc_hist.edges[1][i+1] - loc_hist.edges[1].step.hi/2),
-                    minbarrange,
-                    maxbarrange
-                ) * barchartheight
+                scaledgaussvalue =
+                    rescale(
+                        pdf(
+                            gauss,
+                            loc_hist.edges[1][i + 1] - loc_hist.edges[1].step.hi / 2,
+                        ),
+                        minbarrange,
+                        maxbarrange,
+                    ) * barchartheight
                 circle(lowpos - (0, scaledgaussvalue), 3, :fill)
             end
         end
 
         tickline(
-            boxbottomleft(boundingbox) - Point(0, margin), 
+            boxbottomleft(boundingbox) - Point(0, margin),
             boxbottomright(boundingbox) - Point(0, margin),
             startnumber = loc_hist.edges[1][1],
-            finishnumber = loc_hist.edges[1][end]
+            finishnumber = loc_hist.edges[1][end],
         )
     end
 end
@@ -109,12 +113,12 @@ finalmin, finalmax = extrema(samples[end])
 # Turn the samples into histograms
 steps = map(samples) do sampling
     hist = fit(
-        Histogram, 
+        Histogram,
         sampling,
         weights(ones(length(sampling))),
-        range(finalmin, finalmax, length=100)
+        range(finalmin, finalmax, length = 100),
     )
-    hist = StatsBase.normalize(hist, mode=:pdf)
+    hist = StatsBase.normalize(hist, mode = :pdf)
     hist
 end
 
@@ -138,33 +142,30 @@ final_hist = steps[end]
 for (frame_n, hist) in zip(frame_brakes, steps[2:end])
 
     Object(
-        frame_n:frame_n + step_size, 
+        frame_n:(frame_n + step_size),
         @JShape begin
             barchart(
                 hist.weights,
-                boundingbox=boundingbox,
-                labels=true,
-    
+                boundingbox = boundingbox,
+                labels = true,
+
                 # Provide the hist_bar we defined as the barfunction 
-                barfunction=hist_bar(color=barcolor),
-    
+                barfunction = hist_bar(color = barcolor),
+
                 # Provide the fixed_gaussian we defined as the labelfunction
                 # it will plot the gaussian dots and the ticks on the bottom
-                labelfunction = fixed_gaussian(
-                    final_hist,
-                    color=gausscolor
-                )
+                labelfunction = fixed_gaussian(final_hist, color = gausscolor),
             )
         end
     )
 
     Object(
-        frame_n:frame_n+step_size, 
+        frame_n:(frame_n + step_size),
         @JShape begin
             @layer begin
                 sethue(barcolor)
                 fontsize(15)
-                text(string(frame_n ÷ step_size), counterpoint, halign=:center)
+                text(string(frame_n ÷ step_size), counterpoint, halign = :center)
             end
         end
     )
@@ -174,20 +175,20 @@ Object(
     1:n_frames,
     @JShape begin
         fontsize(40)
-        text("Central Limit Theorem", titlepoint, halign=:center)
+        text("Central Limit Theorem", titlepoint, halign = :center)
 
         fontsize(20)
-        label("N", :N, counterpoint, offset=20)
-        label("Distribution", :N, distpoint, offset=20)
+        label("N", :N, counterpoint, offset = 20)
+        label("Distribution", :N, distpoint, offset = 20)
 
         sethue(barcolor)
         fontsize(15)
         text(
-          join([string(typeof(dist).name.name); string(params(dist))], ""),
-          distpoint,
-          halign=:center
+            join([string(typeof(dist).name.name); string(params(dist))], ""),
+            distpoint,
+            halign = :center,
         )
     end
 )
 
-render(my_video, framerate=100, pathname="central_limit_theorem.gif")
+render(my_video, framerate = 100, pathname = "central_limit_theorem.gif")
