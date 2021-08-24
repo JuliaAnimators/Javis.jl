@@ -10,7 +10,6 @@ using Colors
 
 # Following modules don't belong to Javis dependencies so to run them 
 # one needs to add them to the enviroment used to run this script
-
 using StatsBase
 using Distributions
 
@@ -29,7 +28,7 @@ end
 
 Returns an anonymous function to be given to barchart as labelfunction.
 It takes care of normalizing the values of the limit gaussian distribution according
-to the ```loc_hist``` histogram and render these values as circles. Also draw the
+to the ```loc_hist``` histogram and render these values as circles. Also draws the
 bottom tickline.
 """
 function fixed_gaussian(loc_hist; color)
@@ -83,8 +82,10 @@ end
 # This can be changed to any distribution from Distribtuions.jl
 dist = Bernoulli(0.2)
 
-
+# Parameters for the barchart function 
 boundingbox = BoundingBox(O + (-250, -120), O + (250, 120))
+margin = 5
+
 
 # number of frames
 n_frames = 700
@@ -98,6 +99,7 @@ n_hists = 700
 # number of samples at each n 
 n_samples = 10000
 
+# Change to adjust bar colors and gauss colors
 barcolor = HSV(colorant"goldenrod1")
 gausscolor = HSV(240, barcolor.s, barcolor.v)
 
@@ -139,7 +141,7 @@ counterpoint = Point(200, 0)
 # The last and thus hopefully most closely converged histogram in our sequence
 final_hist = steps[end]
 
-for (frame_n, hist) in zip(frame_brakes, steps[2:end])
+for (frame_n, hist) in zip(frame_brakes, steps[1:end])
 
     Object(
         frame_n:(frame_n + step_size),
@@ -159,6 +161,7 @@ for (frame_n, hist) in zip(frame_brakes, steps[2:end])
         end
     )
 
+    # The counter digits
     Object(
         frame_n:(frame_n + step_size),
         @JShape begin
@@ -171,6 +174,7 @@ for (frame_n, hist) in zip(frame_brakes, steps[2:end])
     )
 end
 
+# All the writings except the changing digit.
 Object(
     1:n_frames,
     @JShape begin
@@ -184,6 +188,8 @@ Object(
         sethue(barcolor)
         fontsize(15)
         text(
+            # Gather the distribution name and parameters
+            # only works if dist is from Distributions.jl
             join([string(typeof(dist).name.name); string(params(dist))], ""),
             distpoint,
             halign = :center,
