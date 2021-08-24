@@ -85,9 +85,10 @@ boundingbox = BoundingBox(O + (-250, -120), O + (250, 120))
 # number of frames
 n_frames = 700
 
-# number of histograms shown to make the animations
-# slower set this to a lower value less histograms
-# will be shown but they will reach the same n for convergence
+# Number of histograms shown. To make the animation
+# slower set this to a lower value, less histograms
+# will be shown but they will reach the same n for 
+# convergence as set by n_frames
 n_hists = 700
 
 # number of samples at each n 
