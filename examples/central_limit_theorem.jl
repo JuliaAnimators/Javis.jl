@@ -133,7 +133,7 @@ Background(1:n_frames, ground)
 step_size = n_frames ÷ n_hists
 frame_brakes = 1:step_size:n_frames
 
-# Fix some point where whritings will be shown
+# Fix some point where writings will be shown
 titlepoint = Point(0, -100)
 distpoint = Point(-200, 0)
 counterpoint = Point(200, 0)
@@ -141,7 +141,7 @@ counterpoint = Point(200, 0)
 # The last and thus hopefully most closely converged histogram in our sequence
 final_hist = steps[end]
 
-for (frame_n, hist) in zip(frame_brakes, steps[1:end])
+for (frame_n, hist) in zip(frame_brakes, steps)
 
     Object(
         frame_n:(frame_n + step_size - 1),
@@ -165,11 +165,9 @@ for (frame_n, hist) in zip(frame_brakes, steps[1:end])
     Object(
         frame_n:(frame_n + step_size - 1),
         @JShape begin
-            @layer begin
-                sethue(barcolor)
-                fontsize(15)
-                text(string(frame_n ÷ step_size), counterpoint, halign = :center)
-            end
+            sethue(barcolor)
+            fontsize(15)
+            text(string(frame_n ÷ step_size), counterpoint, halign = :center)
         end
     )
 end
@@ -197,4 +195,4 @@ Object(
     end
 )
 
-render(my_video, framerate = 100, pathname = "central_limit_theorem.gif")
+render(my_video, pathname = "central_limit_theorem.gif")
