@@ -14,10 +14,8 @@ Draws an oriented grid on the given frame of a Video.
 
 # Example
 Example call of this function within an `Object`.
-```
-...
+```julia
  Object(1:100, :line, draw_grid(direction = "TL", line_gap = 25))
-...
 ```
 
 """
@@ -106,10 +104,8 @@ This example will produce an animation with the vertical axis being drawn toward
 and the horizontal axis being drawn towards the left.
 One will need to define their own path for `tempdirectory` and `pathname`.
 
-```
-...
+```julia
  Object(1:100, :line, zero_lines(direction = "TL", line_thickness = 10)),
-...
 ```
 
 """
