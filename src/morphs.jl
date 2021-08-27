@@ -25,7 +25,7 @@ i.e. use `circle(Point(100,100), 50)` instead of `circle(Point(100,100), 50, :st
 
 This creates a star that morphs into a circle and back.
 
-```
+```julia
 astar(args...; do_action=:stroke) = star(O, 50, 5, 0.5, 0, do_action)
 acirc(args...; do_action=:stroke) = circle(Point(100,100), 50, do_action)
 

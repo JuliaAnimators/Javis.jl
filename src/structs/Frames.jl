@@ -156,13 +156,13 @@ endof(oa::Union{AbstractAction,AbstractObject}) = oa.frames.frames[end]
 Can be used to define frames using functions like [`prev_start`](@ref) or [`prev_end`](@ref)
 
 # Example
-```
+```julia
 red_circ = Object(1:90, (args...)->circ("red"))
 blue_circ = Object(@Frames(prev_start()+20, 70), (args...)->circ("blue"))
 blue_circ = Object(@Frames(prev_start()+20, stop=90), (args...)->circ("blue"))
 ```
 is the same as
-```
+```julia
 red_circ = Object(1:90, (args...)->circ("red"))
 blue_circ = Object(21:90, (args...)->circ("blue"))
 blue_circ = Object(41:90, (args...)->circ("blue"))
