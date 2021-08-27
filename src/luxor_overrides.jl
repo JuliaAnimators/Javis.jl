@@ -72,7 +72,7 @@ end
 Same as `Luxor.get_fontsize` but works with every version of Luxor that is supported by Javis.
 
 # Example
-```
+```julia
 fontsize(12)
 fsize = get_fontsize()
 text("Hello World! \$fsize")
