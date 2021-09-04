@@ -98,3 +98,4 @@ We want to thank a couple of people who helped make this possible.
 - [@rmsrosa](https://github.com/rmsrosa) - for adding an example on escaping the swirling vortex
 - [@EnzioKam](https://github.com/EnzioKam) - for adding an example on the Galton Board
 - [@gpucce](https://github.com/gpucce) - for adding an example on the Central Limit Theorem
+- [@pitmonticone](https://github.com/pitmonticone) - finding a typo in the docs
