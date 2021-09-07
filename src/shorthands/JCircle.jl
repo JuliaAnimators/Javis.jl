@@ -18,7 +18,7 @@ Draw a circle at `center` with the given `radius`
 # Keywords for all
 - `color` = "black"
 - `linewidth` = 1
-- `action::Symbol` :stroke by default can be ``:fill` or other actions explained in the Luxor documentation.
+- `action::Symbol` :stroke by default can be `:fill` or other actions explained in the Luxor documentation.
 
 Returns the center of the circle
 """

@@ -31,7 +31,7 @@ Returns the center of the ellipse.
 # Keywords for all
 - `color` = "black"
 - `linewidth` = 1
-- `action::Symbol` :stroke by default can be ``:fill` or other actions explained in the Luxor documentation.
+- `action::Symbol` :stroke by default can be `:fill` or other actions explained in the Luxor documentation.
 """
 JEllipse(cpt::Point, w::Real, h::Real; color = "black", linewidth = 1, action = :stroke) =
     (
