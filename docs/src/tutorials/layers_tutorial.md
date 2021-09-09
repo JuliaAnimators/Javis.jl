@@ -145,11 +145,6 @@ anim_back_and_forth = map(final_points) do point
     )
 end
 
-map(zip(anim_back_and_forth, planets)) do ((animation, pl))
-    act!(pl, Action(1:1, anim_scale(0.4)))
-    act!(pl, Action(1:140, animation, translate(), keep=true))
-end
-
 map(zip(anim_back_and_forth, planets)) do (animation, pl)
     act!(pl, Action(1:1, anim_scale(0.4)))
     act!(pl, Action(1:140, animation, translate()))
