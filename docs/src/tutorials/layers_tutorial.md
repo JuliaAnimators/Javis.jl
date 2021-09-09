@@ -74,10 +74,6 @@ Background(1:70, ground)
 dancing_circles(O, "yellow", "green")
 
 render(colored_planets, pathname="colored_planets.gif")
-
-finalvideo = Video(500, 500)
-
-Background(1:140, ground)
 ```
 This will result in the following 
 
