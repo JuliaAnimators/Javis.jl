@@ -1,5 +1,7 @@
 # Javis.jl - Changelog
 
+## Unreleased
+- added `scale_linear` function to easily scale values or points.
 ## v0.6.2 (12th of August 2021)
 - added `@Frames` macro for full power mode of defining frames
 - bugfix in `@JLayer` when dimensions are not defined explicitly
