@@ -15,18 +15,18 @@ scale_point(Point(7,8)) # returns Point(70, 80)
 ```
 """
 function scale_linear(fmin, fmax, tmin, tmax)
-    (x)->begin
+    (x) -> begin
         x = clamp(x, fmin, fmax)
-        (x-fmin)/(fmax-fmin)*(tmax-tmin)+tmin
+        (x - fmin) / (fmax - fmin) * (tmax - tmin) + tmin
     end
 end
 
 function scale_linear(fmin::Point, fmax::Point, tmin::Point, tmax::Point)
-    (p::Point)->begin 
+    (p::Point) -> begin
         px = clamp(p.x, fmin.x, fmax.x)
         py = clamp(p.y, fmin.y, fmax.y)
-        nx = (px-fmin.x)/(fmax.x-fmin.x)*(tmax.x-tmin.x)+tmin.x
-        ny = (py-fmin.y)/(fmax.y-fmin.y)*(tmax.y-tmin.y)+tmin.y
+        nx = (px - fmin.x) / (fmax.x - fmin.x) * (tmax.x - tmin.x) + tmin.x
+        ny = (py - fmin.y) / (fmax.y - fmin.y) * (tmax.y - tmin.y) + tmin.y
         return Point(nx, ny)
     end
 end
