@@ -127,7 +127,7 @@ This lets you move the dancing circles animation around the video without any ef
 
 ## Organizing Our Creation
 
-### Choose Layers Animation Positions
+### Choose Layers Action Points
 
 Now we try to use this idea to compose several layers in a single video, in particular we will move 4 groups of dancing circles to create an Andy Wharol style ensemble of dancing circles!!
 
@@ -149,7 +149,7 @@ final_points = [
 ]
 ```
 
-## Initialize the Layers
+### Initialize the Layers
 
 Then we start the video and define our circles:
 
@@ -164,7 +164,7 @@ all_dancing_circles = map(colors) do c
     end
 end
 ```
-## Apply to each Layers its own Action
+### Apply to each Layers its own Action
 
 We build the animation just like before but with different endpoints for each dancing 
 circle we created and then we apply it to each layer together with a scaling action so we don't make the video
@@ -191,10 +191,7 @@ end
 render(myvideo; pathname="tutorial_8.gif")
 ```
 
-
-## Admire the Outstanding outcome!!
-
-### They're Multiplying!
+### Admire the Outstanding outcome!! They're Multiplying!
 
 ![](assets/4_moving_colored_dancing_circles.gif)
 
