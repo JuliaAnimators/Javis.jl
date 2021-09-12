@@ -262,7 +262,7 @@ planets = map(colors) do c
     end
 end
 
-anim_back_and_forth = map(planets) do point
+anim_back_and_forth = map(final_points) do point
     Animation(
         [0.0, 1/2, 1.0],
         [O, point, O],
