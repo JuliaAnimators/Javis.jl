@@ -10,14 +10,14 @@ Layers - specifically, `@JLayer`'s!
 ## What Even Are Layers? And What's a `@Jlayer`?
 
 A layer is a common concept used in several animation toolkits and image editing softwares. Its goal is to make
-it easy to devide an animation in separated parts and work on each separately while the software takes care 
-of the interactions between layers, making it easier to put together complex videos or images composed of 
-several simpler parts. 
+it easy to divide an animation in different parts and work on each separately while the software takes care 
+of the interactions between them, making it easier to put together complex videos or images composed of 
+several simpler parts.
 
 In `Javis` a `@JLayer` is the implementation of this idea, it allows you to enclose the content of an animation 
-and to work on it, specifically `act!` on it, as if it was an `Object` alltogether, so that we don't have to care
-for the interactions among different parts of a video, by acting on all of them one by onw, but instead we can let 
-`Javis` take care of it.
+and to work on it, specifically `act!` on it, just like on a single `Object`, this way we don't need to care
+for the interactions among different parts of a video, by acting on all of them one by one, but instead we can let 
+`Javis` do all the annoying composition parts.
 
 ## Going Back to the Basics
 
@@ -32,11 +32,12 @@ http://www.mrspicassosartroom.com/2012/05/andy-warhol-color-theory-animals.html
 ### Let's Add Some Color!
 
 First let us adjust the dancing circles animation to allow for color tweaking. As usual we start with all
-the functions that we defined in [Tutorial 1](tutorial_1.md):
+the functions we already defined in [Tutorial 1](tutorial_1.md):
 
 ```julia
 using Javis
 
+# Different from tutorial one now background in black and pen is white
 function ground(args...)
     background("black") # canvas background
     sethue("white") # pen color
@@ -278,5 +279,4 @@ map(zip(anim_back_and_forth, planets)) do (animation, pl)
 end
 
 render(finalvideo; pathname="tutoral_8.gif")
-
 ```
