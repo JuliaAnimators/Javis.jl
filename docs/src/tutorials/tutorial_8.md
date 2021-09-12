@@ -152,7 +152,7 @@ final_points = [
 ]
 ```
 
-Then we start the video and define our cirlces:
+Then we start the video and define our circles:
 
 ```julia
 
@@ -167,7 +167,7 @@ all_dancing_circles = map(colors) do c
 end
 ```
 
-And we build the animation just like before but with different endpoints for each dancing 
+We build the animation just like before but with different endpoints for each dancing 
 circle we created and then we apply it to each layer together with a scaling action so we don't make the video
 overly crowded. Finally we render it.
 
@@ -202,7 +202,8 @@ render(myvideo; pathname="tutorial_8.gif")
 To wrap up, what this tutorial should help understand is how we can use `Layer`s to compose different
 ideas created with `Javis` and join all of them without needing to move each part as a single one with lots of
 `Action`s around. Indeed, we should first wrap several `Object`s, each with its `Action`s within a `@JLayer` and work
-on it as a whole. To create some beautiful animations.
+on it as a whole. This adds a new level of composability over the already flexible `Javis` allowing a whole new 
+level of flexibility in animations!!
 
 ## Full Code
 
@@ -279,9 +280,3 @@ end
 render(finalvideo; pathname="tutoral_8.gif")
 
 ```
-
-## Misc To-Dos
-
-- [ x ] Change name of file to tutorial_X.md when done
-- [ x ] Add link to tutorial on "Beginners Start Here Page"
-- [ x ] Add link to Documenter make.jl
