@@ -20,5 +20,6 @@ Currently, these tutorials are available:
 - [**Tutorial 5: Do You Know Our Mascot? Learn about Transitions and Actions!**](tutorials/tutorial_5.md) - a fun tutorial to make our mascot and learn about the `Action` and `Transition` type methods.
 - [**Tutorial 6: Taming the Elements**](tutorials/tutorial_6.md) - how to use `change` to grow or shrink arbitrary objects and using `Javis` with other Julia packages.
 - [**Tutorial 7: Using Animations.jl to Create something with more Pep!**](tutorials/tutorial_7.md) - an advanced tutorial to make your animations more interesting.
+- [**Tutorial 8: Fun with Layers! An Intro to `@JLayer`**](tutorials/tutorial_8.md) - a `Javis` state of the art tutorial on how to use `@JLayer` to make composable animations
 
 If you spot an issue with any of these tutorials, please let us know! Thank you!
