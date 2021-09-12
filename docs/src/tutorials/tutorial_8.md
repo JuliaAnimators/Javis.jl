@@ -164,7 +164,7 @@ all_dancing_circles = map(colors) do c
     end
 end
 ```
-### Apply to each Layers its own Action
+### Apply to each Layer its own Action
 
 We build the animation just like before but with different endpoints for each dancing 
 circle we created and then we apply it to each layer together with a scaling action so we don't make the video
