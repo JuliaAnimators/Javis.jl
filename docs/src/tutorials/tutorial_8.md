@@ -84,10 +84,6 @@ Background(1:70, ground)
 dancing_circles("green", "orange")
 
 render(colored_planets, pathname="colored_planets.gif")
-
-finalvideo = Video(500, 500)
-
-Background(1:140, ground)
 ```
 This will result in the same animation but different circles' colors and different background,
 black has become more hyp since [Tutorial 1](tutorial_1.md)!!
@@ -122,7 +118,7 @@ anim_back_and_forth = Animation(
 	
 act!(l1, Action(1:140, anim_back_and_forth, translate()))
 
-render(myvideo; pathname="tutorial_1.gif")
+render(myvideo; pathname="dancing_circles_layer.gif")
 ```
 
 This lets you move the dancing circles animation around the video without any effort!!
@@ -156,7 +152,6 @@ final_points = [
 Then we start the video and define our circles:
 
 ```julia
-
 myvideo = Video(500, 500)
 
 Background(1:140, ground)
