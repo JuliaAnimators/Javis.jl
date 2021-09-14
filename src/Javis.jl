@@ -526,9 +526,10 @@ function get_javis_frame(video, objects, frame; layers = Layer[])
 
     # check if any layers have been defined
     if !isempty(layers)
-
+        starting_positions = []
         # render each layer's objects and store the layer's Drawing as an image matrix
         for layer in layers
+            push!(starting_positions, layer.position)
             if isempty(Javis.CURRENT_LAYER)
                 push!(Javis.CURRENT_LAYER, layer)
             else
@@ -550,6 +551,9 @@ function get_javis_frame(video, objects, frame; layers = Layer[])
         end
 
         img_layers = place_layers(video, layers, frame)
+        for (position, layer) in zip(starting_positions, layers)
+            layer.position = position
+        end
     end
 
     empty!(CURRENT_LAYER)
