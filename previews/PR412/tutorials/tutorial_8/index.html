@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Tutorial 8: Fun with Layers! An Intro to @JLayer · Javis.jl</title><script data-outdated-warner src="../../assets/warner.js"></script><link rel="canonical" href="https://Wikunia.github.io/Javis.jl/tutorials/tutorial_8/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">Javis.jl</a></span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../"><strong>Information about Tutorials - Beginners Start Here!</strong></a></li><li><a class="tocitem" href="../tutorial_1/"><strong>Tutorial 1:</strong> Making Your First Javis Animation!</a></li><li><a class="tocitem" href="../tutorial_2/"><strong>Tutorial 2:</strong> Cosmic Dancing and Javis Shorthand Expressions!</a></li><li><a class="tocitem" href="../tutorial_3/"><strong>Tutorial 3:</strong> What Are Objects?</a></li><li><a class="tocitem" href="../tutorial_4/"><strong>Tutorial 4:</strong> Rendering LaTeX with Javis!</a></li><li><a class="tocitem" href="../tutorial_5/"><strong>Tutorial 5:</strong> Do You Know Our Mascot? - Learn About Transitions And Actions!</a></li><li><a class="tocitem" href="../tutorial_6/"><strong>Tutorial 6:</strong> Taming the Elements</a></li><li><a class="tocitem" href="../tutorial_7/"><strong>Tutorial 7:</strong> Using Animations.jl to Create something with more Pep!</a></li><li class="is-active"><a class="tocitem" href><strong>Tutorial 8:</strong> Fun with Layers! An Intro to <code>@JLayer</code></a><ul class="internal"><li><a class="tocitem" href="#What-Even-Are-Layers?-And-What&#39;s-a-@Jlayer?"><span>What Even Are Layers? And What&#39;s a <code>@Jlayer</code>?</span></a></li><li><a class="tocitem" href="#Going-Back-to-the-Basics"><span>Going Back to the Basics</span></a></li><li><a class="tocitem" href="#Organizing-Our-Creation"><span>Organizing Our Creation</span></a></li><li><a class="tocitem" href="#Voila!"><span>Voila! 🎨</span></a></li><li><a class="tocitem" href="#Conclusion"><span>Conclusion</span></a></li><li><a class="tocitem" href="#Full-Code"><span>Full Code</span></a></li></ul></li></ul></li><li><a class="tocitem" href="../../howto/">HowTo</a></li><li><a class="tocitem" href="../../workflows/">Workflows</a></li><li><a class="tocitem" href="../../examples/">Examples</a></li><li><a class="tocitem" href="../../mission/">Mission</a></li><li><a class="tocitem" href="../../references/">References</a></li><li><a class="tocitem" href="../../contributing/">Contributing</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href><strong>Tutorial 8:</strong> Fun with Layers! An Intro to <code>@JLayer</code></a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href><strong>Tutorial 8:</strong> Fun with Layers! An Intro to <code>@JLayer</code></a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/Wikunia/Javis.jl/blob/master/docs/src/tutorials/tutorial_8.md#L" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="**Tutorial-8:**-Fun-with-Layers!-An-Intro-to-@JLayer"><a class="docs-heading-anchor" href="#**Tutorial-8:**-Fun-with-Layers!-An-Intro-to-@JLayer"><strong>Tutorial 8:</strong> Fun with Layers! An Intro to <code>@JLayer</code></a><a id="**Tutorial-8:**-Fun-with-Layers!-An-Intro-to-@JLayer-1"></a><a class="docs-heading-anchor-permalink" href="#**Tutorial-8:**-Fun-with-Layers!-An-Intro-to-@JLayer" title="Permalink"></a></h1><p>So far, we have been using <code>Javis</code> to create one animation at a time. This has been great and you should be proud of your <code>Javis</code> skills so far! However, what if I told you, there is a way to make multiple animations in one animation? 😎</p><p>And the way to do that? Layers - specifically, <code>@JLayer</code>&#39;s!</p><h2 id="What-Even-Are-Layers?-And-What&#39;s-a-@Jlayer?"><a class="docs-heading-anchor" href="#What-Even-Are-Layers?-And-What&#39;s-a-@Jlayer?">What Even Are Layers? And What&#39;s a <code>@Jlayer</code>?</a><a id="What-Even-Are-Layers?-And-What&#39;s-a-@Jlayer?-1"></a><a class="docs-heading-anchor-permalink" href="#What-Even-Are-Layers?-And-What&#39;s-a-@Jlayer?" title="Permalink"></a></h2><p>A layer is a common concept used in several animation toolkits and image editing software.  You can imagine layers as transparent plastic sheets with images drawn on them. When you stack the sheets on top of each other, the overall picture is formed. An example of this is shown stacking of layers is shown below:</p><p><img src="../assets/layers_illustration.jpg" alt/></p><blockquote><p>The image above comes from https://sites.google.com/a/ocdsb.ca/srishti-s-comp-tech/photoshop/important-elements and the simple explanation of layers came from here: https://learn.zoner.com/6-reasons-use-layers-photo-editing/</p></blockquote><p>The goal of layers is to make it easy to divide an animation into different parts. They can then be worked on separately while the software takes care of the interactions between them. It can assist in easing the creation complex videos or images composed of several simpler parts.</p><p>In <code>Javis</code> a <code>@JLayer</code> is the implementation of this idea, it allows you to enclose the content of an animation and to work on it - <code>act!</code> on it - just like on a single <code>Object</code>. This way we do not need to worry about all the interactions between different parts of a video by acting on them one by one. Instead we can let <code>Javis</code> do all that manual composition for us.</p><h2 id="Going-Back-to-the-Basics"><a class="docs-heading-anchor" href="#Going-Back-to-the-Basics">Going Back to the Basics</a><a id="Going-Back-to-the-Basics-1"></a><a class="docs-heading-anchor-permalink" href="#Going-Back-to-the-Basics" title="Permalink"></a></h2><p>In <a href="../tutorial_1/">Tutorial 1</a>, we learned how to make circles go around:</p><p><img src="../assets/dancing_circles.gif" alt/></p><p>For this tutorial, we are going to reuse this animation but create an artistic animation similar to the works of famous American pop artist, Andy Warhol - here is an example:</p><p><img src="../assets/four_dollar_warhol.jpg" alt/></p><blockquote><p><em>Dollar Signs</em> by Andy Warhol</p></blockquote><h3 id="Let&#39;s-Add-Some-Color!"><a class="docs-heading-anchor" href="#Let&#39;s-Add-Some-Color!">Let&#39;s Add Some Color!</a><a id="Let&#39;s-Add-Some-Color!-1"></a><a class="docs-heading-anchor-permalink" href="#Let&#39;s-Add-Some-Color!" title="Permalink"></a></h3><p>First let&#39;s adjust the dancing circles animation to allow for color tweaking. As usual we start with all the functions we already defined in <a href="../tutorial_1/">Tutorial 1</a>:</p><pre><code class="language-julia hljs">using Javis
+
+# Different from tutorial one now background in black and pen is white
+function ground(args...)
+    background(&quot;black&quot;) # canvas background
+    sethue(&quot;white&quot;) # pen color
+end
+
+function object(p=O, color=&quot;black&quot;)
+    sethue(color)
+    circle(p, 25, :fill)
+    return p
+end
+
+function path!(points, pos, color)
+    sethue(color)
+    push!(points, pos) # add pos to points
+    circle.(points, 2, :fill) # draws a circle for each point using broadcasting
+end</code></pre><p>Now let&#39;s add small changes to the dancing circles to make it into a function and add arguments to choose the colors of the two circles each time.</p><pre><code class="language-julia hljs">
+function dancing_circles(c1, c2, start_pos=O)
+    path_of_red = Point[]
+    path_of_blue = Point[]
+
+    red_ball = Object((args...)-&gt;object(O, c1), start_pos + (100, 0))
+    act!(red_ball, Action(anim_rotate_around(2π, start_pos)))
+    blue_ball = Object((args...)-&gt;object(O, c2), start_pos + (200, 80))
+    act!(blue_ball, Action(anim_rotate_around(2π, 0.0, red_ball)))
+    Object((args...)-&gt;path!(path_of_red, pos(red_ball), c1))
+    Object((args...)-&gt;path!(path_of_blue, pos(blue_ball), c2))
+end</code></pre><p>Now we have all the ingredients for a colored animation where we switched the color of the moving circles.</p><pre><code class="language-julia hljs">colored_planets = Video(500, 500)
+Background(1:70, ground)
+dancing_circles(&quot;green&quot;, &quot;orange&quot;)
+
+render(colored_planets, pathname=&quot;colored_planets.gif&quot;)</code></pre><p>This will result in the same animation but with different colors. Black has become more in vogue since <a href="../tutorial_1/">Tutorial 1</a>! 😉</p><p><img src="../assets/colored_dancing_circles.gif" alt/></p><h3 id="Moving-Our-Animation-with-Layers"><a class="docs-heading-anchor" href="#Moving-Our-Animation-with-Layers">Moving Our Animation with Layers</a><a id="Moving-Our-Animation-with-Layers-1"></a><a class="docs-heading-anchor-permalink" href="#Moving-Our-Animation-with-Layers" title="Permalink"></a></h3><p>We can now use layers to move around our previous animation. First we wrap it in a <code>@JLayer</code> macro:</p><pre><code class="language-julia hljs">myvideo = Video(500, 500)
+Background(1:140, ground)
+
+l1 = @JLayer 1:140 begin
+    dancing_circles(&quot;green&quot;, &quot;orange&quot;)
+end</code></pre><p>Then we <code>act!</code> on it just like on a regular Object.</p><pre><code class="language-julia hljs">act!(l1, Action(1:1, anim_scale(0.4)))
+
+animation_point = Point(-75, -75)
+anim_back_and_forth = Animation(
+		[0, 1/2, 1],
+		[animation_point, -animation_point, animation_point],
+		[sineio(), sineio()]
+	)
+	
+act!(l1, Action(1:140, anim_back_and_forth, translate()))
+
+render(myvideo; pathname=&quot;dancing_circles_layer.gif&quot;)</code></pre><p>This lets you move the dancing circles animation around the video without any effort!!</p><p><img src="../assets/1_moving_colored_dancing_circles.gif" alt/></p><h2 id="Organizing-Our-Creation"><a class="docs-heading-anchor" href="#Organizing-Our-Creation">Organizing Our Creation</a><a id="Organizing-Our-Creation-1"></a><a class="docs-heading-anchor-permalink" href="#Organizing-Our-Creation" title="Permalink"></a></h2><h3 id="Choose-Layers-Action-Points"><a class="docs-heading-anchor" href="#Choose-Layers-Action-Points">Choose Layers Action Points</a><a id="Choose-Layers-Action-Points-1"></a><a class="docs-heading-anchor-permalink" href="#Choose-Layers-Action-Points" title="Permalink"></a></h3><p>Now we try to use this idea to compose several layers in a single video, in particular we will move 4 groups of dancing circles to create an Andy Warhol style ensemble of dancing circles!</p><p>First we pick the colors for our animation and where we want each of our layers to end up at when the layers are created from the origin:</p><pre><code class="language-julia hljs">colors = [
+    [&quot;red&quot;, &quot;green&quot;],
+    [&quot;orange&quot;, &quot;blue&quot;],
+    [&quot;yellow&quot;, &quot;purple&quot;],
+    [&quot;greenyellow&quot;, &quot;darkgoldenrod1&quot;]
+]
+
+final_points = [
+    Point(-150, -150),
+    Point(150, -150),
+    Point(150, 150),
+    Point(-150, 150),
+]</code></pre><h3 id="Initialize-the-Layers"><a class="docs-heading-anchor" href="#Initialize-the-Layers">Initialize the Layers</a><a id="Initialize-the-Layers-1"></a><a class="docs-heading-anchor-permalink" href="#Initialize-the-Layers" title="Permalink"></a></h3><p>Then we start the video and define our circles:</p><pre><code class="language-julia hljs">myvideo = Video(500, 500)
+
+Background(1:140, ground)
+
+planets = map(colors) do c
+    @JLayer 1:140 begin
+        dancing_circles(c...) 
+    end
+end</code></pre><h3 id="Apply-an-Action-to-Each-Layer"><a class="docs-heading-anchor" href="#Apply-an-Action-to-Each-Layer">Apply an <code>Action</code> to Each Layer</a><a id="Apply-an-Action-to-Each-Layer-1"></a><a class="docs-heading-anchor-permalink" href="#Apply-an-Action-to-Each-Layer" title="Permalink"></a></h3><p>We build the animation just like before but with different endpoints for each dancing  circle layer we created. We then apply a scaling action to the layers so we don&#39;t make the video overly crowded:</p><pre><code class="language-julia hljs">anim_back_and_forth = map(planets) do point
+    Animation(
+        [0.0, 1/2, 1.0],
+        [O, point, O],
+        [sineio(), sineio()]
+    )
+end
+
+# FIX: Could you turn this into a for loop for clarity? 
+map(zip(anim_back_and_forth, planets)) do (animation, pl)
+    
+    # Scale the layers
+    act!(pl, Action(1:1, anim_scale(0.4)))
+
+    # Move them around
+    act!(pl, Action(1:140, animation, translate()))
+end</code></pre><h2 id="Voila!"><a class="docs-heading-anchor" href="#Voila!">Voila! 🎨</a><a id="Voila!-1"></a><a class="docs-heading-anchor-permalink" href="#Voila!" title="Permalink"></a></h2><p>Now finally, we can render this animation by running the following:</p><pre><code class="language-julia hljs">render(myvideo; pathname=&quot;tutorial_8.gif&quot;)</code></pre><p><img src="../assets/4_moving_colored_dancing_circles.gif" alt/></p><p>You are an artist!</p><h2 id="Conclusion"><a class="docs-heading-anchor" href="#Conclusion">Conclusion</a><a id="Conclusion-1"></a><a class="docs-heading-anchor-permalink" href="#Conclusion" title="Permalink"></a></h2><p>To wrap up, what you learned from this tutorial is how we can use <code>@JLayer</code>&#39;s to compose different ideas created with <code>Javis</code> and join them together without needing to manage each individual component of layer animations.  This adds a whole new <em>layer</em> (😃) of composability over <code>Javis</code> enabling entirely new approaches to creating complex animations with Javis! Go forth and create!</p><h2 id="Full-Code"><a class="docs-heading-anchor" href="#Full-Code">Full Code</a><a id="Full-Code-1"></a><a class="docs-heading-anchor-permalink" href="#Full-Code" title="Permalink"></a></h2><pre><code class="language-julia hljs">using Javis
+using Animations
+
+function ground(args...)
+    background(&quot;black&quot;) # canvas background
+    sethue(&quot;white&quot;) # pen color
+end
+
+function object(p=O, color=&quot;black&quot;)
+    sethue(color)
+    circle(p, 25, :fill)
+    return p
+end
+
+function path!(points, pos, color)
+    sethue(color)
+    push!(points, pos) # add pos to points
+    circle.(points, 2, :fill) # draws a circle for each point using broadcasting
+end
+
+function dancing_circles(c1, c2, start_pos=O)
+    path_of_red = Point[]
+    path_of_blue = Point[]
+
+    red_ball = Object((args...)-&gt;object(O, c1), start_pos + (100, 0))
+    act!(red_ball, Action(anim_rotate_around(2π, start_pos)))
+    blue_ball = Object((args...)-&gt;object(O, c2), start_pos + (200, 80))
+    act!(blue_ball, Action(anim_rotate_around(2π, 0.0, red_ball)))
+    Object((args...)-&gt;path!(path_of_red, pos(red_ball), c1))
+    Object((args...)-&gt;path!(path_of_blue, pos(blue_ball), c2))
+end
+
+finalvideo = Video(500, 500)
+
+Background(1:140, ground)
+
+colors = [
+    [&quot;red&quot;, &quot;green&quot;],
+    [&quot;orange&quot;, &quot;blue&quot;],
+    [&quot;yellow&quot;, &quot;purple&quot;],
+    [&quot;greenyellow&quot;, &quot;darkgoldenrod1&quot;]
+]
+
+final_points = [
+    Point(-150, -150),
+    Point(150, -150),
+    Point(150, 150),
+    Point(-150, 150),
+]
+
+planets = map(colors) do c
+    @JLayer 1:140 begin
+        dancing_circles(c...) 
+    end
+end
+
+anim_back_and_forth = map(final_points) do point
+    Animation(
+        [0.0, 1/2, 1.0],
+        [O, point, O],
+        [sineio(), sineio()]
+    )
+end
+
+map(zip(anim_back_and_forth, planets)) do (animation, pl)
+    act!(pl, Action(1:1, anim_scale(0.4)))
+    act!(pl, Action(1:140, animation, translate()))
+end
+
+render(finalvideo; pathname=&quot;tutoral_8.gif&quot;)</code></pre><blockquote><p><strong>Author(s):</strong> @gpucce, Jacob Zelko <br/><strong>Date:</strong> September 12th, 2021 <br/><strong>Tag(s):</strong> layers, art</p></blockquote></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tutorial_7/">« <strong>Tutorial 7:</strong> Using Animations.jl to Create something with more Pep!</a><a class="docs-footer-nextpage" href="../../howto/">HowTo »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.6 on <span class="colophon-date" title="Tuesday 14 September 2021 16:01">Tuesday 14 September 2021</span>. Using Julia version 1.4.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
