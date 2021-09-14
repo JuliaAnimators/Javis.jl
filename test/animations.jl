@@ -715,3 +715,28 @@ end
     Object(1:10, (args...) -> circle(O, 50, :fill))
     @test_logs (:error,) render(video; pathname = "test.mp3")
 end
+
+@testset "test layer vs nonlayer actions" begin
+    function act_all!(a)
+        act!(a, Action(1:70, anim_translate(Point(50, 50))))
+        act!(a, Action(71:140, anim_translate(Point(50, 50), Point(-50, -50))))
+    end
+
+    n_frames = 210
+    nolayer_video = Video(500, 500)
+    Background(1:n_frames, ground)
+    circ = Object(JCircle(O, 20, action=:fill, color="white"))
+    act_all!(circ)
+    render(nolayer_video, pathname="mwe1.gif", liveview=true)
+    
+    
+    layer_video = Video(500, 500)
+    Background(1:n_frames, ground)
+    l1 = @JLayer 1:n_frames begin
+        Object(JCircle(O, 20, action=:fill, color="white"))
+    end
+    act_all!(l1)
+    render(layer_video, pathname="mwe2.gif", liveview=true)
+    
+    @test all(layer_video.layers[1].frames.frames .== nolayer_video.background_frames)
+end
