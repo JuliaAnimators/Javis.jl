@@ -727,7 +727,7 @@ end
     Background(1:n_frames, ground)
     circ = Object(JCircle(O, 20, action=:fill, color="white"))
     act_all!(circ)
-    render(nolayer_video, tempdirectory="images/without_layer")
+    render(nolayer_video, tempdirectory="images/without_layer", pathname="")
     
     layer_video = Video(500, 500)
     Background(1:n_frames, ground)
@@ -735,7 +735,7 @@ end
         Object(JCircle(O, 20, action=:fill, color="white"))
     end
     act_all!(l1)
-    render(layer_video, tempdirectory="images/with_layer")
+    render(layer_video, tempdirectory="images/with_layer", pathname="")
 
     @test_reference "images/with_layer/0000000008.png" load("images/without_layer/0000000008.png")
     @test_reference "images/with_layer/0000000032.png" load("images/without_layer/0000000032.png")
@@ -745,10 +745,10 @@ end
     @test_reference "images/without_layer/0000000064.png" load("images/with_layer/0000000064.png")
     @test_reference "images/without_layer/0000000256.png" load("images/with_layer/0000000256.png")
     
-    for i in 1:100
+    for i in 1:n_frames
         rm("images/with_layer/$(lpad(i, 10, "0")).png")
         rm("images/without_layer/$(lpad(i, 10, "0")).png")
     end
-    rm("images/with_layer/palette.png")
-    rm("images/without_layer/palette.png")
+    rm("images/with_layer/", recursive=true)
+    rm("images/without_layer/", recursive=true)
 end
