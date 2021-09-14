@@ -551,7 +551,7 @@ function get_javis_frame(video, objects, frame; layers = Layer[])
         end
 
         img_layers = place_layers(video, layers, frame)
-        
+
         # resetting layer positions to originals
         for (position, layer) in zip(starting_positions, layers)
             layer.position = position
