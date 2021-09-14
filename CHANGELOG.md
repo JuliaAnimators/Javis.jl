@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Added layers tutorial
+- Added fix that allows to use several `act!` on a `Layer` without strange behaviour (hopefully)
 
 ## v0.6.2 (12th of August 2021)
 - added `@Frames` macro for full power mode of defining frames
