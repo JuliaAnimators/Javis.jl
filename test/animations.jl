@@ -722,13 +722,12 @@ end
         act!(a, Action(71:140, anim_translate(Point(50, 50), Point(-50, -50))))
     end
 
-    n_frames = 210
+    n_frames = 257
     nolayer_video = Video(500, 500)
     Background(1:n_frames, ground)
     circ = Object(JCircle(O, 20, action=:fill, color="white"))
     act_all!(circ)
-    render(nolayer_video, pathname="mwe1.gif", liveview=true)
-    
+    render(nolayer_video, tempdirectory="images/without_layer")
     
     layer_video = Video(500, 500)
     Background(1:n_frames, ground)
@@ -736,7 +735,20 @@ end
         Object(JCircle(O, 20, action=:fill, color="white"))
     end
     act_all!(l1)
-    render(layer_video, pathname="mwe2.gif", liveview=true)
+    render(layer_video, tempdirectory="images/with_layer")
+
+    @test_reference "images/with_layer/0000000008.png" load("images/without_layer/0000000008.png")
+    @test_reference "images/with_layer/0000000032.png" load("images/without_layer/0000000032.png")
+    @test_reference "images/with_layer/0000000128.png" load("images/without_layer/0000000128.png")
+
+    @test_reference "images/without_layer/0000000016.png" load("images/with_layer/0000000016.png")
+    @test_reference "images/without_layer/0000000064.png" load("images/with_layer/0000000064.png")
+    @test_reference "images/without_layer/0000000256.png" load("images/with_layer/0000000256.png")
     
-    @test all(layer_video.layers[1].frames.frames .== nolayer_video.background_frames)
+    for i in 1:100
+        rm("images/with_layer/$(lpad(i, 10, "0")).png")
+        rm("images/without_layer/$(lpad(i, 10, "0")).png")
+    end
+    rm("images/with_layer/palette.png")
+    rm("images/without_layer/palette.png")
 end
