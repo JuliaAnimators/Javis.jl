@@ -1,7 +1,8 @@
 # Javis.jl - Changelog
 
 ## Unreleased
-- added `scale_linear` function to easily scale values or points.
+- added `scale_linear` function to easily scale values or points
+- added `@scale_layer` to transform a layer based on a given linear scale
 - Added layers tutorial
 
 ## v0.6.2 (12th of August 2021)
