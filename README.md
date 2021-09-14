@@ -83,6 +83,7 @@ We want to thank a couple of people who helped make this possible.
 
 ### Contributors 
 
+- [@Sov-trotter](https://github.com/Sov-trotter) for implementing the Jupyter and Pluto viewer tools, streaming and layers
 - [@sudomaze](https://github.com/sudomaze) for helping out with tutorials and feedback for v0.1.0
 - [@mythreyiramesh](https://github.com/mythreyiramesh) helping with cleaning up tutorials 
 - [@briochemc](https://github.com/briochemc) for spotting and cleaning up tutorial typos and grammar
@@ -91,7 +92,10 @@ We want to thank a couple of people who helped make this possible.
 - [@ArbitRandomUser](https://github.com/ArbitRandomUser) for cleaning up the LaTeX code base
 - [@agerlach](https://github.com/agerlach) for improving the internal LaTeX parsing
 - [@matbesancon](https://github.com/matbesancon) for adding in an example on projections and for identifying an issue with Javis image processing
-- [@Sov-trotter](https://github.com/Sov-trotter) for implementing the Jupyter and Pluto viewer tools
 - [@codejaeger](https://github.com/codejaeger) - for improving the Javis viewer tool
 - [@XRFXLP](https://github.com/XRFXLP) - fixing typo in docs
-- [@Ved-Mahajan](https://github.com/Ved-Mahajan) - for adding an example on Earth Venus cosmic dance.
+- [@Ved-Mahajan](https://github.com/Ved-Mahajan) - for adding an example on Earth Venus cosmic dance
+- [@rmsrosa](https://github.com/rmsrosa) - for adding an example on escaping the swirling vortex
+- [@EnzioKam](https://github.com/EnzioKam) - for adding an example on the Galton Board
+- [@gpucce](https://github.com/gpucce) - for adding an example on the Central Limit Theorem
+- [@pitmonticone](https://github.com/pitmonticone) - finding a typo in the docs

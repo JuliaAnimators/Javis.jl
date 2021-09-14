@@ -1,11 +1,35 @@
 # Javis.jl - Changelog
 
+<<<<<<< HEAD
 ## Unreleased v0.6.0
 - Support for VideoIO v0.9 
   - dropping support for v0.6-v0.8
 
+## v0.6.2 (12th of August 2021)
+- added `@Frames` macro for full power mode of defining frames
+- bugfix in `@JLayer` when dimensions are not defined explicitly
+- allow color interpolation in `change`
+- bugfix `color` can be a non string value in `JBox`
+
+## v0.6.1 (7th of August 2021)
+- Add shorthands for basic shapes
+  - New functions `JBox, JCircle, JEllipse, JLine, JPoly, JRect, JStar, @JShape` 
+- added support for `rescale_factor` keyword in `render` function
+- Docstring improvements to `translate`
+
+## v0.6.0 (3rd of August 2021)
+- Added layers see `@JLayer`
+
+## v0.5.3 (26th of July 2021)
+- Allow all kinds of iterable ways in the `act!` function such that `act!(::Matrix, ::Action)` also works
+- Updated `anim_translate`
+  - Docstring: `anim_translate` translates by a vector instead of to a point
+  - from->to assumes that we are at `from` already instead of adding it to it
+- Morphing mutates the object function 
+>>>>>>> master
+
 ## v0.5.2
-- Added support for local network live streaming
+- added support for local network live streaming
 
 ## v0.5.1
 - added support for Pluto notebooks

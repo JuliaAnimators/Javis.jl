@@ -19,6 +19,16 @@ Background(1:100, ground)
 render(video; pathname="how_to.gif")
 ```
 
+## Why are all my `Javis` functions undefined? 
+
+If you have worked with the Julia drawing package [`Luxor.jl`](https://github.com/JuliaGraphics/Luxor.jl), you will be happy to see that it provides all the drawing functions that `Javis` uses.
+`Javis` is basically an abstraction layer built on on top of `Luxor.jl` which provides functions to animate the static images you can create with `Luxor` more easily.
+As one can't use `Javis` without using Luxor we decided to reexport all functions that `Luxor` exports.
+
+This means you **should not** call `using Luxor` in scripts that use `Javis`.
+Otherwise it will result in ambiguity errors such as all the `Javis` functions becoming undefined when you try to run a Julia script with `Javis` in it or other strange conflicts.
+Another reason we reexport all functions from `Luxor` is that we sometimes need to add additional `Javis` functionality around certain `Luxor` functions to create better animations.
+
 ## How can I move a circle from A to B?
 
 First of all you need to define an [`Object`](@ref) which draws a circle.
@@ -197,3 +207,14 @@ A live view of the animation can be useful for creating an animation where one d
 The live viewer can be called with adding `; liveview=true` to the [`render`](@ref) call.
 
 > **NOTE:** If `liveview=true` the `tempdirectory` and `pathname` arguments are ignored and no file is created.
+
+## How Can I Speed Up Rendering?
+
+For longer videos, it can happen that rendering takes some time.
+A long time.
+One way to reduce rendering time is that you can render a scaled version of the animation to check if everything is animated as expected. 
+
+By using `render(video; pathname="how_to.gif", rescale_factor=0.5)`, the rendering process can be sped up generally a factor of 2.
+This scales the frames of an animation down to half where a `Video(1000, 1000)` will be shown as a `Video(500, 500)` rendered video. 
+
+> **Note:** You might want to experiment with rendering to `mp4` instead of `gif` as well.

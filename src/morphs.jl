@@ -25,7 +25,7 @@ i.e. use `circle(Point(100,100), 50)` instead of `circle(Point(100,100), 50, :st
 
 This creates a star that morphs into a circle and back.
 
-```
+```julia
 astar(args...; do_action=:stroke) = star(O, 50, 5, 0.5, 0, do_action)
 acirc(args...; do_action=:stroke) = circle(Point(100,100), 50, do_action)
 
@@ -56,17 +56,32 @@ function _morph_to(
     to_func::Function;
     do_action = :stroke,
 )
-    newpath()
-    object.func(video, object, frame; do_action = :none)
-    closepath()
-    from_polys = pathtopoly()
+    if frame == last(get_frames(action))
+        object.func = to_func
+        push!(object.opts, :previous_morph_action => action)
+    else
+        if get(object.opts, :previous_morph_action, nothing) == action
+            object.func = get(object.opts, :original_func, to_func)
+        end
+        newpath()
+        object.func(video, object, frame; do_action = :none)
+        closepath()
+        from_polys = pathtopoly()
 
-    newpath()
-    to_func(video, object, frame; do_action = :none)
-    closepath()
-    to_polys = pathtopoly()
+        newpath()
+        to_func(video, object, frame; do_action = :none)
+        closepath()
+        to_polys = pathtopoly()
 
-    return morph_between(video, action, frame, from_polys, to_polys; do_action = do_action)
+        return morph_between(
+            video,
+            action,
+            frame,
+            from_polys,
+            to_polys;
+            do_action = do_action,
+        )
+    end
 end
 
 """

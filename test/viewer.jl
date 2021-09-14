@@ -12,6 +12,11 @@ end
     star_obj = Object(1:100, astar)
     act!(star_obj, Action(morph_to(acirc; do_action = :fill)))
 
+    l1 = @JLayer 20:60 100 100 Point(0, 0) begin
+        obj = Object((args...) -> circle(O, 25, :fill))
+        act!(obj, Action(1:20, appear(:fade)))
+    end
+
     render(vid; pathname = "")
 
     action_list = [back, star_obj]
@@ -25,13 +30,13 @@ end
     Javis._increment(video, [r_slide, tbox], actions, frame_dims, canvas, total_frames)
     sleep(0.1)
     curr_frame = Reactive.value(r_slide)
-    second_frame = Javis.get_javis_frame(video, actions, curr_frame)
+    second_frame = Javis.get_javis_frame(video, actions, curr_frame, layers = [l1])
     @test Reactive.value(r_slide) == 2
 
     Javis._decrement(video, [r_slide, tbox], actions, frame_dims, canvas, total_frames)
     sleep(0.1)
     curr_frame = Reactive.value(r_slide)
-    first_frame = Javis.get_javis_frame(video, actions, curr_frame)
+    first_frame = Javis.get_javis_frame(video, actions, curr_frame, layers = [l1])
     @test Reactive.value(r_slide) == 1
 
     @test first_frame != second_frame
@@ -39,13 +44,13 @@ end
     Javis._decrement(video, [r_slide, tbox], actions, frame_dims, canvas, total_frames)
     sleep(0.1)
     curr_frame = Reactive.value(r_slide)
-    last_frame = Javis.get_javis_frame(video, actions, curr_frame)
+    last_frame = Javis.get_javis_frame(video, actions, curr_frame, layers = [l1])
     @test curr_frame == total_frames
 
     Javis._increment(video, [r_slide, tbox], actions, frame_dims, canvas, total_frames)
     sleep(0.1)
     curr_frame = Reactive.value(r_slide)
-    first_frame = Javis.get_javis_frame(video, actions, curr_frame)
+    first_frame = Javis.get_javis_frame(video, actions, curr_frame, layers = [l1])
     @test curr_frame == 1
 
     @test last_frame != first_frame
@@ -60,21 +65,27 @@ end
     star_obj = Object(1:100, astar)
     act!(star_obj, Action(morph_to(acirc; do_action = :fill)))
 
+    l1 = @JLayer 20:60 100 100 Point(0, 0) begin
+        obj = Object((args...) -> circle(O, 25, :fill))
+        act!(obj, Action(1:20, appear(:fade)))
+    end
+
     objects = vid.objects
-    frames = Javis.preprocess_frames!(objects)
+    all_objects = [vid.objects..., Javis.flatten(vid.layers)...]
+    frames = Javis.preprocess_frames!(all_objects)
 
     img = Javis._jupyter_viewer(vid, length(frames), objects, 30)
-    @test img.output.val == Javis.get_javis_frame(vid, objects, 1)
+    @test img.output.val == Javis.get_javis_frame(vid, objects, 1, layers = [l1])
 
     txt = Interact.textbox(1:length(frames), typ = "Frame", value = 2)
     frm = Interact.slider(1:length(frames), label = "Frame", value = txt[] + 1)
-    @test Javis.get_javis_frame(vid, objects, 2) ==
-          Javis.get_javis_frame(vid, objects, txt[])
-    @test Javis.get_javis_frame(vid, objects, 3) ==
-          Javis.get_javis_frame(vid, objects, frm[])
+    @test Javis.get_javis_frame(vid, objects, 2, layers = [l1]) ==
+          Javis.get_javis_frame(vid, objects, txt[], layers = [l1])
+    @test Javis.get_javis_frame(vid, objects, 3, layers = [l1]) ==
+          Javis.get_javis_frame(vid, objects, frm[], layers = [l1])
 
     for i in 4:length(frames)
-        output = Javis.get_javis_frame(vid, objects, i)
+        output = Javis.get_javis_frame(vid, objects, i, layers = [l1])
         wdg = Widget(["frm" => frm, "txt" => txt], output = output)
         img = @layout! wdg vbox(hbox(:frm, :txt), output)
         @test img.output.val == output
@@ -91,13 +102,19 @@ end
     star_obj = Object(1:100, astar)
     act!(star_obj, Action(morph_to(acirc; do_action = :fill)))
 
+    l1 = @JLayer 20:60 100 100 Point(0, 0) begin
+        obj = Object((args...) -> circle(O, 25, :fill))
+        act!(obj, Action(1:20, appear(:fade)))
+    end
+
     objects = vid.objects
-    frames = Javis.preprocess_frames!(objects)
+    all_objects = [vid.objects..., Javis.flatten(vid.layers)...]
+    frames = Javis.preprocess_frames!(all_objects)
 
     @test v.filename === "foo.png"
     img = Javis._pluto_viewer(vid, length(frames), objects)
     for i in 1:length(img)
-        @test img[i] == Javis.get_javis_frame(vid, objects, i)
+        @test img[i] == Javis.get_javis_frame(vid, objects, i, layers = [l1])
     end
 end
 
@@ -124,7 +141,7 @@ end
     @test isempty(conf_twitch_err.twitch_key)
     @test conf_twitch.twitch_key == "foo"
 
-    render(vid, streamconfig = conf_local)
+    render(vid, pathname = "stream_local.gif", streamconfig = conf_local)
 
     # errors with macos; a good test to have
     # test_local = run(pipeline(`lsof -i -P -n`, `grep ffmpeg`))
@@ -139,5 +156,15 @@ end
         ),
     )
 
-    @test_throws ErrorException render(vid, streamconfig = conf_twitch_err)
+    vid = Video(500, 500)
+    back = Background(1:100, ground)
+    star_obj = Object(1:100, astar)
+    act!(star_obj, Action(morph_to(acirc; do_action = :fill)))
+
+    @test_throws ErrorException render(
+        vid,
+        pathname = "stream_twitch.gif",
+        streamconfig = conf_twitch_err,
+    )
+    rm("stream_twitch.gif")
 end

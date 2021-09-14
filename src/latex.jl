@@ -45,7 +45,7 @@ Shows a warning if either of the alignment options are unrecognised.
 
 # Example
 
-```
+```julia
 using Javis
 using LaTeXStrings
 
