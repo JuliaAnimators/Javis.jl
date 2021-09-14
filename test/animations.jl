@@ -240,13 +240,13 @@ function ground_nicholas(args...)
     setline(3)
 end
 
-function house_of_nicholas(; p1 = O, width = 10, scale_factor=10, color = "black")
+function house_of_nicholas(; p1 = O, width = 10, scale_factor = 10, color = "black")
     # sethue(color)
     #     .p1
     # .p2   .p3
     #
     # .p4   .p5
-    sl = scale_linear(O, Point(1, 1), O, Point(scale_factor, scale_factor); clamp=false)
+    sl = scale_linear(O, Point(1, 1), O, Point(scale_factor, scale_factor); clamp = false)
     @scale_layer sl begin
         width2 = div(width, 2)
         p2 = p1 + Point(-width2, width2)
@@ -722,9 +722,9 @@ end
 @testset "@scale_layer" begin
     function dots_mapping(pts)
         @JShape begin
-            mapping = scale_linear(O, Point(5,5), Point(50, -50), Point(200, -200))
-            
-            @scale_layer mapping begin 
+            mapping = scale_linear(O, Point(5, 5), Point(50, -50), Point(200, -200))
+
+            @scale_layer mapping begin
                 circle.(pts, 0.1, :fill)
             end
         end
@@ -735,12 +735,12 @@ end
             circle.(pts, 3, :fill)
         end
     end
-    
+
     vid = Video(500, 500)
 
     nframes = 1
     Background(1:nframes, ground)
-    dot_pos = [Point(i,i) for i in 0:5]
+    dot_pos = [Point(i, i) for i in 0:5]
     Object(1:nframes, dots_mapping(dot_pos))
 
     render(vid, tempdirectory = "images/with_mapping", pathname = "")
@@ -749,7 +749,7 @@ end
 
     nframes = 1
     Background(1:nframes, ground)
-    dot_pos = [Point(50+30i,-50-30i) for i in 0:5]
+    dot_pos = [Point(50 + 30i, -50 - 30i) for i in 0:5]
     Object(1:nframes, dots(dot_pos))
 
     render(vid, tempdirectory = "images/without_mapping", pathname = "")

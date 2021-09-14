@@ -23,18 +23,18 @@ scale_point = scale_linear(O, Point(10, 10), O, Point(100, 100))
 scale_point(Point(7,8)) # returns Point(70, 80)
 ```
 """
-function scale_linear(fmin, fmax, tmin, tmax; clamp=true)
+function scale_linear(fmin, fmax, tmin, tmax; clamp = true)
     return LinearScale(fmin, fmax, tmin, tmax, clamp)
 end
 
-function (ls::LinearScale)(x) 
+function (ls::LinearScale)(x)
     if ls.clamp
         x = clamp(x, ls.fmin, ls.fmax)
     end
     return (x - ls.fmin) / (ls.fmax - ls.fmin) * (ls.tmax - ls.tmin) + ls.tmin
 end
 
-function (ls::LinearScale{T})(p::Point) where T <: Point
+function (ls::LinearScale{T})(p::Point) where {T<:Point}
     px = p.x
     py = p.y
     if ls.clamp
@@ -48,13 +48,19 @@ end
 
 macro scale_layer(scale_mapping, body)
     return esc(
-        quote @layer begin 
-            Luxor.translate(-$scale_mapping.fmin.x, -$scale_mapping.fmin.y)
-            sx = ($scale_mapping.tmax.x - $scale_mapping.tmin.x) / ($scale_mapping.fmax.x - $scale_mapping.fmin.x)
-            sy = ($scale_mapping.tmax.y - $scale_mapping.tmin.y) / ($scale_mapping.fmax.y - $scale_mapping.fmin.y)
-            Luxor.scale(sx, sy)
-            Luxor.translate($scale_mapping.tmin.x / sx, $scale_mapping.tmin.y / sy)
-            $body
-        end
-    end)
+        quote
+            @layer begin
+                Luxor.translate(-$scale_mapping.fmin.x, -$scale_mapping.fmin.y)
+                sx =
+                    ($scale_mapping.tmax.x - $scale_mapping.tmin.x) /
+                    ($scale_mapping.fmax.x - $scale_mapping.fmin.x)
+                sy =
+                    ($scale_mapping.tmax.y - $scale_mapping.tmin.y) /
+                    ($scale_mapping.fmax.y - $scale_mapping.fmin.y)
+                Luxor.scale(sx, sy)
+                Luxor.translate($scale_mapping.tmin.x / sx, $scale_mapping.tmin.y / sy)
+                $body
+            end
+        end,
+    )
 end
