@@ -526,7 +526,7 @@ function get_javis_frame(video, objects, frame; layers = Layer[])
 
     # check if any layers have been defined
     if !isempty(layers)
-        starting_positions = []
+        starting_positions = Point[]
         # render each layer's objects and store the layer's Drawing as an image matrix
         for layer in layers
             push!(starting_positions, layer.position)
