@@ -330,10 +330,17 @@
         @test scale_val(-5) == 5
         @test scale_val(20) == -10
 
+        scale_val = scale_linear(-10, 10, 10, -10; clamp=false)
+        @test scale_val(-20) == 20 # clamped
+
         scale_val =
             scale_linear(Point(-10, -10), Point(10, 10), Point(10, 10), Point(-10, -10))
         @test scale_val(Point(-20, -10)) == Point(10, 10) # clamped
         @test scale_val(Point(-5, -7)) == Point(5, 7)
         @test scale_val(Point(20, -10)) == Point(-10, 10)
+
+        scale_val =
+        scale_linear(Point(-10, -10), Point(10, 10), Point(10, 10), Point(-10, -10); clamp=false)
+        @test scale_val(Point(-20, -10)) == Point(20, 10) # clamped
     end
 end

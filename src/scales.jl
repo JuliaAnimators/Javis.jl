@@ -1,32 +1,60 @@
+struct LinearScale{T}
+    fmin::T
+    fmax::T
+    tmin::T
+    tmax::T
+    clamp::Bool
+end
+
 """
-    scale_linear(fmin, fmax, tmin, tmax)
+    scale_linear(fmin, fmax, tmin, tmax; clamp=true)
 
 Creating a mapping which takes values from `fmin` to `fmax`
 and outputs values ranging from `tmin` to `tmax`. 
-If the input is outside the range it will be clamped to the `fmin` - `fmax` range.
+If the input is outside the range it will be by default clamped to the `fmin` - `fmax`.
+This can be prevented by setting `clamp=false`.
 
 # Example
 ```julia
 scale = scale_linear(0, 10, 0, 100)
 scale(5) # returns 50
 
-scale_point = Javis.scale_linear(O, Point(10, 10), O, Point(100, 100))
+scale_point = scale_linear(O, Point(10, 10), O, Point(100, 100))
 scale_point(Point(7,8)) # returns Point(70, 80)
 ```
 """
-function scale_linear(fmin, fmax, tmin, tmax)
-    (x) -> begin
-        x = clamp(x, fmin, fmax)
-        (x - fmin) / (fmax - fmin) * (tmax - tmin) + tmin
-    end
+function scale_linear(fmin, fmax, tmin, tmax; clamp=true)
+    return LinearScale(fmin, fmax, tmin, tmax, clamp)
 end
 
-function scale_linear(fmin::Point, fmax::Point, tmin::Point, tmax::Point)
-    (p::Point) -> begin
-        px = clamp(p.x, fmin.x, fmax.x)
-        py = clamp(p.y, fmin.y, fmax.y)
-        nx = (px - fmin.x) / (fmax.x - fmin.x) * (tmax.x - tmin.x) + tmin.x
-        ny = (py - fmin.y) / (fmax.y - fmin.y) * (tmax.y - tmin.y) + tmin.y
-        return Point(nx, ny)
+function (ls::LinearScale)(x) 
+    if ls.clamp
+        x = clamp(x, ls.fmin, ls.fmax)
     end
+    return (x - ls.fmin) / (ls.fmax - ls.fmin) * (ls.tmax - ls.tmin) + ls.tmin
+end
+
+function (ls::LinearScale{T})(p::Point) where T <: Point
+    px = p.x
+    py = p.y
+    if ls.clamp
+        px = clamp(px, ls.fmin.x, ls.fmax.x)
+        py = clamp(py, ls.fmin.y, ls.fmax.y)
+    end
+    nx = (px - ls.fmin.x) / (ls.fmax.x - ls.fmin.x) * (ls.tmax.x - ls.tmin.x) + ls.tmin.x
+    ny = (py - ls.fmin.y) / (ls.fmax.y - ls.fmin.y) * (ls.tmax.y - ls.tmin.y) + ls.tmin.y
+    return Point(nx, ny)
+end
+
+macro scale_layer(scale_mapping, body)
+    return esc(
+        quote @layer begin 
+            Luxor.translate(-$scale_mapping.fmin.x, -$scale_mapping.fmin.y)
+            sx = ($scale_mapping.tmax.x - $scale_mapping.tmin.x) / ($scale_mapping.fmax.x - $scale_mapping.fmin.x)
+            sy = ($scale_mapping.tmax.y - $scale_mapping.tmin.y) / ($scale_mapping.fmax.y - $scale_mapping.fmin.y)
+            Luxor.scale(sx, sy)
+            Luxor.translate($scale_mapping.tmin.x / sx, $scale_mapping.tmin.y / sy)
+            $body
+        end
+    end)
 end

@@ -240,26 +240,29 @@ function ground_nicholas(args...)
     setline(3)
 end
 
-function house_of_nicholas(; p1 = O, width = 100, color = "black")
+function house_of_nicholas(; p1 = O, width = 10, scale_factor=10, color = "black")
     # sethue(color)
     #     .p1
     # .p2   .p3
     #
     # .p4   .p5
-    width2 = div(width, 2)
-    p2 = p1 + Point(-width2, width2)
-    p3 = p1 + Point(width2, width2)
-    p4 = p2 + Point(0, width)
-    p5 = p3 + Point(0, width)
-    line(p4, p5, :stroke)
-    line(p5, p2, :stroke)
-    line(p2, p4, :stroke)
-    line(p4, p3, :stroke)
-    line(p3, p1, :stroke)
-    line(p1, p2, :stroke)
-    line(p2, p3, :stroke)
-    setline(8)
-    line(p3, p5, :stroke)
+    sl = scale_linear(O, Point(1, 1), O, Point(scale_factor, scale_factor); clamp=false)
+    @scale_layer sl begin
+        width2 = div(width, 2)
+        p2 = p1 + Point(-width2, width2)
+        p3 = p1 + Point(width2, width2)
+        p4 = p2 + Point(0, width)
+        p5 = p3 + Point(0, width)
+        line(p4, p5, :stroke)
+        line(p5, p2, :stroke)
+        line(p2, p4, :stroke)
+        line(p4, p3, :stroke)
+        line(p3, p1, :stroke)
+        line(p1, p2, :stroke)
+        line(p2, p3, :stroke)
+        setline(8)
+        line(p3, p5, :stroke)
+    end
 end
 
 @testset "House of Nicholas line_width" begin
@@ -714,4 +717,54 @@ end
     Background(1:10, ground)
     Object(1:10, (args...) -> circle(O, 50, :fill))
     @test_logs (:error,) render(video; pathname = "test.mp3")
+end
+
+@testset "@scale_layer" begin
+    function dots_mapping(pts)
+        @JShape begin
+            mapping = scale_linear(O, Point(5,5), Point(50, -50), Point(200, -200))
+            
+            @scale_layer mapping begin 
+                circle.(pts, 0.1, :fill)
+            end
+        end
+    end
+
+    function dots(pts)
+        @JShape begin
+            circle.(pts, 3, :fill)
+        end
+    end
+    
+    vid = Video(500, 500)
+
+    nframes = 1
+    Background(1:nframes, ground)
+    dot_pos = [Point(i,i) for i in 0:5]
+    Object(1:nframes, dots_mapping(dot_pos))
+
+    render(vid, tempdirectory = "images/with_mapping", pathname = "")
+
+    vid = Video(500, 500)
+
+    nframes = 1
+    Background(1:nframes, ground)
+    dot_pos = [Point(50+30i,-50-30i) for i in 0:5]
+    Object(1:nframes, dots(dot_pos))
+
+    render(vid, tempdirectory = "images/without_mapping", pathname = "")
+
+    for frame in [1]
+        png_name = lpad(string(frame), 10, "0")
+        @test_reference "images/with_mapping/$png_name.png" load(
+            "images/without_mapping/$png_name.png",
+        )
+    end
+
+    for i in 1:1
+        rm("images/with_mapping/$(lpad(i, 10, "0")).png")
+        rm("images/without_mapping/$(lpad(i, 10, "0")).png")
+    end
+    rm("images/with_mapping/", recursive = true)
+    rm("images/without_mapping/", recursive = true)
 end

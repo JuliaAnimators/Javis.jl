@@ -704,6 +704,6 @@ export setline, setopacity, fontsize, get_fontsize, scale, text
 export setup_stream, cancel_stream
 
 # scales
-export scale_linear
+export scale_linear, @scale_layer
 
 end
