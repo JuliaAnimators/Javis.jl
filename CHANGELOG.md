@@ -3,7 +3,11 @@
 ## Unreleased
 - added `scale_linear` function to easily scale values or points
 - added `@scale_layer` to transform a layer based on a given linear scale
+
+## v0.6.3 (17th of September 2021)
+- `RFrames` is ignored when used in the first `Action` of an `Object`
 - Added layers tutorial
+- Added fix that allows to use several `act!` on a `Layer` without strange behavior
 
 ## v0.6.2 (12th of August 2021)
 - added `@Frames` macro for full power mode of defining frames

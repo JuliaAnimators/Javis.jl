@@ -20,7 +20,7 @@ An example of this is shown stacking of layers is shown below:
 
 The goal of layers is to make it easy to divide an animation into different parts.
 They can then be worked on separately while the software takes care of the interactions between them.
-It can assist in easing the creation complex videos or images composed of several simpler parts.
+It can assist in easing the creation of complex videos or images composed of several simpler parts.
 
 In `Javis` a `@JLayer` is the implementation of this idea, it allows you to enclose the content of an animation and to work on it - `act!` on it - just like on a single `Object`.
 This way we do not need to worry about all the interactions between different parts of a video by acting on them one by one.
@@ -52,12 +52,6 @@ function ground(args...)
     sethue("white") # pen color
 end
 
-function object(p=O, color="black")
-    sethue(color)
-    circle(p, 25, :fill)
-    return p
-end
-
 function path!(points, pos, color)
     sethue(color)
     push!(points, pos) # add pos to points
@@ -68,17 +62,20 @@ end
 Now let's add small changes to the dancing circles to make it into a function and add arguments to choose the colors of the two circles each time.
 
 ```julia
-
-function dancing_circles(c1, c2, start_pos=O)
+function dancing_circles(c1, c2, start_pos = O)
     path_of_red = Point[]
     path_of_blue = Point[]
 
-    red_ball = Object((args...)->object(O, c1), start_pos + (100, 0))
+    red_ball = Object(JCircle(O, 25, color = c1, action = :fill), start_pos + (100, 0))
     act!(red_ball, Action(anim_rotate_around(2π, start_pos)))
-    blue_ball = Object((args...)->object(O, c2), start_pos + (200, 80))
+    blue_ball = Object(JCircle(O, 25, color = c2, action = :fill), start_pos + (200, 80))
     act!(blue_ball, Action(anim_rotate_around(2π, 0.0, red_ball)))
-    Object((args...)->path!(path_of_red, pos(red_ball), c1))
-    Object((args...)->path!(path_of_blue, pos(blue_ball), c2))
+    Object(@JShape begin
+        path!(path_of_red, pos(red_ball), c1)
+    end)
+    Object(@JShape begin
+        path!(path_of_blue, pos(blue_ball), c2)
+    end)
 end
 ```
 
@@ -186,9 +183,8 @@ anim_back_and_forth = map(planets) do point
     )
 end
 
-# FIX: Could you turn this into a for loop for clarity? 
-map(zip(anim_back_and_forth, planets)) do (animation, pl)
-    
+for (animation, pl) in zip(anim_back_and_forth, planets)
+
     # Scale the layers
     act!(pl, Action(1:1, anim_scale(0.4)))
 
@@ -226,28 +222,26 @@ function ground(args...)
     sethue("white") # pen color
 end
 
-function object(p=O, color="black")
-    sethue(color)
-    circle(p, 25, :fill)
-    return p
-end
-
 function path!(points, pos, color)
     sethue(color)
     push!(points, pos) # add pos to points
     circle.(points, 2, :fill) # draws a circle for each point using broadcasting
 end
 
-function dancing_circles(c1, c2, start_pos=O)
+function dancing_circles(c1, c2, start_pos = O)
     path_of_red = Point[]
     path_of_blue = Point[]
 
-    red_ball = Object((args...)->object(O, c1), start_pos + (100, 0))
+    red_ball = Object(JCircle(O, 25, color = c1, action = :fill), start_pos + (100, 0))
     act!(red_ball, Action(anim_rotate_around(2π, start_pos)))
-    blue_ball = Object((args...)->object(O, c2), start_pos + (200, 80))
+    blue_ball = Object(JCircle(O, 25, color = c2, action = :fill), start_pos + (200, 80))
     act!(blue_ball, Action(anim_rotate_around(2π, 0.0, red_ball)))
-    Object((args...)->path!(path_of_red, pos(red_ball), c1))
-    Object((args...)->path!(path_of_blue, pos(blue_ball), c2))
+    Object(@JShape begin
+        path!(path_of_red, pos(red_ball), c1)
+    end)
+    Object(@JShape begin
+        path!(path_of_blue, pos(blue_ball), c2)
+    end)
 end
 
 finalvideo = Video(500, 500)
@@ -258,36 +252,31 @@ colors = [
     ["red", "green"],
     ["orange", "blue"],
     ["yellow", "purple"],
-    ["greenyellow", "darkgoldenrod1"]
+    ["greenyellow", "darkgoldenrod1"],
 ]
 
-final_points = [
-    Point(-150, -150),
-    Point(150, -150),
-    Point(150, 150),
-    Point(-150, 150),
-]
+final_points = [Point(-150, -150), Point(150, -150), Point(150, 150), Point(-150, 150)]
 
 planets = map(colors) do c
     @JLayer 1:140 begin
-        dancing_circles(c...) 
+        dancing_circles(c...)
     end
 end
 
 anim_back_and_forth = map(final_points) do point
-    Animation(
-        [0.0, 1/2, 1.0],
-        [O, point, O],
-        [sineio(), sineio()]
-    )
+    Animation([0.0, 1 / 2, 1.0], [O, point, O], [sineio(), sineio()])
 end
 
-map(zip(anim_back_and_forth, planets)) do (animation, pl)
+for (animation, pl) in zip(anim_back_and_forth, planets)
+
+    # Scale the layers
     act!(pl, Action(1:1, anim_scale(0.4)))
+
+    # Move them around
     act!(pl, Action(1:140, animation, translate()))
 end
 
-render(finalvideo; pathname="tutoral_8.gif")
+render(finalvideo; pathname = "tutoral_8.gif")
 ```
 
 > **Author(s):** @gpucce, Jacob Zelko \

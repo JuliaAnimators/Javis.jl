@@ -76,7 +76,7 @@ end
     act!(red_ball, Action(anim_rotate_around(from_rot, to_rot, O)))
 
     blue_ball = Object(1:30, (args...) -> circ(O, "blue"), p2)
-    act!(blue_ball, Action(anim_rotate_around(to_rot, from_rot, red_ball)))
+    act!(blue_ball, Action(RFrames(1:30), anim_rotate_around(to_rot, from_rot, red_ball)))
     path_red = Object((video, args...) -> path!(path_of_red, get_position(red_ball), "red"))
     path_blue =
         Object(:same, (video, args...) -> path!(path_of_blue, pos(blue_ball), "blue"))
@@ -767,4 +767,75 @@ end
     end
     rm("images/with_mapping/", recursive = true)
     rm("images/without_mapping/", recursive = true)
+end
+
+@testset "test layer vs nonlayer actions" begin
+    function act_all!(a)
+        act!(a, Action(1:70, anim_translate(Point(50, 50))))
+        act!(a, Action(71:140, anim_translate(Point(50, 50), Point(-50, -50))))
+        act!(a, Action(71:140, anim_rotate(2π)))
+        act!(a, Action(140:210, anim_translate(Point(50, 50))))
+    end
+
+    n_frames = 257
+    nolayer_video = Video(500, 500)
+    Background(1:n_frames, ground)
+    circ = Object(JBox(O, 20, 20, action = :fill, color = "white"))
+    act_all!(circ)
+    render(nolayer_video, tempdirectory = "images/without_layer", pathname = "")
+
+    layer_video = Video(500, 500)
+    Background(1:n_frames, ground)
+    l1 = @JLayer 1:n_frames begin
+        Object(JBox(O, 20, 20, action = :fill, color = "white"))
+    end
+    act_all!(l1)
+    render(layer_video, tempdirectory = "images/with_layer", pathname = "")
+
+    for frame in [8, 16, 32, 64, 128, 256]
+        png_name = lpad(string(frame), 10, "0")
+        @test_reference "images/with_layer/$png_name.png" load(
+            "images/without_layer/$png_name.png",
+        )
+    end
+
+    for i in 1:n_frames
+        rm("images/with_layer/$(lpad(i, 10, "0")).png")
+        rm("images/without_layer/$(lpad(i, 10, "0")).png")
+    end
+    rm("images/with_layer/", recursive = true)
+    rm("images/without_layer/", recursive = true)
+
+    n_frames = 140
+    nolayer_video = Video(500, 500)
+    Background(1:n_frames, ground)
+    circ = Object(JBox(O, 20, 20, action = :fill, color = "white"))
+
+    act!(circ, Action(1:140, anim_translate(Point(0, 50))))
+    act!(circ, Action(1:140, anim_translate(Point(50, 0))))
+
+    render(nolayer_video, tempdirectory = "images/without_layer", pathname = "")
+
+    layer_video = Video(500, 500)
+    Background(1:n_frames, ground)
+    l1 = @JLayer 1:n_frames begin
+        Object(JBox(O, 20, 20, action = :fill, color = "white"))
+    end
+    act!(l1, Action(1:140, anim_translate(Point(50, 50))))
+    render(layer_video, tempdirectory = "images/with_layer", pathname = "")
+
+    for frame in [8, 16, 24, 32, 40, 48]
+        png_name = lpad(string(frame), 10, "0")
+        @test_reference "images/with_layer/$png_name.png" load(
+            "images/without_layer/$png_name.png",
+        )
+    end
+
+    for i in 1:140
+        rm("images/with_layer/$(lpad(i, 10, "0")).png")
+        rm("images/without_layer/$(lpad(i, 10, "0")).png")
+    end
+    rm("images/with_layer/", recursive = true)
+    rm("images/without_layer/", recursive = true)
+
 end

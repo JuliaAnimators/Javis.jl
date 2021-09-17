@@ -66,7 +66,7 @@ function get_frames(parent, elem, frames::Symbol, last_frames::UnitRange; is_fir
 end
 
 """
-    get_frames(parent, elem, relative::RFrames, last_frames::UnitRange; is_first=falsee)
+    get_frames(parent, elem, relative::RFrames, last_frames::UnitRange; is_first=false)
 
 Return the frames based on a relative frames [`RFrames`](@ref) object and the `last_frames`.
 """
@@ -77,6 +77,10 @@ function get_frames(
     last_frames::UnitRange;
     is_first = false,
 )
+    # don't take the `last_frames` from the parent as this doesn't make sense
+    if is_first
+        return relative.frames
+    end
     start_frame = last(last_frames) + first(relative.frames)
     last_frame = last(last_frames) + last(relative.frames)
     return start_frame:last_frame
