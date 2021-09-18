@@ -143,11 +143,11 @@ function get_latex_svg(text::LaTeXString)
     if haskey(LaTeXSVG, text)
         svg = LaTeXSVG[text]
     else
-        command =  if Sys.iswindows()
-            ts = replace(strip_eq(text), "\n"=>" ")
+        command = if Sys.iswindows()
+            ts = replace(strip_eq(text), "\n" => " ")
             `cmd /C tex2svg $ts`
-        else 
-            ts = strip_eq(text) 
+        else
+            ts = strip_eq(text)
             `tex2svg $ts`
         end
         try
