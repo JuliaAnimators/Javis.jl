@@ -143,8 +143,13 @@ function get_latex_svg(text::LaTeXString)
     if haskey(LaTeXSVG, text)
         svg = LaTeXSVG[text]
     else
-        ts = strip_eq(text)
-        command = `tex2svg $ts`
+        command =  if Sys.iswindows()
+            ts = replace(strip_eq(text), "\n"=>" ")
+            `cmd /C tex2svg $ts`
+        else 
+            ts = strip_eq(text) 
+            `tex2svg $ts`
+        end
         try
             svg = read(command, String)
         catch e
