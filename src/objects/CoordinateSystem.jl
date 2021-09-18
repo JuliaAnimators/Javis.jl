@@ -53,10 +53,47 @@ function (cs::CoordinateSystem)()
     end left=left right=right bottom=bottom top=top fct=fct mainwidth=mainwidth step_size_x=step_size_x step_size_y=step_size_y gridwidth=gridwidth
 end
 
+"""
+    coordinate_system(left, right, bottom, top; fct=line, mainwidth=1, step_size_x=50, step_size_y=50, gridwidth=0.2)
+
+Create a [`CoordinateSystem`](@ref) to draw and animate.
+
+# Arguments
+- `left::Point` the point describing the left most position of the xaxis
+- `right::Point` the point describing the right most position of the xaxis
+- `bottom::Point` the point describing the bottom most position of the yaxis
+- `top::Point` the point describing the top most position of the yaxis
+
+# Keywords
+- `fct` default:`line` can be `line` or `arrow` to draw an arrow for x and y axis
+- `mainwidth` default:1 the line width of the axis
+- `step_size_x` default:50 the step size of the grid itself in x dimension
+- `step_size_y` default:50 the step size of the grid itself in y dimension
+- `gridwidth` default:0.2 line width for the grid
+
+# Example
+```julia
+cs = coordinate_system(Point(-100, 0), Point(200, 0), Point(0, 100), Point(0, -200); 
+fct=arrow)
+cs_obj = Object(1:100, cs())
+act!(cs_obj, Action(1:30, appear(cs, :top_left)))
+```
+"""
 function coordinate_system(left, right, bottom, top; fct=line, mainwidth=1, step_size_x=50, step_size_y=50, gridwidth=0.2)
     return CoordinateSystem(left, right, bottom, top, fct, mainwidth, gridwidth, step_size_x, step_size_y)
 end
 
+"""
+    appear(cs::CoordinateSystem, s::Symbol)
+
+Appear function for a [`CoordinateSystem`](@ref).
+
+# Arguments 
+- `cs::CoordinateSystem` the CoordinateSystem which can be created with [`coordinate_system`](@ref)
+- `s::Symbol` the direction of the drawing i.e `:top_right` will animate the creation of the grid from the bottom left to the top right.
+
+[`coordinate_system`](@ref)
+"""
 function appear(cs::CoordinateSystem, s::Symbol)
     (video, object, action, rel_frame) -> 
         begin
@@ -73,5 +110,4 @@ function appear(cs::CoordinateSystem, s::Symbol)
                 end
             end
         end
-
 end
