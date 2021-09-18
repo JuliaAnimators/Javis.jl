@@ -1,5 +1,8 @@
 # Javis.jl - Changelog
-- Added fix to `latex` function to make it work better on Windows.
+
+## Unreleased
+- Added fix to `latex` function to make it work better on Windows
+- `coordinate_system` to draw a cartesian coordinate system
 
 ## v0.6.3 (17th of September 2021)
 - `RFrames` is ignored when used in the first `Action` of an `Object`
