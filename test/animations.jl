@@ -196,15 +196,18 @@ end
 
 @testset "Drawing grid" begin
     video = Video(500, 500)
-    Object(1:40, ground_black_on_white; in_global_layer = true)
-    Object(1:10, draw_grid(direction = "BL", line_gap = 25))
-    Object(zero_lines(direction = "BL", line_thickness = 10))
-    Object(GFrames(11:20), draw_grid(direction = "BR", line_gap = 25))
-    Object(zero_lines(direction = "BR", line_thickness = 10))
-    Object(RFrames(10), draw_grid(direction = "TL", line_gap = 25))
-    Object(zero_lines(direction = "TL", line_thickness = 10))
-    Object(RFrames(10), draw_grid(direction = "TR", line_gap = 25))
-    Object(zero_lines(direction = "TR", line_thickness = 10))
+    w2 = video.width/2
+    h2 = video.height/2
+
+    Background(1:40, ground_black_on_white)
+
+    cs = coordinate_system(Point(-w2, 0), Point(w2, 0), Point(0, h2), Point(0, -h2); mainwidth=10, step_size_x=25, step_size_y=25, gridwidth=1)
+    cs_obj = Object(1:40, cs())
+
+    act!(cs_obj, Action(1:10, appear(cs, :bottom_left)))
+    act!(cs_obj, Action(11:20, appear(cs, :bottom_right)))
+    act!(cs_obj, Action(21:30, appear(cs, :top_left)))
+    act!(cs_obj, Action(31:40, appear(cs, :top_right)))
 
     render(video; tempdirectory = "images", pathname = "")
 

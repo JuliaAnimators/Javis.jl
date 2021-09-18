@@ -31,6 +31,16 @@ include("structs/GFrames.jl")
 include("structs/Frames.jl")
 include("structs/Scale.jl")
 
+# shorthands declarations
+include("shorthands/JLine.jl")
+include("shorthands/JCircle.jl")
+include("shorthands/JRect.jl")
+include("shorthands/JBox.jl")
+include("shorthands/JEllipse.jl")
+include("shorthands/JStar.jl")
+include("shorthands/JPoly.jl")
+include("shorthands/JShape.jl")
+
 """
     Transformation
 
@@ -97,13 +107,13 @@ end
 include("layers.jl")
 include("util.jl")
 include("luxor_overrides.jl")
-include("backgrounds.jl")
 include("svg2luxor.jl")
 include("morphs.jl")
 include("action_animations.jl")
 include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
+include("objects/CoordinateSystem.jl")
 
 """
     projection(p::Point, l::Line)
@@ -679,16 +689,6 @@ for func in names(Luxor; imported = true)
     end
 end
 
-# shorthands declarations
-include("shorthands/JLine.jl")
-include("shorthands/JCircle.jl")
-include("shorthands/JRect.jl")
-include("shorthands/JBox.jl")
-include("shorthands/JEllipse.jl")
-include("shorthands/JStar.jl")
-include("shorthands/JPoly.jl")
-include("shorthands/JShape.jl")
-
 export render, latex
 export Video, Object, Background, Action, RFrames, GFrames
 export @JLayer, background
@@ -707,5 +707,7 @@ export JBox, JCircle, JEllipse, JLine, JPoly, JRect, JStar, @JShape
 # custom override of luxor extensions
 export setline, setopacity, fontsize, get_fontsize, scale, text
 export setup_stream, cancel_stream
+
+export coordinate_system
 
 end
