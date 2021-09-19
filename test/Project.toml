@@ -15,4 +15,3 @@ VideoIO = "d6d074c3-1acf-5d4c-9a43-ef38773959a2"
 
 [compat]
 LaTeXStrings = "1.1"
-VideoIO = "0.8.1"
