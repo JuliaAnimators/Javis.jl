@@ -31,11 +31,13 @@ Click this badge to join: [![project chat](https://img.shields.io/badge/zulip-jo
 | Animation                                                                                                     | Animation                                                                                                            |
 |---------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
 | ![](assets/eeg.gif)                                                                                           | ![](assets/dancing_circles.gif)                                                                                      |
-| **Tutorial:** [What Are Actions?](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_2/)           | **Tutorial:** [Making Your First Javis Animation!](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_1/) |
+| **Tutorial:** [What Are Object?](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_3/)           | **Tutorial:** [Making Your First Javis Animation!](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_1/) |
 | ![](assets/atomic.gif)                                                                                        | ![](assets/jarvis.gif)                                                                                               |
-| **Tutorial:** [Taming the Elements](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_5/)         | **Tutorial:** [Do You Know Our Mascot?](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_4/)            |
+| **Tutorial:** [Taming the Elements](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_6/)         | **Tutorial:** [Do You Know Our Mascot?](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_5/)            |
 | ![](assets/matrix.gif)                                                                                        | ![](assets/loading.gif)                                                                                              |
-| **Tutorial:** [Rendering LaTeX with Javis!](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_3/) | **Tutorial:** [Using Animations.jl with Javis!](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_6/)    |
+| **Tutorial:** [Rendering LaTeX with Javis!](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_4/) | **Tutorial:** [Using Animations.jl with Javis!](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_7/)    |
+| ![](assets/cosmic_dance.gif)                                                                                        | ![](assets/4_moving_colored_dancing_circles.gif)   
+| **Tutorial:** [Shorthand expressions](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_2/) | **Tutorial:** [Fun with Layers](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_8/)    |
 
 ### Examples
 
@@ -43,6 +45,8 @@ Click this badge to join: [![project chat](https://img.shields.io/badge/zulip-jo
 |------------------------------------------------|------------------------------------------------|
 | ![](examples/gifs/follow_bezier_path.gif)      | ![](examples/gifs/julia_logo_dft.gif)                 |
 | [Follow a Path](/examples/follow_path.jl)      |  [Draw the Julia Logo](/examples/fourier.jl) |
+
+You can find more [examples in the docs](https://wikunia.github.io/Javis.jl/stable/examples/).
 
 ## Design Philosophy
 
@@ -97,5 +101,5 @@ We want to thank a couple of people who helped make this possible.
 - [@Ved-Mahajan](https://github.com/Ved-Mahajan) - for adding an example on Earth Venus cosmic dance
 - [@rmsrosa](https://github.com/rmsrosa) - for adding an example on escaping the swirling vortex
 - [@EnzioKam](https://github.com/EnzioKam) - for adding an example on the Galton Board
-- [@gpucce](https://github.com/gpucce) - for adding an example on the Central Limit Theorem
+- [@gpucce](https://github.com/gpucce) - for adding an example on the Central Limit Theorem, fix for `latex` in Windows and more
 - [@pitmonticone](https://github.com/pitmonticone) - finding a typo in the docs
