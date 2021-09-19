@@ -1,9 +1,16 @@
 # Javis.jl - Changelog
 
-<<<<<<< HEAD
-## Unreleased v0.6.0
+## Unreleased v0.7.0
 - Support for VideoIO v0.9 
   - dropping support for v0.6-v0.8
+  - dropping support for Julia v1.4
+## v0.6.4 (19th of September 2021)
+- Added fix to `latex` function to make it work on Windows
+
+## v0.6.3 (17th of September 2021)
+- `RFrames` is ignored when used in the first `Action` of an `Object`
+- Added layers tutorial
+- Added fix that allows to use several `act!` on a `Layer` without strange behavior
 
 ## v0.6.2 (12th of August 2021)
 - added `@Frames` macro for full power mode of defining frames
@@ -26,7 +33,6 @@
   - Docstring: `anim_translate` translates by a vector instead of to a point
   - from->to assumes that we are at `from` already instead of adding it to it
 - Morphing mutates the object function 
->>>>>>> master
 
 ## v0.5.2
 - added support for local network live streaming
@@ -93,7 +99,6 @@
 - Bugfix when scaling to 0. Before this every object on that frame would disappear even in a different layer
 - Bugfix in interpolation: Interpolation of a single frame like `1:1` returns `1.0` now instead of `NaN`.
 
-  
 ## 0.1.5 (14th of September 2020)
 - Bugfix in svg parser when a layer gets both transformed and scaled
 

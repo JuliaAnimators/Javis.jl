@@ -172,7 +172,7 @@ end
 
 function _translate(video, layer::Layer, action, rel_frame)
     p = get_interpolation(action, rel_frame)
-    layer.position = p
+    layer.position += p
 end
 
 """
