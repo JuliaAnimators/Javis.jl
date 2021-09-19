@@ -9,6 +9,8 @@ struct CoordinateSystem
     gridwidth::Float64
     step_size_x::Float64
     step_size_y::Float64
+    maincolor::Any
+    gridcolor::Any
 end
 
 function (cs::CoordinateSystem)()
@@ -21,11 +23,13 @@ function (cs::CoordinateSystem)()
     gridwidth = cs.gridwidth
     step_size_x = cs.step_size_x
     step_size_y = cs.step_size_y
+    maincolor = cs.maincolor
+    gridcolor = cs.gridcolor
+
     @JShape begin
-        setline(mainwidth)
-        left !== right && fct(left, right)
-        bottom !== top && fct(bottom, top)
-        strokepath()
+        if gridcolor !== nothing
+            sethue(gridcolor)
+        end
         if step_size_x != 0
             setline(gridwidth)
             # 1st and 4th quadrant
@@ -50,12 +54,19 @@ function (cs::CoordinateSystem)()
             end
             strokepath()
         end
+        if maincolor !== nothing
+            sethue(maincolor)
+        end
+        setline(mainwidth)
+        left !== right && fct(left, right)
+        bottom !== top && fct(bottom, top)
+        strokepath()
     end left = left right = right bottom = bottom top = top fct = fct mainwidth = mainwidth step_size_x =
         step_size_x step_size_y = step_size_y gridwidth = gridwidth
 end
 
 """
-    coordinate_system(left, right, bottom, top; fct=line, mainwidth=1, step_size_x=50, step_size_y=50, gridwidth=0.2)
+    coordinate_system(left, right, bottom, top; kwargs...)
 
 Create a [`CoordinateSystem`](@ref) to draw and animate.
 
@@ -71,6 +82,8 @@ Create a [`CoordinateSystem`](@ref) to draw and animate.
 - `step_size_x` default:50 the step size of the grid itself in x dimension
 - `step_size_y` default:50 the step size of the grid itself in y dimension
 - `gridwidth` default:0.2 line width for the grid
+- `maincolor` default:`nothing` color of the zero lines (nothing = doesn't set any color)
+- `gridcolor` default:`nothing` color of the grid lines (nothing = doesn't set any color)
 
 # Example
 ```julia
@@ -90,6 +103,8 @@ function coordinate_system(
     step_size_x = 50,
     step_size_y = 50,
     gridwidth = 0.2,
+    maincolor = nothing,
+    gridcolor = nothing,
 )
     return CoordinateSystem(
         left,
@@ -101,6 +116,8 @@ function coordinate_system(
         gridwidth,
         step_size_x,
         step_size_y,
+        maincolor, 
+        gridcolor,
     )
 end
 

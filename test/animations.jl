@@ -42,7 +42,7 @@ end
     act!(red_ball, Action(anim_rotate_around(from_rot, to_rot, O)))
 
     blue_ball = Object(1:25, (args...) -> circ(O, "blue"), p2)
-    act!(blue_ball, Action(anim_rotate_around(to_rot, from_rot, red_ball)))
+    act!(blue_ball, Action(GFrames(1:25), anim_rotate_around(to_rot, from_rot, red_ball)))
     path_red =
         Object(1:25, (video, args...) -> path!(path_of_red, get_position(red_ball), "red"))
     path_blue =
@@ -224,6 +224,43 @@ end
     @test_reference "refs/grid_drawing_br.png" load("images/0000000018.png")
     @test_reference "refs/grid_drawing_tl.png" load("images/0000000028.png")
     @test_reference "refs/grid_drawing_tr.png" load("images/0000000038.png")
+    for i in 1:40
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
+@testset "Drawing grid blue main and red grid" begin
+    video = Video(500, 500)
+    w2 = video.width / 2
+    h2 = video.height / 2
+
+    Background(1:40, ground_black_on_white)
+
+    cs = coordinate_system(
+        Point(-w2, 0),
+        Point(w2, 0),
+        Point(0, h2),
+        Point(0, -h2);
+        mainwidth = 10,
+        step_size_x = 25,
+        step_size_y = 25,
+        gridwidth = 1,
+        maincolor = "blue",
+        gridcolor = "red",
+    )
+    cs_obj = Object(1:40, cs())
+
+    act!(cs_obj, Action(1:10, appear(cs, :bottom_left)))
+    act!(cs_obj, Action(11:20, appear(cs, :bottom_right)))
+    act!(cs_obj, Action(21:30, appear(cs, :top_left)))
+    act!(cs_obj, Action(31:40, appear(cs, :top_right)))
+
+    render(video; tempdirectory = "images", pathname = "")
+
+    @test_reference "refs/grid_drawing_bl_blue_red.png" load("images/0000000008.png")
+    @test_reference "refs/grid_drawing_br_blue_red.png" load("images/0000000018.png")
+    @test_reference "refs/grid_drawing_tl_blue_red.png" load("images/0000000028.png")
+    @test_reference "refs/grid_drawing_tr_blue_red.png" load("images/0000000038.png")
     for i in 1:40
         rm("images/$(lpad(i, 10, "0")).png")
     end
