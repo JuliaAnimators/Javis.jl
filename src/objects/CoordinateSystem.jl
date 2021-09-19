@@ -116,7 +116,7 @@ function coordinate_system(
         gridwidth,
         step_size_x,
         step_size_y,
-        maincolor, 
+        maincolor,
         gridcolor,
     )
 end
