@@ -196,12 +196,21 @@ end
 
 @testset "Drawing grid" begin
     video = Video(500, 500)
-    w2 = video.width/2
-    h2 = video.height/2
+    w2 = video.width / 2
+    h2 = video.height / 2
 
     Background(1:40, ground_black_on_white)
 
-    cs = coordinate_system(Point(-w2, 0), Point(w2, 0), Point(0, h2), Point(0, -h2); mainwidth=10, step_size_x=25, step_size_y=25, gridwidth=1)
+    cs = coordinate_system(
+        Point(-w2, 0),
+        Point(w2, 0),
+        Point(0, h2),
+        Point(0, -h2);
+        mainwidth = 10,
+        step_size_x = 25,
+        step_size_y = 25,
+        gridwidth = 1,
+    )
     cs_obj = Object(1:40, cs())
 
     act!(cs_obj, Action(1:10, appear(cs, :bottom_left)))
