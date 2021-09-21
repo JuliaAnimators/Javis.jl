@@ -272,6 +272,12 @@ function render(
         tempdirectory = mktempdir()
     end
 
+    frame_template = convert.(RGB, get_javis_frame(video, objects, 1; layers = layers))
+    frames_size = size(frame_template)
+    frames = postprocess_frames_flow(frames)
+    frames_map = [findall(frames .== i) for i in 1:maximum(frames)]
+    frames_memory = Dict{Int, Vector{Int}}()
+
     filecounter = 1
     @showprogress 1 "Rendering frames..." for frame in frames
         frame_image = convert.(RGB, get_javis_frame(video, objects, frame; layers = layers))
