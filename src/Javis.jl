@@ -243,6 +243,8 @@ function render(
     tempdirectory = "",
     ffmpeg_loglevel = "panic",
     rescale_factor = 1.0,
+    postprocess_frames_flow=identity,
+    postprocess_frame=default_postprocess
 )
     layers = video.layers
     objects = video.objects
@@ -273,20 +275,34 @@ function render(
     end
 
     frame_template = convert.(RGB, get_javis_frame(video, objects, 1; layers = layers))
-    frames_size = size(frame_template)
     frames = postprocess_frames_flow(frames)
-    frames_map = [findall(frames .== i) for i in 1:maximum(frames)]
-    frames_memory = Dict{Int, Vector{Int}}()
+    frames_memory = Dict{Int, Matrix{RGB}}()
 
     filecounter = 1
     @showprogress 1 "Rendering frames..." for frame in frames
-        frame_image = convert.(RGB, get_javis_frame(video, objects, frame; layers = layers))
+        frame_image = if haskey(frames_memory, frame)
+            frames_memory[frame]
+        else
+            if frame == 1
+                _apply_and_reshape(postprocess_frame, frame_template, frame_template, frame, frames)
+            else
+                frame_image = convert.(RGB, get_javis_frame(video, objects, frame; layers = layers))
+                frame_image = _apply_and_reshape(postprocess_frame, frame_image, frame_template, frame, frames)
+            end
+        end
+
         # rescale the frame for faster rendering if the rescale_factor is not 1
-        if !isone(rescale_factor)
+        if !isone(rescale_factor) & !haskey(frames_memory, frame)
             new_size = trunc.(Int, size(frame_image) .* rescale_factor)
             frame_image = imresize(frame_image, new_size)
         end
-
+        
+        if !(frame in frames[filecounter+1:end]) & haskey(frames_memory, frame)
+            delete!(frames_memory, frame)
+        elseif (frame in frames[filecounter+1:end]) & !haskey(frames_memory, frame)
+            frames_memory[frame] = frame_image
+        end
+        
         if !isempty(tempdirectory)
             Images.save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
         end

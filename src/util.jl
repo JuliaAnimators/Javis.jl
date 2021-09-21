@@ -260,3 +260,39 @@ Currently only implemented is to change from `<:Integer` to `float`
 """
 interpolateable(x::AbstractVector) = x
 interpolateable(x::AbstractVector{<:Integer}) = float.(x)
+
+
+function _get_range(sizemargin, sizefrom)
+    return if sizemargin == 0
+        1:sizefrom
+    elseif iseven(sizemargin)
+        sizemargin ÷ 2 + 1 : sizefrom - sizemargin ÷ 2
+    else
+        sizemargin ÷ 2 + 2 : sizefrom - sizemargin ÷ 2
+    end
+end
+
+function crop(im, heightto, widthto)
+    heightfrom, widthfrom = size(im)
+    heightmargin, widthmargin = (heightfrom - heightto), (widthfrom - widthto)
+    heightrange = _get_range(heightmargin, heightfrom)
+    widthrange = _get_range(widthmargin, widthfrom)
+    cropped_im = [heightrange, widthrange]
+    return cropped_im
+end
+
+function _apply_and_reshape(func, im::Matrix{T}, template::Matrix{T}, args...) where {T <: RGB}
+    newim = func(im, args...)
+    template_size = size(template)
+    if any(size(newim) .> template_size)
+        newim = crop(newim)
+    end
+    if any(size(newim) .< template_size)
+        newim, _ = paddedviews(0, newim, template)
+    end
+    return newim
+end
+
+function default_postprocess(frame_image, frame, frames)
+    frame_image
+end
