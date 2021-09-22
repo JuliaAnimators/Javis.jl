@@ -277,15 +277,15 @@ function crop(im, heightto, widthto)
     heightmargin, widthmargin = (heightfrom - heightto), (widthfrom - widthto)
     heightrange = _get_range(heightmargin, heightfrom)
     widthrange = _get_range(widthmargin, widthfrom)
-    cropped_im = [heightrange, widthrange]
+    cropped_im = im[heightrange, widthrange]
     return cropped_im
 end
 
-function _apply_and_reshape(func, im::Matrix{T}, template::Matrix{T}, args...) where {T <: RGB}
+function _apply_and_reshape(func, im, template, args...)
     newim = func(im, args...)
     template_size = size(template)
     if any(size(newim) .> template_size)
-        newim = crop(newim)
+        newim = crop(newim, template_size...)
     end
     if any(size(newim) .< template_size)
         newim, _ = paddedviews(0, newim, template)

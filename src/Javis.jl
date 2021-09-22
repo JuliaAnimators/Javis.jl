@@ -274,22 +274,28 @@ function render(
         tempdirectory = mktempdir()
     end
 
-    frame_template = convert.(RGB, get_javis_frame(video, objects, 1; layers = layers))
+
+    frame_template = get_javis_frame(video, objects, first(frames); layers = layers)
     frames = postprocess_frames_flow(frames)
-    frames_memory = Dict{Int, Matrix{RGB}}()
+    frames_memory = Dict{Int, Matrix{RGB{N0f8}}}()
+
+    # helps to check if the video is already being rendered in mp4 case
+    started_encoding_video = false
 
     filecounter = 1
     @showprogress 1 "Rendering frames..." for frame in frames
         frame_image = if haskey(frames_memory, frame)
             frames_memory[frame]
         else
-            if frame == 1
-                _apply_and_reshape(postprocess_frame, frame_template, frame_template, frame, frames)
+            if frame == first(frames)
+                convert.(RGB, _apply_and_reshape(postprocess_frame, frame_template, frame_template, frame, frames))
             else
-                frame_image = convert.(RGB, get_javis_frame(video, objects, frame; layers = layers))
-                frame_image = _apply_and_reshape(postprocess_frame, frame_image, frame_template, frame, frames)
+                temp_image = get_javis_frame(video, objects, frame; layers = layers)
+                convert.(RGB, _apply_and_reshape(postprocess_frame, temp_image, frame_template, frame, frames))
             end
         end
+
+        @warn "typecheck" typeof(frame_image)
 
         # rescale the frame for faster rendering if the rescale_factor is not 1
         if !isone(rescale_factor) & !haskey(frames_memory, frame)
@@ -302,12 +308,13 @@ function render(
         elseif (frame in frames[filecounter+1:end]) & !haskey(frames_memory, frame)
             frames_memory[frame] = frame_image
         end
-        
+
         if !isempty(tempdirectory)
             Images.save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
         end
         if render_mp4
-            if frame == first(frames)
+            if frame == first(frames) & !started_encoding_video
+                started_encoding_video = true
                 video_io = open_video_out(
                     pathname,
                     frame_image,
