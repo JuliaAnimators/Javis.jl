@@ -294,19 +294,21 @@ function render(
             end
         end
 
-        # rescale the frame for faster rendering if the rescale_factor is not 1
-        if !isone(rescale_factor) & !haskey(frames_memory, frame)
-            new_size = trunc.(Int, size(frame_image) .* rescale_factor)
-            frame_image = imresize(frame_image, new_size)
-        end
-        
+        frame_image = convert.(RGB, frame_image)
+
         if !(frame in frames[filecounter+1:end]) & haskey(frames_memory, frame)
             delete!(frames_memory, frame)
         elseif (frame in frames[filecounter+1:end]) & !haskey(frames_memory, frame)
             frames_memory[frame] = frame_image
         end
 
-        frame_image = convert.(RGB, _apply_and_reshape(postprocess_frame, frame_image, frame_template, filecounter, frames))
+        frame_image = _apply_and_reshape(postprocess_frame, frame_image, frame_template, filecounter, frames)
+
+        # rescale the frame for faster rendering if the rescale_factor is not 1
+        if !isone(rescale_factor) & !haskey(frames_memory, frame)
+            new_size = trunc.(Int, size(frame_image) .* rescale_factor)
+            frame_image = imresize(frame_image, new_size)
+        end
 
         if !isempty(tempdirectory)
             Images.save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
