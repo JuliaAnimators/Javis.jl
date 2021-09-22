@@ -295,8 +295,6 @@ function render(
             end
         end
 
-        @warn "typecheck" typeof(frame_image)
-
         # rescale the frame for faster rendering if the rescale_factor is not 1
         if !isone(rescale_factor) & !haskey(frames_memory, frame)
             new_size = trunc.(Int, size(frame_image) .* rescale_factor)
