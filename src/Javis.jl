@@ -288,10 +288,9 @@ function render(
             frames_memory[frame]
         else
             if frame == first(frames)
-                convert.(RGB, _apply_and_reshape(postprocess_frame, frame_template, frame_template, frame, frames))
+                frame_template
             else
-                temp_image = get_javis_frame(video, objects, frame; layers = layers)
-                convert.(RGB, _apply_and_reshape(postprocess_frame, temp_image, frame_template, frame, frames))
+                get_javis_frame(video, objects, frame; layers = layers)
             end
         end
 
@@ -306,6 +305,8 @@ function render(
         elseif (frame in frames[filecounter+1:end]) & !haskey(frames_memory, frame)
             frames_memory[frame] = frame_image
         end
+
+        frame_image = convert.(RGB, _apply_and_reshape(postprocess_frame, frame_image, frame_template, filecounter, frames))
 
         if !isempty(tempdirectory)
             Images.save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
