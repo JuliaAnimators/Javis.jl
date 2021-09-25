@@ -280,7 +280,7 @@ function render(
         tempdirectory = mktempdir()
     end
 
-
+    # Create a template useful in case of postprocessing
     frame_template = _convert_and_rescale_if_needed(
         get_javis_frame(video, objects, first(frames); layers = layers),
         rescale_factor,
@@ -293,6 +293,7 @@ function render(
         error("postprocess_frames_flow should return a vector of frame indices contained in the original number of frames")
     end
     
+    # Memoization container for postprocessing
     frames_memory = Dict{Int,Matrix{RGB{N0f8}}}()
 
     # helps to check if the video is already being rendered in mp4 case
