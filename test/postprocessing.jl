@@ -63,8 +63,14 @@ end
     n_frames = 50
     onepostprocessvideo = Video(200, 200)
     Background(1:n_frames, ground(RGB(0.0, 1.0, 0.0)))
-    circ = Object(1:25, JCircle(Point(-20, -20), 20, action = :fill, color = RGB(1.0, 1.0, 0.0)))
-    circ = Object(26:50, JCircle(Point(20, 20), 20, action = :fill, color = RGB(1.0, 1.0, 0.0)))
+    circ = Object(
+        1:25,
+        JCircle(Point(-20, -20), 20, action = :fill, color = RGB(1.0, 1.0, 0.0)),
+    )
+    circ = Object(
+        26:50,
+        JCircle(Point(20, 20), 20, action = :fill, color = RGB(1.0, 1.0, 0.0)),
+    )
 
     render(
         onepostprocessvideo,
@@ -107,7 +113,7 @@ end
         else
             background(c21)
             sethue(c22)
-        end 
+        end
     end
 
     function postprocess_frame(frame_image, idx, frames)
@@ -125,9 +131,19 @@ end
 
     n_nopostprocess = 100
     nopostprocessvideo = Video(200, 200)
-    Background(1:n_nopostprocess, (x, y, frame) -> ground_double_color(RGB(0.0, 1.0, 0.0), "white", "black", "red", frame, 50))
-    circ = Object(1:25, JCircle(Point(-20, -20), 20, action = :fill, color = RGB(0.0, 1.0, 1.0)))
-    circ = Object(26:50, JCircle(Point(20, 20), 20, action = :fill, color = RGB(0.0, 1.0, 1.0)))
+    Background(
+        1:n_nopostprocess,
+        (x, y, frame) ->
+            ground_double_color(RGB(0.0, 1.0, 0.0), "white", "black", "red", frame, 50),
+    )
+    circ = Object(
+        1:25,
+        JCircle(Point(-20, -20), 20, action = :fill, color = RGB(0.0, 1.0, 1.0)),
+    )
+    circ = Object(
+        26:50,
+        JCircle(Point(20, 20), 20, action = :fill, color = RGB(0.0, 1.0, 1.0)),
+    )
     circ = Object(51:75, JCircle(Point(20, 20), 20, action = :fill, color = "blue"))
     circ = Object(76:100, JCircle(Point(-20, -20), 20, action = :fill, color = "blue"))
     render(
@@ -146,7 +162,7 @@ end
         tempdirectory = "images/withpostprocessing",
         pathname = "",
         postprocess_frames_flow = postprocess_frames_flow,
-        postprocess_frame = postprocess_frame
+        postprocess_frame = postprocess_frame,
     )
 
     for frame in [10, 30, 50, 70, 90, 100]
