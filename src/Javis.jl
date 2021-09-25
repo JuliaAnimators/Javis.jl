@@ -243,8 +243,8 @@ function render(
     tempdirectory = "",
     ffmpeg_loglevel = "panic",
     rescale_factor = 1.0,
-    postprocess_frames_flow=identity,
-    postprocess_frame=default_postprocess
+    postprocess_frames_flow = identity,
+    postprocess_frame = default_postprocess,
 )
     layers = video.layers
     objects = video.objects
@@ -275,40 +275,30 @@ function render(
     end
 
 
-    frame_template = get_javis_frame(video, objects, first(frames); layers = layers)
+    frame_template = _convert_and_rescale_if_needed(
+        get_javis_frame(video, objects, first(frames); layers = layers),
+        rescale_factor,
+    )
     frames = postprocess_frames_flow(frames)
-    frames_memory = Dict{Int, Matrix{RGB{N0f8}}}()
+    frames_memory = Dict{Int,Matrix{RGB{N0f8}}}()
 
     # helps to check if the video is already being rendered in mp4 case
     started_encoding_video = false
 
     filecounter = 1
     @showprogress 1 "Rendering frames..." for frame in frames
-        frame_image = if haskey(frames_memory, frame)
-            frames_memory[frame]
-        else
-            if frame == first(frames)
-                frame_template
-            else
-                get_javis_frame(video, objects, frame; layers = layers)
-            end
-        end
-
-        frame_image = convert.(RGB, frame_image)
-
-        if !(frame in frames[filecounter+1:end]) & haskey(frames_memory, frame)
-            delete!(frames_memory, frame)
-        elseif (frame in frames[filecounter+1:end]) & !haskey(frames_memory, frame)
-            frames_memory[frame] = frame_image
-        end
-
-        frame_image = _apply_and_reshape(postprocess_frame, frame_image, frame_template, filecounter, frames)
-
-        # rescale the frame for faster rendering if the rescale_factor is not 1
-        if !isone(rescale_factor) & !haskey(frames_memory, frame)
-            new_size = trunc.(Int, size(frame_image) .* rescale_factor)
-            frame_image = imresize(frame_image, new_size)
-        end
+        frame_image = _postprocess(
+            video,
+            objects,
+            frame,
+            layers = layers,
+            frames_memory = frames_memory,
+            postprocess_frame = postprocess_frame,
+            frame_template = frame_template,
+            filecounter = filecounter,
+            frames = frames,
+            rescale_factor = rescale_factor,
+        )
 
         if !isempty(tempdirectory)
             Images.save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
