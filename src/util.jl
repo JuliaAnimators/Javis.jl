@@ -363,7 +363,7 @@ function _postprocess(
     filecounter,
     frames,
     rescale_factor,
-)   
+)
     # Memoized frame_image
     frame_image = if haskey(frames_memory, frame)
         frames_memory[frame]
