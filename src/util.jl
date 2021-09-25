@@ -352,7 +352,7 @@ in the frames processing, so that when those will have to be rendered they can b
 from here instead, whereas those that do not reappear are discarded. (the check is performed
 after each frame on those predent in the frames_memory)
 
- - 
+ - Applies `postprocess_frame` as provided to `render` on each frame.
 """
 function _postprocess(
     video,
