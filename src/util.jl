@@ -266,7 +266,7 @@ interpolateable(x::AbstractVector{<:Integer}) = float.(x)
 """
     _get_range(sizemargin, sizefrom)
 
-Returns a range with values from `sizemargin ÷ 2 + 1` for even numbers to `sizefrom - sizemargin ÷ 2`.
+For even numbers returns a range with values from `sizemargin ÷ 2 + 1` to `sizefrom - sizemargin ÷ 2`.
 For odd numbers the left range value is increased by one.
 """
 function _get_range(sizemargin, sizefrom)
@@ -278,7 +278,6 @@ function _get_range(sizemargin, sizefrom)
         (sizemargin ÷ 2 + 2):(sizefrom - sizemargin ÷ 2)
     end
 end
-
 
 """
     crop(im, heightto, widthto)
@@ -323,7 +322,6 @@ function default_postprocess(frame_image, frame, frames)
     frame_image
 end
 
-
 """
     _rescale_if_needed(frame_image, rescale_factor)
 
@@ -365,7 +363,8 @@ function _postprocess(
     filecounter,
     frames,
     rescale_factor,
-)
+)   
+    # Memoized frame_image
     frame_image = if haskey(frames_memory, frame)
         frames_memory[frame]
     else
@@ -379,6 +378,7 @@ function _postprocess(
         end
     end
 
+    # Memoization container updating with cleaning
     if !(frame in frames[(filecounter + 1):end]) & haskey(frames_memory, frame)
         delete!(frames_memory, frame)
     elseif (frame in frames[(filecounter + 1):end]) & !haskey(frames_memory, frame)
