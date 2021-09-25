@@ -285,7 +285,14 @@ function render(
         get_javis_frame(video, objects, first(frames); layers = layers),
         rescale_factor,
     )
+
+    # Check if postprocess_frames_flow is ill defined
+    original_n_frames = length(frames)
     frames = postprocess_frames_flow(frames)
+    if !issubset(unique(frames), 1:original_n_frames)
+        error("postprocess_frames_flow should return a vector of frame indices contained in the original number of frames")
+    end
+    
     frames_memory = Dict{Int,Matrix{RGB{N0f8}}}()
 
     # helps to check if the video is already being rendered in mp4 case
