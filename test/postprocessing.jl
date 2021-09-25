@@ -31,9 +31,9 @@
     circ = Object(51:75, JCircle(Point(-20, -20), 20, action = :fill, color = "white"))
     circ = Object(76:100, JCircle(Point(20, 20), 20, action = :fill, color = "white"))
     render(
-        nopostprocessvideo, 
-        tempdirectory = "images/withoutpostprocessing", 
-        pathname = ""
+        nopostprocessvideo,
+        tempdirectory = "images/withoutpostprocessing",
+        pathname = "",
     )
 
     n_postprocess = 50
@@ -42,11 +42,11 @@
     circ = Object(1:25, JCircle(Point(-20, -20), 20, action = :fill, color = "white"))
     circ = Object(26:50, JCircle(Point(20, 20), 20, action = :fill, color = "white"))
     render(
-        postprocessvideo, 
-        tempdirectory = "images/withpostprocessing", 
+        postprocessvideo,
+        tempdirectory = "images/withpostprocessing",
         pathname = "",
         # postprocess_frame = postprocess_frame,
-        postprocess_frames_flow = postprocess_frames_flow
+        postprocess_frames_flow = postprocess_frames_flow,
     )
 
     for frame in [10, 30, 50, 70, 90, 100]
@@ -61,5 +61,5 @@
         rm("images/withoutpostprocessing/$(lpad(i, 10, "0")).png")
     end
     rm("images/withoutpostprocessing/", recursive = true)
-    rm("images/withpostprocessing/", recursive = true) 
+    rm("images/withpostprocessing/", recursive = true)
 end
