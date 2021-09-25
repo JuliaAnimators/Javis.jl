@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Tutorial 2: Cosmic Dancing and Javis Shorthand Expressions! · Javis.jl</title><script data-outdated-warner src="../../assets/warner.js"></script><link rel="canonical" href="https://Wikunia.github.io/Javis.jl/tutorials/tutorial_2/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">Javis.jl</a></span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../"><strong>Information about Tutorials - Beginners Start Here!</strong></a></li><li><a class="tocitem" href="../tutorial_1/"><strong>Tutorial 1:</strong> Making Your First Javis Animation!</a></li><li class="is-active"><a class="tocitem" href><strong>Tutorial 2:</strong> Cosmic Dancing and Javis Shorthand Expressions!</a><ul class="internal"><li><a class="tocitem" href="#Learning-Outcomes"><span>Learning Outcomes</span></a></li><li><a class="tocitem" href="#Space...-The-Final-Frontier!"><span>Space... The Final Frontier! 🌌 🌠</span></a></li><li class="toplevel"><a class="tocitem" href="#Conclusion"><span>Conclusion</span></a></li><li class="toplevel"><a class="tocitem" href="#Full-Code"><span>Full Code</span></a></li></ul></li><li><a class="tocitem" href="../tutorial_3/"><strong>Tutorial 3:</strong> What Are Objects?</a></li><li><a class="tocitem" href="../tutorial_4/"><strong>Tutorial 4:</strong> Rendering LaTeX with Javis!</a></li><li><a class="tocitem" href="../tutorial_5/"><strong>Tutorial 5:</strong> Do You Know Our Mascot? - Learn About Transitions And Actions!</a></li><li><a class="tocitem" href="../tutorial_6/"><strong>Tutorial 6:</strong> Taming the Elements</a></li><li><a class="tocitem" href="../tutorial_7/"><strong>Tutorial 7:</strong> Using Animations.jl to Create something with more Pep!</a></li><li><a class="tocitem" href="../tutorial_8/"><strong>Tutorial 8:</strong> Fun with Layers! An Intro to <code>@JLayer</code></a></li></ul></li><li><a class="tocitem" href="../../howto/">HowTo</a></li><li><a class="tocitem" href="../../workflows/">Workflows</a></li><li><a class="tocitem" href="../../examples/">Examples</a></li><li><a class="tocitem" href="../../mission/">Mission</a></li><li><a class="tocitem" href="../../references/">References</a></li><li><a class="tocitem" href="../../contributing/">Contributing</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href><strong>Tutorial 2:</strong> Cosmic Dancing and Javis Shorthand Expressions!</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href><strong>Tutorial 2:</strong> Cosmic Dancing and Javis Shorthand Expressions!</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/Wikunia/Javis.jl/blob/master/docs/src/tutorials/tutorial_2.md#L" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="**Tutorial-2:**-Cosmic-Dancing-and-Javis-Shorthand-Expressions!"><a class="docs-heading-anchor" href="#**Tutorial-2:**-Cosmic-Dancing-and-Javis-Shorthand-Expressions!"><strong>Tutorial 2:</strong> Cosmic Dancing and Javis Shorthand Expressions!</a><a id="**Tutorial-2:**-Cosmic-Dancing-and-Javis-Shorthand-Expressions!-1"></a><a class="docs-heading-anchor-permalink" href="#**Tutorial-2:**-Cosmic-Dancing-and-Javis-Shorthand-Expressions!" title="Permalink"></a></h1><p>In the previous tutorial, when you were creating the red and blue balls, you came across syntax that looked something like this:</p><pre><code class="nohighlight hljs">(args...) -&gt; object(....)</code></pre><p>As promised, here is the explanation of what this syntax is:  It declares an anonymous function that eases Javis rendering. If you are new to Julia or haven&#39;t worked with anonymous function declarations before,  this can be quite difficult to understand! 🤯</p><p>Even for seasoned Julians, this syntax can make it hard to see everything that is happening in your code.  But, have no fear, Javis shorthand expressions are here! Javis shorthand expressions, also affectionately referred to as J-Objects, are Javis-made expressions that define commonly used objects via a simple syntax.</p><p>By the end of this tutorial, you will have made the following animation with J-Objects that follows the paths of Earth and Venus while going around the sun in a beautiful Cosmic Dance!</p><p><img src="../assets/cosmic_dance.gif" alt/></p><h2 id="Learning-Outcomes"><a class="docs-heading-anchor" href="#Learning-Outcomes">Learning Outcomes</a><a id="Learning-Outcomes-1"></a><a class="docs-heading-anchor-permalink" href="#Learning-Outcomes" title="Permalink"></a></h2><p>Through this tutorial you will be introduced to Javis shorthand expressions and specifically learn about the following J-Objects provided by Javis:</p><ul><li><code>JCircle</code></li><li><code>JShape</code></li></ul><p>This will help you more easily create animations using Javis!</p><h2 id="Space...-The-Final-Frontier!"><a class="docs-heading-anchor" href="#Space...-The-Final-Frontier!">Space... The Final Frontier! 🌌 🌠</a><a id="Space...-The-Final-Frontier!-1"></a><a class="docs-heading-anchor-permalink" href="#Space...-The-Final-Frontier!" title="Permalink"></a></h2><h3 id="An-Infinite-Cosmos"><a class="docs-heading-anchor" href="#An-Infinite-Cosmos">An Infinite Cosmos</a><a id="An-Infinite-Cosmos-1"></a><a class="docs-heading-anchor-permalink" href="#An-Infinite-Cosmos" title="Permalink"></a></h3><p>To start things slowly, let&#39;s create a space in the infinite cosmos where our planets will perform their cosmic dance! Meaning: let&#39;s create the Background!</p><pre><code class="language-julia hljs">function ground(args...)
+    background(&quot;black&quot;)
+    sethue(&quot;white&quot;)
+end</code></pre><h3 id="...-Planets!"><a class="docs-heading-anchor" href="#...-Planets!">💥 ... Planets!</a><a id="...-Planets!-1"></a><a class="docs-heading-anchor-permalink" href="#...-Planets!" title="Permalink"></a></h3><p>In our last tutorial, we created circles to represent planets.  We&#39;ll be doing something similar but, this time, with J-Objects!</p><p>If you recall, we had to define our own special function to define a circle that we wanted to use in our last animation. Now, instead, we will use, the J-Object, <code>JCircle</code>.</p><p><code>JCircle</code> is pretty flexible and takes in arguments similar to Luxor.jl&#39;s <code>circle()</code> function that we used in the previous tutorial. However, we do not have to use the verbose syntax as before, but instead, we can use a much more readable syntax. For example, we can define Earth and Venus as shown below:</p><pre><code class="language-julia hljs">function ground(args...)
+    background(&quot;black&quot;)
+    sethue(&quot;white&quot;)
+end
+
+frames = 1000
+
+myvideo = Video(500, 500)
+Background(1:frames, ground)
+
+earth = Object(1:frames, JCircle(O, 10, color = &quot;blue&quot;, action = :fill), Point(200, 0))
+venus = Object(JCircle(O, 7, color = &quot;red&quot;, action = :fill), Point(144, 0))
+
+render(myvideo; pathname = &quot;cosmic_dance.gif&quot;)</code></pre><p><img src="../assets/cosmic_dance_planets.gif" alt/></p><p>Tada! 💥 We have created our own galaxy! Now that we have created some planets, we should map their orbits - we don&#39;t want them crashing into each other!</p><h3 id="Swiftly-Tilting-Axes"><a class="docs-heading-anchor" href="#Swiftly-Tilting-Axes">Swiftly Tilting Axes 🌐</a><a id="Swiftly-Tilting-Axes-1"></a><a class="docs-heading-anchor-permalink" href="#Swiftly-Tilting-Axes" title="Permalink"></a></h3><p>In the previous tutorial we used a <code>path!</code> function to create the orbits of the planets.  In its place, we will use <code>@JShape</code> to trace out the orbits of the planets. </p><p><code>@JShape</code> is a macro that allows users to create complex objects with custom settings - all using J-Object syntax! All the parameters used inside <code>@JShape</code>, such as defining colors or actions, are within the <code>begin...end</code> provided by the macros. </p><p>Here is how we use <code>@JShape</code> to define the orbits of a planet:</p><pre><code class="language-julia hljs">...
+
+earth = Object(1:frames, JCircle(O, 10, color = &quot;blue&quot;, action = :fill), Point(200, 0))
+venus = Object(JCircle(O, 7, color = &quot;red&quot;, action = :fill), Point(144, 0))
+
+earth_orbit = Object(@JShape begin
+    sethue(color)
+    setdash(edge)
+    circle(O, 200, action)
+end color = &quot;white&quot; action = :stroke edge = &quot;solid&quot;)
+
+venus_orbit = Object(@JShape begin
+    sethue(color)
+    setdash(edge)
+    circle(O, 144, action)
+end color = &quot;white&quot; action = :stroke edge = &quot;solid&quot;)
+
+render(myvideo; pathname = &quot;cosmic_dance.gif&quot;)</code></pre><p><img src="../assets/cosmic_dance_orbits.gif" alt/></p><h3 id="Let&#39;s-Get-Moving!"><a class="docs-heading-anchor" href="#Let&#39;s-Get-Moving!">Let&#39;s Get Moving! 🏎️</a><a id="Let&#39;s-Get-Moving!-1"></a><a class="docs-heading-anchor-permalink" href="#Let&#39;s-Get-Moving!" title="Permalink"></a></h3><p>Now that we have the paths of the planets defined, and our planets created, I think something is missing... Oh! Let&#39;s set them in motion! For that, we will use some <code>Action</code>&#39;s to make them move (read the code comments to see how that happens):</p><pre><code class="language-julia hljs">...
+
+# We need the planets to revolve according to their time periods.
+# Earth completes its one revolution in 365 days and Venus does that in 224.7 days.
+# Hence, we need to multiply (224.7/365) so that the time period matches properly i.e.,
+# When earth completes its full revolution, Venus has done (224.7/365) th of its revolution.
+act!(earth, Action(anim_rotate_around(12.5 * 2π * (224.7 / 365), O)))
+act!(venus, Action(anim_rotate_around(12.5 * 2π, O)))
+
+render(myvideo; pathname = &quot;cosmic_dance_revolution.gif&quot;)</code></pre><p><img src="../assets/cosmic_dance_revolution.gif" alt/></p><h3 id="A-Beautiful-Dance"><a class="docs-heading-anchor" href="#A-Beautiful-Dance">A Beautiful Dance 🌸</a><a id="A-Beautiful-Dance-1"></a><a class="docs-heading-anchor-permalink" href="#A-Beautiful-Dance" title="Permalink"></a></h3><p>Now that we have our planets moving, it would be interesting to see how the space between them changes over time. So, using our <code>@JShape</code> macro and &quot;connector&quot; syntax we used in the last tutorial, we can do just that! Let&#39;s trace out their changing paths that Earth and Venus follow!</p><pre><code class="language-julia hljs">...
+
+connection = [] # To store the connectors
+Object(@JShape begin
+    sethue(color)
+    push!(connection, [p1, p2])
+    map(x -&gt; line(x[1], x[2], :stroke), connection)
+end connection = connection p1 = pos(earth) p2 = pos(venus) color = &quot;#f05a4f&quot;)
+
+render(myvideo; pathname = &quot;cosmic_dance_path.gif&quot;)</code></pre><p><img src="../assets/cosmic_dance_path.gif" alt/></p><p>Like real dancers, watching this animation is both beautiful and trance like. Great job making this! </p><h1 id="Conclusion"><a class="docs-heading-anchor" href="#Conclusion">Conclusion</a><a id="Conclusion-1"></a><a class="docs-heading-anchor-permalink" href="#Conclusion" title="Permalink"></a></h1><p>Good work on getting through this tutorial! By learning how to make this animation, you now know a bit more about J-Objects and how they can make creating Javis animations easier and also more readable. You should note, the other syntax is still supported and for some more complex animations, that syntax might be better than J-Objects.</p><p>Also, J-Objects don&#39;t end here! Javis supports a variety of additional J-Objects you should consider using! For example:</p><pre><code class="language-julia hljs">function ground(args...)
+    background(&quot;black&quot;)
+    sethue(&quot;white&quot;)
+end
+
+frames = 1
+
+myvideo = Video(500, 500)
+Background(1:frames, ground)
+
+# Line
+Object(1:frames, JLine(Point(100, -250), color = &quot;yellow&quot;))
+
+# Box
+Object(JBox(Point(-200, -200), Point(200, 200), color = &quot;white&quot;, action = :stroke))
+
+# Rect
+Object(JRect(175, 15, 30, 55, color = &quot;white&quot;, action = :fill))
+
+# Ellipse
+Object(JEllipse(-50, 25, 45, 25, color = &quot;yellow&quot;, action = :fill))
+
+# Star
+Object(JStar(0, 120, 45, color = &quot;orange&quot;, action = :fill))
+
+# Polygon
+Object(JPoly(ngon(O, 150, 3, -π / 2, vertices = true), color = &quot;yellow&quot;))
+
+render(myvideo; pathname = &quot;shorthand_examples.gif&quot;)</code></pre><p><img src="../assets/shorthand_examples.gif" alt/></p><p>That said, congrats and go forth and make more animations! We are excited to see what you create!</p><h1 id="Full-Code"><a class="docs-heading-anchor" href="#Full-Code">Full Code</a><a id="Full-Code-1"></a><a class="docs-heading-anchor-permalink" href="#Full-Code" title="Permalink"></a></h1><pre><code class="language-julia hljs">using Javis
+
+function ground(args...)
+    background(&quot;black&quot;)
+    sethue(&quot;white&quot;)
+end
+
+frames = 1000
+
+myvideo = Video(500, 500)
+Background(1:frames, ground)
+
+earth = Object(1:frames, JCircle(O, 10, color = &quot;blue&quot;, action = :fill), Point(200, 0))
+venus = Object(JCircle(O, 7, color = &quot;red&quot;, action = :fill), Point(144, 0))
+
+earth_orbit = Object(@JShape begin
+    sethue(color)
+    setdash(edge)
+    circle(O, 200, action)
+end color = &quot;white&quot; action = :stroke edge = &quot;solid&quot;)
+
+venus_orbit = Object(@JShape begin
+    sethue(color)
+    setdash(edge)
+    circle(O, 144, action)
+end color = &quot;white&quot; action = :stroke edge = &quot;solid&quot;)
+
+# We need the planets to revolve according to their time periods.
+# Earth completes its one revolution in 365 days and Venus does that in 224.7 days.
+# Hence, we need to multiply (224.7/365) so that the time period matches properly i.e.,
+# When earth completes its full revolution, Venus has done (224.7/365) th of its revolution.
+act!(earth, Action(anim_rotate_around(12.5 * 2π * (224.7 / 365), O)))
+act!(venus, Action(anim_rotate_around(12.5 * 2π, O)))
+
+connection = [] # To store the connectors
+Object(@JShape begin
+    sethue(color)
+    push!(connection, [p1, p2])
+    map(x -&gt; line(x[1], x[2], :stroke), connection)
+end connection = connection p1 = pos(earth) p2 = pos(venus) color = &quot;#f05a4f&quot;)
+
+render(myvideo; pathname = &quot;cosmic_dance.gif&quot;)
+</code></pre><blockquote><p><strong>Author(s):</strong> Arsh Sharma <br/><strong>Date:</strong> July 7th, 2021 <br/><strong>Tag(s):</strong> shorthands, object, action, rotation <br/><strong>Credit(s):</strong> Ved Mahajan for the cosmic dance example</p></blockquote></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tutorial_1/">« <strong>Tutorial 1:</strong> Making Your First Javis Animation!</a><a class="docs-footer-nextpage" href="../tutorial_3/"><strong>Tutorial 3:</strong> What Are Objects? »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.6 on <span class="colophon-date" title="Saturday 25 September 2021 08:50">Saturday 25 September 2021</span>. Using Julia version 1.6.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
