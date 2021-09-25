@@ -262,16 +262,29 @@ interpolateable(x::AbstractVector) = x
 interpolateable(x::AbstractVector{<:Integer}) = float.(x)
 
 
+
+"""
+    _get_range(sizemargin, sizefrom)
+
+Returns a range with values from `sizemargin ÷ 2 + 1` for even numbers to `sizefrom - sizemargin ÷ 2`.
+For odd numbers the left range value is increased by one.
+"""
 function _get_range(sizemargin, sizefrom)
     return if sizemargin == 0
         1:sizefrom
     elseif iseven(sizemargin)
-        sizemargin ÷ 2 + 1 : sizefrom - sizemargin ÷ 2
+        (sizemargin ÷ 2 + 1):(sizefrom - sizemargin ÷ 2)
     else
-        sizemargin ÷ 2 + 2 : sizefrom - sizemargin ÷ 2
+        (sizemargin ÷ 2 + 2):(sizefrom - sizemargin ÷ 2)
     end
 end
 
+
+"""
+    crop(im, heightto, widthto)
+
+Crops an imagematrix to size `(heightto, widthto)` around the center of the iamge.
+"""
 function crop(im, heightto, widthto)
     heightfrom, widthfrom = size(im)
     heightmargin, widthmargin = (heightfrom - heightto), (widthfrom - widthto)
@@ -281,6 +294,13 @@ function crop(im, heightto, widthto)
     return cropped_im
 end
 
+"""
+    _apply_and_reshape(func, im, template, args...)
+
+Applies function `func` to imagematrix `im`. Afterwards reshapes the output 
+cropping it or padding it to the size of `template`.
+All the `args` are passed to func after `im` as arguments.
+"""
 function _apply_and_reshape(func, im, template, args...)
     newim = func(im, args...)
     template_size = size(template)
@@ -293,6 +313,83 @@ function _apply_and_reshape(func, im, template, args...)
     return newim
 end
 
+"""
+    default_postprocess(frame_image, frame, frames)
+
+Returns its first argument. Used as effectless default for keywords
+argument `postprocess_frame` in render function.
+"""
 function default_postprocess(frame_image, frame, frames)
     frame_image
+end
+
+
+"""
+    _rescale_if_needed(frame_image, rescale_factor)
+
+Converts `frame_image` values to RGB and if `rescale_factor` 
+in `render` is different from 1.0 rescales the images matrix for 
+faster rendering.
+"""
+function _convert_and_rescale_if_needed(frame_image, rescale_factor)
+    frame_image = convert.(RGB, frame_image)
+    return if !isone(rescale_factor)
+        new_size = trunc.(Int, size(frame_image) .* rescale_factor)
+        imresize(frame_image, new_size)
+    else
+        frame_image
+    end
+end
+
+"""
+    _postprocess(args...;kwargs...)
+
+This function is used to perform the postprocessing inside the render function.
+It does mainly two things:
+ - Adds a memoization with checks for the frames to render. The keyword argument 
+frames_memory, stores those imagematrices associated to frames that will reappear later
+in the frames processing, so that when those will have to be rendered they can be taken 
+from here instead, whereas those that do not reappear are discarded. (the check is performed
+after each frame on those predent in the frames_memory)
+
+ - 
+"""
+function _postprocess(
+    video,
+    objects,
+    frame;
+    layers,
+    frames_memory,
+    postprocess_frame,
+    frame_template,
+    filecounter,
+    frames,
+    rescale_factor,
+)
+    frame_image = if haskey(frames_memory, frame)
+        frames_memory[frame]
+    else
+        frame_image = if frame == first(frames)
+            frame_template
+        else
+            frame_image = _convert_and_rescale_if_needed(
+                get_javis_frame(video, objects, frame; layers = layers),
+                rescale_factor,
+            )
+        end
+    end
+
+    if !(frame in frames[(filecounter + 1):end]) & haskey(frames_memory, frame)
+        delete!(frames_memory, frame)
+    elseif (frame in frames[(filecounter + 1):end]) & !haskey(frames_memory, frame)
+        frames_memory[frame] = frame_image
+    end
+
+    return _apply_and_reshape(
+        postprocess_frame,
+        frame_image,
+        frame_template,
+        filecounter,
+        frames,
+    )
 end
