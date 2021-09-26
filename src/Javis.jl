@@ -234,7 +234,7 @@ Streaming to Twitch or other platforms are not yet supported.
     All other options are described here: https://ffmpeg.org/ffmpeg.html
 - `rescale_factor::Float64` factor to which the frames should be rescaled for faster rendering
 - `postprocess_frame::Function` function that is applied to the imagematrix of each frame after they have been computed 
-takes as argument postprocess_frame(frame_image, frame, frames), useful to apply a postprocessing e.g. blur to all or some 
+takes as argument `frame_image, frame, frames`, useful to apply a postprocessing e.g. blur to all or some 
 of the images. By default it is the identity and nothing happens.
 - `postprocess_frames_flow::Function` function that is applied to the vector of the frames indices should return a new vector 
 where elements are a subset of the number of frames. Useful to reorder the frames, e.g. reverse the video with 

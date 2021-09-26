@@ -266,8 +266,8 @@ interpolateable(x::AbstractVector{<:Integer}) = float.(x)
 """
     _get_range(sizemargin, sizefrom)
 
-For even numbers returns a range with values from `sizemargin ÷ 2 + 1` to `sizefrom - sizemargin ÷ 2`.
-For odd numbers the left range value is increased by one.
+For even `sizemargin` returns a range with values from `sizemargin ÷ 2 + 1` to `sizefrom - sizemargin ÷ 2`.
+For odd `sizemargin` the left range value is increased by one.
 """
 function _get_range(sizemargin, sizefrom)
     return if sizemargin == 0
@@ -282,7 +282,7 @@ end
 """
     crop(im, heightto, widthto)
 
-Crops an imagematrix to size `(heightto, widthto)` around the center of the iamge.
+Crops an imagematrix to size `(heightto, widthto)` around the center of the image.
 """
 function crop(im, heightto, widthto)
     heightfrom, widthfrom = size(im)
