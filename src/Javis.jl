@@ -320,7 +320,7 @@ function render(
             Images.save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
         end
         if render_mp4
-            if frame == first(frames) && !started_encoding_video
+            if !started_encoding_video
                 started_encoding_video = true
                 video_io = open_video_out(
                     pathname,
