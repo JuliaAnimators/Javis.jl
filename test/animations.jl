@@ -248,10 +248,10 @@ end
     )
     cs_obj = Object(1:40, cs())
 
-    act!(cs_obj, Action(1:10, disappear(cs, :top_right); keep=false))
-    act!(cs_obj, Action(11:20, disappear(cs, :top_left); keep=false))
-    act!(cs_obj, Action(21:30, disappear(cs, :bottom_right); keep=false))
-    act!(cs_obj, Action(31:40, disappear(cs, :bottom_left); keep=false))
+    act!(cs_obj, Action(1:10, disappear(cs, :top_right); keep = false))
+    act!(cs_obj, Action(11:20, disappear(cs, :top_left); keep = false))
+    act!(cs_obj, Action(21:30, disappear(cs, :bottom_right); keep = false))
+    act!(cs_obj, Action(31:40, disappear(cs, :bottom_left); keep = false))
 
     render(video; tempdirectory = "images", pathname = "")
 
