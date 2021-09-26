@@ -289,7 +289,7 @@ function render(
     # Check if postprocess_frames_flow is ill defined
     original_n_frames = length(frames)
     frames = postprocess_frames_flow(frames)
-    if !issubset(unique(frames), 1:original_n_frames)
+    if !issubset(frames, 1:original_n_frames)
         error(
             "postprocess_frames_flow should return a vector of frame indices contained in the original number of frames",
         )
@@ -320,7 +320,7 @@ function render(
             Images.save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
         end
         if render_mp4
-            if frame == first(frames) & !started_encoding_video
+            if frame == first(frames) && !started_encoding_video
                 started_encoding_video = true
                 video_io = open_video_out(
                     pathname,

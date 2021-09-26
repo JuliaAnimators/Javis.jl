@@ -379,9 +379,9 @@ function _postprocess(
     end
 
     # Memoization container updating with cleaning
-    if !(frame in frames[(filecounter + 1):end]) & haskey(frames_memory, frame)
+    if !(frame in frames[(filecounter + 1):end]) && haskey(frames_memory, frame)
         delete!(frames_memory, frame)
-    elseif (frame in frames[(filecounter + 1):end]) & !haskey(frames_memory, frame)
+    elseif (frame in frames[(filecounter + 1):end]) && !haskey(frames_memory, frame)
         frames_memory[frame] = frame_image
     end
 
