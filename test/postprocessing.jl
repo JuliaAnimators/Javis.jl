@@ -181,20 +181,20 @@ end
 end
 
 @testset "postprocess_frames_flow sanity check" begin
-    h(x) = [x;50]
+    h(x) = [x; 50]
     change_first(x) = x[10:end]
     n_frames = 20
     video = Video(200, 200)
     Background(1:n_frames, ground("black"))
     circ = Object(1:20, JCircle(Point(-20, -20), 20, action = :fill, color = "white"))
-    
-    @test_throws ErrorException render(video, pathname = "", postprocess_frames_flow=h)
+
+    @test_throws ErrorException render(video, pathname = "", postprocess_frames_flow = h)
 end
 
 
 @testset "crop" begin
-    
-    function gen_im(height, width) 
+
+    function gen_im(height, width)
         @imagematrix begin
             background("black")
             sethue("white")
