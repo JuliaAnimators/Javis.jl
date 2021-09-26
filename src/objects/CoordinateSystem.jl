@@ -148,3 +148,32 @@ function appear(cs::CoordinateSystem, s::Symbol)
         end
     end
 end
+
+"""
+    disappear(cs::CoordinateSystem, s::Symbol)
+
+Disappear function for a [`CoordinateSystem`](@ref).
+
+# Arguments 
+- `cs::CoordinateSystem` the CoordinateSystem which can be created with [`coordinate_system`](@ref)
+- `s::Symbol` the direction of the drawing i.e `:top_right` will animate the destruction of the grid from the bottom left to the top right.
+    Such that the last part that is getting destructed is at the `:top_right` in this case
+
+[`coordinate_system`](@ref)
+"""
+function disappear(cs::CoordinateSystem, s::Symbol)
+    (video, object, action, rel_frame) -> begin
+        str = string(s)
+        for d in split(str, "_")
+            if d == "right"
+                _change(video, object, action, rel_frame, :left, cs.left => cs.right)
+            elseif d == "top"
+                _change(video, object, action, rel_frame, :bottom, cs.bottom => cs.top)
+            elseif d == "left"
+                _change(video, object, action, rel_frame, :right, cs.right => cs.left)
+            elseif d == "bottom"
+                _change(video, object, action, rel_frame, :top, cs.top => cs.bottom)
+            end
+        end
+    end
+end
