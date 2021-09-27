@@ -307,7 +307,7 @@ function _apply_and_reshape(func, im, template, args...)
         newim = crop(newim, template_size...)
     end
     if any(size(newim) .< template_size)
-        newim, _ = paddedviews(0, newim, template)
+        newim, _ = paddedviews(mean(im), newim, template)
     end
     return newim
 end
