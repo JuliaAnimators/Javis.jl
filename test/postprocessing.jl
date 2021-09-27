@@ -104,6 +104,68 @@ end
     rm("images/withpostprocessing/", recursive = true)
 end
 
+@testset "postprocess_frame cropped padded" begin
+
+    function postprocess_pad(frame_image, idx, frames)
+        return if idx > 25
+            frame_image[1:100, 1:100]
+        else
+            frame_image
+        end
+    end
+
+    n_frames = 50
+    padvideo = Video(200, 200)
+    Background(1:n_frames, ground(RGB(0.0, 1.0, 0.0)))
+
+    render(
+        padvideo,
+        tempdirectory = "images",
+        postprocess_frame = postprocess_pad,
+        pathname = "",
+    )
+
+
+    for frame in [5, 15, 25]
+        png_no_pad = lpad(string(frame), 10, "0")
+        png_pad = lpad(string(frame + 25), 10, "0")
+        @test_reference "images/$png_no_pad.png" load("images/$png_pad.png")
+    end
+
+    for i in 1:n_frames
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+    rm("images/", recursive = true)
+
+    function postprocess_crop(frame_image, idx, frames)
+        return if idx > 25
+            repeat([frame_image[1, 1]], 300, 300)
+        else
+            frame_image
+        end
+    end
+
+    cropvideo = Video(200, 200)
+    Background(1:n_frames, ground("black"))
+    render(
+        cropvideo,
+        tempdirectory = "images",
+        pathname = "",
+        postprocess_frame = postprocess_crop,
+    )
+
+    for frame in [5, 15, 25]
+        png_no_crop = lpad(string(frame), 10, "0")
+        png_crop = lpad(string(frame + 25), 10, "0")
+        @test_reference "images/$png_no_crop.png" load("images/$png_crop.png")
+    end
+
+    for i in 1:n_frames
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+    rm("images/", recursive = true)
+end
+
 @testset "postprocess_frame and postprocess_frames_flow" begin
 
     function ground_double_color(c11, c12, c21, c22, framenumber, thr)
