@@ -734,7 +734,7 @@ end
         end
     end
 
-    from_bls = [O, Point(1,1), Point(-1,-1), Point(-1, 1)]
+    from_bls = [O, Point(1, 1), Point(-1, -1), Point(-1, 1)]
     from_trs = [Point(10, 10), O, Point(10, 5)]
     to_bls = [Point(10, 10), O]
 
