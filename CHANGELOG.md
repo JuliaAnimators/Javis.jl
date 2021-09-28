@@ -1,6 +1,6 @@
 # Javis.jl - Changelog
 
-## Unreleased
+## v0.7.1 (28th of September 2021)
 - added `scale_linear` function to easily scale values or points
 - added `@scale_layer` to transform a layer based on a given linear scale
 - Add `postprocessing_frames_flow` and `postprocessing_frame` keyword arguments to `render`
