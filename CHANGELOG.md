@@ -2,8 +2,11 @@
 
 ## Unreleased
 - `coordinate_system` to draw a cartesian coordinate system
+
+## v0.7.1 (28th of September 2021)
 - added `scale_linear` function to easily scale values or points
 - added `@scale_layer` to transform a layer based on a given linear scale
+- Add `postprocessing_frames_flow` and `postprocessing_frame` keyword arguments to `render`
 
 ## v0.7.0 (19th of September 2021)
 - Support for VideoIO v0.9 
