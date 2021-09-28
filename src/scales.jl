@@ -29,7 +29,8 @@ end
 
 function (ls::LinearScale)(x)
     if ls.clamp
-        x = clamp(x, ls.fmin, ls.fmax)
+        # clamp needs the values in low high order
+        x = clamp(x, min(ls.fmin, ls.fmax), max(ls.fmin, ls.fmax))
     end
     return (x - ls.fmin) / (ls.fmax - ls.fmin) * (ls.tmax - ls.tmin) + ls.tmin
 end
@@ -38,8 +39,9 @@ function (ls::LinearScale{T})(p::Point) where {T<:Point}
     px = p.x
     py = p.y
     if ls.clamp
-        px = clamp(px, ls.fmin.x, ls.fmax.x)
-        py = clamp(py, ls.fmin.y, ls.fmax.y)
+        # clamp needs the values in low high order
+        px = clamp(px, min(ls.fmin.x, ls.fmax.x), max(ls.fmin.x, ls.fmax.x))
+        py = clamp(py, min(ls.fmin.y, ls.fmax.y), max(ls.fmin.y, ls.fmax.y))
     end
     nx = (px - ls.fmin.x) / (ls.fmax.x - ls.fmin.x) * (ls.tmax.x - ls.tmin.x) + ls.tmin.x
     ny = (py - ls.fmin.y) / (ls.fmax.y - ls.fmin.y) * (ls.tmax.y - ls.tmin.y) + ls.tmin.y

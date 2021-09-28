@@ -719,7 +719,69 @@ end
     @test_logs (:error,) render(video; pathname = "test.mp3")
 end
 
-@testset "@scale_layer" begin
+@testset "@scale_layer vs mapping" begin
+    function dots_mapping(mapping, pts)
+        @JShape begin
+            @scale_layer mapping begin
+                circle.(pts, 0.1, :fill)
+            end
+        end
+    end
+
+    function dots(pts)
+        @JShape begin
+            circle.(pts, 3, :fill)
+        end
+    end
+
+    from_bls = [O, Point(1,1), Point(-1,-1), Point(-1, 1)]
+    from_trs = [Point(10, 10), O, Point(10, 5)]
+    to_bls = [Point(10, 10), O]
+
+
+    for (from_bl, from_tr) in zip(from_bls, from_trs)
+        for to_bl in to_bls
+            diam = from_tr - from_bl
+            factor = 30
+            to_tr = to_bl + factor * diam
+            vid = Video(500, 500)
+
+            mapping = scale_linear(from_bl, from_tr, to_bl, to_tr)
+
+            nframes = 1
+            Background(1:nframes, ground)
+            dot_pos = [O]
+            Object(1:nframes, dots_mapping(mapping, dot_pos))
+
+            render(vid, tempdirectory = "images/with_mapping", pathname = "")
+
+            vid = Video(500, 500)
+
+            nframes = 1
+            Background(1:nframes, ground)
+            dot_pos = mapping.(dot_pos)
+            Object(1:nframes, dots(dot_pos))
+
+            render(vid, tempdirectory = "images/without_mapping", pathname = "")
+
+            for frame in [1]
+                png_name = lpad(string(frame), 10, "0")
+                @test_reference "images/with_mapping/$png_name.png" load(
+                    "images/without_mapping/$png_name.png",
+                )
+            end
+
+            for i in 1:1
+                rm("images/with_mapping/$(lpad(i, 10, "0")).png")
+                rm("images/without_mapping/$(lpad(i, 10, "0")).png")
+            end
+            rm("images/with_mapping/", recursive = true)
+            rm("images/without_mapping/", recursive = true)
+        end
+    end
+end
+
+@testset "@scale_layer center origin" begin
     function dots_mapping(pts)
         @JShape begin
             mapping = scale_linear(O, Point(5, 5), Point(50, -50), Point(200, -200))
