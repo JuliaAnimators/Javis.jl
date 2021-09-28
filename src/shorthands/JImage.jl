@@ -1,12 +1,13 @@
-function _JImage(pos, img, centering, shapeargs, shape)
+function _JImage(pos, img, centering, shapeargs, shape, scaleargs)
     if shape != false
         shape(shapeargs...)
     end
+    scale(scaleargs)
     placeimage(img, pos, centered = centering)
     return pos
 end
 
-JImage(pos::Point, img, centering = true; shapeargs = (), shape = false) =
+JImage(pos::Point, img, centering = true; shapeargs = (), shape = false, scaleargs = 1) =
     (
         args...;
         pos = pos,
@@ -14,4 +15,5 @@ JImage(pos::Point, img, centering = true; shapeargs = (), shape = false) =
         centering = centering,
         shapeargs = shapeargs,
         shape = shape,
-    ) -> _JImage(pos, img, centering, shapeargs, shape)
+	scaleargs = scaleargs,
+    ) -> _JImage(pos, img, centering, shapeargs, shape, scaleargs)
