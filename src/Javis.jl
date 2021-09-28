@@ -266,12 +266,9 @@ function render(
         path, ext = splitext(pathname)
     end
     render_mp4 = ext == ".mp4"
-    codec_props = [:priv_data => ("crf" => "22", "preset" => "medium")]
-    if render_mp4
-        video_io = Base.open("temp.stream", "w")
-    end
-    video_encoder = nothing
-    # if we render a gif and the user hasn't set a tempdirectory => create one
+    codec_props = (crf = 23, preset = "medium")
+    video_io = nothing
+    # if we render a gif and the user hasn't set a tempdirectory
     if !render_mp4 && isempty(tempdirectory)
         tempdirectory = mktempdir()
     end
@@ -290,13 +287,14 @@ function render(
         end
         if render_mp4
             if frame == first(frames)
-                video_encoder = prepareencoder(
+                video_io = open_video_out(
+                    pathname,
                     frame_image,
                     framerate = framerate,
-                    AVCodecContextProperties = codec_props,
+                    encoder_options = codec_props,
                 )
             end
-            appendencode!(video_encoder, video_io, frame_image, filecounter)
+            write(video_io, frame_image)
         end
         filecounter += 1
     end
@@ -312,9 +310,7 @@ function render(
                $(tempdirectory)/palette.png -lavfi paletteuse -y $pathname`,
         )
     elseif ext == ".mp4"
-        finishencode!(video_encoder, video_io)
-        close(video_io)
-        mux("temp.stream", pathname, framerate; silent = true)
+        close_video_out!(video_io)
     else
         @error "Currently, only gif and mp4 creation is supported. Not a $ext."
     end
