@@ -50,7 +50,14 @@ macro scale_layer(scale_mapping, body)
     return esc(
         quote
             @layer begin
-                Luxor.translate(-$scale_mapping.fmin.x, -$scale_mapping.fmin.y)
+                # compute the center of both rectangles
+                fcenterx = ($scale_mapping.fmax.x + $scale_mapping.fmin.x) / 2
+                fcentery = ($scale_mapping.fmax.y + $scale_mapping.fmin.y) / 2
+                
+                tcenterx = ($scale_mapping.tmax.x + $scale_mapping.tmin.x) / 2
+                tcentery = ($scale_mapping.tmax.y + $scale_mapping.tmin.y) / 2
+
+                # scale in x and y
                 sx =
                     ($scale_mapping.tmax.x - $scale_mapping.tmin.x) /
                     ($scale_mapping.fmax.x - $scale_mapping.fmin.x)
@@ -58,9 +65,15 @@ macro scale_layer(scale_mapping, body)
                     ($scale_mapping.tmax.y - $scale_mapping.tmin.y) /
                     ($scale_mapping.fmax.y - $scale_mapping.fmin.y)
                 Luxor.scale(sx, sy)
-                Luxor.translate($scale_mapping.tmin.x / sx, $scale_mapping.tmin.y / sy)
+           
+                # translate such that inputting the center from the "from mapping" is at 0,0
+                Luxor.translate(-fcenterx, -fcentery)
+
+                # shift center of canvas to center of new region
+                Luxor.translate(tcenterx / sx, tcentery / sy)
                 $body
             end
         end,
     )
 end
+
