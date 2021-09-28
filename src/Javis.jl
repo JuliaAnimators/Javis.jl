@@ -320,6 +320,9 @@ function render(
             Images.save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
         end
         if render_mp4
+            if !isa(frame_image, Matrix{RGB{N0f8}})
+                frame_image = convert.(RGB{N0f8}, frame_image)
+            end
             if !started_encoding_video
                 started_encoding_video = true
                 video_io = open_video_out(
