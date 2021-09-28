@@ -2,6 +2,8 @@
 
 ## Unreleased
 - `coordinate_system` to draw a cartesian coordinate system
+- added `scale_linear` function to easily scale values or points
+- added `@scale_layer` to transform a layer based on a given linear scale
 
 ## v0.7.0 (19th of September 2021)
 - Support for VideoIO v0.9 

@@ -106,6 +106,7 @@ end
 
 include("layers.jl")
 include("util.jl")
+include("scales.jl")
 include("luxor_overrides.jl")
 include("svg2luxor.jl")
 include("morphs.jl")
@@ -704,6 +705,8 @@ export JBox, JCircle, JEllipse, JLine, JPoly, JRect, JStar, @JShape
 export setline, setopacity, fontsize, get_fontsize, scale, text
 export setup_stream, cancel_stream
 
-export coordinate_system
+# scales and coordinate system
+export coordinate_system, scale_linear, @scale_layer
+
 
 end
