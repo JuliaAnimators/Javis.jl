@@ -4,7 +4,7 @@
 Appear can be used inside an [`Action`](@ref) to make an [`Object`](@ref) or an entire [`Object`](@ref) (including it's objects) to appear.
 
 # Example
-```
+```julia
 house = Object(101:200, (args...)->house_of_nicholas())
 act!(house, Action(1:20, appear(:fade)))
 act!(house, Action(81:100, disappear(:fade)))
@@ -60,7 +60,7 @@ end
 Disappear can be used inside an [`Action`](@ref) to make an [`Object`](@ref) or an entire [`Layer`](@ref) (including it's objects) to disappear.
 
 # Example
-```
+```julia
 house = Object(101:200, (args...)->house_of_nicholas())
 act!(house, Action(1:20, appear(:fade)))
 act!(house, Action(81:100, disappear(:fade)))
@@ -121,7 +121,7 @@ Instead of defining each movement in its own action it's possible to define it i
 by using an Animation.
 
 # Example
-```
+```julia
 using Javis, Animations
 
 function ground(args...)
@@ -151,7 +151,7 @@ time in animations has to be from `0.0` to `1.0`.
 This notation uses the Animations.jl library very explicitly. It's also possible to do the
 same with:
 
-```
+```julia
 obj = Object((args...)->circle(O, 25, :fill))
 act!(obj, Action(1:50, sineio(), anim_translate(150, 0)))
 act!(obj, Action(51:100, polyin(2), anim_translate(0, 150)))
@@ -172,7 +172,7 @@ end
 
 function _translate(video, layer::Layer, action, rel_frame)
     p = get_interpolation(action, rel_frame)
-    layer.position = p
+    layer.position += p
 end
 
 """
@@ -186,7 +186,7 @@ Instead of defining each movement in its own action it's possible to define it i
 by using an Animation.
 
 # Example
-```
+```julia
 using Javis, Animations
 
 # define ground function here

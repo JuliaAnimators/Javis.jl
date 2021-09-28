@@ -288,6 +288,15 @@
         @test Javis.get_frames(obj1.actions[2]) == 6:10
     end
 
+    @testset "RFrames in first action" begin
+        video = Video(10, 10)
+        Background(1:20, (args...) -> 1)
+        a = Object(1:15, (args...) -> O) # 1:15
+        act!(a, Action(RFrames(1:3), appear(:fade))) # 1:3
+        render(video; tempdirectory = "images", pathname = "")
+        @test Javis.get_frames(a.actions[1]) == 1:3
+    end
+
     @testset "anim_" begin
         s = anim_scale(1, 2)
         @test s.from == Javis.Scale(1, 1)

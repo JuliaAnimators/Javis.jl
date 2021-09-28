@@ -4,14 +4,14 @@
 Ability to define frames in a relative fashion.
 
 # Example
-```
+```julia
 Background(1:100, ground)
 Object(1:90, (args...)->circ("red"))
 Object(RFrames(10), (args...)->circ("blue"))
 Object((args...)->circ("red"))
 ```
 is the same as
-```
+```julia
 Background(1:100, ground)
 Object(1:90, (args...)->circ("red"))
 Object(91:100, (args...)->circ("blue"))
