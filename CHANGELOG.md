@@ -1,5 +1,9 @@
 # Javis.jl - Changelog
 
+## Unreleased
+- added `scale_linear` function to easily scale values or points
+- added `@scale_layer` to transform a layer based on a given linear scale
+
 ## v0.7.0 (19th of September 2021)
 - Support for VideoIO v0.9 
   - dropping support for v0.6-v0.8
