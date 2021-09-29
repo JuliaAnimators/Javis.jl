@@ -114,7 +114,6 @@ function coordinate_system(
 )
     # check if the origin is in the to rectangle
     new_origin = sc(O; clamp = false)
-    @show new_origin
     smx = min(sc.tmin.x, sc.tmax.x)
     bix = max(sc.tmin.x, sc.tmax.x)
     smy = min(sc.tmin.y, sc.tmax.y)
@@ -126,20 +125,68 @@ function coordinate_system(
         # find the y axis
         top = Point(new_origin.x, sc.tmax.y)
         bottom = Point(new_origin.x, sc.tmin.y)
-        sx, sy = scaling_factors(sc)
-        step_size_x *= sx
-        step_size_y *= sy
+    elseif smy <= new_origin.y <= biy
+        # doesn't go through the origin
+        # x axis does though
+        left = Point(sc.tmin.x, new_origin.y)
+        right = Point(sc.tmax.x, new_origin.y)
 
-        return coordinate_system(
-            left,
-            right,
-            bottom,
-            top;
-            step_size_x = abs(step_size_x),
-            step_size_y = abs(step_size_y),
-            kwargs...,
-        )
+        # the yaxis is just left if x vals are positive or on the right if x vals are negative
+        if sc.fmin.x >= 0
+            top = Point(sc.tmin.x, sc.tmax.y)
+            bottom = Point(sc.tmin.x, sc.tmin.y)
+        else
+            top = Point(sc.tmax.x, sc.tmax.y)
+            bottom = Point(sc.tmax.x, sc.tmin.y)
+        end
+    elseif smx <= new_origin.x <= bix
+        # doesn't go through the origin
+        # y axis does though
+        top = Point(new_origin.x, sc.tmax.y)
+        bottom = Point(new_origin.x, sc.tmin.y)
+
+        # the xaxis is just at the bottom if y vals are positive or at the top if y vals are negative
+        if sc.fmin.y >= 0
+            left = Point(sc.tmin.x, sc.tmin.y)
+            right = Point(sc.tmax.x, sc.tmin.y)
+        else
+            left = Point(sc.tmin.x, sc.tmax.y)
+            right = Point(sc.tmax.x, sc.tmax.y)
+        end
+    else
+        # Todo: Avoid copy pasting...
+        # the yaxis is just left if x vals are positive or on the right if x vals are negative
+        if sc.fmin.x >= 0
+            top = Point(sc.tmin.x, sc.tmax.y)
+            bottom = Point(sc.tmin.x, sc.tmin.y)
+        else
+            top = Point(sc.tmax.x, sc.tmax.y)
+            bottom = Point(sc.tmax.x, sc.tmin.y)
+        end
+
+        # the xaxis is just at the bottom if y vals are positive or at the top if y vals are negative
+        if sc.fmin.y >= 0
+            left = Point(sc.tmin.x, sc.tmin.y)
+            right = Point(sc.tmax.x, sc.tmin.y)
+        else
+            left = Point(sc.tmin.x, sc.tmax.y)
+            right = Point(sc.tmax.x, sc.tmax.y)
+        end
     end
+
+    sx, sy = scaling_factors(sc)
+    step_size_x *= sx
+    step_size_y *= sy
+
+    return coordinate_system(
+        left,
+        right,
+        bottom,
+        top;
+        step_size_x = abs(step_size_x),
+        step_size_y = abs(step_size_y),
+        kwargs...,
+    )
 end
 
 """
