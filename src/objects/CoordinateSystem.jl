@@ -1,18 +1,3 @@
-
-struct CoordinateSystem
-    left::Point
-    right::Point
-    bottom::Point
-    top::Point
-    fct::Function
-    mainwidth::Float64
-    gridwidth::Float64
-    step_size_x::Float64
-    step_size_y::Float64
-    maincolor::Any
-    gridcolor::Any
-end
-
 function (cs::CoordinateSystem)()
     left = cs.left
     right = cs.right
@@ -100,8 +85,8 @@ function coordinate_system(
     top;
     fct = line,
     mainwidth = 1,
-    step_size_x = 50,
-    step_size_y = 50,
+    step_size_x = 10,
+    step_size_y = 10,
     gridwidth = 0.2,
     maincolor = nothing,
     gridcolor = nothing,
@@ -119,6 +104,42 @@ function coordinate_system(
         maincolor,
         gridcolor,
     )
+end
+
+function coordinate_system(
+    sc::LinearScale{<:Point};
+    step_size_x = 1,
+    step_size_y = 1,
+    kwargs...,
+)
+    # check if the origin is in the to rectangle
+    new_origin = sc(O; clamp = false)
+    @show new_origin
+    smx = min(sc.tmin.x, sc.tmax.x)
+    bix = max(sc.tmin.x, sc.tmax.x)
+    smy = min(sc.tmin.y, sc.tmax.y)
+    biy = max(sc.tmin.y, sc.tmax.y)
+    if smx <= new_origin.x <= bix && smy <= new_origin.y <= biy
+        # find the x axis
+        left = Point(sc.tmin.x, new_origin.y)
+        right = Point(sc.tmax.x, new_origin.y)
+        # find the y axis
+        top = Point(new_origin.x, sc.tmax.y)
+        bottom = Point(new_origin.x, sc.tmin.y)
+        sx, sy = scaling_factors(sc)
+        step_size_x *= sx
+        step_size_y *= sy
+
+        return coordinate_system(
+            left,
+            right,
+            bottom,
+            top;
+            step_size_x = abs(step_size_x),
+            step_size_y = abs(step_size_y),
+            kwargs...,
+        )
+    end
 end
 
 """

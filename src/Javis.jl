@@ -69,6 +69,8 @@ include("structs/Action.jl")
 include("structs/LayerSetting.jl")
 include("structs/LayerCache.jl")
 include("structs/Layer.jl")
+include("structs/LinearScale.jl")
+include("structs/objects/CoordinateSystem.jl")
 
 """
     Line
