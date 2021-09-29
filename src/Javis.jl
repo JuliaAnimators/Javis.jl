@@ -106,6 +106,7 @@ end
 
 include("layers.jl")
 include("util.jl")
+include("objects/CoordinateSystem.jl")
 include("scales.jl")
 include("luxor_overrides.jl")
 include("svg2luxor.jl")
@@ -114,7 +115,7 @@ include("action_animations.jl")
 include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
-include("objects/CoordinateSystem.jl")
+
 
 """
     projection(p::Point, l::Line)
