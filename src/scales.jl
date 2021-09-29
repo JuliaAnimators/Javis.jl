@@ -27,6 +27,12 @@ function scale_linear(fmin, fmax, tmin, tmax; clamp = true)
     return LinearScale(fmin, fmax, tmin, tmax, clamp)
 end
 
+function scale_linear(fmin, fmax, cs::CoordinateSystem; kwargs...)
+    tmin = Point(cs.left.x, cs.bottom.y)
+    tmax = Point(cs.right.x, cs.top.y)
+    return scale_linear(fmin, fmax, tmin, tmax; kwargs...)
+end
+
 function (ls::LinearScale)(x)
     if ls.clamp
         # clamp needs the values in low high order
