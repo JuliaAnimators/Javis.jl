@@ -106,6 +106,42 @@ function coordinate_system(
     )
 end
 
+function xaxis_on_zero(sc::LinearScale{<:Point}, new_orign)
+    left = Point(sc.output.from.x, new_origin.y)
+    right = Point(sc.output.to.x, new_origin.y)
+    return left, right
+end
+
+function yaxis_on_zero(sc::LinearScale{<:Point}, new_orign)
+    top = Point(new_origin.x, sc.output.to.y)
+    bottom = Point(new_origin.x, sc.output.from.y)
+    return top, bottom
+end
+
+function xaxis_not_on_zero(sc::LinearScale{<:Point})
+    # the xaxis is just at the bottom if y vals are positive or at the top if y vals are negative
+    if sc.input.from.y >= 0
+        left = Point(sc.output.from.x, sc.output.from.y)
+        right = Point(sc.output.to.x, sc.output.from.y)
+    else
+        left = Point(sc.output.from.x, sc.output.to.y)
+        right = Point(sc.output.to.x, sc.output.to.y)
+    end
+    return left, right
+end
+
+function yaxis_not_on_zero(sc::LinearScale{<:Point})
+    # the yaxis is just left if x vals are positive or on the right if x vals are negative
+    if sc.input.from.x >= 0
+        top = Point(sc.output.from.x, sc.output.to.y)
+        bottom = Point(sc.output.from.x, sc.output.from.y)
+    else
+        top = Point(sc.output.to.x, sc.output.to.y)
+        bottom = Point(sc.output.to.x, sc.output.from.y)
+    end
+    return top, bottom
+end
+
 function coordinate_system(
     sc::LinearScale{<:Point};
     step_size_x = 1,
@@ -119,59 +155,21 @@ function coordinate_system(
     smy = min(sc.output.from.y, sc.output.to.y)
     biy = max(sc.output.from.y, sc.output.to.y)
     if smx <= new_origin.x <= bix && smy <= new_origin.y <= biy
-        # find the x axis
-        left = Point(sc.output.from.x, new_origin.y)
-        right = Point(sc.output.to.x, new_origin.y)
-        # find the y axis
-        top = Point(new_origin.x, sc.output.to.y)
-        bottom = Point(new_origin.x, sc.output.from.y)
+        left, right = xaxis_on_zero(sc, new_origin)
+        top, bottom = yaxis_on_zero(sc, new_origin)
     elseif smy <= new_origin.y <= biy
         # doesn't go through the origin
         # x axis does though
-        left = Point(sc.output.from.x, new_origin.y)
-        right = Point(sc.output.to.x, new_origin.y)
-
-        # the yaxis is just left if x vals are positive or on the right if x vals are negative
-        if sc.input.from.x >= 0
-            top = Point(sc.output.from.x, sc.output.to.y)
-            bottom = Point(sc.output.from.x, sc.output.from.y)
-        else
-            top = Point(sc.output.to.x, sc.output.to.y)
-            bottom = Point(sc.output.to.x, sc.output.from.y)
-        end
+        left, right = xaxis_on_zero(sc, new_origin)
     elseif smx <= new_origin.x <= bix
         # doesn't go through the origin
         # y axis does though
-        top = Point(new_origin.x, sc.output.to.y)
-        bottom = Point(new_origin.x, sc.output.from.y)
+        top, bottom = yaxis_on_zero(sc, new_origin)
 
-        # the xaxis is just at the bottom if y vals are positive or at the top if y vals are negative
-        if sc.input.from.y >= 0
-            left = Point(sc.output.from.x, sc.output.from.y)
-            right = Point(sc.output.to.x, sc.output.from.y)
-        else
-            left = Point(sc.output.from.x, sc.output.to.y)
-            right = Point(sc.output.to.x, sc.output.to.y)
-        end
+        left, right = xaxis_not_on_zero(sc)
     else
-        # Todo: Avoid copy pasting...
-        # the yaxis is just left if x vals are positive or on the right if x vals are negative
-        if sc.input.from.x >= 0
-            top = Point(sc.output.from.x, sc.output.to.y)
-            bottom = Point(sc.output.from.x, sc.output.from.y)
-        else
-            top = Point(sc.output.to.x, sc.output.to.y)
-            bottom = Point(sc.output.to.x, sc.output.from.y)
-        end
-
-        # the xaxis is just at the bottom if y vals are positive or at the top if y vals are negative
-        if sc.input.from.y >= 0
-            left = Point(sc.output.from.x, sc.output.from.y)
-            right = Point(sc.output.to.x, sc.output.from.y)
-        else
-            left = Point(sc.output.from.x, sc.output.to.y)
-            right = Point(sc.output.to.x, sc.output.to.y)
-        end
+        top, bottom = yaxis_not_on_zero(sc)
+        left, right = xaxis_not_on_zero(sc)
     end
 
     sx, sy = scaling_factors(sc)
