@@ -1,7 +1,5 @@
 struct LinearScale{T}
-    fmin::T
-    fmax::T
-    tmin::T
-    tmax::T
+    input::Interval{T}
+    output::Interval{T}
     clamp::Bool
 end

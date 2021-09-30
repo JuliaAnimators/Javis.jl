@@ -114,63 +114,63 @@ function coordinate_system(
 )
     # check if the origin is in the to rectangle
     new_origin = sc(O; clamp = false)
-    smx = min(sc.tmin.x, sc.tmax.x)
-    bix = max(sc.tmin.x, sc.tmax.x)
-    smy = min(sc.tmin.y, sc.tmax.y)
-    biy = max(sc.tmin.y, sc.tmax.y)
+    smx = min(sc.output.from.x, sc.output.to.x)
+    bix = max(sc.output.from.x, sc.output.to.x)
+    smy = min(sc.output.from.y, sc.output.to.y)
+    biy = max(sc.output.from.y, sc.output.to.y)
     if smx <= new_origin.x <= bix && smy <= new_origin.y <= biy
         # find the x axis
-        left = Point(sc.tmin.x, new_origin.y)
-        right = Point(sc.tmax.x, new_origin.y)
+        left = Point(sc.output.from.x, new_origin.y)
+        right = Point(sc.output.to.x, new_origin.y)
         # find the y axis
-        top = Point(new_origin.x, sc.tmax.y)
-        bottom = Point(new_origin.x, sc.tmin.y)
+        top = Point(new_origin.x, sc.output.to.y)
+        bottom = Point(new_origin.x, sc.output.from.y)
     elseif smy <= new_origin.y <= biy
         # doesn't go through the origin
         # x axis does though
-        left = Point(sc.tmin.x, new_origin.y)
-        right = Point(sc.tmax.x, new_origin.y)
+        left = Point(sc.output.from.x, new_origin.y)
+        right = Point(sc.output.to.x, new_origin.y)
 
         # the yaxis is just left if x vals are positive or on the right if x vals are negative
-        if sc.fmin.x >= 0
-            top = Point(sc.tmin.x, sc.tmax.y)
-            bottom = Point(sc.tmin.x, sc.tmin.y)
+        if sc.input.from.x >= 0
+            top = Point(sc.output.from.x, sc.output.to.y)
+            bottom = Point(sc.output.from.x, sc.output.from.y)
         else
-            top = Point(sc.tmax.x, sc.tmax.y)
-            bottom = Point(sc.tmax.x, sc.tmin.y)
+            top = Point(sc.output.to.x, sc.output.to.y)
+            bottom = Point(sc.output.to.x, sc.output.from.y)
         end
     elseif smx <= new_origin.x <= bix
         # doesn't go through the origin
         # y axis does though
-        top = Point(new_origin.x, sc.tmax.y)
-        bottom = Point(new_origin.x, sc.tmin.y)
+        top = Point(new_origin.x, sc.output.to.y)
+        bottom = Point(new_origin.x, sc.output.from.y)
 
         # the xaxis is just at the bottom if y vals are positive or at the top if y vals are negative
-        if sc.fmin.y >= 0
-            left = Point(sc.tmin.x, sc.tmin.y)
-            right = Point(sc.tmax.x, sc.tmin.y)
+        if sc.input.from.y >= 0
+            left = Point(sc.output.from.x, sc.output.from.y)
+            right = Point(sc.output.to.x, sc.output.from.y)
         else
-            left = Point(sc.tmin.x, sc.tmax.y)
-            right = Point(sc.tmax.x, sc.tmax.y)
+            left = Point(sc.output.from.x, sc.output.to.y)
+            right = Point(sc.output.to.x, sc.output.to.y)
         end
     else
         # Todo: Avoid copy pasting...
         # the yaxis is just left if x vals are positive or on the right if x vals are negative
-        if sc.fmin.x >= 0
-            top = Point(sc.tmin.x, sc.tmax.y)
-            bottom = Point(sc.tmin.x, sc.tmin.y)
+        if sc.input.from.x >= 0
+            top = Point(sc.output.from.x, sc.output.to.y)
+            bottom = Point(sc.output.from.x, sc.output.from.y)
         else
-            top = Point(sc.tmax.x, sc.tmax.y)
-            bottom = Point(sc.tmax.x, sc.tmin.y)
+            top = Point(sc.output.to.x, sc.output.to.y)
+            bottom = Point(sc.output.to.x, sc.output.from.y)
         end
 
         # the xaxis is just at the bottom if y vals are positive or at the top if y vals are negative
-        if sc.fmin.y >= 0
-            left = Point(sc.tmin.x, sc.tmin.y)
-            right = Point(sc.tmax.x, sc.tmin.y)
+        if sc.input.from.y >= 0
+            left = Point(sc.output.from.x, sc.output.from.y)
+            right = Point(sc.output.to.x, sc.output.from.y)
         else
-            left = Point(sc.tmin.x, sc.tmax.y)
-            right = Point(sc.tmax.x, sc.tmax.y)
+            left = Point(sc.output.from.x, sc.output.to.y)
+            right = Point(sc.output.to.x, sc.output.to.y)
         end
     end
 
