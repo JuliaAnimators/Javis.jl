@@ -25,17 +25,23 @@ function scale_linear(fmin, fmax, cs::CoordinateSystem; kwargs...)
     return scale_linear(fmin, fmax, tmin, tmax; kwargs...)
 end
 
-function oned_linear_scale(input::Interval{T}, output::Interval{T}, x::T; clamp=true) where T
+function oned_linear_scale(
+    input::Interval{T},
+    output::Interval{T},
+    x::T;
+    clamp = true,
+) where {T}
     if clamp
         # clamp needs the values in low high order
         imin = min(input.from, input.to)
         imax = max(input.from, input.to)
         x = Base.clamp(x, imin, imax)
     end
-    return (x - input.from) / (input.to - input.from) * (output.to - output.from) + output.from
+    return (x - input.from) / (input.to - input.from) * (output.to - output.from) +
+           output.from
 end
 
-function (ls::LinearScale{T})(x::T; clamp = true) where T
+function (ls::LinearScale{T})(x::T; clamp = true) where {T}
     return oned_linear_scale(ls.input, ls.output, x; clamp = clamp && ls.clamp)
 end
 
@@ -59,25 +65,27 @@ function scaling_factors(ls::LinearScale)
 end
 
 macro scale_layer(scale_mapping, body)
-    return esc(quote
-        @layer begin
-            # compute the center of both rectangles
-            fcenterx = ($scale_mapping.input.to.x + $scale_mapping.input.from.x) / 2
-            fcentery = ($scale_mapping.input.to.y + $scale_mapping.input.from.y) / 2
+    return esc(
+        quote
+            @layer begin
+                # compute the center of both rectangles
+                fcenterx = ($scale_mapping.input.to.x + $scale_mapping.input.from.x) / 2
+                fcentery = ($scale_mapping.input.to.y + $scale_mapping.input.from.y) / 2
 
-            tcenterx = ($scale_mapping.output.to.x + $scale_mapping.output.from.x) / 2
-            tcentery = ($scale_mapping.output.to.y + $scale_mapping.output.from.y) / 2
+                tcenterx = ($scale_mapping.output.to.x + $scale_mapping.output.from.x) / 2
+                tcentery = ($scale_mapping.output.to.y + $scale_mapping.output.from.y) / 2
 
-            # scale in x and y
-            sx, sy = Javis.scaling_factors($scale_mapping)
-            Luxor.scale(sx, sy)
+                # scale in x and y
+                sx, sy = Javis.scaling_factors($scale_mapping)
+                Luxor.scale(sx, sy)
 
-            # translate such that inputting the center from the "from mapping" is at 0,0
-            Luxor.translate(-fcenterx, -fcentery)
+                # translate such that inputting the center from the "from mapping" is at 0,0
+                Luxor.translate(-fcenterx, -fcentery)
 
-            # shift center of canvas to center of new region
-            Luxor.translate(tcenterx / sx, tcentery / sy)
-            $body
-        end
-    end)
+                # shift center of canvas to center of new region
+                Luxor.translate(tcenterx / sx, tcentery / sy)
+                $body
+            end
+        end,
+    )
 end
