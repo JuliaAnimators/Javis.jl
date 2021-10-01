@@ -1,13 +1,47 @@
 # Javis.jl - Changelog
 
-## Unreleased
+## v0.7.1 (28th of September 2021)
+- added `scale_linear` function to easily scale values or points
+- added `@scale_layer` to transform a layer based on a given linear scale
+- Add `postprocessing_frames_flow` and `postprocessing_frame` keyword arguments to `render`
+
+## v0.7.0 (19th of September 2021)
+- Support for VideoIO v0.9 
+  - dropping support for v0.6-v0.8
+  - dropping support for Julia v1.4
+
+## v0.6.4 (19th of September 2021)
+- Added fix to `latex` function to make it work on Windows
+
+## v0.6.3 (17th of September 2021)
+- `RFrames` is ignored when used in the first `Action` of an `Object`
+- Added layers tutorial
+- Added fix that allows to use several `act!` on a `Layer` without strange behavior
+
+## v0.6.2 (12th of August 2021)
+- added `@Frames` macro for full power mode of defining frames
+- bugfix in `@JLayer` when dimensions are not defined explicitly
+- allow color interpolation in `change`
+- bugfix `color` can be a non string value in `JBox`
+
+## v0.6.1 (7th of August 2021)
+- Add shorthands for basic shapes
+  - New functions `JBox, JCircle, JEllipse, JLine, JPoly, JRect, JStar, @JShape` 
+- added support for `rescale_factor` keyword in `render` function
+- Docstring improvements to `translate`
+
+## v0.6.0 (3rd of August 2021)
+- Added layers see `@JLayer`
+
+## v0.5.3 (26th of July 2021)
+- Allow all kinds of iterable ways in the `act!` function such that `act!(::Matrix, ::Action)` also works
 - Updated `anim_translate`
   - Docstring: `anim_translate` translates by a vector instead of to a point
   - from->to assumes that we are at `from` already instead of adding it to it
-- Morhping mutates the object function 
+- Morphing mutates the object function 
 
 ## v0.5.2
-- Added support for local network live streaming
+- added support for local network live streaming
 
 ## v0.5.1
 - added support for Pluto notebooks
@@ -71,7 +105,6 @@
 - Bugfix when scaling to 0. Before this every object on that frame would disappear even in a different layer
 - Bugfix in interpolation: Interpolation of a single frame like `1:1` returns `1.0` now instead of `NaN`.
 
-  
 ## 0.1.5 (14th of September 2020)
 - Bugfix in svg parser when a layer gets both transformed and scaled
 

@@ -49,3 +49,12 @@ end
 @testset "Javis Viewer" begin
     include("viewer.jl")
 end
+@testset "Shorthands" begin
+    include("shorthands.jl")
+end
+@testset "Layers" begin
+    include("layers.jl")
+end
+@testset "Postprocessing" begin
+    include("postprocessing.jl")
+end

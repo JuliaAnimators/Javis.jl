@@ -76,7 +76,7 @@ end
     act!(red_ball, Action(anim_rotate_around(from_rot, to_rot, O)))
 
     blue_ball = Object(1:30, (args...) -> circ(O, "blue"), p2)
-    act!(blue_ball, Action(anim_rotate_around(to_rot, from_rot, red_ball)))
+    act!(blue_ball, Action(RFrames(1:30), anim_rotate_around(to_rot, from_rot, red_ball)))
     path_red = Object((video, args...) -> path!(path_of_red, get_position(red_ball), "red"))
     path_blue =
         Object(:same, (video, args...) -> path!(path_of_blue, pos(blue_ball), "blue"))
@@ -106,7 +106,42 @@ end
     red_ball = Object(RFrames(-24:0), (args...) -> circ(O, "red"), p1)
     act!(red_ball, Action(anim_rotate_around(from_rot, to_rot, O)))
 
-    blue_ball = Object(1:25, (args...) -> circ(O, "blue"), p2)
+    blue_ball = Object(@Frames(prev_start(), 25), (args...) -> circ(O, "blue"), p2)
+    act!(blue_ball, Action(anim_rotate_around(to_rot, from_rot, red_ball)))
+    path_red = Object(
+        @Frames(prev_start(), stop = prev_start() + 25 - 1),
+        (video, args...) -> path!(path_of_red, get_position(red_ball), "red"),
+    )
+    path_blue =
+        Object(:same, (video, args...) -> path!(path_of_blue, pos(blue_ball), "blue"))
+    string = Object(1:25, (args...) -> rad(pos(red_ball), pos(blue_ball), "black"))
+
+    render(video; tempdirectory = "images", pathname = "")
+
+    @test_reference "refs/dancing_circles_16_rot_trans.png" load("images/0000000016.png")
+    for i in 1:25
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
+@testset "Dancing circles layered return Transformation" begin
+    p1 = Point(100, 0)
+    p2 = Point(200, 80)
+    from_rot = 0.0
+    to_rot = 2π
+    path_of_blue = Point[]
+    path_of_red = Point[]
+
+    video = Video(500, 500)
+    back = Object(1:25, ground, in_global_layer = true)
+    act!(back, Action(anim_rotate(π / 2, π / 2)))
+    act!(back, Action(@Frames(prev_start(), stop = 1), anim_translate(Point(25, 25))))
+
+    Object(latex_title)
+    red_ball = Object(RFrames(-24:0), (args...) -> circ_ret_trans(O, "red"), p1)
+    act!(red_ball, Action(anim_rotate_around(from_rot, to_rot, O)))
+
+    blue_ball = Object(:all, (args...) -> circ_ret_trans(O, "blue"), p2)
     act!(blue_ball, Action(anim_rotate_around(to_rot, from_rot, red_ball)))
     path_red =
         Object(1:25, (video, args...) -> path!(path_of_red, get_position(red_ball), "red"))
@@ -122,7 +157,7 @@ end
     end
 end
 
-@testset "Dancing circles layered return Transformation" begin
+@testset "Dancing circles layered return Transformation rescale_factor" begin
     p1 = Point(100, 0)
     p2 = Point(200, 80)
     from_rot = 0.0
@@ -147,9 +182,13 @@ end
         Object(:same, (video, args...) -> path!(path_of_blue, pos(blue_ball), "blue"))
     string = Object(1:25, (args...) -> rad(pos(red_ball), pos(blue_ball), "black"))
 
-    render(video; tempdirectory = "images", pathname = "")
+    render(video; tempdirectory = "images", pathname = "", rescale_factor = 0.5)
 
-    @test_reference "refs/dancing_circles_16_rot_trans.png" load("images/0000000016.png")
+    ref_image = load("refs/dancing_circles_16_rot_trans.png")
+    new_size = trunc.(Int, size(ref_image) .* 0.5)
+    ref_image = imresize(ref_image, new_size)
+
+    @test load("images/0000000016.png") == ref_image
     for i in 1:25
         rm("images/$(lpad(i, 10, "0")).png")
     end
@@ -183,7 +222,7 @@ end
     p = Point(100, 0)
 
     Background(1:10, ground_black_on_white)
-    circ = Object((args...) -> circ_ret_trans(), p)
+    circ = Object(@Frames(1, stop = prev_end()), (args...) -> circ_ret_trans(), p)
     act!(circ, Action(anim_rotate_around(0.0, 2π, O)))
     Object((args...) -> line(Point(-200, 0), Point(-200, -10 * ang(circ)), :stroke))
 
@@ -201,26 +240,29 @@ function ground_nicholas(args...)
     setline(3)
 end
 
-function house_of_nicholas(; p1 = O, width = 100, color = "black")
+function house_of_nicholas(; p1 = O, width = 10, scale_factor = 10, color = "black")
     # sethue(color)
     #     .p1
     # .p2   .p3
     #
     # .p4   .p5
-    width2 = div(width, 2)
-    p2 = p1 + Point(-width2, width2)
-    p3 = p1 + Point(width2, width2)
-    p4 = p2 + Point(0, width)
-    p5 = p3 + Point(0, width)
-    line(p4, p5, :stroke)
-    line(p5, p2, :stroke)
-    line(p2, p4, :stroke)
-    line(p4, p3, :stroke)
-    line(p3, p1, :stroke)
-    line(p1, p2, :stroke)
-    line(p2, p3, :stroke)
-    setline(8)
-    line(p3, p5, :stroke)
+    sl = scale_linear(O, Point(1, 1), O, Point(scale_factor, scale_factor); clamp = false)
+    @scale_layer sl begin
+        width2 = div(width, 2)
+        p2 = p1 + Point(-width2, width2)
+        p3 = p1 + Point(width2, width2)
+        p4 = p2 + Point(0, width)
+        p5 = p3 + Point(0, width)
+        line(p4, p5, :stroke)
+        line(p5, p2, :stroke)
+        line(p2, p4, :stroke)
+        line(p4, p3, :stroke)
+        line(p3, p1, :stroke)
+        line(p1, p2, :stroke)
+        line(p2, p3, :stroke)
+        setline(8)
+        line(p3, p5, :stroke)
+    end
 end
 
 @testset "House of Nicholas line_width" begin
@@ -675,4 +717,187 @@ end
     Background(1:10, ground)
     Object(1:10, (args...) -> circle(O, 50, :fill))
     @test_logs (:error,) render(video; pathname = "test.mp3")
+end
+
+@testset "@scale_layer vs mapping" begin
+    function dots_mapping(mapping, pts)
+        @JShape begin
+            @scale_layer mapping begin
+                circle.(pts, 0.1, :fill)
+            end
+        end
+    end
+
+    function dots(pts)
+        @JShape begin
+            circle.(pts, 3, :fill)
+        end
+    end
+
+    from_bls = [O, Point(1, 1), Point(-1, -1), Point(-1, 1)]
+    from_trs = [Point(10, 10), O, Point(10, 5)]
+    to_bls = [Point(10, 10), O]
+
+
+    for (from_bl, from_tr) in zip(from_bls, from_trs)
+        for to_bl in to_bls
+            diam = from_tr - from_bl
+            factor = 30
+            to_tr = to_bl + factor * diam
+            vid = Video(500, 500)
+
+            mapping = scale_linear(from_bl, from_tr, to_bl, to_tr)
+
+            nframes = 1
+            Background(1:nframes, ground)
+            dot_pos = [O]
+            Object(1:nframes, dots_mapping(mapping, dot_pos))
+
+            render(vid, tempdirectory = "images/with_mapping", pathname = "")
+
+            vid = Video(500, 500)
+
+            nframes = 1
+            Background(1:nframes, ground)
+            dot_pos = mapping.(dot_pos)
+            Object(1:nframes, dots(dot_pos))
+
+            render(vid, tempdirectory = "images/without_mapping", pathname = "")
+
+            for frame in [1]
+                png_name = lpad(string(frame), 10, "0")
+                @test_reference "images/with_mapping/$png_name.png" load(
+                    "images/without_mapping/$png_name.png",
+                )
+            end
+
+            for i in 1:1
+                rm("images/with_mapping/$(lpad(i, 10, "0")).png")
+                rm("images/without_mapping/$(lpad(i, 10, "0")).png")
+            end
+            rm("images/with_mapping/", recursive = true)
+            rm("images/without_mapping/", recursive = true)
+        end
+    end
+end
+
+@testset "@scale_layer center origin" begin
+    function dots_mapping(pts)
+        @JShape begin
+            mapping = scale_linear(O, Point(5, 5), Point(50, -50), Point(200, -200))
+
+            @scale_layer mapping begin
+                circle.(pts, 0.1, :fill)
+            end
+        end
+    end
+
+    function dots(pts)
+        @JShape begin
+            circle.(pts, 3, :fill)
+        end
+    end
+
+    vid = Video(500, 500)
+
+    nframes = 1
+    Background(1:nframes, ground)
+    dot_pos = [Point(i, i) for i in 0:5]
+    Object(1:nframes, dots_mapping(dot_pos))
+
+    render(vid, tempdirectory = "images/with_mapping", pathname = "")
+
+    vid = Video(500, 500)
+
+    nframes = 1
+    Background(1:nframes, ground)
+    dot_pos = [Point(50 + 30i, -50 - 30i) for i in 0:5]
+    Object(1:nframes, dots(dot_pos))
+
+    render(vid, tempdirectory = "images/without_mapping", pathname = "")
+
+    for frame in [1]
+        png_name = lpad(string(frame), 10, "0")
+        @test_reference "images/with_mapping/$png_name.png" load(
+            "images/without_mapping/$png_name.png",
+        )
+    end
+
+    for i in 1:1
+        rm("images/with_mapping/$(lpad(i, 10, "0")).png")
+        rm("images/without_mapping/$(lpad(i, 10, "0")).png")
+    end
+    rm("images/with_mapping/", recursive = true)
+    rm("images/without_mapping/", recursive = true)
+end
+
+@testset "test layer vs nonlayer actions" begin
+    function act_all!(a)
+        act!(a, Action(1:70, anim_translate(Point(50, 50))))
+        act!(a, Action(71:140, anim_translate(Point(50, 50), Point(-50, -50))))
+        act!(a, Action(71:140, anim_rotate(2π)))
+        act!(a, Action(140:210, anim_translate(Point(50, 50))))
+    end
+
+    n_frames = 257
+    nolayer_video = Video(500, 500)
+    Background(1:n_frames, ground)
+    circ = Object(JBox(O, 20, 20, action = :fill, color = "white"))
+    act_all!(circ)
+    render(nolayer_video, tempdirectory = "images/without_layer", pathname = "")
+
+    layer_video = Video(500, 500)
+    Background(1:n_frames, ground)
+    l1 = @JLayer 1:n_frames begin
+        Object(JBox(O, 20, 20, action = :fill, color = "white"))
+    end
+    act_all!(l1)
+    render(layer_video, tempdirectory = "images/with_layer", pathname = "")
+
+    for frame in [8, 16, 32, 64, 128, 256]
+        png_name = lpad(string(frame), 10, "0")
+        @test_reference "images/with_layer/$png_name.png" load(
+            "images/without_layer/$png_name.png",
+        )
+    end
+
+    for i in 1:n_frames
+        rm("images/with_layer/$(lpad(i, 10, "0")).png")
+        rm("images/without_layer/$(lpad(i, 10, "0")).png")
+    end
+    rm("images/with_layer/", recursive = true)
+    rm("images/without_layer/", recursive = true)
+
+    n_frames = 140
+    nolayer_video = Video(500, 500)
+    Background(1:n_frames, ground)
+    circ = Object(JBox(O, 20, 20, action = :fill, color = "white"))
+
+    act!(circ, Action(1:140, anim_translate(Point(0, 50))))
+    act!(circ, Action(1:140, anim_translate(Point(50, 0))))
+
+    render(nolayer_video, tempdirectory = "images/without_layer", pathname = "")
+
+    layer_video = Video(500, 500)
+    Background(1:n_frames, ground)
+    l1 = @JLayer 1:n_frames begin
+        Object(JBox(O, 20, 20, action = :fill, color = "white"))
+    end
+    act!(l1, Action(1:140, anim_translate(Point(50, 50))))
+    render(layer_video, tempdirectory = "images/with_layer", pathname = "")
+
+    for frame in [8, 16, 24, 32, 40, 48]
+        png_name = lpad(string(frame), 10, "0")
+        @test_reference "images/with_layer/$png_name.png" load(
+            "images/without_layer/$png_name.png",
+        )
+    end
+
+    for i in 1:140
+        rm("images/with_layer/$(lpad(i, 10, "0")).png")
+        rm("images/without_layer/$(lpad(i, 10, "0")).png")
+    end
+    rm("images/with_layer/", recursive = true)
+    rm("images/without_layer/", recursive = true)
+
 end

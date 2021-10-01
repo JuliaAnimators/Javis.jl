@@ -26,13 +26,14 @@
     @testset "translation" begin
         video = Video(500, 500)
         Background(1:100, (args...) -> 1)
-        object = Object(1:100, (args...) -> Point(1, 1))
-        act!(object, Action(1:100, anim_translate(Point(1, 1), Point(100, 100))))
+        # test objects matrix
+        objects = [Object(1:100, (args...) -> Point(1, 1)) for i in 1:9, j in 1:9]
+        act!(objects, Action(1:100, anim_translate(Point(1, 1), Point(100, 100))))
         Javis.preprocess_frames!(video.objects)
 
         for f in [1, 50, 100]
-            Javis.get_javis_frame(video, [object], f)
-            @test get_position(object) == Point(f, f)
+            Javis.get_javis_frame(video, [objects...], f)
+            @test get_position(objects[1, 1]) == Point(f, f)
         end
 
         # with easing function
@@ -267,6 +268,33 @@
         @test Javis.get_frames(objects[2]) == 31:50
         @test Javis.get_frames(objects[2].actions[1]) == 1:10
         @test Javis.get_frames(objects[2].actions[2]) == 11:20
+
+
+        demo = Video(500, 500)
+        back = Background(1:50, (args...) -> 1)
+        obj1 = Object(1:10, (args...) -> 1)
+        a1 = Action(1:10, anim_scale(1, 2))
+        a2 = Action(@Frames(startof(a1) + 5, 5), anim_scale(1, 2))
+        act!(obj1, a1)
+        act!(obj1, a2)
+        obj2 = Object(@Frames(prev_start(), 10), (args...) -> 1)
+        obj3 = Object(@Frames(startof(obj2) + 1, 10), (args...) -> 1)
+
+        Javis.preprocess_frames!(demo.objects)
+        @test Javis.get_frames(obj1) == 1:10
+        @test Javis.get_frames(obj2) == 1:10
+        @test Javis.get_frames(obj3) == 2:11
+        @test Javis.get_frames(obj1.actions[1]) == 1:10
+        @test Javis.get_frames(obj1.actions[2]) == 6:10
+    end
+
+    @testset "RFrames in first action" begin
+        video = Video(10, 10)
+        Background(1:20, (args...) -> 1)
+        a = Object(1:15, (args...) -> O) # 1:15
+        act!(a, Action(RFrames(1:3), appear(:fade))) # 1:3
+        render(video; tempdirectory = "images", pathname = "")
+        @test Javis.get_frames(a.actions[1]) == 1:3
     end
 
     @testset "anim_" begin
@@ -303,5 +331,30 @@
         Background(1:20, (args...) -> 1)
         act!(Object(1:11, (args...) -> 2), Action(1:20, anim_translate(0, 10)))
         @test_logs (:warn,) render(video; pathname = "")
+    end
+
+    @testset "Linear scale" begin
+        scale_val = scale_linear(-10, 10, 10, -10)
+        @test scale_val(-20) == 10 # clamped
+        @test scale_val(-5) == 5
+        @test scale_val(20) == -10
+
+        scale_val = scale_linear(-10, 10, 10, -10; clamp = false)
+        @test scale_val(-20) == 20 # clamped
+
+        scale_val =
+            scale_linear(Point(-10, -10), Point(10, 10), Point(10, 10), Point(-10, -10))
+        @test scale_val(Point(-20, -10)) == Point(10, 10) # clamped
+        @test scale_val(Point(-5, -7)) == Point(5, 7)
+        @test scale_val(Point(20, -10)) == Point(-10, 10)
+
+        scale_val = scale_linear(
+            Point(-10, -10),
+            Point(10, 10),
+            Point(10, 10),
+            Point(-10, -10);
+            clamp = false,
+        )
+        @test scale_val(Point(-20, -10)) == Point(20, 10) # clamped
     end
 end

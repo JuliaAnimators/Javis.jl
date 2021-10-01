@@ -31,11 +31,13 @@ Click this badge to join: [![project chat](https://img.shields.io/badge/zulip-jo
 | Animation                                                                                                     | Animation                                                                                                            |
 |---------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|
 | ![](assets/eeg.gif)                                                                                           | ![](assets/dancing_circles.gif)                                                                                      |
-| **Tutorial:** [What Are Actions?](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_2/)           | **Tutorial:** [Making Your First Javis Animation!](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_1/) |
+| **Tutorial:** [What Are Object?](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_3/)           | **Tutorial:** [Making Your First Javis Animation!](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_1/) |
 | ![](assets/atomic.gif)                                                                                        | ![](assets/jarvis.gif)                                                                                               |
-| **Tutorial:** [Taming the Elements](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_5/)         | **Tutorial:** [Do You Know Our Mascot?](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_4/)            |
+| **Tutorial:** [Taming the Elements](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_6/)         | **Tutorial:** [Do You Know Our Mascot?](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_5/)            |
 | ![](assets/matrix.gif)                                                                                        | ![](assets/loading.gif)                                                                                              |
-| **Tutorial:** [Rendering LaTeX with Javis!](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_3/) | **Tutorial:** [Using Animations.jl with Javis!](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_6/)    |
+| **Tutorial:** [Rendering LaTeX with Javis!](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_4/) | **Tutorial:** [Using Animations.jl with Javis!](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_7/)    |
+| ![](assets/cosmic_dance.gif)                                                                                        | ![](assets/4_moving_colored_dancing_circles.gif)   
+| **Tutorial:** [Shorthand expressions](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_2/) | **Tutorial:** [Fun with Layers](https://wikunia.github.io/Javis.jl/stable/tutorials/tutorial_8/)    |
 
 ### Examples
 
@@ -43,6 +45,8 @@ Click this badge to join: [![project chat](https://img.shields.io/badge/zulip-jo
 |------------------------------------------------|------------------------------------------------|
 | ![](examples/gifs/follow_bezier_path.gif)      | ![](examples/gifs/julia_logo_dft.gif)                 |
 | [Follow a Path](/examples/follow_path.jl)      |  [Draw the Julia Logo](/examples/fourier.jl) |
+
+You can find more [examples in the docs](https://wikunia.github.io/Javis.jl/stable/examples/).
 
 ## Design Philosophy
 
@@ -83,6 +87,7 @@ We want to thank a couple of people who helped make this possible.
 
 ### Contributors 
 
+- [@Sov-trotter](https://github.com/Sov-trotter) for implementing the Jupyter and Pluto viewer tools, streaming and layers
 - [@sudomaze](https://github.com/sudomaze) for helping out with tutorials and feedback for v0.1.0
 - [@mythreyiramesh](https://github.com/mythreyiramesh) helping with cleaning up tutorials 
 - [@briochemc](https://github.com/briochemc) for spotting and cleaning up tutorial typos and grammar
@@ -91,7 +96,10 @@ We want to thank a couple of people who helped make this possible.
 - [@ArbitRandomUser](https://github.com/ArbitRandomUser) for cleaning up the LaTeX code base
 - [@agerlach](https://github.com/agerlach) for improving the internal LaTeX parsing
 - [@matbesancon](https://github.com/matbesancon) for adding in an example on projections and for identifying an issue with Javis image processing
-- [@Sov-trotter](https://github.com/Sov-trotter) for implementing the Jupyter and Pluto viewer tools
 - [@codejaeger](https://github.com/codejaeger) - for improving the Javis viewer tool
 - [@XRFXLP](https://github.com/XRFXLP) - fixing typo in docs
-- [@Ved-Mahajan](https://github.com/Ved-Mahajan) - for adding an example on Earth Venus cosmic dance.
+- [@Ved-Mahajan](https://github.com/Ved-Mahajan) - for adding an example on Earth Venus cosmic dance
+- [@rmsrosa](https://github.com/rmsrosa) - for adding an example on escaping the swirling vortex
+- [@EnzioKam](https://github.com/EnzioKam) - for adding an example on the Galton Board
+- [@gpucce](https://github.com/gpucce) - for adding an example on the Central Limit Theorem, fix for `latex` in Windows and more
+- [@pitmonticone](https://github.com/pitmonticone) - finding a typo in the docs
