@@ -45,7 +45,7 @@ Shows a warning if either of the alignment options are unrecognised.
 
 # Example
 
-```
+```julia
 using Javis
 using LaTeXStrings
 
@@ -143,8 +143,12 @@ function get_latex_svg(text::LaTeXString)
     if haskey(LaTeXSVG, text)
         svg = LaTeXSVG[text]
     else
-        ts = strip_eq(text)
-        command = `tex2svg $ts`
+        ts = replace(strip_eq(text), "\n" => " ")
+        command = if Sys.iswindows()
+            `cmd /C tex2svg $ts`
+        else
+            `tex2svg $ts`
+        end
         try
             svg = read(command, String)
         catch e

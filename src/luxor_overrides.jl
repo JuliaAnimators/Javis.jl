@@ -7,7 +7,7 @@ which is i.e. set by [`appear`](@ref) and [`disappear`](@ref).
 Normal behavior without any animation is the same as `Luxor.setline`.
 
 # Example
-```
+```julia
 setline(10)
 line(O, Point(10, 10))
 ```
@@ -31,7 +31,7 @@ which is i.e. set by [`appear`](@ref) and [`disappear`](@ref).
 Normal behavior without any animation is the same as `Luxor.setopacity`.
 
 # Example
-```
+```julia
 setopacity(0.5)
 circle(O, 20, :fill)
 ```
@@ -52,7 +52,7 @@ end
 Same as `Luxor.fontsize`: Sets the current font size.
 
 # Example
-```
+```julia
 fontsize(12)
 text("Hello World!")
 ```
@@ -72,7 +72,7 @@ end
 Same as `Luxor.get_fontsize` but works with every version of Luxor that is supported by Javis.
 
 # Example
-```
+```julia
 fontsize(12)
 fsize = get_fontsize()
 text("Hello World! \$fsize")
@@ -95,7 +95,7 @@ which is i.e. set by [`appear`](@ref) and [`disappear`](@ref).
 Normal behavior without any animation is the same as `Luxor.scale`.
 
 # Example
-```
+```julia
 scale(0.5)
 circle(O, 20, :fill) # the radius would be 10 because of the scaling
 ```
@@ -248,4 +248,28 @@ end
 
 function text(str, x, y; kwargs...)
     text(str, Point(x, y); kwargs...)
+end
+
+"""
+    background(str)
+
+Has bacially the same functionality as Luxor.background() but overrides that method to allow for
+transparent layers.
+
+Checks if a layer should be present, and if a background has been defined or not for the current layer.
+
+# Arguments
+- `background_color` background color
+"""
+function background(background_color)
+    # In the case of main video's background, this shouldn't create a problem as long as the CURRENT_LAYER is cleared 
+    # before moving to rendering of independent objects in [`get_javis_frame`](@ref)
+    if !isempty(CURRENT_LAYER)
+        layer_bg =
+            filter(x -> get(x.opts, :in_local_layer, false), CURRENT_LAYER[1].layer_objects)
+        if isempty(layer_bg) && get(CURRENT_LAYER[1].opts, :transparent, false)
+            background_color = RGBA(0, 0, 0, 0)
+        end
+    end
+    Luxor.background(background_color)
 end

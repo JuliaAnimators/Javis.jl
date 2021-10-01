@@ -1,5 +1,6 @@
 [deps]
 Animations = "27a7e980-b3e6-11e9-2bcd-0b925532e340"
+Colors = "5ae59095-9a9b-59fe-a467-6f913c188581"
 Gtk = "4c0ca9eb-093a-5379-98c5-f87ac0bbbf44"
 GtkReactive = "27996c0f-39cd-5cc1-a27a-05f136f946b6"
 ImageIO = "82e4d734-157c-48bb-816b-45c225c6df19"
@@ -14,4 +15,3 @@ VideoIO = "d6d074c3-1acf-5d4c-9a43-ef38773959a2"
 
 [compat]
 LaTeXStrings = "1.1"
-VideoIO = "0.8.1"
