@@ -96,6 +96,7 @@ end
 
 include("layers.jl")
 include("util.jl")
+include("scales.jl")
 include("luxor_overrides.jl")
 include("backgrounds.jl")
 include("svg2luxor.jl")
@@ -742,5 +743,8 @@ export JBox, JCircle, JEllipse, JLine, JPoly, JRect, JStar, @JShape
 # custom override of luxor extensions
 export setline, setopacity, fontsize, get_fontsize, scale, text
 export setup_stream, cancel_stream
+
+# scales
+export scale_linear, @scale_layer
 
 end
