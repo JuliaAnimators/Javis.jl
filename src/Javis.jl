@@ -287,9 +287,9 @@ function render(
     )
 
     # Check if postprocess_frames_flow is ill defined
-    original_n_frames = length(frames)
+    original_frames = copy(frames)
     frames = postprocess_frames_flow(frames)
-    if !issubset(frames, 1:original_n_frames)
+    if !issubset(frames, original_frames)
         error(
             "postprocess_frames_flow should return a vector of frame indices contained in the original number of frames",
         )
