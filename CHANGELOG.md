@@ -1,4 +1,5 @@
 # Javis.jl - Changelog
+- Fix bug that would make frames <= 0 throw error.
 
 ## v0.7.1 (28th of September 2021)
 - added `scale_linear` function to easily scale values or points
