@@ -25,11 +25,10 @@ end
         pathname = "",
     )
 
-    n_postprocess = 50
     postprocessvideo = Video(200, 200)
-    Background(1:n_postprocess, ground("black"))
-    circ = Object(1:25, JCircle(Point(20, 20), 20, action = :fill, color = "white"))
-    circ = Object(26:50, JCircle(Point(-20, -20), 20, action = :fill, color = "white"))
+    Background(-24:25, ground("black"))
+    circ = Object(-24:0, JCircle(Point(20, 20), 20, action = :fill, color = "white"))
+    circ = Object(1:25, JCircle(Point(-20, -20), 20, action = :fill, color = "white"))
     render(
         postprocessvideo,
         tempdirectory = "images/withpostprocessing",
