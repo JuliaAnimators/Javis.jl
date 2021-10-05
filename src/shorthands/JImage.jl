@@ -1,5 +1,5 @@
 function _JImage(pos, img, centering, shapeargs, shape, scaleargs)
-    if shape != false
+    if !isnothing(shape)
         shape(shapeargs...)
     end
     scale(scaleargs)
@@ -7,7 +7,15 @@ function _JImage(pos, img, centering, shapeargs, shape, scaleargs)
     return pos
 end
 
-JImage(pos::Point, img, centering = true; shapeargs = (), shape = false, scaleargs = 1) =
+"""
+    JImage(pos::Point, img, centering = true; shapeargs = (), shape = nothing, scaleargs = 1)
+
+Place a given image at a given location as a `Javis` object.
+Images can be cropped to different shapes and scaled to different sizes while being placed.
+
+Returns the position of the image location.
+"""
+JImage(pos::Point, img, centering = true; shapeargs = (), shape = nothing, scaleargs = 1) =
     (
         args...;
         pos = pos,
