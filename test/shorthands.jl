@@ -147,3 +147,94 @@ video = Video(800, 800)
     rm("images/palette.png")
     rm("shorthands.gif")
 end
+
+@testset "Image Placement" begin
+    function ground(args...)
+        background("white")
+        sethue("black")
+    end
+
+    Background(1:90, ground)
+
+    circle_img = Object(
+        1:5,
+        JImage(
+            O,
+            readpng("image.png"),
+            true;
+            shape = circle,
+            shapeargs = nothing,
+            scaleargs = 1,
+        ),
+    )
+    poly_img = Object(
+        1:10,
+        JImage(
+            O,
+            readpng("image.png"),
+            true;
+            shape = poly,
+            shapeargs = nothing,
+            scaleargs = 1,
+        ),
+    )
+    rect_img = Object(
+        1:15,
+        JImage(
+            O,
+            readpng("image.png"),
+            true;
+            shape = rect,
+            shapeargs = nothing,
+            scaleargs = 1,
+        ),
+    )
+    star_img = Object(
+        1:20,
+        JImage(
+            O,
+            readpng("image.png"),
+            true;
+            shape = star,
+            shapeargs = nothing,
+            scaleargs = 1,
+        ),
+    )
+    ellipse_img = Object(
+        1:25,
+        JImage(
+            O,
+            readpng("image.png"),
+            true;
+            shape = ellipse,
+            shapeargs = nothing,
+            scaleargs = 1,
+        ),
+    )
+    box_img = Object(
+        1:30,
+        JImage(
+            O,
+            readpng("image.png"),
+            true;
+            shape = box,
+            shapeargs = nothing,
+            scaleargs = 1,
+        ),
+    )
+
+    render(video; tempdirectory = "images", pathname = "shorthands.gif")
+
+    for i in ["01", 20, 21, 39, 40, 59, 65, 85]
+        @test_reference "refs/shorthands$i.png" load("images/00000000$i.png")
+        @test isfile("shorthands.gif")
+    end
+
+    for i in 1:90
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+
+    rm("images/palette.png")
+    rm("shorthands.gif")
+
+end
