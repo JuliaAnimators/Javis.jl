@@ -915,6 +915,49 @@ end
     rm("images/without_mapping/", recursive = true)
 end
 
+@testset "Grid with sinewave" begin
+    function sine_curve(mapping, left, right; cleft=left, cright=right)
+        @JShape begin
+            @scale_layer mapping begin
+                x = collect(cleft:0.1:cright)
+                y = sin.(x)
+                circle.(Point.(x,y), 0.02, :fill)
+            end
+        end cleft=cleft cright=cright
+    end
+    
+    function sine_wave_on_grid(xstart, xend, ystart, yend, fname)
+        vid = Video(500, 500)
+        nframes = 1
+        Background(1:nframes, ground)
+
+        coord_size_x = 400
+        coord_size_y = 200
+        mapping = scale_linear(Point(xstart,ystart), Point(xend,yend), Point(-coord_size_x/2, coord_size_y/2), Point(coord_size_x/2, -coord_size_y/2))
+        cs = coordinate_system(mapping; fct=arrow, step_size_x=1, step_size_y=1)
+
+        cs_obj = Object(1:nframes, cs())
+        sin_obj = Object(1:nframes, sine_curve(mapping, xstart, xend))
+
+        render(vid; tempdirectory = "images/", pathname = "")
+
+        png_name = lpad("1", 10, "0")
+        @test_reference "refs/grid_sine_$fname.png" load(
+            "images/$png_name.png",
+        )
+
+        for i in 1:nframes
+            rm("images/$(lpad(i, 10, "0")).png")
+        end
+    end
+
+    sine_wave_on_grid(-5, 5, -1, 1, "origin")
+    sine_wave_on_grid(1, 5, -1, 1, "left")
+    sine_wave_on_grid(-5, -1, -1, 1, "right")
+    sine_wave_on_grid(0.5, 2, 0.4, 1.2, "bottom")
+    sine_wave_on_grid(-2, -0.5, -1.2, -0.4, "top")
+end
+
 @testset "test layer vs nonlayer actions" begin
     function act_all!(a)
         act!(a, Action(1:70, anim_translate(Point(50, 50))))

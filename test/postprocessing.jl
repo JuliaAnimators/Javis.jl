@@ -135,7 +135,6 @@ end
     for i in 1:n_frames
         rm("images/$(lpad(i, 10, "0")).png")
     end
-    rm("images/", recursive = true)
 
     function postprocess_crop(frame_image, idx, frames)
         return if idx > 25
@@ -163,7 +162,6 @@ end
     for i in 1:n_frames
         rm("images/$(lpad(i, 10, "0")).png")
     end
-    rm("images/", recursive = true)
 end
 
 @testset "postprocess_frame and postprocess_frames_flow" begin

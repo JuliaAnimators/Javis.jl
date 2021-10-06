@@ -106,13 +106,13 @@ function coordinate_system(
     )
 end
 
-function xaxis_on_zero(sc::LinearScale{<:Point}, new_orign)
+function xaxis_on_zero(sc::LinearScale{<:Point}, new_origin)
     left = Point(sc.output.from.x, new_origin.y)
     right = Point(sc.output.to.x, new_origin.y)
     return left, right
 end
 
-function yaxis_on_zero(sc::LinearScale{<:Point}, new_orign)
+function yaxis_on_zero(sc::LinearScale{<:Point}, new_origin)
     top = Point(new_origin.x, sc.output.to.y)
     bottom = Point(new_origin.x, sc.output.from.y)
     return top, bottom
@@ -161,6 +161,8 @@ function coordinate_system(
         # doesn't go through the origin
         # x axis does though
         left, right = xaxis_on_zero(sc, new_origin)
+        
+        top, bottom = yaxis_not_on_zero(sc)
     elseif smx <= new_origin.x <= bix
         # doesn't go through the origin
         # y axis does though
