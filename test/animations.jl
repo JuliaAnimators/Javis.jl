@@ -916,17 +916,17 @@ end
 end
 
 @testset "Grid with sinewave" begin
-    function sine_curve(mapping, left, right; cleft = left, cright = right)
+    function sine_curve(mapping, left, right; cleft = left, cright = right, xshift=0.0)
         @JShape begin
             @scale_layer mapping begin
                 x = collect(cleft:0.1:cright)
-                y = sin.(x)
+                y = sin.(x .+ xshift)
                 circle.(Point.(x, y), 0.02, :fill)
             end
-        end cleft = cleft cright = cright
+        end cleft = cleft cright = cright xshift=xshift
     end
 
-    function sine_wave_on_grid(xstart, xend, ystart, yend, fname)
+    function sine_wave_on_grid(xstart, xend, ystart, yend, fname; xshift=0.0)
         vid = Video(500, 500)
         nframes = 1
         Background(1:nframes, ground)
@@ -942,7 +942,7 @@ end
         cs = coordinate_system(mapping; fct = arrow, step_size_x = 1, step_size_y = 1)
 
         cs_obj = Object(1:nframes, cs())
-        sin_obj = Object(1:nframes, sine_curve(mapping, xstart, xend))
+        sin_obj = Object(1:nframes, sine_curve(mapping, xstart, xend; xshift=xshift))
 
         render(vid; tempdirectory = "images/", pathname = "")
 
@@ -959,6 +959,7 @@ end
     sine_wave_on_grid(-5, -1, -1, 1, "right")
     sine_wave_on_grid(0.5, 2, 0.4, 1.2, "bottom")
     sine_wave_on_grid(-2, -0.5, -1.2, -0.4, "top")
+    sine_wave_on_grid(-1, 1, 0, 1, "center_below"; xshift=π/2)
 end
 
 @testset "test layer vs nonlayer actions" begin
