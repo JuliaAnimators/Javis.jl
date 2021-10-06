@@ -916,16 +916,16 @@ end
 end
 
 @testset "Grid with sinewave" begin
-    function sine_curve(mapping, left, right; cleft=left, cright=right)
+    function sine_curve(mapping, left, right; cleft = left, cright = right)
         @JShape begin
             @scale_layer mapping begin
                 x = collect(cleft:0.1:cright)
                 y = sin.(x)
-                circle.(Point.(x,y), 0.02, :fill)
+                circle.(Point.(x, y), 0.02, :fill)
             end
-        end cleft=cleft cright=cright
+        end cleft = cleft cright = cright
     end
-    
+
     function sine_wave_on_grid(xstart, xend, ystart, yend, fname)
         vid = Video(500, 500)
         nframes = 1
@@ -933,8 +933,13 @@ end
 
         coord_size_x = 400
         coord_size_y = 200
-        mapping = scale_linear(Point(xstart,ystart), Point(xend,yend), Point(-coord_size_x/2, coord_size_y/2), Point(coord_size_x/2, -coord_size_y/2))
-        cs = coordinate_system(mapping; fct=arrow, step_size_x=1, step_size_y=1)
+        mapping = scale_linear(
+            Point(xstart, ystart),
+            Point(xend, yend),
+            Point(-coord_size_x / 2, coord_size_y / 2),
+            Point(coord_size_x / 2, -coord_size_y / 2),
+        )
+        cs = coordinate_system(mapping; fct = arrow, step_size_x = 1, step_size_y = 1)
 
         cs_obj = Object(1:nframes, cs())
         sin_obj = Object(1:nframes, sine_curve(mapping, xstart, xend))
@@ -942,9 +947,7 @@ end
         render(vid; tempdirectory = "images/", pathname = "")
 
         png_name = lpad("1", 10, "0")
-        @test_reference "refs/grid_sine_$fname.png" load(
-            "images/$png_name.png",
-        )
+        @test_reference "refs/grid_sine_$fname.png" load("images/$png_name.png")
 
         for i in 1:nframes
             rm("images/$(lpad(i, 10, "0")).png")

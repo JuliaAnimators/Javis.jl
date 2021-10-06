@@ -161,7 +161,7 @@ function coordinate_system(
         # doesn't go through the origin
         # x axis does though
         left, right = xaxis_on_zero(sc, new_origin)
-        
+
         top, bottom = yaxis_not_on_zero(sc)
     elseif smx <= new_origin.x <= bix
         # doesn't go through the origin
