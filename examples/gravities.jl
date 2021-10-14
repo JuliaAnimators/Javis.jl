@@ -1,8 +1,7 @@
-#=
+#= 
 Visualization of the gravities of different bodies around the solar system inspired by Dr. James O'Donoghue visualization here: https://twitter.com/physicsJ/status/1414233142861262855
 
-Planetary data from NASA: https://nssdc.gsfc.nasa.gov/planetary/factsheet/ 
-=#
+Planetary data from NASA: https://nssdc.gsfc.nasa.gov/planetary/factsheet/ =#
 
 using Javis # v0.7.1
 
@@ -84,6 +83,18 @@ spacing = width / (length(planets) + 1)
 x_calc(planet::Planet) = (planet.position) * spacing - width / 2 + spacing / 2
 y_height(row) = total_height / 2 - font_height / 2 - font_height * row
 
+function fall(p::Planet, obj::Object, args)
+
+    frame = args[4]
+    time = framerate / frame
+
+    y_position = 0.5 * p.gravity * time^2 
+
+    y_position = min(y_position, height)
+
+    obj.change_keywords[:center] = pos(obj) + Point(0, y_position - start_height)
+
+end
 
 # 1km and 0km lines have to be drawn first to be under everything
 Object(
@@ -95,7 +106,6 @@ Object(
         linewidth = 5,
     ),
 )
-
 Object(
     1:frames,
     JLine(
@@ -106,139 +116,46 @@ Object(
     ),
 )
 
-
-for planet in planets
-    # Kinematic equations to calculate how many frames each planet will be active
-    t_final = 2 * height / planet.gravity |> sqrt
-    v_final = planet.gravity * t_final
-    frame_final = ceil(Int, t_final * framerate)
-
-
-
-    for f = 1:frame_final
-        # Calculate time of current frame for kinematic math
-        time = f / framerate
-
-        # Calculate planets current position
-        planet_y = 0.5 * planet.gravity * time^2 - start_height
-
-        # Set the planets position 
-        Object(
-            f:f,
-            JCircle(O, planet.radius, color = planet.color, action = :fill),
-            Point(x_calc(planet), planet_y),
-        )
-
-        # Update text for planets current state
-        Object(
-            f:f,
-            @JShape begin
-                fontsize(font_height)
-                text(
-                    string(round((f - 1) / frames * framerate, digits = 1), "s"),
-                    Point(x_calc(planet), y_height(1)),
-                    halign = :center,
-                )
-                text(
-                    string(round(planet.gravity * time, digits = 2), "m/s"),
-                    Point(x_calc(planet), y_height(0)),
-                    halign = :center,
-                )
-            end
-        )
-
-        # Leave a trail every few seconds to give an idea of the acceleration happening
-        if f % framerate * 4 == 0
-            Object(
-                f:frames,
-                JCircle(O, planet.radius / 5, color = planet.color, action = :fill),
-                Point(x_calc(planet), planet_y),
-            )
-        end
-    end
-
-    # Make the planet sit at the bottom of the video for the rest of the frames
-    Object(
-        frame_final:frames,
-        JCircle(O, planet.radius, color = planet.color, action = :fill),
-        Point(x_calc(planet), -start_height + height),
-    )
-
-    # Set all the text for after the planet is done moving
-    Object(
-        frame_final:frames,
-        @JShape begin
-            fontsize(font_height)
-            sethue("springgreen4")
-            text(planet.name, Point(x_calc(planet), y_height(3)), halign = :center)
-            text(
-                string(planet.gravity, "m/s^2"),
-                Point(x_calc(planet), y_height(2)),
-                halign = :center,
-            )
-
-            text(
-                string(round(t_final, digits = 1), "s"),
-                Point(x_calc(planet), y_height(1)),
-                halign = :center,
-            )
-            text(
-                string(round(v_final, digits = 2), "m/s"),
-                Point(x_calc(planet), y_height(0)),
-                halign = :center,
-            )
-        end
-    )
-
-    # Set text that is static during entire planet translation
-    Object(
-        1:frame_final,
-        @JShape begin
-            fontsize(font_height)
-            sethue(planet.color)
-            text(planet.name, Point(x_calc(planet), y_height(3)), halign = :center)
-            text(
-                string(planet.gravity, "m/s^2"),
-                Point(x_calc(planet), y_height(2)),
-                halign = :center,
-            )
-        end
-    )
-
-    Object(
+planet_objects = [
+    (p, Object(
         1:frames,
-        JCircle(O, planet.radius, color = planet.color, action = :fill),
-        Point(x_calc(planet), y_height(4) - planet.radius),
-    )
-end
+        JCircle(O, p.radius, color = p.color, action = :fill),
+        Point(x_calc(p), start_height))
+    ) for p in planets
+]
 
+(p, obj) = planet_objects[1]
+# act!(obj, Action(2:frames, (args...) -> fall(p, obj, args)))
+for (p, obj) in planet_objects
+    act!(obj, Action(2:frames, (args...) -> fall(p, obj, args)))
+end
 
 # Set the legend text
 Object(
     1:frames,
     @JShape begin
-        fontsize(font_height)
-        x_pt = -width / 2 + 10
-        text("1km", Point(x_pt, -start_height - 10), halign = :left)
-        text("0km", Point(x_pt, -start_height + height - 10), halign = :left)
+    fontsize(font_height)
+    x_pt = -width / 2 + 10
+    text("1km", Point(x_pt, -start_height - 10), halign = :left)
+    text("0km", Point(x_pt, -start_height + height - 10), halign = :left)
 
 
-        fontsize(font_height * 0.75)
-        text("Planet:", Point(x_pt, y_height(3)), halign = :left)
-        text("Acceleration:", Point(x_pt, y_height(2)), halign = :left)
+    fontsize(font_height * 0.75)
+    text("Planet:", Point(x_pt, y_height(3)), halign = :left)
+    text("Acceleration:", Point(x_pt, y_height(2)), halign = :left)
 
-        text("Time:", Point(x_pt, y_height(1)), halign = :left)
-        text("Velocity:", Point(x_pt, y_height(0)), halign = :left)
-
-        fontsize(font_height * 2)
-        sethue("royalblue")
-        text(
+    text("Time:", Point(x_pt, y_height(1)), halign = :left)
+    text("Velocity:", Point(x_pt, y_height(0)), halign = :left)
+        
+    fontsize(font_height * 2)
+    sethue("royalblue")
+    text(
             "Ball Falling 1km on Bodies in the Solar System",
             Point(0, -total_height / 2 + font_height * 2.5),
             halign = :center,
         )
-    end
+end
 )
 
-render(myvideo; liveview = true)
-# render(myvideo; pathname = "gravities.mp4")
+# render(myvideo; liveview=true)
+# render(myvideo;rescale_factor=.25, pathname="gravities.gif")
