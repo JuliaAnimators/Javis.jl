@@ -24,7 +24,7 @@ diameters = Dict(
 struct Planet
     position::Int # Position from the sun
     name::String
-    gravity::Real # m/s
+    gravity::Real # m/s^2
     color::String # total guesstimate
     radius::Real # whatever fake units make the viz pretty
 end
@@ -47,7 +47,7 @@ planets = [
 
 
 framerate = 30
-height = 1000 # meters | also the video height
+height = 1000 # meters | also the amount of pixels the balls will fall
 
 frames = let
     # Get planet with slowest acceleration
