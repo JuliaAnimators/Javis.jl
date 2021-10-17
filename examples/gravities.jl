@@ -122,6 +122,63 @@ function gravity_force(p::Planet, args)
     y_position =  min(position, height) 
     
     obj.change_keywords[:center] = Point(0, y_position)
+
+    # Leave trail to give an idea of the acceleration after planet has finished falling
+    if frame % framerate * 4 == 0
+        Object(
+            frame:frames,
+            JCircle(O, p.radius / 5, color=p.color, action=:fill),
+            Point(x_calc(p), y_position - start_height),
+        )
+    end
+
+
+
+    # Update text for planets current state
+
+    # Determine if planet is finished moving. 
+    t_final = sqrt(height / (0.5 * p.gravity))
+    v_final = p.gravity * t_final
+    if y_position == height
+        # Set all the text for after the planet is done moving
+
+        if t_final < time
+            Object(
+                frame:frame,
+                @JShape begin
+                fontsize(font_height)
+                sethue("springgreen4")
+                text(
+                        string(round(t_final, digits=1), "s"),
+                        Point(x_calc(p), y_height(1)),
+                        halign=:center,
+                    )
+                text(
+                        string(round(v_final, digits=2), "m/s"),
+                        Point(x_calc(p), y_height(0)),
+                        halign=:center,
+                    )
+            end
+            )
+        end
+    else
+        Object(
+            frame:frame,
+            @JShape begin
+                fontsize(font_height)
+                text(
+                    string(round(time, digits=1), "s"),
+                    Point(x_calc(p), y_height(1)),
+                    halign=:center,
+                )
+                text(
+                    string(round(p.gravity * time, digits=2), "m/s"),
+                    Point(x_calc(p), y_height(0)),
+                    halign=:center,
+                )
+            end
+        )
+    end
 end
 
 
