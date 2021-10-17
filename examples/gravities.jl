@@ -83,18 +83,7 @@ spacing = width / (length(planets) + 1)
 x_calc(planet::Planet) = (planet.position) * spacing - width / 2 + spacing / 2
 y_height(row) = total_height / 2 - font_height / 2 - font_height * row
 
-function fall(p::Planet, obj::Object, args)
 
-    frame = args[4]
-    time = framerate / frame
-
-    y_position = 0.5 * p.gravity * time^2 
-
-    y_position = min(y_position, height)
-
-    obj.change_keywords[:center] = pos(obj) + Point(0, y_position - start_height)
-
-end
 
 # 1km and 0km lines have to be drawn first to be under everything
 Object(
@@ -102,8 +91,8 @@ Object(
     JLine(
         Point(-width / 2, -start_height),
         Point(width, -start_height),
-        color = "darkgray",
-        linewidth = 5,
+        color="darkgray",
+        linewidth=5,
     ),
 )
 Object(
@@ -111,23 +100,33 @@ Object(
     JLine(
         Point(-width / 2, -start_height + height),
         Point(width, -start_height + height),
-        color = "darkgray",
-        linewidth = 5,
+        color="darkgray",
+        linewidth=5,
     ),
 )
 
 planet_objects = [
     (p, Object(
         1:frames,
-        JCircle(O, p.radius, color = p.color, action = :fill),
-        Point(x_calc(p), start_height))
+        JCircle(O, p.radius, color=p.color, action=:fill),
+        Point(x_calc(p), -start_height))
     ) for p in planets
 ]
 
-(p, obj) = planet_objects[1]
-# act!(obj, Action(2:frames, (args...) -> fall(p, obj, args)))
+function gravity_force(p::Planet, args)
+    video, obj, action, frame = args
+        
+    time = frame / framerate
+    position = 0.5 * p.gravity * time^2 
+        
+    y_position =  min(position, height) 
+    
+    obj.change_keywords[:center] = Point(0, y_position)
+end
+
+
 for (p, obj) in planet_objects
-    act!(obj, Action(2:frames, (args...) -> fall(p, obj, args)))
+    act!(obj, Action(2:frames, (args...) -> gravity_force(p, args)))
 end
 
 # Set the legend text
@@ -136,26 +135,26 @@ Object(
     @JShape begin
     fontsize(font_height)
     x_pt = -width / 2 + 10
-    text("1km", Point(x_pt, -start_height - 10), halign = :left)
-    text("0km", Point(x_pt, -start_height + height - 10), halign = :left)
+    text("1km", Point(x_pt, -start_height - 10), halign=:left)
+    text("0km", Point(x_pt, -start_height + height - 10), halign=:left)
 
 
     fontsize(font_height * 0.75)
-    text("Planet:", Point(x_pt, y_height(3)), halign = :left)
-    text("Acceleration:", Point(x_pt, y_height(2)), halign = :left)
+    text("Planet:", Point(x_pt, y_height(3)), halign=:left)
+    text("Acceleration:", Point(x_pt, y_height(2)), halign=:left)
 
-    text("Time:", Point(x_pt, y_height(1)), halign = :left)
-    text("Velocity:", Point(x_pt, y_height(0)), halign = :left)
+    text("Time:", Point(x_pt, y_height(1)), halign=:left)
+    text("Velocity:", Point(x_pt, y_height(0)), halign=:left)
         
     fontsize(font_height * 2)
     sethue("royalblue")
     text(
             "Ball Falling 1km on Bodies in the Solar System",
             Point(0, -total_height / 2 + font_height * 2.5),
-            halign = :center,
+            halign=:center,
         )
 end
 )
 
-# render(myvideo; liveview=true)
+render(myvideo; liveview=true)
 # render(myvideo;rescale_factor=.25, pathname="gravities.gif")
