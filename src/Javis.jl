@@ -52,6 +52,7 @@ Transformation(p, a) = Transformation(p, a, 1.0)
 Transformation(p, a, s::Float64) = Transformation(p, a, (s, s))
 Transformation(p, a, s::Tuple{Float64,Float64}) = Transformation(p, a, Scale(s...))
 
+include("structs/Delayed.jl")
 include("structs/ObjectSetting.jl")
 include("structs/Object.jl")
 include("structs/Transitions.jl")
@@ -204,6 +205,11 @@ end
 # finally objects
 flatten!(objects::Array{AbstractObject}, object::Object) = push!(objects, object)
 
+
+const STARTED_RENDERING = [
+    false
+]
+
 """
     render(
         video::Video;
@@ -253,6 +259,8 @@ function render(
     postprocess_frames_flow = identity,
     postprocess_frame = default_postprocess,
 )
+
+    STARTED_RENDERING[1] = true
     layers = video.layers
     objects = video.objects
     frames = preprocess_frames!(video)
