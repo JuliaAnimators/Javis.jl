@@ -137,7 +137,7 @@ function strip_eq(text::LaTeXString)
     ts
 end
 
-# \todo update LaTeXSVG cache to use output of strip_eq as the key. See https://github.com/Wikunia/Javis.jl/pull/307#issuecomment-749616375
+# \todo update LaTeXSVG cache to use output of strip_eq as the key. See https://github.com/JuliaAnimators/Javis.jl/pull/307#issuecomment-749616375
 function get_latex_svg(text::LaTeXString)
     # check if it's cached
     if haskey(LaTeXSVG, text)
