@@ -91,8 +91,8 @@ Object(
     JLine(
         Point(-width / 2, -start_height),
         Point(width, -start_height),
-        color="darkgray",
-        linewidth=5,
+        color = "darkgray",
+        linewidth = 5,
     ),
 )
 Object(
@@ -100,8 +100,8 @@ Object(
     JLine(
         Point(-width / 2, -start_height + height),
         Point(width, -start_height + height),
-        color="darkgray",
-        linewidth=5,
+        color = "darkgray",
+        linewidth = 5,
     ),
 )
 
@@ -110,7 +110,7 @@ planet_objects = [
         p,
         Object(
             1:frames,
-            JCircle(O, p.radius, color=p.color, action=:fill),
+            JCircle(O, p.radius, color = p.color, action = :fill),
             Point(x_calc(p), -start_height),
         ),
     ) for p in planets
@@ -130,7 +130,7 @@ function gravity_force(p::Planet, args)
     if frame % framerate * 4 == 0
         Object(
             frame:frames,
-            JCircle(O, p.radius / 5, color=p.color, action=:fill),
+            JCircle(O, p.radius / 5, color = p.color, action = :fill),
             Point(x_calc(p), y_position - start_height),
         )
     end
@@ -152,14 +152,14 @@ function gravity_force(p::Planet, args)
                 fontsize(font_height)
                 sethue("springgreen4")
                 text(
-                        string(round(t_final, digits=1), "s"),
+                        string(round(t_final, digits = 1), "s"),
                         Point(x_calc(p), y_height(1)),
-                        halign=:center,
+                        halign = :center,
                     )
                 text(
-                        string(round(v_final, digits=2), "m/s"),
+                        string(round(v_final, digits = 2), "m/s"),
                         Point(x_calc(p), y_height(0)),
-                        halign=:center,
+                        halign = :center,
                     )
             end
             )
@@ -170,14 +170,14 @@ function gravity_force(p::Planet, args)
             @JShape begin
                 fontsize(font_height)
                 text(
-                    string(round(time, digits=1), "s"),
+                    string(round(time, digits = 1), "s"),
                     Point(x_calc(p), y_height(1)),
-                    halign=:center,
+                    halign = :center,
                 )
                 text(
-                    string(round(p.gravity * time, digits=2), "m/s"),
+                    string(round(p.gravity * time, digits = 2), "m/s"),
                     Point(x_calc(p), y_height(0)),
-                    halign=:center,
+                    halign = :center,
                 )
             end
         )
@@ -197,18 +197,18 @@ for (p, obj) in planet_objects
         @JShape begin
             fontsize(font_height)
             sethue(p.color)
-            text(p.name, Point(x_calc(p), y_height(3)), halign=:center)
-            text(
+            text(p.name, Point(x_calc(p), y_height(3)), halign = :center)
+    text(
                 string(p.gravity, "m/s^2"),
                 Point(x_calc(p), y_height(2)),
-                halign=:center,
+                halign = :center,
             )
         end
     )
 
     Object(
         1:frames,
-        JCircle(O, p.radius, color=p.color, action=:fill),
+        JCircle(O, p.radius, color = p.color, action = :fill),
         Point(x_calc(p), y_height(4) - p.radius),
     )
 end
@@ -219,26 +219,26 @@ Object(
     @JShape begin
         fontsize(font_height)
         x_pt = -width / 2 + 10
-        text("1km", Point(x_pt, -start_height - 10), halign=:left)
-        text("0km", Point(x_pt, -start_height + height - 10), halign=:left)
+        text("1km", Point(x_pt, -start_height - 10), halign = :left)
+        text("0km", Point(x_pt, -start_height + height - 10), halign = :left)
 
 
         fontsize(font_height * 0.75)
-        text("Planet:", Point(x_pt, y_height(3)), halign=:left)
-        text("Acceleration:", Point(x_pt, y_height(2)), halign=:left)
+        text("Planet:", Point(x_pt, y_height(3)), halign = :left)
+        text("Acceleration:", Point(x_pt, y_height(2)), halign = :left)
 
-        text("Time:", Point(x_pt, y_height(1)), halign=:left)
-        text("Velocity:", Point(x_pt, y_height(0)), halign=:left)
+        text("Time:", Point(x_pt, y_height(1)), halign = :left)
+        text("Velocity:", Point(x_pt, y_height(0)), halign = :left)
 
         fontsize(font_height * 2)
         sethue("royalblue")
         text(
             "Ball Falling 1km on Bodies in the Solar System",
             Point(0, -total_height / 2 + font_height * 2.5),
-            halign=:center,
+            halign = :center,
         )
     end
     )
 
-render(myvideo; liveview=true)
+render(myvideo; liveview = true)
 # render(myvideo; pathname="gravities.gif")
