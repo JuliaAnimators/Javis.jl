@@ -22,14 +22,14 @@ diameters = Dict(
 
 struct Planet
     position::Int # Position from the sun
-    name::String
-    gravity::Real # m/s^2
-    color::String # total guesstimate
+    name::String # Name of the planet
+    gravity::Real # planets gravity in m/s^2
+    color::String # color of the planet
     radius::Real # whatever fake units make the viz pretty
 end
 
 # Automatically calculate radius for us. Calculation is totally arbritrary
-Planet(pos, name, grav, color) = Planet(pos, name, grav, color, log(diameters[name]) * 2)
+Planet(pos, name, grav, color) = Planet(pos, name, grav, color, log2(diameters[name]) * 2)
 
 planets = [
     Planet(1, "Mercury", 3.7, "snow4")
@@ -45,7 +45,7 @@ planets = [
 ]
 
 
-framerate = 30
+framerate = 30 # frames / second
 height = 1000 # meters | also the amount of pixels the balls will fall
 
 frames = let
@@ -56,7 +56,7 @@ frames = let
     time = 2 * height / slowest |> sqrt
 
     # Calculate total frames and add a few seconds at the end to display final result
-    ceil(Int, time * framerate) + framerate * 10
+    ceil(Int, time * framerate) + framerate * 5
 end
 
 function ground(args...)
@@ -65,16 +65,18 @@ function ground(args...)
 end
 
 font_height = 25
-width = 1500
 
 # Give room for header and footer
 top_padding = font_height
 bottom_padding =
-    font_height * 5 + 50 + maximum(ceil.(Int, [p.radius * 5 for p in planets])) + 1
+    font_height * 5 + 50 + maximum(ceil.(Int, [p.radius * 4 for p in planets])) 
 total_height = height + top_padding + bottom_padding
+
+# Height that planets start at
 start_height = total_height / 2 - top_padding * 4
 
-
+# Make video square by using total_height for height and width
+width = total_height
 myvideo = Video(width, total_height)
 Background(1:frames, ground)
 
@@ -105,6 +107,9 @@ Object(
     ),
 )
 
+
+# Make a list of tuples for each planet object and the planets stats
+#     to make it easier to iterate over each planet and its object.
 planet_objects = [
     (
         p,
@@ -116,18 +121,24 @@ planet_objects = [
     ) for p in planets
 ]
 
+
 function gravity_force(p::Planet, args)
+
+    # unpack args provided by `Action`
     video, obj, action, frame = args
 
+    # Calculate current time and position
     time = frame / framerate
     position = 0.5 * p.gravity * time^2
 
+    # Keep the planet from falling further than the height specified at the beginning
     y_position = min(position, height)
 
+    # Update the position of the planet
     obj.change_keywords[:center] = Point(0, y_position)
 
     # Leave trail to give an idea of the acceleration after planet has finished falling
-    if frame % framerate * 4 == 0
+    if frame % framerate * 8 == 0
         Object(
             frame:frames,
             JCircle(O, p.radius / 5, color = p.color, action = :fill),
@@ -140,10 +151,12 @@ function gravity_force(p::Planet, args)
     # Update text for planets current state
 
     # Determine if planet is finished moving. 
-    t_final = sqrt(height / (0.5 * p.gravity))
-    v_final = p.gravity * t_final
     if y_position == height
         # Set all the text for after the planet is done moving
+
+        # Calculate final time and velocity 
+        t_final = sqrt(height / (0.5 * p.gravity))
+        v_final = p.gravity * t_final
 
         if t_final < time
             Object(
@@ -157,7 +170,7 @@ function gravity_force(p::Planet, args)
                         halign = :center,
                     )
                 text(
-                        string(round(v_final, digits = 2), "m/s"),
+                        string(round(Int, v_final), "m/s"),
                         Point(x_calc(p), y_height(0)),
                         halign = :center,
                     )
@@ -165,6 +178,7 @@ function gravity_force(p::Planet, args)
             )
         end
     else
+        # update text while planet is falling
         Object(
             frame:frame,
             @JShape begin
@@ -206,6 +220,7 @@ for (p, obj) in planet_objects
         end
     )
 
+    # Place a static copy of each planet in its column
     Object(
         1:frames,
         JCircle(O, p.radius, color = p.color, action = :fill),
@@ -240,5 +255,5 @@ Object(
     end
     )
 
-render(myvideo; liveview = true)
-# render(myvideo; pathname="gravities.gif")
+render(myvideo; liveview = true, framerate = framerate)
+# render(myvideo; pathname = "gravities.gif", framerate = framerate)
