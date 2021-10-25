@@ -68,8 +68,7 @@ font_height = 25
 
 # Give room for header and footer
 top_padding = font_height
-bottom_padding =
-    font_height * 5 + 50 + maximum(ceil.(Int, [p.radius * 4 for p in planets])) 
+bottom_padding = font_height * 5 + 50 + maximum(ceil.(Int, [p.radius * 4 for p in planets]))
 total_height = height + top_padding + bottom_padding
 
 # Height that planets start at
@@ -162,19 +161,19 @@ function gravity_force(p::Planet, args)
             Object(
                 frame:frame,
                 @JShape begin
-                fontsize(font_height)
-                sethue("springgreen4")
-                text(
+                    fontsize(font_height)
+                    sethue("springgreen4")
+                    text(
                         string(round(t_final, digits = 1), "s"),
                         Point(x_calc(p), y_height(1)),
                         halign = :center,
                     )
-                text(
+                    text(
                         string(round(Int, v_final), "m/s"),
                         Point(x_calc(p), y_height(0)),
                         halign = :center,
                     )
-            end
+                end
             )
         end
     else
@@ -212,7 +211,7 @@ for (p, obj) in planet_objects
             fontsize(font_height)
             sethue(p.color)
             text(p.name, Point(x_calc(p), y_height(3)), halign = :center)
-    text(
+            text(
                 string(p.gravity, "m/s^2"),
                 Point(x_calc(p), y_height(2)),
                 halign = :center,
@@ -253,7 +252,7 @@ Object(
             halign = :center,
         )
     end
-    )
+)
 
 render(myvideo; liveview = true, framerate = framerate)
 # render(myvideo; pathname = "gravities.gif", framerate = framerate)
