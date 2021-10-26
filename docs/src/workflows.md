@@ -42,7 +42,7 @@ Here's what it looks like with the `liveviewer` flag set to `true` :
 ### Common Problems:
 - WebIO error (WebIO is not installed)
     
-    The comment in discussion [here](https://github.com/Wikunia/Javis.jl/pull/288#issuecomment-747671260) should help out with the problem.
+    The comment in discussion [here](https://github.com/JuliaAnimators/Javis.jl/pull/288#issuecomment-747671260) should help out with the problem.
 
 - No change on dragging the silder/changing the value in textbox
 
