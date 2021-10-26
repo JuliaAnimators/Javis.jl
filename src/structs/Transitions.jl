@@ -34,7 +34,7 @@ anim_translate(fp::Union{Object,Point,DelayedPosition}, tp::Union{Object,Point,D
 struct Rotation{T<:Real} <: AbstractTransition
     from::T
     to::T
-    center::Union{Nothing,Point,AbstractObject}
+    center::Union{Nothing,Point,AbstractObject, DelayedPosition}
 end
 
 """

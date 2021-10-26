@@ -1,5 +1,5 @@
 mutable struct DelayedPosition
-    obj
-    position
-    called
+    obj::AbstractObject
+    position::Union{Nothing, Point}
+    called::Bool
 end
