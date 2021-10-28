@@ -899,5 +899,4 @@ end
     end
     rm("images/with_layer/", recursive = true)
     rm("images/without_layer/", recursive = true)
-
 end
