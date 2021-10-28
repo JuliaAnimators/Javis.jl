@@ -206,9 +206,7 @@ end
 flatten!(objects::Array{AbstractObject}, object::Object) = push!(objects, object)
 
 
-const STARTED_RENDERING = [
-    false
-]
+const STARTED_RENDERING = [false]
 
 """
     render(
