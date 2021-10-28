@@ -34,6 +34,8 @@ function circle_with_color(position, radius, action, color)
     circle(position, radius, action)
 end
 
+
+@testset "all" begin
 @testset "Unit" begin
     include("unit.jl")
 end
@@ -57,4 +59,8 @@ end
 end
 @testset "Postprocessing" begin
     include("postprocessing.jl")
+end
+@testset "delayed" begin
+    include("delayed.jl")
+end
 end
