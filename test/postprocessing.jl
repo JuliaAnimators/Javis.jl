@@ -131,7 +131,7 @@ end
         @test_reference "images/$png_no_pad.png" load("images/$png_pad.png")
     end
 
-    for i in readdir("images", join=true)
+    for i in readdir("images", join = true)
         endswith(i, ".png") && rm(i)
     end
 
@@ -158,7 +158,7 @@ end
         @test_reference "images/$png_no_crop.png" load("images/$png_crop.png")
     end
 
-    for i in readdir("images", join=true)
+    for i in readdir("images", join = true)
         endswith(i, ".png") && rm(i)
     end
 end
