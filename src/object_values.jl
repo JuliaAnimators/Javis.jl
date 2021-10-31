@@ -23,7 +23,7 @@ get_position(t::Transformation) = t.point
 In principle this is similar to [`get_position`](@ref) however, unlike that 
 one it gets evaluated the first time is called after the rendering has started.
 """
-function get_delayed_position(obj::Object)
+function get_delayed_position(obj::AbstractObject)
     DelayedPosition(obj, nothing, false)
 end
 

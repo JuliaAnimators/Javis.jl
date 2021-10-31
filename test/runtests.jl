@@ -60,3 +60,6 @@ end
 @testset "Postprocessing" begin
     include("postprocessing.jl")
 end
+@testset "Delayed" begin
+    include("delayed.jl")
+end
