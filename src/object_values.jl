@@ -24,7 +24,7 @@ In principle this is similar to [`get_position`](@ref) however, unlike that
 one it gets evaluated the first time is called after the rendering has started.
 """
 function get_delayed_position(obj::AbstractObject)
-    DelayedPosition(obj, nothing, false)
+    DelayedPosition(obj, O, false)
 end
 
 """
@@ -45,7 +45,7 @@ end
 function get_position(p::DelayedPosition)
     if STARTED_RENDERING[1] && !p.called
         p.called = true
-        p.position = get_position(p.obj)
+        p.position += get_position(p.obj)
     end
     return p.position
 end
