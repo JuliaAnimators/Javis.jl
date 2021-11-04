@@ -24,17 +24,17 @@ end
 
 @testset "delayedposition rotation" begin
     testvideo = Video(300, 300)
-	Background(1:31, (args...) -> begin
+    Background(1:31, (args...) -> begin
         background("white")
         sethue("black")
     end)
-	
-	ball1 = Object(1:31, JCircle(O, 10, color="black", action=:fill), Point(-45, 0))
-	ball2 = Object(1:31, JCircle(O, 10, color="red", action=:fill), Point(0, -25))
-	
-	act!(ball1, Action(1:17, anim_translate(Point(-45, 0), O)))
-	act!(ball2, Action(17:31, anim_rotate_around(-π, O)))
-	render(testvideo, tempdirectory = "images", pathname = "")
+
+    ball1 = Object(1:31, JCircle(O, 10, color = "black", action = :fill), Point(-45, 0))
+    ball2 = Object(1:31, JCircle(O, 10, color = "red", action = :fill), Point(0, -25))
+
+    act!(ball1, Action(1:17, anim_translate(Point(-45, 0), O)))
+    act!(ball2, Action(17:31, anim_rotate_around(-π, O)))
+    render(testvideo, tempdirectory = "images", pathname = "")
 
     for frame in [1, 7, 15, 24, 30]
         png_name = lpad(string(frame), 10, "0")
