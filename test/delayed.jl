@@ -68,6 +68,8 @@
 
     rm("images/delayed", recursive = true)
     rm("images/not_delayed", recursive = true)
+
+    @test Javis.CURRENTLY_RENDERING[1] == false
 end
 
 

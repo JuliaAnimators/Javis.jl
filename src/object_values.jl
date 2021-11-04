@@ -43,7 +43,7 @@ function get_position(obj::Object)
 end
 
 function get_position(p::DelayedPosition)
-    if STARTED_RENDERING[1] && !p.called
+    if CURRENTLY_RENDERING[1] && !p.called
         p.called = true
         p.position += get_position(p.obj)
     end

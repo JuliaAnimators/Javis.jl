@@ -206,7 +206,7 @@ end
 flatten!(objects::Array{AbstractObject}, object::Object) = push!(objects, object)
 
 
-const STARTED_RENDERING = [false]
+const CURRENTLY_RENDERING = [false]
 
 """
     render(
@@ -258,7 +258,7 @@ function render(
     postprocess_frame = default_postprocess,
 )
 
-    STARTED_RENDERING[1] = true
+    CURRENTLY_RENDERING[1] = true
     layers = video.layers
     objects = video.objects
     frames = preprocess_frames!(video)
@@ -344,6 +344,7 @@ function render(
         filecounter += 1
     end
 
+    CURRENTLY_RENDERING[1] = false
     isempty(pathname) && return
     if ext == ".gif"
         # generate a colorpalette first so ffmpeg does not have to guess it
@@ -365,7 +366,6 @@ function render(
 
     # clear all CURRENT_* constants to not accidentally use a previous video when creating a new one
     empty_CURRENT_constants()
-    STARTED_RENDERING[1] = false
 
     # even if liveview = false, show the rendered gif in the cell output
     if isdefined(Main, :IJulia) && Main.IJulia.inited
