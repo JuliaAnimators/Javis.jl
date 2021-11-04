@@ -1,3 +1,40 @@
+@testset "delayed operations" begin
+    testvideo = Video(300, 300)
+    Background(1:31, (args...) -> begin
+        background("white")
+        sethue("black")
+    end)
+    ball1 = Object(1:31, JCircle(O, 10, color = "black", action = :fill), Point(-45, 0))
+    ball2 = Object(1:31, JCircle(O, 10, color = "blue", action = :fill), Point(0, 0))
+    act!(ball1, Action(1:31, anim_translate(Point(-45, 0), Point(45, 0))))
+    act!(ball2, Action(16:31, anim_translate(Javis.delayed_pos(ball1), Point(0, -45))))
+    mkdir("images/delayed/")
+    render(testvideo, tempdirectory = "images/delayed/", pathname = "")
+
+    testvideo = Video(300, 300)
+    Background(1:31, (args...) -> begin
+        background("white")
+        sethue("black")
+    end)
+    ball1 = Object(1:31, JCircle(O, 10, color = "black", action = :fill), Point(-45, 0))
+    ball2 = Object(1:31, JCircle(O, 10, color = "blue", action = :fill), Point(0, 0))
+    act!(ball1, Action(1:31, anim_translate(Point(-45, 0), Point(45, 0))))
+    act!(ball2, Action(16:31, anim_translate(Point(0, 0), Point(0, -45))))
+    mkdir("images/not_delayed/")
+    render(testvideo, tempdirectory = "images/not_delayed", pathname = "")
+
+    for frame in [1, 5, 14, 24, 30]
+        png_name = lpad(frame, 10, "0")
+        @test_reference "images/delayed/$(png_name).png" load(
+            "images/not_delayed/$(png_name).png",
+        )
+    end
+
+    rm("images/not_delayed", recursive = true)
+    rm("images/delayed", recursive = true)
+end
+
+
 
 @testset "delayedposition Translation" begin
     testvideo = Video(300, 300)
@@ -16,9 +53,7 @@
     end
 
     for i in readdir("images", join = true)
-        if endswith(i, ".png")
-            rm(i)
-        end
+        endswith(i, ".png") && rm(i)
     end
 end
 
