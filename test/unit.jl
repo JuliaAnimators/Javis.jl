@@ -376,9 +376,11 @@
         sethue("white")
         scale(2)
         setline(5)
-        line(O, Point(100, 100), :stroke)
-
         setopacity(0.6)
+        line(O, Point(100, 100), :stroke)
+        setopacity(1.0)
+
+        scale(0.5)
         fontsize(15)
         text("Test", Point(0, -100))
 
