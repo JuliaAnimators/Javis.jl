@@ -357,4 +357,27 @@
         )
         @test scale_val(Point(-20, -10)) == Point(20, 10) # clamped
     end
+
+    @testset "Call luxor if not rendering" begin 
+        # should return true as currently not rendering
+        @test Javis.call_luxor_if_outside_rendering((test; abc=1)-> begin @test abc==2 end, 1; abc=2)
+    end
+
+    @testset "Normal Luxor Drawing" begin 
+        Drawing(600, 600, "images/test.png")
+        origin()
+        background("black")
+        sethue("white")
+        scale(2)
+        setline(5)
+        line(O, Point(100, 100), :stroke)
+
+        setopacity(0.6)
+        fontsize(15)
+        text("Test", Point(0, -100))
+        
+        finish()
+        @test_reference "refs/normal_luxor_drawing.png" load("images/test.png")
+        rm("images/test.png")
+    end
 end

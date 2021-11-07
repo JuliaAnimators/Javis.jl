@@ -1,5 +1,6 @@
 module Javis
 
+using Base: kwarg_decl
 using Animations
 import Cairo: CairoImageSurface, image
 using FFMPEG
@@ -204,6 +205,8 @@ end
 # finally objects
 flatten!(objects::Array{AbstractObject}, object::Object) = push!(objects, object)
 
+const CURRENTLY_RENDERING = [false]
+
 """
     render(
         video::Video;
@@ -253,6 +256,7 @@ function render(
     postprocess_frames_flow = identity,
     postprocess_frame = default_postprocess,
 )
+    CURRENTLY_RENDERING[1] = true
     layers = video.layers
     objects = video.objects
     frames = preprocess_frames!(video)
@@ -338,6 +342,7 @@ function render(
         filecounter += 1
     end
 
+    CURRENTLY_RENDERING[1] = false
     isempty(pathname) && return
     if ext == ".gif"
         # generate a colorpalette first so ffmpeg does not have to guess it
