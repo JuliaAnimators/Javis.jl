@@ -244,7 +244,14 @@ draws the text from left to right in the first 15 frames and in the last 15 fram
 - `angle::Float64` defaults to `0.0` and specifies the angle of the text
 """
 function text(str, pos = O; valign = :baseline, halign = :left, angle = 0.0)
-    call_luxor_if_outside_rendering(Luxor.text, str, pos; valign=valign, halign=halign, angle=angle) && return
+    call_luxor_if_outside_rendering(
+        Luxor.text,
+        str,
+        pos;
+        valign = valign,
+        halign = halign,
+        angle = angle,
+    ) && return
     object = CURRENT_OBJECT[1]
     opts = object.opts
     t = get(opts, :draw_text_t, 1.0)
