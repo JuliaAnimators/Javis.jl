@@ -338,7 +338,7 @@ function render(
         filecounter += 1
     end
 
-    if isempty(pathname) 
+    if isempty(pathname)
         # clear all CURRENT_* constants to not accidentally use a previous video when creating a new one
         empty_CURRENT_constants()
         return nothing
