@@ -385,7 +385,6 @@
         text("Test", Point(0, -100))
 
         finish()
-        @test_reference "refs/normal_luxor_drawing.png" load("images/test.png")
         rm("images/test.png")
     end
 end
