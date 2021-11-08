@@ -38,27 +38,27 @@ end
     @testset "Unit" begin
         include("unit.jl")
     end
-    # @testset "SVG LaTeX tests" begin
-    #     include("svg.jl")
-    # end
-    # @testset "Animations" begin
-    #     include("animations.jl")
-    # end
-    # @testset "Morphing" begin
-    #     include("morphing.jl")
-    # end
-    # @testset "Javis Viewer" begin
-    #     include("viewer.jl")
-    # end
-    # @testset "Shorthands" begin
-    #     include("shorthands.jl")
-    # end
-    # @testset "Layers" begin
-    #     include("layers.jl")
-    # end
-    # @testset "Postprocessing" begin
-    #     include("postprocessing.jl")
-    # end
+    @testset "SVG LaTeX tests" begin
+        include("svg.jl")
+    end
+    @testset "Animations" begin
+        include("animations.jl")
+    end
+    @testset "Morphing" begin
+        include("morphing.jl")
+    end
+    @testset "Javis Viewer" begin
+        include("viewer.jl")
+    end
+    @testset "Shorthands" begin
+        include("shorthands.jl")
+    end
+    @testset "Layers" begin
+        include("layers.jl")
+    end
+    @testset "Postprocessing" begin
+        include("postprocessing.jl")
+    end
     @testset "Delayed" begin
         include("delayed.jl")
     end
