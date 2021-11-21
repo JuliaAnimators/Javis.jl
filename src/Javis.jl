@@ -31,6 +31,16 @@ include("structs/GFrames.jl")
 include("structs/Frames.jl")
 include("structs/Scale.jl")
 
+# shorthands declarations
+include("shorthands/JLine.jl")
+include("shorthands/JCircle.jl")
+include("shorthands/JRect.jl")
+include("shorthands/JBox.jl")
+include("shorthands/JEllipse.jl")
+include("shorthands/JStar.jl")
+include("shorthands/JPoly.jl")
+include("shorthands/JShape.jl")
+
 """
     Transformation
 
@@ -52,6 +62,7 @@ Transformation(p, a) = Transformation(p, a, 1.0)
 Transformation(p, a, s::Float64) = Transformation(p, a, (s, s))
 Transformation(p, a, s::Tuple{Float64,Float64}) = Transformation(p, a, Scale(s...))
 
+include("structs/Interval.jl")
 include("structs/ObjectSetting.jl")
 include("structs/Object.jl")
 include("structs/Transitions.jl")
@@ -59,6 +70,8 @@ include("structs/Action.jl")
 include("structs/LayerSetting.jl")
 include("structs/LayerCache.jl")
 include("structs/Layer.jl")
+include("structs/LinearScale.jl")
+include("structs/objects/CoordinateSystem.jl")
 
 """
     Line
@@ -96,15 +109,16 @@ end
 
 include("layers.jl")
 include("util.jl")
+include("objects/CoordinateSystem.jl")
 include("scales.jl")
 include("luxor_overrides.jl")
-include("backgrounds.jl")
 include("svg2luxor.jl")
 include("morphs.jl")
 include("action_animations.jl")
 include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
+
 
 """
     projection(p::Point, l::Line)
@@ -715,16 +729,6 @@ for func in names(Luxor; imported = true)
     end
 end
 
-# shorthands declarations
-include("shorthands/JLine.jl")
-include("shorthands/JCircle.jl")
-include("shorthands/JRect.jl")
-include("shorthands/JBox.jl")
-include("shorthands/JEllipse.jl")
-include("shorthands/JStar.jl")
-include("shorthands/JPoly.jl")
-include("shorthands/JShape.jl")
-
 export render, latex
 export Video, Object, Background, Action, RFrames, GFrames
 export @JLayer, background
@@ -744,7 +748,8 @@ export JBox, JCircle, JEllipse, JLine, JPoly, JRect, JStar, @JShape
 export setline, setopacity, fontsize, get_fontsize, scale, text
 export setup_stream, cancel_stream
 
-# scales
-export scale_linear, @scale_layer
+# scales and coordinate system
+export coordinate_system, scale_linear, @scale_layer
+
 
 end

@@ -1,6 +1,9 @@
 # Javis.jl - Changelog
 - Fix bug that would make frames <= 0 throw error.
 
+## Unreleased
+- `coordinate_system` to draw a cartesian coordinate system
+
 ## v0.7.1 (28th of September 2021)
 - added `scale_linear` function to easily scale values or points
 - added `@scale_layer` to transform a layer based on a given linear scale

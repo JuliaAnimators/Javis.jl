@@ -42,7 +42,7 @@ end
     act!(red_ball, Action(anim_rotate_around(from_rot, to_rot, O)))
 
     blue_ball = Object(1:25, (args...) -> circ(O, "blue"), p2)
-    act!(blue_ball, Action(anim_rotate_around(to_rot, from_rot, red_ball)))
+    act!(blue_ball, Action(GFrames(1:25), anim_rotate_around(to_rot, from_rot, red_ball)))
     path_red =
         Object(1:25, (video, args...) -> path!(path_of_red, get_position(red_ball), "red"))
     path_blue =
@@ -196,15 +196,27 @@ end
 
 @testset "Drawing grid" begin
     video = Video(500, 500)
-    Object(1:40, ground_black_on_white; in_global_layer = true)
-    Object(1:10, draw_grid(direction = "BL", line_gap = 25))
-    Object(zero_lines(direction = "BL", line_thickness = 10))
-    Object(GFrames(11:20), draw_grid(direction = "BR", line_gap = 25))
-    Object(zero_lines(direction = "BR", line_thickness = 10))
-    Object(RFrames(10), draw_grid(direction = "TL", line_gap = 25))
-    Object(zero_lines(direction = "TL", line_thickness = 10))
-    Object(RFrames(10), draw_grid(direction = "TR", line_gap = 25))
-    Object(zero_lines(direction = "TR", line_thickness = 10))
+    w2 = video.width / 2
+    h2 = video.height / 2
+
+    Background(1:40, ground_black_on_white)
+
+    cs = coordinate_system(
+        Point(-w2, 0),
+        Point(w2, 0),
+        Point(0, h2),
+        Point(0, -h2);
+        mainwidth = 10,
+        step_size_x = 25,
+        step_size_y = 25,
+        gridwidth = 1,
+    )
+    cs_obj = Object(1:40, cs())
+
+    act!(cs_obj, Action(1:10, appear(cs, :bottom_left)))
+    act!(cs_obj, Action(11:20, appear(cs, :bottom_right)))
+    act!(cs_obj, Action(21:30, appear(cs, :top_left)))
+    act!(cs_obj, Action(31:40, appear(cs, :top_right)))
 
     render(video; tempdirectory = "images", pathname = "")
 
@@ -212,6 +224,78 @@ end
     @test_reference "refs/grid_drawing_br.png" load("images/0000000018.png")
     @test_reference "refs/grid_drawing_tl.png" load("images/0000000028.png")
     @test_reference "refs/grid_drawing_tr.png" load("images/0000000038.png")
+    for i in 1:40
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
+@testset "Destruction of grid" begin
+    video = Video(500, 500)
+    w2 = video.width / 2
+    h2 = video.height / 2
+
+    Background(1:40, ground_black_on_white)
+
+    cs = coordinate_system(
+        Point(-w2, 0),
+        Point(w2, 0),
+        Point(0, h2),
+        Point(0, -h2);
+        mainwidth = 10,
+        step_size_x = 25,
+        step_size_y = 25,
+        gridwidth = 1,
+    )
+    cs_obj = Object(1:40, cs())
+
+    act!(cs_obj, Action(1:10, disappear(cs, :top_right); keep = false))
+    act!(cs_obj, Action(11:20, disappear(cs, :top_left); keep = false))
+    act!(cs_obj, Action(21:30, disappear(cs, :bottom_right); keep = false))
+    act!(cs_obj, Action(31:40, disappear(cs, :bottom_left); keep = false))
+
+    render(video; tempdirectory = "images", pathname = "")
+
+    @test_reference "refs/grid_drawing_bl.png" load("images/0000000003.png")
+    @test_reference "refs/grid_drawing_br.png" load("images/0000000013.png")
+    @test_reference "refs/grid_drawing_tl.png" load("images/0000000023.png")
+    @test_reference "refs/grid_drawing_tr.png" load("images/0000000033.png")
+    for i in 1:40
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
+@testset "Drawing grid blue main and red grid" begin
+    video = Video(500, 500)
+    w2 = video.width / 2
+    h2 = video.height / 2
+
+    Background(1:40, ground_black_on_white)
+
+    cs = coordinate_system(
+        Point(-w2, 0),
+        Point(w2, 0),
+        Point(0, h2),
+        Point(0, -h2);
+        mainwidth = 10,
+        step_size_x = 25,
+        step_size_y = 25,
+        gridwidth = 1,
+        maincolor = "blue",
+        gridcolor = "red",
+    )
+    cs_obj = Object(1:40, cs())
+
+    act!(cs_obj, Action(1:10, appear(cs, :bottom_left)))
+    act!(cs_obj, Action(11:20, appear(cs, :bottom_right)))
+    act!(cs_obj, Action(21:30, appear(cs, :top_left)))
+    act!(cs_obj, Action(31:40, appear(cs, :top_right)))
+
+    render(video; tempdirectory = "images", pathname = "")
+
+    @test_reference "refs/grid_drawing_bl_blue_red.png" load("images/0000000008.png")
+    @test_reference "refs/grid_drawing_br_blue_red.png" load("images/0000000018.png")
+    @test_reference "refs/grid_drawing_tl_blue_red.png" load("images/0000000028.png")
+    @test_reference "refs/grid_drawing_tr_blue_red.png" load("images/0000000038.png")
     for i in 1:40
         rm("images/$(lpad(i, 10, "0")).png")
     end
@@ -829,6 +913,53 @@ end
     end
     rm("images/with_mapping/", recursive = true)
     rm("images/without_mapping/", recursive = true)
+end
+
+@testset "Grid with sinewave" begin
+    function sine_curve(mapping, left, right; cleft = left, cright = right, xshift = 0.0)
+        @JShape begin
+            @scale_layer mapping begin
+                x = collect(cleft:0.1:cright)
+                y = sin.(x .+ xshift)
+                circle.(Point.(x, y), 0.02, :fill)
+            end
+        end cleft = cleft cright = cright xshift = xshift
+    end
+
+    function sine_wave_on_grid(xstart, xend, ystart, yend, fname; xshift = 0.0)
+        vid = Video(500, 500)
+        nframes = 1
+        Background(1:nframes, ground)
+
+        coord_size_x = 400
+        coord_size_y = 200
+        mapping = scale_linear(
+            Point(xstart, ystart),
+            Point(xend, yend),
+            Point(-coord_size_x / 2, coord_size_y / 2),
+            Point(coord_size_x / 2, -coord_size_y / 2),
+        )
+        cs = coordinate_system(mapping; fct = arrow, step_size_x = 1, step_size_y = 1)
+
+        cs_obj = Object(1:nframes, cs())
+        sin_obj = Object(1:nframes, sine_curve(mapping, xstart, xend; xshift = xshift))
+
+        render(vid; tempdirectory = "images/", pathname = "")
+
+        png_name = lpad("1", 10, "0")
+        @test_reference "refs/grid_sine_$fname.png" load("images/$png_name.png")
+
+        for i in 1:nframes
+            rm("images/$(lpad(i, 10, "0")).png")
+        end
+    end
+
+    sine_wave_on_grid(-5, 5, -1, 1, "origin")
+    sine_wave_on_grid(1, 5, -1, 1, "left")
+    sine_wave_on_grid(-5, -1, -1, 1, "right")
+    sine_wave_on_grid(0.5, 2, 0.4, 1.2, "bottom")
+    sine_wave_on_grid(-2, -0.5, -1.2, -0.4, "top")
+    sine_wave_on_grid(-1, 1, 0, 1, "center_below"; xshift = π / 2)
 end
 
 @testset "test layer vs nonlayer actions" begin

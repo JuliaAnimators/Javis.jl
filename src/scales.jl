@@ -1,11 +1,3 @@
-struct LinearScale{T}
-    fmin::T
-    fmax::T
-    tmin::T
-    tmax::T
-    clamp::Bool
-end
-
 """
     scale_linear(fmin, fmax, tmin, tmax; clamp=true)
 
@@ -24,28 +16,52 @@ scale_point(Point(7,8)) # returns Point(70, 80)
 ```
 """
 function scale_linear(fmin, fmax, tmin, tmax; clamp = true)
-    return LinearScale(fmin, fmax, tmin, tmax, clamp)
+    return LinearScale(Interval(fmin, fmax), Interval(tmin, tmax), clamp)
 end
 
-function (ls::LinearScale)(x)
-    if ls.clamp
-        # clamp needs the values in low high order
-        x = clamp(x, min(ls.fmin, ls.fmax), max(ls.fmin, ls.fmax))
-    end
-    return (x - ls.fmin) / (ls.fmax - ls.fmin) * (ls.tmax - ls.tmin) + ls.tmin
+function scale_linear(fmin, fmax, cs::CoordinateSystem; kwargs...)
+    tmin = Point(cs.left.x, cs.bottom.y)
+    tmax = Point(cs.right.x, cs.top.y)
+    return scale_linear(fmin, fmax, tmin, tmax; kwargs...)
 end
 
-function (ls::LinearScale{T})(p::Point) where {T<:Point}
-    px = p.x
-    py = p.y
-    if ls.clamp
+function oned_linear_scale(
+    input::Interval{T},
+    output::Interval{T},
+    x::T;
+    clamp = true,
+) where {T}
+    if clamp
         # clamp needs the values in low high order
-        px = clamp(px, min(ls.fmin.x, ls.fmax.x), max(ls.fmin.x, ls.fmax.x))
-        py = clamp(py, min(ls.fmin.y, ls.fmax.y), max(ls.fmin.y, ls.fmax.y))
+        imin = min(input.from, input.to)
+        imax = max(input.from, input.to)
+        x = Base.clamp(x, imin, imax)
     end
-    nx = (px - ls.fmin.x) / (ls.fmax.x - ls.fmin.x) * (ls.tmax.x - ls.tmin.x) + ls.tmin.x
-    ny = (py - ls.fmin.y) / (ls.fmax.y - ls.fmin.y) * (ls.tmax.y - ls.tmin.y) + ls.tmin.y
-    return Point(nx, ny)
+    return (x - input.from) / (input.to - input.from) * (output.to - output.from) +
+           output.from
+end
+
+function (ls::LinearScale{T})(x::T; clamp = true) where {T}
+    return oned_linear_scale(ls.input, ls.output, x; clamp = clamp && ls.clamp)
+end
+
+function (ls::LinearScale{T})(p::T; clamp = true) where {T<:Point}
+    int_xinput = Interval(ls.input.from.x, ls.input.to.x)
+    int_yinput = Interval(ls.input.from.y, ls.input.to.y)
+
+    int_xoutput = Interval(ls.output.from.x, ls.output.to.x)
+    int_youtput = Interval(ls.output.from.y, ls.output.to.y)
+
+    xoutput = oned_linear_scale(int_xinput, int_xoutput, p.x; clamp = clamp && ls.clamp)
+    youtput = oned_linear_scale(int_yinput, int_youtput, p.y; clamp = clamp && ls.clamp)
+
+    return Point(xoutput, youtput)
+end
+
+function scaling_factors(ls::LinearScale)
+    sx = (ls.output.to.x - ls.output.from.x) / (ls.input.to.x - ls.input.from.x)
+    sy = (ls.output.to.y - ls.output.from.y) / (ls.input.to.y - ls.input.from.y)
+    return sx, sy
 end
 
 macro scale_layer(scale_mapping, body)
@@ -53,19 +69,14 @@ macro scale_layer(scale_mapping, body)
         quote
             @layer begin
                 # compute the center of both rectangles
-                fcenterx = ($scale_mapping.fmax.x + $scale_mapping.fmin.x) / 2
-                fcentery = ($scale_mapping.fmax.y + $scale_mapping.fmin.y) / 2
+                fcenterx = ($scale_mapping.input.to.x + $scale_mapping.input.from.x) / 2
+                fcentery = ($scale_mapping.input.to.y + $scale_mapping.input.from.y) / 2
 
-                tcenterx = ($scale_mapping.tmax.x + $scale_mapping.tmin.x) / 2
-                tcentery = ($scale_mapping.tmax.y + $scale_mapping.tmin.y) / 2
+                tcenterx = ($scale_mapping.output.to.x + $scale_mapping.output.from.x) / 2
+                tcentery = ($scale_mapping.output.to.y + $scale_mapping.output.from.y) / 2
 
                 # scale in x and y
-                sx =
-                    ($scale_mapping.tmax.x - $scale_mapping.tmin.x) /
-                    ($scale_mapping.fmax.x - $scale_mapping.fmin.x)
-                sy =
-                    ($scale_mapping.tmax.y - $scale_mapping.tmin.y) /
-                    ($scale_mapping.fmax.y - $scale_mapping.fmin.y)
+                sx, sy = Javis.scaling_factors($scale_mapping)
                 Luxor.scale(sx, sy)
 
                 # translate such that inputting the center from the "from mapping" is at 0,0
