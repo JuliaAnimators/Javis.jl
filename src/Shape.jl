@@ -220,8 +220,13 @@ function print_basic(s::Shape)
     println("#Holes: $(length(s.subpaths))")
 end
 
+"""
+    prepare_to_interpolate(from_shape, to_shape, style)
 
-function prepare_to_interpolate(from_shape, to_shape)
+Determines the way in which shapes are morphed to one another by manipulating the mapping of respective points
+of each shape. 
+"""
+function prepare_to_interpolate(from_shape, to_shape, style)
     # match number of points for outer polygon
     from_outer, to_outer = match_num_points(from_shape.points, to_shape.points)
 
@@ -238,6 +243,11 @@ function prepare_to_interpolate(from_shape, to_shape)
     # rotate outer polygon
     rotate_i, _ = compute_shortest_morphing_dist(from_outer, to_outer)
     new_from_outer = circshift(from_outer, -rotate_i + 1)
+
+    if style == :mode1
+        new_from_outer =
+            circshift(reverse!(new_from_outer), floor(Int, -length(new_from_outer) / 2.6)) # found this to work best
+    end
 
     new_from_holes = Vector{Vector{Point}}()
 

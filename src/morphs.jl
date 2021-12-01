@@ -1,7 +1,7 @@
 include("Shape.jl")
 
 """
-    morph_to(to_func::Function; object=:stroke)
+    morph_to(to_func::Function; style=:default, object=:stroke)
 
 A closure for the [`_morph_to`](@ref) function.
 This makes it easier to write the function inside an `Object`.
@@ -11,6 +11,7 @@ It especially does not work with functions which produce more than one polygon
 or which produce filled polygons.
 Blending between fills of polygons is definitely coming at a later stage.
 
+To get a more visually appealing morphing one can try setting `style = :long`.
 **Important:** The functions itself should not draw the polygon
 i.e. use `circle(Point(100,100), 50)` instead of `circle(Point(100,100), 50, :stroke)`
 
@@ -19,6 +20,7 @@ i.e. use `circle(Point(100,100), 50)` instead of `circle(Point(100,100), 50, :st
                        which will be displayed at the end of the Object
 
 # Keywords
+- `style::Symbol` Sets the style of morphing
 - `do_action::Symbol` defines whether the object has a fill or just a stroke. Defaults to `:stroke`.
 
 # Example
@@ -37,14 +39,21 @@ circle_obj = Object(11:20, acirc)
 act!(circle_obj, Action(:same, morph_to(astar)))
 ```
 """
-function morph_to(to_func::Function; do_action = :stroke)
-    return (video, object, action, frame) ->
-        _morph_to(video, object, action, frame, to_func; do_action = do_action)
+function morph_to(to_func::Function; style = :default, do_action = :stroke)
+    return (video, object, action, frame) -> _morph_to(
+        video,
+        object,
+        action,
+        frame,
+        to_func;
+        style = style,
+        do_action = do_action,
+    )
 end
 
 
 """
-    _morph_to(video::Video, object::Object, action::Action, frame, to_func::Function; do_action=:stroke)
+    _morph_to(video::Video, object::Object, action::Action, frame, to_func::Function; style=:default, do_action=:stroke)
 
 Internal version of [`morph_to`](@ref) but described there.
 """
@@ -54,6 +63,7 @@ function _morph_to(
     action::Action,
     frame,
     to_func::Function;
+    style = :default,
     do_action = :stroke,
 )
     if frame == last(get_frames(action))
@@ -79,6 +89,7 @@ function _morph_to(
             frame,
             from_polys,
             to_polys;
+            style = style,
             do_action = do_action,
         )
     end
@@ -87,7 +98,7 @@ end
 """
     morph_between(video::Video, action::Action, frame,
         from_polys::Vector{Vector{Point}}, to_polys::Vector{Vector{Point}};
-        do_action=:stroke)
+        style=:default, do_action=:stroke)
 
 Internal version of [`morph_to`](@ref) after the from poly is defined.
 """
@@ -97,6 +108,7 @@ function morph_between(
     frame,
     from_polys::Vector{Vector{Point}},
     to_polys::Vector{Vector{Point}};
+    style = :default,
     do_action = :stroke,
 )
     cs = get_current_setting()
@@ -104,7 +116,7 @@ function morph_between(
 
     # computation of the polygons and the best way to morph in the first frame
     if frame == first(get_frames(action))
-        save_morph_polygons!(action, from_polys, to_polys)
+        save_morph_polygons!(action, from_polys, to_polys, style)
     end
 
     # obtain the computed polygons. These polygons have the same number of points.
@@ -228,7 +240,7 @@ end
 
 """
     save_morph_polygons!(action::Action, from_func::Vector{Vector{Point}},
-                                         to_func::Vector{Vector{Point}})
+                                         to_func::Vector{Vector{Point}}, style::Symbol)
 
 Calls the functions to polygons and calls [`match_num_points`](@ref)
 such that both polygons have the same number of points.
@@ -241,6 +253,7 @@ function save_morph_polygons!(
     action::Action,
     from_polys::Vector{Vector{Point}},
     to_polys::Vector{Vector{Point}},
+    style::Symbol,
 )
     # delete polygons with less than 2 points
     for i in length(from_polys):-1:1
@@ -292,7 +305,7 @@ function save_morph_polygons!(
                 )
             end
         else
-            from_shape, to_shape = prepare_to_interpolate(from_shape, to_shape)
+            from_shape, to_shape = prepare_to_interpolate(from_shape, to_shape, style)
 
             push!(action.defs[:from_shape], from_shape)
             push!(action.defs[:to_shape], to_shape)

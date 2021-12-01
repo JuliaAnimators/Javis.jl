@@ -19,11 +19,15 @@
 - Added layers tutorial
 - Added fix that allows to use several `act!` on a `Layer` without strange behavior
 
+## Unreleased
+- Add new morhping mode
+
 ## v0.6.2 (12th of August 2021)
 - added `@Frames` macro for full power mode of defining frames
 - bugfix in `@JLayer` when dimensions are not defined explicitly
 - allow color interpolation in `change`
 - bugfix `color` can be a non string value in `JBox`
+
 
 ## v0.6.1 (7th of August 2021)
 - Add shorthands for basic shapes

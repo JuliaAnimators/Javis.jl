@@ -157,6 +157,7 @@ end
     end
 end
 
+
 @testset "Morphing mutates the object" begin
     function ground(args...)
         background("black")
@@ -212,6 +213,33 @@ end
     end
 
     for i in 1:200
+        rm("images/$(lpad(i, 10, "0")).png")
+    end
+end
+
+@testset "Morphing modes" begin
+    function ground(args...)
+        background("black")
+        sethue("white")
+    end
+
+    astar(args...; do_action = :stroke) = star(O, 50, 5, 0.5, 0, do_action)
+    abox(args...; do_action = :stroke) = rect(-150, -150, 100, 100, do_action)
+    acirc(args...; do_action = :stroke) = circle(Point(0, 0), 50, do_action)
+
+    video = Video(500, 500)
+    back = Background(1:50, ground)
+    star_obj = Object(1:50, astar)
+    box_obj = Object(1:50, abox)
+    act!(star_obj, Action(5:20, morph_to(acirc, style = :mode1)))
+    act!(box_obj, Action(30:50, morph_to(astar, style = :mode1)))
+    render(video; tempdirectory = "images", pathname = "")
+
+    for i in [5, 10, 15, 19, 20, 21, 30, 35, 40, 45, 49, 50]
+        @test_reference "refs/morph_modes$i.png" load("images/$(lpad(i, 10, "0")).png")
+    end
+
+    for i in 1:50
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
