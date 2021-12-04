@@ -1,5 +1,8 @@
 # Javis.jl - Changelog
+
+## v0.7.2 (4th of December 2021)
 - Fix bug that would make frames <= 0 throw error.
+- Compat: Allow Images v0.25
 
 ## v0.7.1 (28th of September 2021)
 - added `scale_linear` function to easily scale values or points
