@@ -10,7 +10,7 @@ jobs:
       matrix:
         version:
           - '1.5'
-          - '1.6'
+          - '1.7'
         os:
           - ubuntu-latest
           - macOS-latest
@@ -51,7 +51,7 @@ jobs:
       - run: sudo apt-get install xvfb && Xvfb :99 &
       - uses: julia-actions/setup-julia@v1
         with:
-          version: '1.6'
+          version: '1.7'
       - run: |
           julia --project=docs -e '
             using Pkg
