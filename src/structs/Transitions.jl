@@ -31,9 +31,9 @@ anim_translate(x::Real, y::Real) = anim_translate(Point(x, y))
 anim_translate(tp::Point) = Translation(O, tp)
 anim_translate(fp::Union{Object,Point}, tp::Union{Object,Point}) = Translation(fp, tp)
 
-struct Rotation{T<:Real} <: AbstractTransition
-    from::T
-    to::T
+struct Rotation <: AbstractTransition
+    from::Real
+    to::Real
     center::Union{Nothing,Point,AbstractObject}
 end
 
