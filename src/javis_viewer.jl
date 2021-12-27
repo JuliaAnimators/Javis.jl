@@ -239,52 +239,6 @@ function _javis_viewer(
 end
 
 """
-    _jupyter_viewer(video::Video, frames::Int, actions::Vector)
-Creates an interactive viewer in a Jupyter Notebook.
-"""
-function _jupyter_viewer(
-    video::Video,
-    frames::Int,
-    objects::Vector{AbstractObject},
-    framerate::Int,
-)
-    t = Interact.textbox(1:frames, value = 1, typ = Int)
-    f = Interact.slider(1:frames, label = "Frame", value = t)
-    obs = Interact.Observables.throttle(1 / framerate, f)
-    output = @map get_javis_frame(video, objects, &obs; layers = video.layers)
-    wdg = Widget(["f" => f, "t" => t], output = output)
-    @layout! wdg vbox(hbox(:f, :t), output)
-end
-
-function Base.show(io::IO, ::MIME"image/png", v::PlutoViewer)
-    write(io, read(v.filename))
-end
-
-"""
-    _pluto_viewer(video::Video, frames::Int, actions::Vector)
-Creates an interactive viewer in a Pluto Notebook by storing all the frames in-memory
-```
-# In separate Pluto notebook cells
-using PlutoUI
-
-anim = render(
-    video;
-    pathname = "loading.gif",liveview=true
-);
-
-@bind x Slider(1:1:frames)
-
-anim[x]
-```
-"""
-function _pluto_viewer(video::Video, frames::Int, objects::Vector;)
-    arr = collect(
-        get_javis_frame(video, objects, frame; layers = video.layers) for frame in 1:frames
-    )
-    return arr
-end
-
-"""
     setup_stream(livestreamto=:local; protocol="udp", address="0.0.0.0", port=14015, twitch_key="")
 
 Sets up the livestream configuration.
