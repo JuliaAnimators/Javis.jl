@@ -261,11 +261,10 @@ function render(
 
     if liveview
         if isdefined(Main, :IJulia) && Main.IJulia.inited
-            return video, length(frames), objects, framerate
+            return _jupyter_viewer(video, length(frames), objects, framerate)
 
         elseif isdefined(Main, :PlutoRunner)
-            return video, length(frames), objects
-
+            return _pluto_viewer(video, length(frames), objects)
         else
             _javis_viewer(video, length(frames), objects)
             return "Live Preview Started"
@@ -363,6 +362,12 @@ function render(
     # clear all CURRENT_* constants to not accidentally use a previous video when creating a new one
     empty_CURRENT_constants()
 
+    # even if liveview = false, show the rendered gif in the cell output
+    if isdefined(Main, :IJulia) && Main.IJulia.inited
+        display(MIME("text/html"), """<img src="$(pathname)">""")
+    elseif isdefined(Main, :PlutoRunner)
+        return PlutoViewer(pathname)
+    end
     return pathname
 end
 
