@@ -214,6 +214,8 @@ flatten!(objects::Array{AbstractObject}, object::Object) = push!(objects, object
         tempdirectory="",
         ffmpeg_loglevel="panic",
         rescale_factor=1.0,
+        postprocess_frame=identity,
+        postprocess_frames_flow=default_postprocess
     )
 
 Renders all previously defined [`Object`](@ref) drawings to the user-defined `Video` as a gif or mp4.
