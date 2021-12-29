@@ -240,26 +240,29 @@ function ground_nicholas(args...)
     setline(3)
 end
 
-function house_of_nicholas(; p1 = O, width = 100, color = "black")
+function house_of_nicholas(; p1 = O, width = 10, scale_factor = 10, color = "black")
     # sethue(color)
     #     .p1
     # .p2   .p3
     #
     # .p4   .p5
-    width2 = div(width, 2)
-    p2 = p1 + Point(-width2, width2)
-    p3 = p1 + Point(width2, width2)
-    p4 = p2 + Point(0, width)
-    p5 = p3 + Point(0, width)
-    line(p4, p5, :stroke)
-    line(p5, p2, :stroke)
-    line(p2, p4, :stroke)
-    line(p4, p3, :stroke)
-    line(p3, p1, :stroke)
-    line(p1, p2, :stroke)
-    line(p2, p3, :stroke)
-    setline(8)
-    line(p3, p5, :stroke)
+    sl = scale_linear(O, Point(1, 1), O, Point(scale_factor, scale_factor); clamp = false)
+    @scale_layer sl begin
+        width2 = div(width, 2)
+        p2 = p1 + Point(-width2, width2)
+        p3 = p1 + Point(width2, width2)
+        p4 = p2 + Point(0, width)
+        p5 = p3 + Point(0, width)
+        line(p4, p5, :stroke)
+        line(p5, p2, :stroke)
+        line(p2, p4, :stroke)
+        line(p4, p3, :stroke)
+        line(p3, p1, :stroke)
+        line(p1, p2, :stroke)
+        line(p2, p3, :stroke)
+        setline(8)
+        line(p3, p5, :stroke)
+    end
 end
 
 @testset "House of Nicholas line_width" begin
@@ -716,6 +719,118 @@ end
     @test_logs (:error,) render(video; pathname = "test.mp3")
 end
 
+@testset "@scale_layer vs mapping" begin
+    function dots_mapping(mapping, pts)
+        @JShape begin
+            @scale_layer mapping begin
+                circle.(pts, 0.1, :fill)
+            end
+        end
+    end
+
+    function dots(pts)
+        @JShape begin
+            circle.(pts, 3, :fill)
+        end
+    end
+
+    from_bls = [O, Point(1, 1), Point(-1, -1), Point(-1, 1)]
+    from_trs = [Point(10, 10), O, Point(10, 5)]
+    to_bls = [Point(10, 10), O]
+
+
+    for (from_bl, from_tr) in zip(from_bls, from_trs)
+        for to_bl in to_bls
+            diam = from_tr - from_bl
+            factor = 30
+            to_tr = to_bl + factor * diam
+            vid = Video(500, 500)
+
+            mapping = scale_linear(from_bl, from_tr, to_bl, to_tr)
+
+            nframes = 1
+            Background(1:nframes, ground)
+            dot_pos = [O]
+            Object(1:nframes, dots_mapping(mapping, dot_pos))
+
+            render(vid, tempdirectory = "images/with_mapping", pathname = "")
+
+            vid = Video(500, 500)
+
+            nframes = 1
+            Background(1:nframes, ground)
+            dot_pos = mapping.(dot_pos)
+            Object(1:nframes, dots(dot_pos))
+
+            render(vid, tempdirectory = "images/without_mapping", pathname = "")
+
+            for frame in [1]
+                png_name = lpad(string(frame), 10, "0")
+                @test_reference "images/with_mapping/$png_name.png" load(
+                    "images/without_mapping/$png_name.png",
+                )
+            end
+
+            for i in 1:1
+                rm("images/with_mapping/$(lpad(i, 10, "0")).png")
+                rm("images/without_mapping/$(lpad(i, 10, "0")).png")
+            end
+            rm("images/with_mapping/", recursive = true)
+            rm("images/without_mapping/", recursive = true)
+        end
+    end
+end
+
+@testset "@scale_layer center origin" begin
+    function dots_mapping(pts)
+        @JShape begin
+            mapping = scale_linear(O, Point(5, 5), Point(50, -50), Point(200, -200))
+
+            @scale_layer mapping begin
+                circle.(pts, 0.1, :fill)
+            end
+        end
+    end
+
+    function dots(pts)
+        @JShape begin
+            circle.(pts, 3, :fill)
+        end
+    end
+
+    vid = Video(500, 500)
+
+    nframes = 1
+    Background(1:nframes, ground)
+    dot_pos = [Point(i, i) for i in 0:5]
+    Object(1:nframes, dots_mapping(dot_pos))
+
+    render(vid, tempdirectory = "images/with_mapping", pathname = "")
+
+    vid = Video(500, 500)
+
+    nframes = 1
+    Background(1:nframes, ground)
+    dot_pos = [Point(50 + 30i, -50 - 30i) for i in 0:5]
+    Object(1:nframes, dots(dot_pos))
+
+    render(vid, tempdirectory = "images/without_mapping", pathname = "")
+
+    for frame in [1]
+        png_name = lpad(string(frame), 10, "0")
+        @test_reference "images/with_mapping/$png_name.png" load(
+            "images/without_mapping/$png_name.png",
+        )
+    end
+
+    for i in 1:1
+        rm("images/with_mapping/$(lpad(i, 10, "0")).png")
+        rm("images/without_mapping/$(lpad(i, 10, "0")).png")
+    end
+    rm("images/with_mapping/", recursive = true)
+    rm("images/without_mapping/", recursive = true)
+end
+
 @testset "test layer vs nonlayer actions" begin
     function act_all!(a)
         act!(a, Action(1:70, anim_translate(Point(50, 50))))
@@ -784,4 +899,5 @@ end
     end
     rm("images/with_layer/", recursive = true)
     rm("images/without_layer/", recursive = true)
+
 end

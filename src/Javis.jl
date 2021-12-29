@@ -96,6 +96,7 @@ end
 
 include("layers.jl")
 include("util.jl")
+include("scales.jl")
 include("luxor_overrides.jl")
 include("backgrounds.jl")
 include("svg2luxor.jl")
@@ -233,6 +234,12 @@ Streaming to Twitch or other platforms are not yet supported.
     - Can be used if there are errors with ffmpeg. Defaults to panic:
     All other options are described here: https://ffmpeg.org/ffmpeg.html
 - `rescale_factor::Float64` factor to which the frames should be rescaled for faster rendering
+- `postprocess_frame::Function` function that is applied to the imagematrix of each frame after they have been computed 
+takes as argument `frame_image, frame, frames`, useful to apply a postprocessing e.g. blur to all or some 
+of the images. By default it is the identity and nothing happens.
+- `postprocess_frames_flow::Function` function that is applied to the vector of the frames indices should return a new vector 
+where elements are a subset of the number of frames. Useful to reorder the frames, e.g. reverse the video with 
+`postprocess_frames_flow=reverse`. By default it is the identity and nothing happens.
 """
 function render(
     video::Video;
@@ -243,6 +250,8 @@ function render(
     tempdirectory = "",
     ffmpeg_loglevel = "panic",
     rescale_factor = 1.0,
+    postprocess_frames_flow = identity,
+    postprocess_frame = default_postprocess,
 )
     layers = video.layers
     objects = video.objects
@@ -272,20 +281,51 @@ function render(
         tempdirectory = mktempdir()
     end
 
+    # Create a template useful in case of postprocessing
+    frame_template = _convert_and_rescale_if_needed(
+        get_javis_frame(video, objects, first(frames); layers = layers),
+        rescale_factor,
+    )
+
+    # Check if postprocess_frames_flow is ill defined
+    original_frames = copy(frames)
+    frames = postprocess_frames_flow(frames)
+    if !issubset(frames, original_frames)
+        error(
+            "postprocess_frames_flow should return a vector of frame indices contained in the original number of frames",
+        )
+    end
+
+    # Memoization container for postprocessing
+    frames_memory = Dict{Int,Matrix{RGB{N0f8}}}()
+
+    # helps to check if the video is already being rendered in mp4 case
+    started_encoding_video = false
+
     filecounter = 1
     @showprogress 1 "Rendering frames..." for frame in frames
-        frame_image = convert.(RGB, get_javis_frame(video, objects, frame; layers = layers))
-        # rescale the frame for faster rendering if the rescale_factor is not 1
-        if !isone(rescale_factor)
-            new_size = trunc.(Int, size(frame_image) .* rescale_factor)
-            frame_image = imresize(frame_image, new_size)
-        end
+        frame_image = _postprocess(
+            video,
+            objects,
+            frame,
+            layers = layers,
+            frames_memory = frames_memory,
+            postprocess_frame = postprocess_frame,
+            frame_template = frame_template,
+            filecounter = filecounter,
+            frames = frames,
+            rescale_factor = rescale_factor,
+        )
 
         if !isempty(tempdirectory)
             Images.save("$(tempdirectory)/$(lpad(filecounter, 10, "0")).png", frame_image)
         end
         if render_mp4
-            if frame == first(frames)
+            if !isa(frame_image, Matrix{RGB{N0f8}})
+                frame_image = convert.(RGB{N0f8}, frame_image)
+            end
+            if !started_encoding_video
+                started_encoding_video = true
                 video_io = open_video_out(
                     pathname,
                     frame_image,
@@ -704,5 +744,8 @@ export JBox, JCircle, JEllipse, JImage, JLine, JPoly, JRect, JStar, @JShape
 # custom override of luxor extensions
 export setline, setopacity, fontsize, get_fontsize, scale, text
 export setup_stream, cancel_stream
+
+# scales
+export scale_linear, @scale_layer
 
 end
