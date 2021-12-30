@@ -712,6 +712,20 @@ end
     rm(pathname)
 end
 
+@testset "test angle numerical types" begin
+    video = Video(100, 100)
+    Background(1:10, ground)
+    p = Object(1:10, (args...) -> circle(O, 50, :fill))
+    p2 = Object(1:10, (args...) -> circle(O, 50, :fill))
+    aa = (0.0, 0, π) 
+    for fa in aa, ta in aa 
+        @test typeof(act!(p, Action(1:10, anim_rotate(fa, ta)))) ==
+              Array{Javis.AbstractAction, 1}
+        @test typeof(act!(p2, Action(1:10, anim_rotate_around(fa, ta, p)))) ==
+              Array{Javis.AbstractAction, 1} 
+    end
+end
+
 @testset "test @error .mp3" begin
     video = Video(500, 500)
     Background(1:10, ground)
