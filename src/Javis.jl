@@ -1,7 +1,7 @@
 module Javis
 
 using Animations
-import Cairo: CairoImageSurface, image
+import Cairo: CairoImageSurface, CairoSurfaceBase, image
 using FFMPEG
 using Gtk
 using GtkReactive
