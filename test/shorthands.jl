@@ -148,6 +148,7 @@ video = Video(800, 800)
     rm("shorthands.gif")
 end
 
+video = Video(800, 800)
 @testset "Image Placement" begin
     function ground(args...)
         background("white")
@@ -160,7 +161,7 @@ end
         1:5,
         JImage(
             O,
-            readpng("image.png"),
+            readpng("refs/dispatch.png"),
             true;
             shape = circle,
             shapeargs = nothing,
@@ -171,7 +172,7 @@ end
         1:10,
         JImage(
             O,
-            readpng("image.png"),
+            readpng("refs/dispatch.png"),
             true;
             shape = poly,
             shapeargs = nothing,
@@ -182,7 +183,7 @@ end
         1:15,
         JImage(
             O,
-            readpng("image.png"),
+            readpng("refs/dispatch.png"),
             true;
             shape = rect,
             shapeargs = nothing,
@@ -193,7 +194,7 @@ end
         1:20,
         JImage(
             O,
-            readpng("image.png"),
+            readpng("refs/dispatch.png"),
             true;
             shape = star,
             shapeargs = nothing,
@@ -204,7 +205,7 @@ end
         1:25,
         JImage(
             O,
-            readpng("image.png"),
+            readpng("refs/dispatch.png"),
             true;
             shape = ellipse,
             shapeargs = nothing,
@@ -215,7 +216,7 @@ end
         1:30,
         JImage(
             O,
-            readpng("image.png"),
+            readpng("refs/dispatch.png"),
             true;
             shape = box,
             shapeargs = nothing,
