@@ -53,7 +53,7 @@ act!(obj, Action(1:50, anim_rotate(2π)))
 
 # Options
 - `anim_rotate(ta::Real)` define the end angle of the rotation
-- `anim_rotate(fa::T, ta::T)` define the from and end angle
+- `anim_rotate(fa::Real, ta::Real)` define the from and end angle
 
 """
 anim_rotate(ta::Real) = Rotation(0.0, ta, nothing)
@@ -74,7 +74,7 @@ act!(obj, Action(1:50, anim_rotate_around(2π, O)))
 
 # Options
 - `anim_rotate_around(ta::Real, p)` define the end angle of the rotation + the rotation center.
-- `anim_rotate_around(fa::T, ta::T, p)` define the from and end angle + the rotation center.
+- `anim_rotate_around(fa::Real, ta::Real, p)` define the from and end angle + the rotation center.
 
 """
 anim_rotate_around(ta::Real, p) = Rotation(0.0, ta, p)
