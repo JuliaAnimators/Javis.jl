@@ -1,8 +1,7 @@
 # Javis.jl - Changelog
 
 ## Unreleased
-- Fix bug that would make frames <= 0 throw error.
-- Updated to Luxor v2.18 with bugfix in simplify method
+- Fix bug that would make frames <= 0 throw error
 
 ## v0.7.1 (28th of September 2021)
 - added `scale_linear` function to easily scale values or points
