@@ -717,12 +717,15 @@ end
     Background(1:10, ground)
     p = Object(1:10, (args...) -> circle(O, 50, :fill))
     p2 = Object(1:10, (args...) -> circle(O, 50, :fill))
-    aa = (0.0, 0, π) 
-    for fa in aa, ta in aa 
-        @test typeof(act!(p, Action(1:10, anim_rotate(fa, ta)))) ==
-              Array{Javis.AbstractAction, 1}
-        @test typeof(act!(p2, Action(1:10, anim_rotate_around(fa, ta, p)))) ==
-              Array{Javis.AbstractAction, 1} 
+    aa = (0.0, 0, π, 0.0f0)
+    for fa in aa, ta in aa
+        rot = anim_rotate(fa, ta)
+        @test typeof(rot.from) == typeof(rot.to)
+        @test rot.center === nothing
+
+        rot = anim_rotate_around(fa, ta, p)
+        @test typeof(rot.from) == typeof(rot.to)
+        @test rot.center == p
     end
 end
 
