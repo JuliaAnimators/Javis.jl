@@ -1,6 +1,6 @@
 # Javis.jl - Changelog
 
-## Unreleased
+## v0.7.2 (2nd of January 2022)
 - Fix bug that would make frames <= 0 throw error
 - Allow integer and irrational angles in rotation
 - Compat: Allow Images v0.25
