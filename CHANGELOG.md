@@ -3,6 +3,7 @@
 ## Unreleased
 - Fix bug that would make frames <= 0 throw error
 - Allow integer and irrational angles in rotation
+- Compat: Allow Images v0.25
 - Compat: Allow ImageIO v0.6
 
 ## v0.7.1 (28th of September 2021)
