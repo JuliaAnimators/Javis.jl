@@ -1,3 +1,5 @@
+# TODO: Add scaling logic for each shape; see https://github.com/JuliaAnimators/Javis.jl/pull/399#issuecomment-1003549900 for details on what to do
+
 function _JImage(pos, img, centering, shapeargs, shape, scaleargs)
     if !isnothing(shape)
         shape(shapeargs...)
