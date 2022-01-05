@@ -148,14 +148,15 @@ video = Video(800, 800)
     rm("shorthands.gif")
 end
 
-video = Video(800, 800)
-@testset "Image Placement" begin
+video = Video(400, 400)
+origin(Point(200, 200))
+@testset "JImage for J-Objects" begin
     function ground(args...)
         background("white")
         sethue("black")
     end
 
-    Background(1:90, ground)
+    Background(1:30, ground)
 
     circle_img = Object(
         1:5,
@@ -164,76 +165,83 @@ video = Video(800, 800)
             readpng("refs/dispatch.png"),
             true;
             shape = circle,
-            shapeargs = nothing,
+            shapeargs = (pt = O, r = 40, action = :clip),
             scaleargs = 1,
         ),
     )
     poly_img = Object(
-        1:10,
+        6:10,
         JImage(
             O,
             readpng("refs/dispatch.png"),
             true;
             shape = poly,
-            shapeargs = nothing,
-            scaleargs = 1,
-        ),
-    )
-    rect_img = Object(
-        1:15,
-        JImage(
-            O,
-            readpng("refs/dispatch.png"),
-            true;
-            shape = rect,
-            shapeargs = nothing,
-            scaleargs = 1,
-        ),
-    )
-    star_img = Object(
-        1:20,
-        JImage(
-            O,
-            readpng("refs/dispatch.png"),
-            true;
-            shape = star,
-            shapeargs = nothing,
-            scaleargs = 1,
-        ),
-    )
-    ellipse_img = Object(
-        1:25,
-        JImage(
-            O,
-            readpng("refs/dispatch.png"),
-            true;
-            shape = ellipse,
-            shapeargs = nothing,
+            shapeargs = (
+                pointlist = [
+                    Point(-100, 0),
+                    Point(0, -100),
+                    Point(100, 0),
+                    Point(80, 100),
+                    Point(-80, 100),
+                ],
+                action = :clip,
+            ),
             scaleargs = 1,
         ),
     )
     box_img = Object(
-        1:30,
+        11:15,
         JImage(
             O,
             readpng("refs/dispatch.png"),
             true;
             shape = box,
-            shapeargs = nothing,
+            shapeargs = (points = [O, Point(-100, -100)], action = :clip),
+            scaleargs = 1,
+        ),
+    )
+    star_img = Object(
+        16:20,
+        JImage(
+            O,
+            readpng("refs/dispatch.png"),
+            true;
+            shape = star,
+            shapeargs = (
+                center = O,
+                radius = 100,
+                npoints = 5,
+                ratio = 0.5,
+                orientation = 0,
+                action = :clip,
+            ),
+            scaleargs = 1,
+        ),
+    )
+    ellipse_img = Object(
+        21:25,
+        JImage(
+            O,
+            readpng("refs/dispatch.png"),
+            true;
+            shape = ellipse,
+            shapeargs = (cpt = O, w = 200, h = 100, action = :clip),
             scaleargs = 1,
         ),
     )
 
     render(video; tempdirectory = "images", pathname = "shorthands.gif")
 
-    for i in ["01", 20, 21, 39, 40, 59, 65, 85]
-        @test_reference "refs/shorthands$i.png" load("images/00000000$i.png")
-        @test isfile("shorthands.gif")
+    # TODO: Unpack this as individual tests rather than loop
+    for i in ["01", "06", 11, 16, 21]
+        @test_reference "refs/jimage$i.png" load("images/00000000$i.png")
+        # @test isfile("shorthands.gif")
     end
 
-    for i in 1:90
-        rm("images/$(lpad(i, 10, "0")).png")
-    end
+    # TODO: Add tests for scaling
+    # for i in 1:90
+        # rm("images/$(lpad(i, 10, "0")).png")
+    # end
 
     rm("images/palette.png")
     rm("shorthands.gif")
