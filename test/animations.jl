@@ -712,6 +712,23 @@ end
     rm(pathname)
 end
 
+@testset "test angle numerical types" begin
+    video = Video(100, 100)
+    Background(1:10, ground)
+    p = Object(1:10, (args...) -> circle(O, 50, :fill))
+    p2 = Object(1:10, (args...) -> circle(O, 50, :fill))
+    aa = (0.0, 0, π, 0.0f0)
+    for fa in aa, ta in aa
+        rot = anim_rotate(fa, ta)
+        @test typeof(rot.from) == typeof(rot.to)
+        @test rot.center === nothing
+
+        rot = anim_rotate_around(fa, ta, p)
+        @test typeof(rot.from) == typeof(rot.to)
+        @test rot.center == p
+    end
+end
+
 @testset "test @error .mp3" begin
     video = Video(500, 500)
     Background(1:10, ground)
