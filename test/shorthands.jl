@@ -232,11 +232,11 @@ origin(Point(200, 200))
 
     render(video; tempdirectory = "images", pathname = "shorthands.gif")
 
-    # TODO: Unpack this as individual tests rather than loop
-    for i in ["01", "06", 11, 16, 21]
-        @test_reference "refs/jimage$i.png" load("images/00000000$i.png")
-        # @test isfile("shorthands.gif")
-    end
+    @test_reference "refs/jimage01.png" load("images/0000000001.png")
+    @test_reference "refs/jimage06.png" load("images/0000000006.png")
+    @test_reference "refs/jimage11.png" load("images/0000000011.png")
+    @test_reference "refs/jimage16.png" load("images/0000000016.png")
+    @test_reference "refs/jimage21.png" load("images/0000000021.png")
 
     # TODO: Add tests for scaling
     # for i in 1:90
