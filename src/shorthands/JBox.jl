@@ -117,3 +117,73 @@ JBox(
         color = color,
         action = action,
     ) -> _JBox(pt, width, height, cornerradius, color, action)
+
+"""
+TODO: Add documentation
+"""
+JBox(
+    pt::Point,
+    width::Real,
+    height::Real,
+    color = "",
+    action = :stroke,
+    vertices::Bool = false,
+    image_path::String = "",
+    scale_factor::Symbol = :inset,
+) =
+    (
+        args...;
+        pt = pt,
+        width = width,
+        height = height,
+        color = color,
+        action = action,
+        vertices = vertices,
+        image_path = image_path,
+        scale_factor = scale_factor,
+    ) -> _JBox(pt, width, height, color, action, vertices, image_path, scale_factor)
+
+function _JBox(
+    pt::Point,
+    width::Real,
+    height::Real,
+    color,
+    action::Symbol,
+    vertices::Bool,
+    image_path::String,
+    scale_factor::Symbol,
+)
+    bbox = BoundingBox(box(pt, width, height, :path, vertices = vertices))
+
+    if !isnothing(color)
+        sethue(color)
+        box(pt, width, height, :fill, vertices = vertices)
+    end
+
+    img = readpng(image_path)
+
+    if scale_factor == :inset
+        boxside = max(boxwidth(bbox), boxheight(bbox))
+        imageside = max(img.width, img.height)
+
+        scaling = boxside / imageside
+
+        box(bbox, :clip)
+
+        translate(boxmiddlecenter(bbox))
+        scale(scaling)
+    elseif scale_factor == :clip
+        boxside = min(boxwidth(bbox), boxheight(bbox))
+        imageside = min(img.width, img.height)
+
+        box(bbox, :clip)
+
+        scaling = boxside / imageside
+
+        translate(boxmiddlecenter(bbox))
+        scale(scaling)
+    end
+
+    placeimage(img, pt, centered = true)
+    return Point(pt.x - width / 2, pt.y + height / 2)
+end
