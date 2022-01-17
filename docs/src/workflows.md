@@ -30,9 +30,11 @@ Sometimes the Viewer can be slow on some computers if it is handling a large ani
 If this is the case, currently, the best way to handle this is to fully render the animation and save it to a file for previewing.
 In the future, we will add a caching feature for the Viewer such that all frames are pre-rendered for the Viewer so one can quickly view each frame.
 
-## Working with Pluto and Jupyter Notebooks
+## Working with Pluto and Jupyter Notebooks 📓
 
-There is now `JavisNB` a very simple support package to make `Javis` work within `Pluto` and `Jupyter`. Check the [documentation](https://juliaanimators.github.io/JavisNB.jl/stable) to learn how it works!
+`Javis` has the ability to work completely within [Jupyter](https://jupyter.org) and [Pluto](https://github.com/fonsp/Pluto.jl) notebooks!
+It uses the package, [`JavisNB`](https://juliaanimators.github.io/JavisNB.jl/stable), within the JuliaAnimators ecosystem to enable very simple support for Jupyter and Pluto.
+Please see the [documentation for JavisNB](https://juliaanimators.github.io/JavisNB.jl/stable) to learn how it works and to use it!
 
 ## Live Streaming
 
