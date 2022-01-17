@@ -1,5 +1,9 @@
 # Javis.jl - Changelog
 
+## v0.8.0 (17th of January 2022)
+- Migrated Javis notebook tools to JavisNB
+	- In order to use Javis within notebooks (i.e. Jupyter and Pluto notebooks), please refer to [JavisNB](https://juliaanimators.github.io/JavisNB/)
+
 ## v0.7.2 (2nd of January 2022)
 - Fix bug that would make frames <= 0 throw error
 - Allow integer and irrational angles in rotation
