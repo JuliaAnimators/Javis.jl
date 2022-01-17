@@ -95,3 +95,70 @@ JEllipse(
         linewidth = linewidth,
         action = action,
     ) -> _JEllipse(focus1, focus2, pt, color, linewidth, action, stepvalue, reversepath)
+
+
+"""
+TODO: Add documentation
+"""
+JEllipse(
+    cpt::Point,
+    w::Real,
+    h::Real,
+    color = "black",
+    linewidth = 1,
+    action = :stroke,
+    image_path::String = "",
+    scale_factor::Symbol = :inset,
+) =
+    (
+        args...;
+        cpt = cpt,
+        w = w,
+        h = h,
+        color = color,
+        linewidth = linewidth,
+        action = action,
+        image_path = image_path,
+        scale_factor = scale_factor,
+    ) -> _JEllipse(cpt, w, h, color, linewidth, action, image_path, scale_factor)
+
+function _JEllipse(
+    cpt::Point,
+    w::Real,
+    h::Real,
+    color,
+    linewidth,
+    action::Symbol,
+    image_path::String = "",
+    scale_factor = :inset,
+)
+
+    bbox = BoundingBox(ellipse(O, w, h, :path))
+
+    if !isnothing(color)
+        sethue(color)
+	ellipse(O, w, h, :fill)
+    end
+
+    img = readpng(image_path)
+
+    if scale_factor == :inset
+	inset_radius = minimum([w, h]) / 2
+	bbox = BoundingBox(circle(O, inset_radius, :path))
+        boxside = max(boxwidth(bbox), boxheight(bbox))
+        imageside = max(img.width, img.height)
+        circle(O, inset_radius, :clip)
+    elseif scale_factor == :clip
+        boxside = min(boxwidth(bbox), boxheight(bbox))
+        imageside = min(img.width, img.height)
+        ellipse(O, 200, 100, :clip)
+    end
+
+    scalefactor = boxside / imageside
+
+    translate(boxmiddlecenter(bbox))
+    scale(scalefactor)
+    placeimage(img, centered = true)
+    return cpt
+end
+
