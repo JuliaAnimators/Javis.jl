@@ -264,8 +264,7 @@ function render(
             return video, length(frames), objects
 
         else
-            _javis_viewer(video, length(frames), objects)
-            return "Live Preview Started"
+            return video, length(frames), objects
         end
     end
 
@@ -733,7 +732,6 @@ export JBox, JCircle, JEllipse, JLine, JPoly, JRect, JStar, @JShape
 
 # custom override of luxor extensions
 export setline, setopacity, fontsize, get_fontsize, scale, text
-export setup_stream, cancel_stream
 
 # scales
 export scale_linear, @scale_layer
