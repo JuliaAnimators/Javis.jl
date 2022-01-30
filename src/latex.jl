@@ -175,6 +175,13 @@ function tex2svg(text::LaTeXString)
     write(f,text)
     write(f,"\n"*post)
   end
-  run(`latexmk -f -cd -pdf /tmp/javislatex.tex`) 
-  read(`dvisvgm --stdout --pdf  /tmp/javislatex.pdf`,String)
+  #sometimes latex returns 1,so we use success instead of run ; but pdf is made so its okay 
+  stat = success(`latex  --interaction=nonstopmode --output-dir=/tmp/ --output-format=pdf /tmp/javislatex.tex` ) 
+  if stat
+    @warn "there maybe error in processing latex"
+  end
+  retstring = read(`dvisvgm -n --stdout --pdf  /tmp/javislatex.pdf`,String)
+  success(`rm /tmp/javislatex.pdf`)
+  return retstring
+
 end
