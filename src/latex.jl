@@ -162,9 +162,10 @@ function get_latex_svg(text::LaTeXString)
     return svg
 end
 
-function tex2svg(text::LaTeXString)
+function tex2svg(text::LaTeXString;latexcmd="latex",packages=[])
+  packagestring = "{amssymb,amsmath"*join(packages,",")*"}"
   pre="\\documentclass[preview]{standalone}
-  \\usepackage{amssymb, amsmath}
+  \\usepackage$packagestring
   
   \\begin{document}
   "
@@ -175,6 +176,7 @@ function tex2svg(text::LaTeXString)
     write(f,text)
     write(f,"\n"*post)
   end
-  run(`latexmk -f -cd -pdf /tmp/javislatex.tex`) 
-  read(`dvisvgm --stdout --pdf  /tmp/javislatex.pdf`,String)
+  run(`$latexcmd -f -cd  /tmp/javislatex.tex`) 
+  # -n draws glyphs using path
+  read(`dvisvgm -n --stdout  /tmp/javislatex.dvi`,String)
 end
