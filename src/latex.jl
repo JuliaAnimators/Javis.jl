@@ -162,7 +162,27 @@ function get_latex_svg(text::LaTeXString)
     return svg
 end
 
-function tex2svg(text::LaTeXString,packages=[])
+function tex2svg(text::LaTeXString;packages=[],output_dir="./.TeXfolder")
+  """
+  generates svg from TeX;
+  default folder placed is ./.TeXfolder,
+  pdf's and aux files are deleted , tex and log files and other files remain
+  add LaTeX packages in `packages=[]`
+
+  .TexFolder might grow really fast,
+  Dont forget to clear it after you've uploaded that hour long youtube video
+  explaining n-dimensional fourier transforms with a hell-lot-a sweet - sweet 
+  animated LaTeX, 
+  """
+  try
+    mkdir(output_dir)
+  catch e
+    if isa(e,Base.IOError)
+      nothing
+    else
+      throw(e)
+    end
+  end
   packagestring = "{amssymb, amsmath"*join(packages,",")*"}"
   #println(packagestring)
   pre="\\documentclass[preview]{standalone}
@@ -172,19 +192,21 @@ function tex2svg(text::LaTeXString,packages=[])
   "
   post = "\\end{document}
   "
-  open("/tmp/javislatex.tex","w") do f
+  uid = string(uuid1())
+  open("$output_dir/javislatex_$uid.tex","w") do f
     write(f,pre*"\n")
     write(f,text)
     write(f,"\n"*post)
   end
-  #sometimes latex returns 1,so we use success instead of run ; but pdf is made so its okay 
-  stat = success(`latex  --interaction=nonstopmode --output-dir=/tmp/ --output-format=pdf /tmp/javislatex.tex` ) 
-  #stat = success(`latexmk  -interaction=nonstopmode  -pdf -cd -f /tmp/javislatex.tex` ) 
+  #mkdir if not exist
+  #sometimes latex returns 1,so we use `success` instead of `run`; but pdf is made so its okay 
+  stat = success(`latex  --interaction=nonstopmode --output-dir=$output_dir --output-format=pdf $output_dir/javislatex_$uid.tex` ) 
   if stat
-    @warn "there maybe error in processing latex"
+    @warn "there maybe errors in processing latex, check $uid.log for details"
   end
-  retstring = read(`dvisvgm -n --stdout --pdf  /tmp/javislatex.pdf`,String)
-  success(`rm /tmp/javislatex.pdf`)
+  retstring = read(`dvisvgm -n --stdout --pdf  $output_dir/javislatex_$uid.pdf`,String)
+  success(`rm $output_dir/javislatex_$uid.pdf`)
+  success(`rm $output_dir/javislatex_$uid.aux`)
   return retstring
 
 end
