@@ -91,6 +91,7 @@ function draw_obj(::Val{:path}, o, defs)
     for pi in 1:length(data_parts)
         p = data_parts[pi]
         command, args = p[1], p[2:end]
+        args = replace(args, "-"=>" -")
         if command != 'T'
             counter = 0
         end
@@ -120,6 +121,19 @@ function draw_obj(::Val{:path}, o, defs)
             new_pt = Point(c_pt.x, parse(Float64, args))
             line(new_pt)
             l_pt, c_pt = c_pt, new_pt
+        elseif command == 'C'
+            #println("processing command C with args ", args...)
+            control_pt1 = parse.(Float64,split(args))[1:2]
+            control_pt2 = parse.(Float64,split(args))[3:4]
+            endpt = parse.(Float64,split(args))[5:6]
+            curve(control_pt1...,control_pt2...,endpt...)
+            l_pt,c_pt = Point(control_pt2...),Point(endpt...)
+        elseif command == 'S'
+            control_pt1 = l_pt + 2 * (c_pt - l_pt)
+            control_pt2 = parse.(Float64,split(args))[1:2]
+            endpt = parse.(Float64,split(args))[3:4]
+            curve(control_pt1...,control_pt2...,endpt...)
+            l_pt,c_pt = Point(control_pt2...) , Point(endpt...)
         elseif command == 'Z'
             closepath()
         else
@@ -254,11 +268,15 @@ function pathsvg(svg)
     fsize = get_current_setting().fontsize
     xdoc = parse_string(svg)
     xroot = root(xdoc)
-    def_element = get_elements_by_tagname(xroot, "defs")[1]
-    # create a dict for all the definitions
     defs = Dict{String,Any}()
-    for def in collect(child_elements(def_element))
-        defs[attribute(def, "id")] = def
+    try
+      def_element = get_elements_by_tagname(xroot, "defs")[1]
+      #create a dict for all the definitions
+      for def in collect(child_elements(def_element))
+          defs[attribute(def, "id")] = def
+      end
+    catch e
+      #@warn "no defs"
     end
     x, y, width, height = parse.(Float64, split(attribute(xroot, "viewBox")))
     # remove ex in the end
