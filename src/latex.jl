@@ -139,24 +139,42 @@ end
 
 # \todo update LaTeXSVG cache to use output of strip_eq as the key. See https://github.com/JuliaAnimators/Javis.jl/pull/307#issuecomment-749616375
 function get_latex_svg(text::LaTeXString)
-    # check if it's cached
+    #check if it's cached
     if haskey(LaTeXSVG, text)
         svg = LaTeXSVG[text]
     else
-        ts = replace(strip_eq(text), "\n" => " ")
-        command = if Sys.iswindows()
-            `cmd /C tex2svg $ts`
-        else
-            `tex2svg $ts`
-        end
-        try
-            svg = read(command, String)
-        catch e
-            @warn "Using LaTeX needs the program `tex2svg` which might not be installed"
-            @info "It can be installed using `npm install -g mathjax-node-cli`"
-            throw(e)
-        end
+        #ts = replace(strip_eq(text), "\n" => " ")
+        #command = if Sys.iswindows()
+        #    `cmd /C tex2svg $ts`
+        #else
+        #    `tex2svg $ts`
+        #end
+        #try
+        #    svg = read(command, String)
+        #catch e
+        #    @warn "Using LaTeX needs the program `tex2svg` which might not be installed"
+        #    @info "It can be installed using `npm install -g mathjax-node-cli`"
+        #    throw(e)
+        #end
+        svg = tex2svg(text) 
         LaTeXSVG[text] = svg
     end
     return svg
+end
+
+function tex2svg(text::LaTeXString)
+  pre="\\documentclass[preview]{standalone}
+  \\usepackage{amssymb, amsmath}
+  
+  \\begin{document}
+  "
+  post = "\\end{document}
+  "
+  open("/tmp/javislatex.tex","w") do f
+    write(f,pre*"\n")
+    write(f,text)
+    write(f,"\n"*post)
+  end
+  run(`latexmk -f -cd -pdf /tmp/javislatex.tex`) 
+  read(`dvisvgm --stdout --pdf  /tmp/javislatex.pdf`,String)
 end
