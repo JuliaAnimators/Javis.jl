@@ -162,9 +162,11 @@ function get_latex_svg(text::LaTeXString)
     return svg
 end
 
-function tex2svg(text::LaTeXString)
+function tex2svg(text::LaTeXString,packages=[])
+  packagestring = "{amssymb, amsmath"*join(packages,",")*"}"
+  #println(packagestring)
   pre="\\documentclass[preview]{standalone}
-  \\usepackage{amssymb, amsmath}
+  \\usepackage$packagestring
   
   \\begin{document}
   "
@@ -177,6 +179,7 @@ function tex2svg(text::LaTeXString)
   end
   #sometimes latex returns 1,so we use success instead of run ; but pdf is made so its okay 
   stat = success(`latex  --interaction=nonstopmode --output-dir=/tmp/ --output-format=pdf /tmp/javislatex.tex` ) 
+  #stat = success(`latexmk  -interaction=nonstopmode  -pdf -cd -f /tmp/javislatex.tex` ) 
   if stat
     @warn "there maybe error in processing latex"
   end
