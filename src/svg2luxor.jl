@@ -288,8 +288,11 @@ function pathsvg(svg)
         # such that we can scale half of a font size (size of a lower letter)
         # with the corresponding height of the svg canvas
         # and the ex_height given in it's description
-        scale((fsize / 2) / (height / ex_height))
-        translate(-x, -y)
+        scale((fsize / 12) / (height / ex_height))
+        #sclae(ex_height/heigh)
+        #scale( fsize/12)#, fsize/12 )
+        #println(x,y)
+        #translate(-x, -y)
 
         for child in collect(child_elements(xroot))
             sym_name = Symbol(name(child))

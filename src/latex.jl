@@ -185,7 +185,7 @@ function tex2svg(text::LaTeXString;packages=[],output_dir="./.TeXfolder")
   end
   packagestring = "{amssymb, amsmath"*join(packages,",")*"}"
   #println(packagestring)
-  pre="\\documentclass[preview]{standalone}
+  pre="\\documentclass[12pt]{standalone}
   \\usepackage$packagestring
   
   \\begin{document}
@@ -205,6 +205,9 @@ function tex2svg(text::LaTeXString;packages=[],output_dir="./.TeXfolder")
     @warn "there maybe errors in processing latex, check $uid.log for details"
   end
   retstring = read(`dvisvgm -n --stdout --pdf  $output_dir/javislatex_$uid.pdf`,String)
+  open("$output_dir/javislatex_$uid.svg","w") do f
+    write(f,retstring)
+  end
   success(`rm $output_dir/javislatex_$uid.pdf`)
   success(`rm $output_dir/javislatex_$uid.aux`)
   return retstring
