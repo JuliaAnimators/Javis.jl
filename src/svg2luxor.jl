@@ -255,7 +255,7 @@ function svgwh(svg)
     # remove ex in the end
     ex_width = parse(Float64, attribute(xroot, "width")[1:(end - 2)])
     ex_height = parse(Float64, attribute(xroot, "height")[1:(end - 2)])
-    return (fsize / 2) .* (ex_width, ex_height)
+    return (fsize / 12) .* (ex_width, ex_height)
 end
 
 """
@@ -289,10 +289,7 @@ function pathsvg(svg)
         # with the corresponding height of the svg canvas
         # and the ex_height given in it's description
         scale((fsize / 12) / (height / ex_height))
-        #sclae(ex_height/heigh)
-        #scale( fsize/12)#, fsize/12 )
-        #println(x,y)
-        #translate(-x, -y)
+        translate(-x, -y)
 
         for child in collect(child_elements(xroot))
             sym_name = Symbol(name(child))
