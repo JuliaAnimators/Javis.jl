@@ -1,6 +1,5 @@
 module Javis
 
-using Base: kwarg_decl
 using Animations
 import Cairo: CairoImageSurface, image
 using FFMPEG
