@@ -1,5 +1,9 @@
 # Javis.jl - Changelog
 
+## v0.8.0 (1st of February 2022)
+- Allow Luxor v3.0
+- moved notebooks to extra repository [JavisNB](https://github.com/JuliaAnimators/JavisNB.jl)
+
 ## v0.7.2 (2nd of January 2022)
 - Fix bug that would make frames <= 0 throw error
 - Allow integer and irrational angles in rotation
