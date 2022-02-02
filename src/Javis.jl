@@ -18,6 +18,7 @@ using Random
 using Statistics
 using VideoIO
 using UUIDs
+using Infiltrator
 
 const FRAMES_SYMBOL = [:same, :all]
 
