@@ -83,6 +83,17 @@ function draw_obj(::Val{:path}, o, defs)
     counter = 0
 
     # split without loosing the command
+    stroke_width = check_stroke(o)
+    """if stroke_width is nothing , we are parsing a poly, else we are parsing a stroke
+    we will go along the stroke path and make an offset poly of stroke-width around the poly, the we traverse a path on that poly """
+
+    """This way svg-strokes with certain width are drawn in luxor"""
+    if stroke_width != nothing
+      path_so_far = storepath()
+      newpath()
+    end
+
+    
     data_parts = split(data, r"(?=[A-Za-z])")
     # needs to keep track of the current point `c_pt` and the last point `l_pt`
     l_pt = O
@@ -140,6 +151,21 @@ function draw_obj(::Val{:path}, o, defs)
             @warn "Couldn't parse the svg command: $command"
         end
     end
+
+    if stroke_width!=nothing
+      """if stroke_width! is nothing , we had a stroke attr in the path
+      which also means there was no Z command and our path exists
+      """
+      polyp =  poly(pathtopoly()...,:none)
+      if length(polyp)==2
+        insert!(polyp,2, (polyp[1]+polyp[2])/2 )
+      end
+      #@infiltrate 
+      offsetp = offsetpoly(polyp,startoffset=stroke_width,endoffset=stroke_width)
+      drawpath(path_so_far,:path)
+      poly(offsetp,:path,close=true)
+    end
+
 end
 
 
@@ -188,6 +214,19 @@ function set_attrs(o)
         sym = Symbol(name(attribute))
         set_attr(Val{sym}(), LightXML.value(attribute))
     end
+end
+
+function check_stroke(o)
+  """checks for stroke attribute , if exists and a stroke-width exists returns
+  value of stroke-width, else returns nothing
+  (although we probably could directly check for stroke-width???)
+  """
+  attrs = name.(attributes(o))
+  if "stroke" in attrs && "stroke-width" in attrs
+    return float_attribute(o,"stroke-width")
+  else
+    return nothing
+  end
 end
 
 """
