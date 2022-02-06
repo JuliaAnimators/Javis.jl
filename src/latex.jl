@@ -8,6 +8,8 @@ latex(text::LaTeXString, pos::Point, valign::Symbol, halign::Symbol) =
 latex(text::LaTeXString, x, y) = latex(text, Point(x, y), :stroke)
 latex(text::LaTeXString, x, y, valign::Symbol, halign::Symbol) =
     latex(text, Point(x, y), :stroke, valign = valign, halign = halign)
+latex(text::LaTeXString, x, y, valign::Symbol, halign::Symbol,packages::Vector{String}) =
+    latex(text, Point(x, y), :stroke, valign = valign, halign = halign,packages = packages)
 """
     latex(text::LaTeXString, pos::Point, object::Symbol; valign = :top, halign = :left)
 
@@ -74,15 +76,16 @@ function latex(
     draw_object::Symbol;
     valign = :top,
     halign = :left,
+    packages = [],
 )
     object = CURRENT_OBJECT[1]
     opts = object.opts
     t = get(opts, :draw_text_t, 1.0)
-    return animate_latex(text, pos, t, valign, halign, draw_object)
+    return animate_latex(text, pos, t, valign, halign, draw_object,packages)
 end
 
-function animate_latex(text, pos::Point, t, valign::Symbol, halign::Symbol, object)
-    svg = get_latex_svg(text)
+function animate_latex(text, pos::Point, t, valign::Symbol, halign::Symbol, object,packages=[])
+    svg = get_latex_svg(text,packages=packages)
     object == :stroke && (object = :fill)
 
     w, h = svgwh(svg)
@@ -138,7 +141,7 @@ function strip_eq(text::LaTeXString)
 end
 
 # \todo update LaTeXSVG cache to use output of strip_eq as the key. See https://github.com/JuliaAnimators/Javis.jl/pull/307#issuecomment-749616375
-function get_latex_svg(text::LaTeXString)
+function get_latex_svg(text::LaTeXString;packages=[])
     #check if it's cached
     if haskey(LaTeXSVG, text)
         svg = LaTeXSVG[text]
@@ -156,7 +159,7 @@ function get_latex_svg(text::LaTeXString)
         #    @info "It can be installed using `npm install -g mathjax-node-cli`"
         #    throw(e)
         #end
-        svg = tex2svg(text) 
+        svg = tex2svg(text,packages=packages) 
         LaTeXSVG[text] = svg
     end
     return svg
@@ -183,7 +186,8 @@ function tex2svg(text::LaTeXString;packages=[],output_dir="./.TeXfolder")
       throw(e)
     end
   end
-  packagestring = "{amssymb, amsmath,mathjax"*join(packages,",")*"}"
+  packagestring = "{amssymb, amsmath,"*join(packages,",")*"}"
+  #packagestring = "{amssymb, amsmath, mathjax}"#)*join(packages,",")*"}"
   #println(packagestring)
   pre="\\documentclass[preview]{standalone}
   \\usepackage$packagestring
