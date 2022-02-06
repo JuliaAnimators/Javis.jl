@@ -291,10 +291,18 @@ function svgwh(svg)
     fsize = get_current_setting().fontsize
     xdoc = parse_string(svg)
     xroot = root(xdoc)
-    # remove ex in the end
+    # remove ex in the end , or pt in the case of dvisvgm
     ex_width = parse(Float64, attribute(xroot, "width")[1:(end - 2)])
     ex_height = parse(Float64, attribute(xroot, "height")[1:(end - 2)])
-    return (fsize / 12) .* (ex_width, ex_height)
+
+    
+    #width and height are different in tex2svg and dvisvgm
+    #tex2svg uses em while dvisvgm uses pt
+    if LaTeXprog == :tex2svg
+      return (fsize / 2) .* (ex_width, ex_height)
+    elseif LaTeXprog == :dvisvgm
+      return (fsize / 12) .* (ex_width, ex_height)
+    end
 end
 
 """
@@ -327,7 +335,12 @@ function pathsvg(svg)
         # such that we can scale half of a font size (size of a lower letter)
         # with the corresponding height of the svg canvas
         # and the ex_height given in it's description
-        scale((fsize / 12) / (height / ex_height))
+        if LaTeXprog == :tex2svg
+          scale((fsize / 2) / (height / ex_height))
+        elseif LaTeXprog == :dvisvgm
+          scale((fsize / 12) / (height / ex_height))
+        end
+
         translate(-x, -y)
 
         for child in collect(child_elements(xroot))
