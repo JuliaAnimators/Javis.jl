@@ -2,6 +2,13 @@
 # this is also used for test cases such that `tex2svg` doesn't need to be installed on Github Objects
 include("latexsvgfile.jl")
 LaTeXusepackages=["amssymb","amsmath"]
+LaTeXprog=:tex2svg
+
+function setLaTeXprog(s::Symbol)
+  global LaTeXprog
+  LaTeXprog=s
+end
+
 latex(text::LaTeXString) = latex(text, O)
 latex(text::LaTeXString, pos::Point) = latex(text, pos, :stroke)
 latex(text::LaTeXString, pos::Point, valign::Symbol, halign::Symbol) =
@@ -141,24 +148,32 @@ end
 # \todo update LaTeXSVG cache to use output of strip_eq as the key. See https://github.com/JuliaAnimators/Javis.jl/pull/307#issuecomment-749616375
 function get_latex_svg(text::LaTeXString)
     #check if it's cached
+    """ for now the default is to use tex2svg, from mathjax
+    pass `Javis.setLaTeXprog(:dvisvgm)` to yse dvisvgm
+    """
+
     if haskey(LaTeXSVG, text)
         svg = LaTeXSVG[text]
     else
-        #ts = replace(strip_eq(text), "\n" => " ")
-        #command = if Sys.iswindows()
-        #    `cmd /C tex2svg $ts`
-        #else
-        #    `tex2svg $ts`
-        #end
-        #try
-        #    svg = read(command, String)
-        #catch e
-        #    @warn "Using LaTeX needs the program `tex2svg` which might not be installed"
-        #    @info "It can be installed using `npm install -g mathjax-node-cli`"
-        #    throw(e)
-        #end
+      if Javis.LaTeXprog==:tex2svg
+        ts = replace(strip_eq(text), "\n" => " ")
+        command = if Sys.iswindows()
+            `cmd /C tex2svg $ts`
+        else
+            `tex2svg $ts`
+        end
+        try
+            svg = read(command, String)
+        catch e
+            @warn "Using LaTeX needs the program `tex2svg` which might not be installed"
+            @info "It can be installed using `npm install -g mathjax-node-cli`,or if you have a TeX distribution installed try setting `setLaTeXprog(:dvisvgm)`"
+            throw(e)
+        end
+      elseif Javis.LaTeXprog==:dvisvgm
+        println("using dvisvgm")
         svg = tex2svg(text) 
-        LaTeXSVG[text] = svg
+      end
+      LaTeXSVG[text] = svg
     end
     return svg
 end
