@@ -202,7 +202,7 @@ function tex2svg(text::LaTeXString;output_dir="./.TeXfolder")
   #sometimes latex returns 1,so we use `success` instead of `run`; but pdf is made so its okay 
   stat = success(`latex  --interaction=nonstopmode --output-dir=$output_dir --output-format=pdf $output_dir/javislatex_$uid.tex` ) 
   if stat
-    @warn "there maybe errors in processing latex, check $uid.log for details"
+    @warn "there maybe errors in processing latex, check $output_dir/javislatex_$uid.log for details"
   end
   retstring = read(`dvisvgm -n --bbox=preview --stdout --pdf  $output_dir/javislatex_$uid.pdf`,String)
   open("$output_dir/javislatex_$uid.svg","w") do f
