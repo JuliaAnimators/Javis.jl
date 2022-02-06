@@ -1,7 +1,7 @@
 # cache such that creating svgs from LaTeX don't need to be created every time
 # this is also used for test cases such that `tex2svg` doesn't need to be installed on Github Objects
 include("latexsvgfile.jl")
-LaTeXusepackages=[]
+LaTeXusepackages=["amssymb","amsmath"]
 latex(text::LaTeXString) = latex(text, O)
 latex(text::LaTeXString, pos::Point) = latex(text, pos, :stroke)
 latex(text::LaTeXString, pos::Point, valign::Symbol, halign::Symbol) =
@@ -184,8 +184,7 @@ function tex2svg(text::LaTeXString;output_dir="./.TeXfolder")
       throw(e)
     end
   end
-  packagestring = "{amssymb, amsmath,"*join(LaTeXusepackages,",")*"}"
-  println(packagestring)
+  packagestring = "{"*join(LaTeXusepackages,",")*"}"
   pre="\\documentclass[preview]{standalone}
   \\usepackage$packagestring
   
