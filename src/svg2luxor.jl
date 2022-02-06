@@ -280,7 +280,17 @@ set_transform(t, args...) = @warn "Can't transform $t"
 set_attr(::Val{:href}, args...) = nothing
 set_attr(::Val{:d}, args...) = nothing
 set_attr(::Val{:id}, args...) = nothing
-set_attr(t, args...) = @warn "No attr match for $t"
+let shown_warning = []
+  """warn user only once of missing attr"""
+  global function set_attr(t, args...)
+    if t in shown_warning 
+      nothing
+    else
+      @warn "No attr match for $t"
+      push!(shown_warning,t)
+    end
+  end
+end
 
 """
     svgwh(svg)
