@@ -1,12 +1,12 @@
 # cache such that creating svgs from LaTeX don't need to be created every time
 # this is also used for test cases such that `tex2svg` doesn't need to be installed on Github Objects
 include("latexsvgfile.jl")
-LaTeXusepackages=["amssymb","amsmath"]
-LaTeXprog=:tex2svg
+LaTeXusepackages = ["amssymb", "amsmath"]
+LaTeXprog = :tex2svg
 
 function setLaTeXprog(s::Symbol)
-  global LaTeXprog
-  LaTeXprog=s
+    global LaTeXprog
+    LaTeXprog = s
 end
 
 latex(text::LaTeXString) = latex(text, O)
@@ -155,76 +155,81 @@ function get_latex_svg(text::LaTeXString)
     if haskey(LaTeXSVG, text)
         svg = LaTeXSVG[text]
     else
-      if Javis.LaTeXprog==:tex2svg
-        ts = replace(strip_eq(text), "\n" => " ")
-        command = if Sys.iswindows()
-            `cmd /C tex2svg $ts`
-        else
-            `tex2svg $ts`
+        if Javis.LaTeXprog == :tex2svg
+            ts = replace(strip_eq(text), "\n" => " ")
+            command = if Sys.iswindows()
+                `cmd /C tex2svg $ts`
+            else
+                `tex2svg $ts`
+            end
+            try
+                svg = read(command, String)
+            catch e
+                @warn "Using LaTeX needs the program `tex2svg` which might not be installed"
+                @info "It can be installed using `npm install -g mathjax-node-cli`,or if you have a TeX distribution installed try setting `setLaTeXprog(:dvisvgm)`"
+                throw(e)
+            end
+        elseif Javis.LaTeXprog == :dvisvgm
+            println("using dvisvgm")
+            svg = tex2svg(text)
         end
-        try
-            svg = read(command, String)
-        catch e
-            @warn "Using LaTeX needs the program `tex2svg` which might not be installed"
-            @info "It can be installed using `npm install -g mathjax-node-cli`,or if you have a TeX distribution installed try setting `setLaTeXprog(:dvisvgm)`"
-            throw(e)
-        end
-      elseif Javis.LaTeXprog==:dvisvgm
-        println("using dvisvgm")
-        svg = tex2svg(text) 
-      end
-      LaTeXSVG[text] = svg
+        LaTeXSVG[text] = svg
     end
     return svg
 end
 
-function tex2svg(text::LaTeXString;output_dir="./.TeXfolder")
-  """
-  generates svg from TeX;
-  default folder placed is ./.TeXfolder,
-  pdf's and aux files are deleted , tex and log files and other files remain
-  add LaTeX packages in `packages=[]`
+function tex2svg(text::LaTeXString; output_dir = "./.TeXfolder")
+    """
+    generates svg from TeX;
+    default folder placed is ./.TeXfolder,
+    pdf's and aux files are deleted , tex and log files and other files remain
+    add LaTeX packages in `packages=[]`
 
-  .TexFolder might grow really fast,
-  Dont forget to clear it after you've uploaded that hour long youtube video
-  explaining n-dimensional fourier transforms with a hell-lot-a sweet - sweet 
-  animated LaTeX, 
-  """
-  try
-    mkdir(output_dir)
-  catch e
-    if isa(e,Base.IOError)
-      nothing
-    else
-      throw(e)
+    .TexFolder might grow really fast,
+    Dont forget to clear it after you've uploaded that hour long youtube video
+    explaining n-dimensional fourier transforms with a hell-lot-a sweet - sweet 
+    animated LaTeX, 
+    """
+    try
+        mkdir(output_dir)
+    catch e
+        if isa(e, Base.IOError)
+            nothing
+        else
+            throw(e)
+        end
     end
-  end
-  packagestring = "{"*join(LaTeXusepackages,",")*"}"
-  pre="\\documentclass[12pt]{standalone}
-  \\usepackage$packagestring
-  
-  \\begin{document}
-  "
-  post = "\\end{document}
-  "
-  uid = string(uuid1())
-  open("$output_dir/javislatex_$uid.tex","w") do f
-    write(f,pre*"\n")
-    write(f,text)
-    write(f,"\n"*post)
-  end
-  #mkdir if not exist
-  #sometimes latex returns 1,so we use `success` instead of `run`; but pdf is made so its okay 
-  stat = success(`latex  --interaction=nonstopmode --output-dir=$output_dir --output-format=pdf $output_dir/javislatex_$uid.tex` ) 
-  if stat
-    @warn "there maybe errors in processing latex, check $output_dir/javislatex_$uid.log for details"
-  end
-  retstring = read(`dvisvgm -n --bbox=preview --stdout --pdf  $output_dir/javislatex_$uid.pdf`,String)
-  open("$output_dir/javislatex_$uid.svg","w") do f
-    write(f,retstring)
-  end
-  success(`rm $output_dir/javislatex_$uid.pdf`)
-  success(`rm $output_dir/javislatex_$uid.aux`)
-  return retstring
+    packagestring = "{" * join(LaTeXusepackages, ",") * "}"
+    pre = "\\documentclass[12pt]{standalone}
+      \\usepackage$packagestring
+
+      \\begin{document}
+      "
+    post = "\\end{document}
+    "
+    uid = string(uuid1())
+    open("$output_dir/javislatex_$uid.tex", "w") do f
+        write(f, pre * "\n")
+        write(f, text)
+        write(f, "\n" * post)
+    end
+    #mkdir if not exist
+    #sometimes latex returns 1,so we use `success` instead of `run`; but pdf is made so its okay 
+    stat = success(
+        `latex  --interaction=nonstopmode --output-dir=$output_dir --output-format=pdf $output_dir/javislatex_$uid.tex`,
+    )
+    if stat
+        @warn "there maybe errors in processing latex, check $output_dir/javislatex_$uid.log for details"
+    end
+    retstring = read(
+        `dvisvgm -n --bbox=preview --stdout --pdf  $output_dir/javislatex_$uid.pdf`,
+        String,
+    )
+    open("$output_dir/javislatex_$uid.svg", "w") do f
+        write(f, retstring)
+    end
+    success(`rm $output_dir/javislatex_$uid.pdf`)
+    success(`rm $output_dir/javislatex_$uid.aux`)
+    return retstring
 
 end

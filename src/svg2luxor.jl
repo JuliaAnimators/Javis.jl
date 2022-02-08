@@ -89,11 +89,11 @@ function draw_obj(::Val{:path}, o, defs)
 
     """This way svg-strokes with certain width are drawn in luxor"""
     if stroke_width != nothing
-      path_so_far = storepath()
-      newpath()
+        path_so_far = storepath()
+        newpath()
     end
 
-    
+
     data_parts = split(data, r"(?=[A-Za-z])")
     # needs to keep track of the current point `c_pt` and the last point `l_pt`
     l_pt = O
@@ -102,7 +102,7 @@ function draw_obj(::Val{:path}, o, defs)
     for pi in 1:length(data_parts)
         p = data_parts[pi]
         command, args = p[1], p[2:end]
-        args = replace(args, "-"=>" -")
+        args = replace(args, "-" => " -")
         if command != 'T'
             counter = 0
         end
@@ -134,17 +134,17 @@ function draw_obj(::Val{:path}, o, defs)
             l_pt, c_pt = c_pt, new_pt
         elseif command == 'C'
             #println("processing command C with args ", args...)
-            control_pt1 = parse.(Float64,split(args))[1:2]
-            control_pt2 = parse.(Float64,split(args))[3:4]
-            endpt = parse.(Float64,split(args))[5:6]
-            curve(control_pt1...,control_pt2...,endpt...)
-            l_pt,c_pt = Point(control_pt2...),Point(endpt...)
+            control_pt1 = parse.(Float64, split(args))[1:2]
+            control_pt2 = parse.(Float64, split(args))[3:4]
+            endpt = parse.(Float64, split(args))[5:6]
+            curve(control_pt1..., control_pt2..., endpt...)
+            l_pt, c_pt = Point(control_pt2...), Point(endpt...)
         elseif command == 'S'
             control_pt1 = l_pt + 2 * (c_pt - l_pt)
-            control_pt2 = parse.(Float64,split(args))[1:2]
-            endpt = parse.(Float64,split(args))[3:4]
-            curve(control_pt1...,control_pt2...,endpt...)
-            l_pt,c_pt = Point(control_pt2...) , Point(endpt...)
+            control_pt2 = parse.(Float64, split(args))[1:2]
+            endpt = parse.(Float64, split(args))[3:4]
+            curve(control_pt1..., control_pt2..., endpt...)
+            l_pt, c_pt = Point(control_pt2...), Point(endpt...)
         elseif command == 'Z'
             closepath()
         else
@@ -152,18 +152,18 @@ function draw_obj(::Val{:path}, o, defs)
         end
     end
 
-    if stroke_width!=nothing
-      """if stroke_width! is nothing , we had a stroke attr in the path
-      which also means there was no Z command and our path exists
-      """
-      polyp =  poly(pathtopoly()...,:none)
-      if length(polyp)==2
-        insert!(polyp,2, (polyp[1]+polyp[2])/2 )
-      end
-      #@infiltrate 
-      offsetp = offsetpoly(polyp,startoffset=stroke_width,endoffset=stroke_width)
-      drawpath(path_so_far,:path)
-      poly(offsetp,:path,close=true)
+    if stroke_width != nothing
+        """if stroke_width! is nothing , we had a stroke attr in the path
+        which also means there was no Z command and our path exists
+        """
+        polyp = poly(pathtopoly()..., :none)
+        if length(polyp) == 2
+            insert!(polyp, 2, (polyp[1] + polyp[2]) / 2)
+        end
+        #@infiltrate 
+        offsetp = offsetpoly(polyp, startoffset = stroke_width, endoffset = stroke_width)
+        drawpath(path_so_far, :path)
+        poly(offsetp, :path, close = true)
     end
 
 end
@@ -217,16 +217,16 @@ function set_attrs(o)
 end
 
 function check_stroke(o)
-  """checks for stroke attribute , if exists and a stroke-width exists returns
-  value of stroke-width, else returns nothing
-  (although we probably could directly check for stroke-width???)
-  """
-  attrs = name.(attributes(o))
-  if "stroke" in attrs && "stroke-width" in attrs
-    return float_attribute(o,"stroke-width")
-  else
-    return nothing
-  end
+    """checks for stroke attribute , if exists and a stroke-width exists returns
+    value of stroke-width, else returns nothing
+    (although we probably could directly check for stroke-width???)
+    """
+    attrs = name.(attributes(o))
+    if "stroke" in attrs && "stroke-width" in attrs
+        return float_attribute(o, "stroke-width")
+    else
+        return nothing
+    end
 end
 
 """
@@ -281,15 +281,15 @@ set_attr(::Val{:href}, args...) = nothing
 set_attr(::Val{:d}, args...) = nothing
 set_attr(::Val{:id}, args...) = nothing
 let shown_warning = []
-  """warn user only once of missing attr"""
-  global function set_attr(t, args...)
-    if t in shown_warning 
-      nothing
-    else
-      @warn "No attr match for $t"
-      push!(shown_warning,t)
+    """warn user only once of missing attr"""
+    global function set_attr(t, args...)
+        if t in shown_warning
+            nothing
+        else
+            @warn "No attr match for $t"
+            push!(shown_warning, t)
+        end
     end
-  end
 end
 
 """
@@ -305,13 +305,13 @@ function svgwh(svg)
     ex_width = parse(Float64, attribute(xroot, "width")[1:(end - 2)])
     ex_height = parse(Float64, attribute(xroot, "height")[1:(end - 2)])
 
-    
+
     #width and height are different in tex2svg and dvisvgm
     #tex2svg uses em while dvisvgm uses pt
     if LaTeXprog == :tex2svg
-      return (fsize / 2) .* (ex_width, ex_height)
+        return (fsize / 2) .* (ex_width, ex_height)
     elseif LaTeXprog == :dvisvgm
-      return (fsize / 12) .* (ex_width, ex_height)
+        return (fsize / 12) .* (ex_width, ex_height)
     end
 end
 
@@ -327,13 +327,13 @@ function pathsvg(svg)
     xroot = root(xdoc)
     defs = Dict{String,Any}()
     try
-      def_element = get_elements_by_tagname(xroot, "defs")[1]
-      #create a dict for all the definitions
-      for def in collect(child_elements(def_element))
-          defs[attribute(def, "id")] = def
-      end
+        def_element = get_elements_by_tagname(xroot, "defs")[1]
+        #create a dict for all the definitions
+        for def in collect(child_elements(def_element))
+            defs[attribute(def, "id")] = def
+        end
     catch e
-      #@warn "no defs"
+        #@warn "no defs"
     end
     x, y, width, height = parse.(Float64, split(attribute(xroot, "viewBox")))
     # remove ex in the end
@@ -346,10 +346,10 @@ function pathsvg(svg)
         # with the corresponding height of the svg canvas
         # and the ex_height given in it's description
         if LaTeXprog == :tex2svg
-          scale((fsize / 2) / (height / ex_height))
+            scale((fsize / 2) / (height / ex_height))
         elseif LaTeXprog == :dvisvgm
-          #12 here (and in svgwh) is from \dcoumentclass[12pt] in  tex2svg function
-          scale((fsize / 12) / (height / ex_height))
+            #12 here (and in svgwh) is from \dcoumentclass[12pt] in  tex2svg function
+            scale((fsize / 12) / (height / ex_height))
         end
 
         translate(-x, -y)

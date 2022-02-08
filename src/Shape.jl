@@ -190,8 +190,8 @@ function create_shapes(polys)
     current_subpaths = Vector{Vector{Point}}()
     #firstpoly_orient = polys[1]
     firstpoly_orient = ispolyclockwise(iterate(polys)[1])
-    for (i,poly) in enumerate(polys)
-        if (ispolyclockwise(poly) == firstpoly_orient ) && !is_last_subpath
+    for (i, poly) in enumerate(polys)
+        if (ispolyclockwise(poly) == firstpoly_orient) && !is_last_subpath
             #@infiltrate
             empty!(current_subpaths)
             if !isempty(current_points)
@@ -200,7 +200,7 @@ function create_shapes(polys)
             end
             current_points = poly
             is_last_subpath = false
-        elseif (ispolyclockwise(poly) == firstpoly_orient) 
+        elseif (ispolyclockwise(poly) == firstpoly_orient)
             #@infiltrate
             shape = Shape(current_points, copy(current_subpaths))
             push!(shapes, shape)
