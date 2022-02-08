@@ -1,5 +1,18 @@
 # Javis.jl - Changelog
 
+## Unreleased
+- Shape.jl
+  - Now handles holes and polys both ways clockwise and counter-cw , this can happend if we are transforming that has an y-flip transform (typically like svg's that dvisvgm makes),
+- latex.jl
+  - two module variables `LaTeXusepackages` and `LaTeXprog` to specify LaTeX behavior
+  - has optional support to use latex and dvisvgm to generate your latex
+  - function `tex2svg` added to convert Lstring to svg using dvisvgm
+- svg2luxor.jl
+  - `draw_obj` for paths can now handle "stroke" attributes
+  - `draw_obj` can handle C and S svg path instructions.
+  - warnings for missing attributes are printed only once at their first occurance
+
+
 ## v0.8.0 (1st of February 2022)
 - Allow Luxor v3.0
 - moved notebooks to extra repository [JavisNB](https://github.com/JuliaAnimators/JavisNB.jl)
