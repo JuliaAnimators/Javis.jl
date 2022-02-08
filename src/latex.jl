@@ -200,7 +200,7 @@ function tex2svg(text::LaTeXString;output_dir="./.TeXfolder")
     end
   end
   packagestring = "{"*join(LaTeXusepackages,",")*"}"
-  pre="\\documentclass[preview]{standalone}
+  pre="\\documentclass[12pt]{standalone}
   \\usepackage$packagestring
   
   \\begin{document}

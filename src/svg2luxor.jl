@@ -348,6 +348,7 @@ function pathsvg(svg)
         if LaTeXprog == :tex2svg
           scale((fsize / 2) / (height / ex_height))
         elseif LaTeXprog == :dvisvgm
+          #12 here (and in svgwh) is from \dcoumentclass[12pt] in  tex2svg function
           scale((fsize / 12) / (height / ex_height))
         end
 
