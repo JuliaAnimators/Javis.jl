@@ -191,7 +191,7 @@ function tex2svg(text::LaTeXString;)
       "
     post = "\\end{document}
     "
-    texfilepath,texio = mktemp(output_dir)
+    texfilepath, texio = mktemp(output_dir)
     write(texio, pre * "\n")
     write(texio, text)
     write(texio, "\n" * post)
@@ -203,10 +203,7 @@ function tex2svg(text::LaTeXString;)
     if stat
         @warn "there maybe errors in processing latex, check $texfilepath.log for details"
     end
-    retstring = read(
-        `dvisvgm -n --bbox=preview --stdout --pdf  $texfilepath.pdf`,
-        String,
-    )
+    retstring = read(`dvisvgm -n --bbox=preview --stdout --pdf  $texfilepath.pdf`, String)
     return retstring
 
 end
