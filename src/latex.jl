@@ -179,26 +179,9 @@ function get_latex_svg(text::LaTeXString)
 end
 
 """
-generates svg from TeX;
-default folder placed is ./.TeXfolder,
-pdf's and aux files are deleted , tex and log files and other files remain
-add LaTeX packages in `packages=[]`
-
-.TexFolder might grow really fast,
-Dont forget to clear it after you've uploaded that hour long youtube video
-explaining n-dimensional fourier transforms with a hell-lot-a sweet - sweet 
-animated LaTeX, 
+generates svg from LaTeXString;
 """
 function tex2svg(text::LaTeXString;)
-    #try
-    #    mkdir(output_dir)
-    #catch e
-    #    if isa(e, Base.IOError)
-    #        nothing
-    #    else
-    #        throw(e)
-    #    end
-    #end
     output_dir = mktempdir()
     packagestring = "{" * join(LaTeXusepackages, ",") * "}"
     pre = "\\documentclass[12pt]{standalone}
@@ -208,7 +191,6 @@ function tex2svg(text::LaTeXString;)
       "
     post = "\\end{document}
     "
-    #uid = string(uuid1())
     texfilepath,texio = mktemp(output_dir)
     write(texio, pre * "\n")
     write(texio, text)
