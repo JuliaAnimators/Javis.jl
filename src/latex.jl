@@ -178,27 +178,28 @@ function get_latex_svg(text::LaTeXString)
     return svg
 end
 
-function tex2svg(text::LaTeXString; output_dir = "./.TeXfolder")
-    """
-    generates svg from TeX;
-    default folder placed is ./.TeXfolder,
-    pdf's and aux files are deleted , tex and log files and other files remain
-    add LaTeX packages in `packages=[]`
+"""
+generates svg from TeX;
+default folder placed is ./.TeXfolder,
+pdf's and aux files are deleted , tex and log files and other files remain
+add LaTeX packages in `packages=[]`
 
-    .TexFolder might grow really fast,
-    Dont forget to clear it after you've uploaded that hour long youtube video
-    explaining n-dimensional fourier transforms with a hell-lot-a sweet - sweet 
-    animated LaTeX, 
-    """
-    try
-        mkdir(output_dir)
-    catch e
-        if isa(e, Base.IOError)
-            nothing
-        else
-            throw(e)
-        end
-    end
+.TexFolder might grow really fast,
+Dont forget to clear it after you've uploaded that hour long youtube video
+explaining n-dimensional fourier transforms with a hell-lot-a sweet - sweet 
+animated LaTeX, 
+"""
+function tex2svg(text::LaTeXString;)
+    #try
+    #    mkdir(output_dir)
+    #catch e
+    #    if isa(e, Base.IOError)
+    #        nothing
+    #    else
+    #        throw(e)
+    #    end
+    #end
+    output_dir = mktempdir()
     packagestring = "{" * join(LaTeXusepackages, ",") * "}"
     pre = "\\documentclass[12pt]{standalone}
       \\usepackage$packagestring
@@ -207,29 +208,23 @@ function tex2svg(text::LaTeXString; output_dir = "./.TeXfolder")
       "
     post = "\\end{document}
     "
-    uid = string(uuid1())
-    open("$output_dir/javislatex_$uid.tex", "w") do f
-        write(f, pre * "\n")
-        write(f, text)
-        write(f, "\n" * post)
-    end
-    #mkdir if not exist
+    #uid = string(uuid1())
+    texfilepath,texio = mktemp(output_dir)
+    write(texio, pre * "\n")
+    write(texio, text)
+    write(texio, "\n" * post)
+    flush(texio)
     #sometimes latex returns 1,so we use `success` instead of `run`; but pdf is made so its okay 
     stat = success(
-        `latex  --interaction=nonstopmode --output-dir=$output_dir --output-format=pdf $output_dir/javislatex_$uid.tex`,
+        `latex  --interaction=nonstopmode --output-dir=$output_dir --output-format=pdf $texfilepath`,
     )
     if stat
-        @warn "there maybe errors in processing latex, check $output_dir/javislatex_$uid.log for details"
+        @warn "there maybe errors in processing latex, check $texfilepath.log for details"
     end
     retstring = read(
-        `dvisvgm -n --bbox=preview --stdout --pdf  $output_dir/javislatex_$uid.pdf`,
+        `dvisvgm -n --bbox=preview --stdout --pdf  $texfilepath.pdf`,
         String,
     )
-    open("$output_dir/javislatex_$uid.svg", "w") do f
-        write(f, retstring)
-    end
-    success(`rm $output_dir/javislatex_$uid.pdf`)
-    success(`rm $output_dir/javislatex_$uid.aux`)
     return retstring
 
 end
