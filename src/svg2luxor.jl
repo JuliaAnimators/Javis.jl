@@ -326,14 +326,14 @@ function pathsvg(svg)
     xdoc = parse_string(svg)
     xroot = root(xdoc)
     defs = Dict{String,Any}()
-    try
-        def_element = get_elements_by_tagname(xroot, "defs")[1]
-        #create a dict for all the definitions
-        for def in collect(child_elements(def_element))
-            defs[attribute(def, "id")] = def
-        end
-    catch e
-        #@warn "no defs"
+    all_def_tags = get_elements_by_tagname(xroot,"defs")
+    if length(all_def_tags)!=0
+      #create a dict for all the definitions
+      def_element = all_def_tags[1]
+      #todo: what if there are multiple def tags?
+      for def in collect(child_elements(def_element))
+          defs[attribute(def, "id")] = def
+      end
     end
     x, y, width, height = parse.(Float64, split(attribute(xroot, "viewBox")))
     # remove ex in the end
