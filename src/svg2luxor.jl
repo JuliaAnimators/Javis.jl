@@ -216,11 +216,12 @@ function set_attrs(o)
     end
 end
 
+"""
+checks for stroke attribute , if exists and a stroke-width exists returns
+value of stroke-width, else returns nothing
+(although we probably could directly check for stroke-width???)
+"""
 function check_stroke(o)
-    """checks for stroke attribute , if exists and a stroke-width exists returns
-    value of stroke-width, else returns nothing
-    (although we probably could directly check for stroke-width???)
-    """
     attrs = name.(attributes(o))
     if "stroke" in attrs && "stroke-width" in attrs
         return float_attribute(o, "stroke-width")
@@ -309,7 +310,7 @@ function svgwh(svg)
     #width and height are different in tex2svg and dvisvgm
     #tex2svg uses em while dvisvgm uses pt
     if LaTeXprog == :tex2svg
-      return (fsize * (425 / 1000) ) .* (ex_width, ex_height)
+        return (fsize * (425 / 1000)) .* (ex_width, ex_height)
     elseif LaTeXprog == :dvisvgm
         return (fsize / 12) .* (ex_width, ex_height)
     end
@@ -346,7 +347,7 @@ function pathsvg(svg)
         # with the corresponding height of the svg canvas
         # and the ex_height given in it's description
         if LaTeXprog == :tex2svg
-          scale((fsize * (425 / 1000)) / (height / ex_height))
+            scale((fsize * (425 / 1000)) / (height / ex_height))
         elseif LaTeXprog == :dvisvgm
             #12 here (and in svgwh) is from \dcoumentclass[12pt] in  tex2svg function
             scale((fsize / 12) / (height / ex_height))

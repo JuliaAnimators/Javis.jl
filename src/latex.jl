@@ -4,6 +4,11 @@ include("latexsvgfile.jl")
 LaTeXusepackages = ["amssymb", "amsmath"]
 LaTeXprog = :tex2svg
 
+""" set which backend to use
+    default is `:tex2svg`, set to
+    `setLaTeXprog(:dvisvgm)` to use pdflatex with dvisvgm
+    to generate latex 
+"""
 function setLaTeXprog(s::Symbol)
     global LaTeXprog
     LaTeXprog = s
