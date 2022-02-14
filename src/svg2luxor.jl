@@ -88,7 +88,7 @@ function draw_obj(::Val{:path}, o, defs)
     we will go along the stroke path and make an offset poly of stroke-width around the poly, the we traverse a path on that poly """
 
     """This way svg-strokes with certain width are drawn in luxor"""
-    if stroke_width != nothing
+    if stroke_width !== nothing
         path_so_far = storepath()
         newpath()
     end
@@ -99,8 +99,8 @@ function draw_obj(::Val{:path}, o, defs)
     l_pt = O
     c_pt = O
     circle_pts = []
-    for pi in 1:length(data_parts)
-        p = data_parts[pi]
+    for p_i in 1:length(data_parts)
+        p = data_parts[p_i]
         command, args = p[1], p[2:end]
         args = replace(args, "-" => " -")
         if command != 'T'
@@ -152,7 +152,7 @@ function draw_obj(::Val{:path}, o, defs)
         end
     end
 
-    if stroke_width != nothing
+    if stroke_width !== nothing
         """if stroke_width! is nothing , we had a stroke attr in the path
         which also means there was no Z command and our path exists
         """
@@ -309,7 +309,7 @@ function svgwh(svg)
     #width and height are different in tex2svg and dvisvgm
     #tex2svg uses em while dvisvgm uses pt
     if LaTeXprog == :tex2svg
-        return (fsize / 2) .* (ex_width, ex_height)
+      return (fsize * (425 / 1000) ) .* (ex_width, ex_height)
     elseif LaTeXprog == :dvisvgm
         return (fsize / 12) .* (ex_width, ex_height)
     end
@@ -346,7 +346,7 @@ function pathsvg(svg)
         # with the corresponding height of the svg canvas
         # and the ex_height given in it's description
         if LaTeXprog == :tex2svg
-            scale((fsize / 2) / (height / ex_height))
+          scale((fsize * (425 / 1000)) / (height / ex_height))
         elseif LaTeXprog == :dvisvgm
             #12 here (and in svgwh) is from \dcoumentclass[12pt] in  tex2svg function
             scale((fsize / 12) / (height / ex_height))
