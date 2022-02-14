@@ -17,7 +17,6 @@ using ProgressMeter
 using Random
 using Statistics
 using VideoIO
-using UUIDs
 
 const FRAMES_SYMBOL = [:same, :all]
 
