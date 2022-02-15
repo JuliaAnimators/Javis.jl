@@ -187,7 +187,7 @@ end
 generates svg from LaTeXString;
 """
 function tex2svg(text::LaTeXString;)
-    output_dir = mktempdir()
+    output_dir = mktempdir(cleanup=false)
     packagestring = "{" * join(LaTeXusepackages, ",") * "}"
     pre = "\\documentclass[12pt]{standalone}
       \\usepackage$packagestring
@@ -196,7 +196,7 @@ function tex2svg(text::LaTeXString;)
       "
     post = "\\end{document}
     "
-    texfilepath, texio = mktemp(output_dir)
+    texfilepath, texio = mktemp(output_dir,cleanup=false)
     write(texio, pre * "\n")
     write(texio, text)
     write(texio, "\n" * post)
@@ -205,7 +205,7 @@ function tex2svg(text::LaTeXString;)
     stat = success(
         `latex  --interaction=nonstopmode --output-dir=$output_dir --output-format=pdf $texfilepath`,
     )
-    if stat
+    if stat==false
         @warn "there maybe errors in processing latex, check $texfilepath.log for details"
     end
     retstring = read(`dvisvgm -n --bbox=preview --stdout --pdf  $texfilepath.pdf`, String)
