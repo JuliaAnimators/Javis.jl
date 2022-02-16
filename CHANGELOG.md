@@ -8,9 +8,11 @@
   - has optional support to use latex and dvisvgm to generate your latex
   - function `tex2svg` added to convert Lstring to svg using dvisvgm
 - svg2luxor.jl
+  - change font scaling in svg2luxor from 1/2 to 425/1000
   - `draw_obj` for paths can now handle "stroke" attributes
   - `draw_obj` can handle C and S svg path instructions.
   - warnings for missing attributes are printed only once at their first occurance
+- change default line width to 2.0 like luxor 
 
 
 ## v0.8.0 (1st of February 2022)
