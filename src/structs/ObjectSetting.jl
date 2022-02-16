@@ -36,7 +36,7 @@ mutable struct ObjectSetting
     mul_scale::Float64 # the multiplier of scale is between 0 and 1
 
     ObjectSetting() =
-        new(1.0, 1.0, 1.0, 1.0, 10.0, true, Scale(1.0, 1.0), Scale(1.0, 1.0), 1.0)
+        new(2.0, 1.0, 1.0, 1.0, 10.0, true, Scale(1.0, 1.0), Scale(1.0, 1.0), 1.0)
 end
 
 """

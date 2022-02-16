@@ -30,10 +30,10 @@ Returns the center of the ellipse.
 
 # Keywords for all
 - `color` = "black"
-- `linewidth` = 1
+- `linewidth` = 2
 - `action::Symbol` :stroke by default can be `:fill` or other actions explained in the Luxor documentation.
 """
-JEllipse(cpt::Point, w::Real, h::Real; color = "black", linewidth = 1, action = :stroke) =
+JEllipse(cpt::Point, w::Real, h::Real; color = "black", linewidth = 2, action = :stroke) =
     (
         args...;
         cpt = cpt,
@@ -48,7 +48,7 @@ JEllipse(xc::Int, yc::Int, w::Real, h::Real; kwargs...) =
     JEllipse(Point(xc, yc), w, h; kwargs...)
 
 """
-    JEllipse(focus1::Point, focus2::Point, k::Real; color="black", linewidth=1, action=:stroke, stepvalue=pi/100, vertices=false, reversepath=false)
+    JEllipse(focus1::Point, focus2::Point, k::Real; color="black", linewidth=2, action=:stroke, stepvalue=pi/100, vertices=false, reversepath=false)
 
 Build a polygon approximation to an ellipse, given two points and a distance, k, which is the sum of the distances to the focii of any points on the ellipse (or the shortest length of string
 required to go from one focus to the perimeter and on to the other focus).
@@ -58,7 +58,7 @@ JEllipse(
     focus2::Point,
     k::Real;
     color = "black",
-    linewidth = 1,
+    linewidth = 2,
     action = :stroke,
     stepvalue = pi / 100,
     reversepath = false,
@@ -73,7 +73,7 @@ JEllipse(
     ) -> _JEllipse(focus1, focus2, k, color, linewidth, action, stepvalue, reversepath)
 
 """
-    JEllipse(focus1::Point, focus2::Point, pt::Point; color="black", linewidth=1, action=:stroke, stepvalue=pi/100, reversepath=false)
+    JEllipse(focus1::Point, focus2::Point, pt::Point; color="black", linewidth=2, action=:stroke, stepvalue=pi/100, reversepath=false)
 
 Build a polygon approximation to an ellipse, given two points and a point somewhere on the ellipse.
 """
@@ -82,7 +82,7 @@ JEllipse(
     focus2::Point,
     pt::Point;
     color = "black",
-    linewidth = 1,
+    linewidth = 2,
     action = :stroke,
     stepvalue = pi / 100,
     reversepath = false,
