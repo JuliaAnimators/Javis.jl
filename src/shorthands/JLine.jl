@@ -12,12 +12,12 @@ end
 
 # Keywords for all
 - `color` = "black"
-- `linewidth` = 1
+- `linewidth` = 2
 
 Draw a line between the points pt1 and pt2.
 Returns the final point of the line
 """
-JLine(pt1::Point, pt2::Point; linewidth = 1, color = "black") =
+JLine(pt1::Point, pt2::Point; linewidth = 2, color = "black") =
     (args...; color = color, linewidth = linewidth, pt1 = pt1, pt2 = pt2) ->
         _JLine(pt1, pt2, linewidth, color)
 

@@ -47,9 +47,6 @@ end
     @testset "Morphing" begin
         include("morphing.jl")
     end
-    @testset "Javis Viewer" begin
-        include("viewer.jl")
-    end
     @testset "Shorthands" begin
         include("shorthands.jl")
     end
@@ -58,5 +55,8 @@ end
     end
     @testset "Postprocessing" begin
         include("postprocessing.jl")
+    end
+    @testset "Javis Viewer" begin
+        include("viewer.jl")
     end
 end
