@@ -25,7 +25,7 @@ Return the center of the star.
 
 # Keywords for all
 - `color` color of the outline or fill of the star (default: "black")
-- `linewidth` linewidth of the outline (default: 1)
+- `linewidth` linewidth of the outline (default: 2)
 - `action` defines whether the rectangle should be outlined (`:stroke`) or filled (`:fill`)
 - `npoints` number of points the star has (default: 5)
 - `ratio` height of the smaller radius relative to the larger radius (default: 0.5)
@@ -36,7 +36,7 @@ JStar(
     center::Point,
     radius;
     color = "black",
-    linewidth = 1,
+    linewidth = 2,
     npoints = 5,
     ratio = 0.5,
     orientation = 0,
