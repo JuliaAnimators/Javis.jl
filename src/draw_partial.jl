@@ -27,7 +27,7 @@ function overdub(c::ctx_strokelength,::typeof(Luxor.strokepreserve),args...)
 end
 
 #fillpath
-function overdub(c::ctx_strokelength,::typeof(Luxor.fillpath))
+function overdub(c::ctx_strokelength,::typeof(Luxor.fillpath),args...)
   nothing
 end
 
@@ -41,7 +41,17 @@ function overdub(c::ctx_strokelength,::typeof(Luxor.sethue),args...)
   nothing
 end
 
+#latex
+function overdub(c::ctx_strokelength,::typeof(latex),args...)
+  latex(args...)
+end
+
 ##CONTEXT partial
+
+#latex
+function overdub(c::ctx_partial,::typeof(latex),args...)
+  latex(args...)
+end
 #fillpath
 function overdub(c::ctx_partial,::typeof(Luxor.fillpath),args...)
   if draw_state==false
@@ -93,12 +103,12 @@ function overdub(c::ctx_partial,::typeof(Luxor.strokepath),args...)
         end
       end
     end
-  end
   strokepath()
+  end
 end
 
 function get_perimeter(f,args...)
-  overdub(ctx_strokelength(), f,)
+  overdub(ctx_strokelength(), f,args...)
   retlength = sum(cur_len_perim)
   empty!(cur_len_perim)
   #println("poly dista ",retlength)
