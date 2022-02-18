@@ -1,7 +1,7 @@
 name = "Javis"
 uuid = "78b212ba-a7f9-42d4-b726-60726080707e"
 authors = ["Ole Kröger <o.kroeger@opensourc.es>", "Jacob Zelko <jacobszelko@gmail.com>"]
-version = "0.7.1"
+version = "0.7.2"
 
 [deps]
 Animations = "27a7e980-b3e6-11e9-2bcd-0b925532e340"
@@ -29,9 +29,9 @@ FFMPEG = "0.3, 0.4"
 Gtk = "1.1"
 GtkReactive = "1.0.3"
 Hungarian = "0.6"
-ImageIO = "0.4, 0.5"
+ImageIO = "0.4, 0.5, 0.6"
 ImageMagick = "1.1"
-Images = "0.20, 0.21, 0.22, 0.23, 0.24"
+Images = "0.20, 0.21, 0.22, 0.23, 0.24, 0.25"
 Interact = "0.10"
 LaTeXStrings = "1.1"
 LightXML = "0.9"

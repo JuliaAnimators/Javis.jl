@@ -40,6 +40,7 @@ struct Rotation{T<:Real} <: AbstractTransition
     center::Union{Nothing,Point,AbstractObject,DelayedPosition}
 end
 
+Rotation(from::Real, to::Real, center) = Rotation(promote(from, to)..., center)
 """
     anim_rotate
 
@@ -55,11 +56,11 @@ act!(obj, Action(1:50, anim_rotate(2π)))
 
 # Options
 - `anim_rotate(ta::Real)` define the end angle of the rotation
-- `anim_rotate(fa::T, ta::T)` define the from and end angle
+- `anim_rotate(fa::Real, ta::Real)` define the from and end angle
 
 """
 anim_rotate(ta::Real) = Rotation(0.0, ta, nothing)
-anim_rotate(fa::T, ta::T) where {T<:Real} = Rotation(fa, ta, nothing)
+anim_rotate(fa::Real, ta::Real) = Rotation(fa, ta, nothing)
 
 """
     anim_rotate_around
@@ -76,11 +77,11 @@ act!(obj, Action(1:50, anim_rotate_around(2π, O)))
 
 # Options
 - `anim_rotate_around(ta::Real, p)` define the end angle of the rotation + the rotation center.
-- `anim_rotate_around(fa::T, ta::T, p)` define the from and end angle + the rotation center.
+- `anim_rotate_around(fa::Real, ta::Real, p)` define the from and end angle + the rotation center.
 
 """
 anim_rotate_around(ta::Real, p) = Rotation(0.0, ta, p)
-anim_rotate_around(fa::T, ta::T, p) where {T<:Real} = Rotation(fa, ta, p)
+anim_rotate_around(fa::Real, ta::Real, p) = Rotation(fa, ta, p)
 
 struct Scaling <: AbstractTransition
     from::Union{Object,Scale,Symbol}
