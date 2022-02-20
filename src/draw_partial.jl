@@ -10,8 +10,9 @@ draw_state = true
 ##CONTEXT strokelength 
 #strokepath
 function overdub(c::ctx_strokelength,::typeof(Luxor.strokepath),args...)
-  polys = pathtopoly()
-  len = sum(polyperimeter.(polys,closed=false))
+  polys,co = pathtopoly(true)
+  #len = sum(polyperimeter.(polys,closed=false))
+  len = sum([polyperimeter(p,closed=co) for (p,co) in zip(polys,co)])
   append!(cur_len_perim,len)
   newpath()
   nothing
@@ -19,8 +20,8 @@ end
 
 #strokepreserve
 function overdub(c::ctx_strokelength,::typeof(Luxor.strokepreserve),args...)
-  polys = pathtopoly()
-  len = sum(polyperimeter.(polys,closed=false))
+  polys,co = pathtopoly(true)
+  len = sum([polyperimeter(p,closed=co) for (p,co) in zip(polys,co)])
   append!(cur_len_perim,len)
   newpath()
   nothing
@@ -80,15 +81,25 @@ function overdub(c::ctx_partial,::typeof(Luxor.strokepath),args...)
   if draw_state == false
     return nothing
   end
-  polys = pathtopoly()
+  polys,co_states = pathtopoly(true)
   newpath()
-  for poly in polys
+  for (poly_i,co) in zip(polys,co_states)
     if cur_len_partial >= target_len_partial
       return nothing
     else
       #since its a stroke we dont need path after this
-      move(poly[1])
-      for point in poly[2:end]
+      #move(poly_i[1])
+      nextpolylength = polyperimeter(poly_i,closed=co)
+      if cur_len_partial + nextpolylength < target_len_partial
+        poly(poly_i,close=co) 
+        cur_len_partial += nextpolylength
+      else
+        frac = (target_len_partial - cur_len_partial)/nextpolylength
+        poly(polyportion(poly_i,frac,closed=co))
+        cur_len_partial = target_len_partial
+      end
+      """
+      for point in poly_i[2:end]
         next_length = distance(point , currentpoint())
         if cur_len_partial+next_length < target_len_partial
           line(point)
@@ -102,6 +113,7 @@ function overdub(c::ctx_partial,::typeof(Luxor.strokepath),args...)
           draw_state = false
         end
       end
+      """
     end
   strokepath()
   end
