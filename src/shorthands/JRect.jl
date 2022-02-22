@@ -1,5 +1,5 @@
 function _JRect(
-    cornerpoint::Point,
+    cornerpoint::PointOrDelayed,
     w::Real,
     h::Real,
     color,
@@ -8,6 +8,7 @@ function _JRect(
 )
     sethue(color)
     setline(linewidth)
+    cornerpoint = get_position(cornerpoint)
     rect(cornerpoint, w, h, action)
     return cornerpoint
 end
@@ -26,7 +27,7 @@ You can specify the `linewidth` and the `color` of the rectangle.
 - `action` Defines whether the rectangle should be outlined (`:stroke`) or filled (`:fill`)
 """
 JRect(
-    cornerpoint::Point,
+    cornerpoint::PointOrDelayed,
     w::Real,
     h::Real;
     color = "black",

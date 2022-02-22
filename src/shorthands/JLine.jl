@@ -1,6 +1,8 @@
 function _JLine(p1, p2, linewidth, color)
     sethue(color)
     setline(linewidth)
+    p1 = get_position(p1)
+    p2 = get_position(p2)
     line(p1, p2, :stroke)
     return p2
 end
@@ -17,8 +19,8 @@ end
 Draw a line between the points pt1 and pt2.
 Returns the final point of the line
 """
-JLine(pt1::Point, pt2::Point; linewidth = 1, color = "black") =
+JLine(pt1::PointOrDelayed, pt2::PointOrDelayed; linewidth = 1, color = "black") =
     (args...; color = color, linewidth = linewidth, pt1 = pt1, pt2 = pt2) ->
         _JLine(pt1, pt2, linewidth, color)
 
-JLine(pt::Point; kwargs...) = JLine(O, pt; kwargs...)
+JLine(pt::PointOrDelayed; kwargs...) = JLine(O, pt; kwargs...)

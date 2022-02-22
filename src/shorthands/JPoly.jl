@@ -1,6 +1,7 @@
 function _JPoly(pointlist, color, linewidth, action, close, reversepath)
     sethue(color)
     setline(linewidth)
+    pointlist = [get_position(p) for p in pointlist]
     poly(pointlist, action; close = close, reversepath = reversepath)
 end
 
@@ -17,13 +18,13 @@ Draw a polygon around points in the pointlist.
 - `reversepath` can be set to `true` to reverse the path and create a polygon hole
 """
 JPoly(
-    pointlist::Vector{Point};
+    pointlist::Vector{T};
     color = "black",
     linewidth = 1,
     action = :stroke,
     close = true,
     reversepath = false,
-) =
+) where {T<:PointOrDelayed} =
     (
         args...;
         pointlist = pointlist,

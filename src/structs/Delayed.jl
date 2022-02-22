@@ -26,3 +26,5 @@ end
 function -(p::Point, dp::DelayedPosition)
     return DelayedPosition(dp.obj, p - dp.position, dp.called)
 end
+
+PointOrDelayed = Union{Point,DelayedPosition}

@@ -1,13 +1,14 @@
-function _JEllipse(cpt::Point, w::Real, h::Real, color, linewidth, action::Symbol)
+function _JEllipse(cpt::PointOrDelayed, w::Real, h::Real, color, linewidth, action::Symbol)
     sethue(color)
     setline(linewidth)
+    cpt = get_position(cpt)
     ellipse(cpt, w, h, action)
     return cpt
 end
 
 function _JEllipse(
-    focus1::Point,
-    focus2::Point,
+    focus1::PointOrDelayed,
+    focus2::PointOrDelayed,
     k::Union{Real,Point},
     color,
     linewidth,
@@ -17,6 +18,8 @@ function _JEllipse(
 )
     sethue(color)
     setline(linewidth)
+    focus1 = get_position(focus1)
+    focus2 = get_position(focus2)
     ellipse(focus1, focus2, k, action, stepvalue = stepvalue, reversepath = reversepath)
     return focus1, focus2
 end
