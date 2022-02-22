@@ -14,7 +14,7 @@ end
 
 # Keywords for all
 - `color` = "black"
-- `linewidth` = 1
+- `linewidth` = 2
 
 Draw a line between the points pt1 and pt2.
 Returns the final point of the line

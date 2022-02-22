@@ -6,7 +6,7 @@ function _JPoly(pointlist, color, linewidth, action, close, reversepath)
 end
 
 """
-    JPoly(pointlist::Vector{Point}; color="black", linewidth=1, action = :stroke, close=true, reversepath=false)
+    JPoly(pointlist::Vector{Point}; color="black", linewidth=2, action = :stroke, close=true, reversepath=false)
 
 Draw a polygon around points in the pointlist.
 
@@ -20,7 +20,7 @@ Draw a polygon around points in the pointlist.
 JPoly(
     pointlist::Vector{T};
     color = "black",
-    linewidth = 1,
+    linewidth = 2,
     action = :stroke,
     close = true,
     reversepath = false,

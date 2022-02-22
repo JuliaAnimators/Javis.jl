@@ -23,7 +23,7 @@ You can specify the `linewidth` and the `color` of the rectangle.
 
 # Keywords for all
 - `color` = "black"
-- `linewidth` = 1
+- `linewidth` = 2
 - `action` Defines whether the rectangle should be outlined (`:stroke`) or filled (`:fill`)
 """
 JRect(
@@ -31,7 +31,7 @@ JRect(
     w::Real,
     h::Real;
     color = "black",
-    linewidth = 1,
+    linewidth = 2,
     action = :stroke,
 ) =
     (
