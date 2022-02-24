@@ -135,6 +135,10 @@ function centered_point(pos::Point, width::Int, height::Int)
     Point(pos.x - width / 2, pos.y - height / 2)
 end
 
+function centered_point(pos::DelayedPosition, width::Int, height::Int)
+    Point(get_position(pos).x - width / 2, get_position(pos).y - height / 2)
+end
+
 """
     preprocess_frames!(video::Video)
 
@@ -566,7 +570,7 @@ function get_javis_frame(video, objects, frame; layers = Layer[])
 
     # check if any layers have been defined
     if !isempty(layers)
-        starting_positions = Point[]
+        starting_positions = PointOrDelayed[]
         # render each layer's objects and store the layer's Drawing as an image matrix
         for layer in layers
             push!(starting_positions, layer.position)

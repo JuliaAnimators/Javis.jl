@@ -11,20 +11,40 @@ mutable struct DelayedPosition
     called::Bool
 end
 
+PointOrDelayed = Union{Point,DelayedPosition}
+
 import Base: +, -
 
+-(dp::DelayedPosition) = DelayedPosition(dp.obj, -get_position(dp), dp.called)
+
 function +(dp::DelayedPosition, p::Point)
-    DelayedPosition(dp.obj, dp.position + p, dp.called)
+    DelayedPosition(dp.obj, get_position(dp) + p, dp.called)
 end
 
 +(p::Point, dp::DelayedPosition) = +(dp, p)
 
 function -(dp::DelayedPosition, p::Point)
-    return DelayedPosition(dp.obj, dp.position - p, dp.called)
+    return DelayedPosition(dp.obj, get_position(dp) - p, dp.called)
 end
 
 function -(p::Point, dp::DelayedPosition)
-    return DelayedPosition(dp.obj, p - dp.position, dp.called)
+    return DelayedPosition(dp.obj, p - get_position(dp), dp.called)
 end
 
-PointOrDelayed = Union{Point,DelayedPosition}
+function translate(pos::DelayedPosition)
+    return translate(get_position(pos))
+end
+
+
+import Luxor: distance
+
+distance(dp1::DelayedPosition, dp2::DelayedPosition) =
+    distance(get_position(dp1), get_position(dp2))
+
+function distance(dp::DelayedPosition, p::Point)
+    return distance(get_position(dp), p)
+end
+
+distance(p::Point, dp::DelayedPosition) = distance(dp, p)
+
+Base.:/(dp::DelayedPosition, k::Number) = get_position(dp) / k
