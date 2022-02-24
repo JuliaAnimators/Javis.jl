@@ -1,4 +1,11 @@
-function _JEllipse(cpt::Luxor.AbstractPoint, w::Real, h::Real, color, linewidth, action::Symbol)
+function _JEllipse(
+    cpt::Luxor.AbstractPoint,
+    w::Real,
+    h::Real,
+    color,
+    linewidth,
+    action::Symbol,
+)
     sethue(color)
     setline(linewidth)
     cpt = get_position(cpt)
