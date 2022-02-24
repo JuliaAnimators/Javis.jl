@@ -56,10 +56,10 @@ end
     @testset "Postprocessing" begin
         include("postprocessing.jl")
     end
-    @testset "Delayed" begin
-        include("delayed.jl")
-    end
     @testset "Javis Viewer" begin
         include("viewer.jl")
+    end
+    @testset "Delayed" begin
+        include("delayed.jl")
     end
 end

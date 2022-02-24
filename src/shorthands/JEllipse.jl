@@ -36,7 +36,14 @@ Returns the center of the ellipse.
 - `linewidth` = 2
 - `action::Symbol` :stroke by default can be `:fill` or other actions explained in the Luxor documentation.
 """
-JEllipse(cpt::Point, w::Real, h::Real; color = "black", linewidth = 2, action = :stroke) =
+JEllipse(
+    cpt::PointOrDelayed,
+    w::Real,
+    h::Real;
+    color = "black",
+    linewidth = 2,
+    action = :stroke,
+) =
     (
         args...;
         cpt = cpt,

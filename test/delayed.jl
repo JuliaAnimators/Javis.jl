@@ -147,3 +147,58 @@ end
         end
     end
 end
+
+
+@testset "delayed_shorthands" begin
+    vid = Video(500, 500)
+    Background(1:200, (args...) -> background("black"))
+    o1 = Object(JCircle(O, 30, color = "red", action = :fill), Point(50, 0))
+    act!(o1, Action(anim_rotate_around(2π, Point(0, 0))))
+    o2 = Object(50:200, JStar(Javis.delayed_pos(o1), 50, color = "blue", action = :fill))
+    l1 = @JLayer 100:200 200 200 Javis.delayed_pos(o2) begin
+        lo1 = Object(JStar(O, 50, color = "gray", action = :fill))
+    end
+
+    act!(o2, Action(anim_rotate_around(2π, Point(100, 0))))
+    act!(l1, Action(1:100, anim_rotate_around(2π, Point(-100, 0))))
+
+    o4 = Object(
+        100:200,
+        JEllipse(Javis.delayed_pos(o2), 10, 20, color = "green", action = :fill),
+    )
+    o5 = Object(
+        100:200,
+        JLine(Javis.delayed_pos(o2), Javis.delayed_pos(o1), color = "white"),
+    )
+    o6 = Object(
+        100:200,
+        JPoly(
+            Javis.PointOrDelayed[O, Javis.delayed_pos(o1), Javis.delayed_pos(o2)],
+            color = "navyblue",
+            action = :stroke,
+            linewidth = 10,
+        ),
+    )
+    o3 = Object(
+        100:200,
+        JBox(Javis.delayed_pos(o2), 10, 10, color = "orange", action = :fill),
+    )
+    act!(
+        o3,
+        Action(
+            anim_translate(Javis.delayed_pos(o2), Javis.delayed_pos(o1) + Point(10, 10)),
+        ),
+    )
+    render(vid, pathname = "", tempdirectory = "images/")
+
+    for frame in [1, 2, 41, 42, 101, 102, 151, 152, 200]
+        png_name = lpad(string(frame), 10, "0")
+        @test_reference "refs/delayed_shorthands_$(png_name).png" load(
+            "images/$png_name.png",
+        )
+    end
+
+    for i in readdir("images", join = true)
+        endswith(i, ".png") && rm(i)
+    end
+end
