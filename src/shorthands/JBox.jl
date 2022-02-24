@@ -1,6 +1,6 @@
 function _JBox(
-    cornerpoint1::PointOrDelayed,
-    cornerpoint2::PointOrDelayed,
+    cornerpoint1::Luxor.AbstractPoint,
+    cornerpoint2::Luxor.AbstractPoint,
     color,
     action::Symbol,
     vertices::Bool,
@@ -18,7 +18,7 @@ function _JBox(points::Array, color, action::Symbol, vertices::Bool)
     return verts[2]
 end
 function _JBox(
-    pt::PointOrDelayed,
+    pt::Luxor.AbstractPoint,
     width::Real,
     height::Real,
     color,
@@ -31,7 +31,7 @@ function _JBox(
     return Point(pt.x - width / 2, pt.y + height / 2)
 end
 function _JBox(
-    pt::PointOrDelayed,
+    pt::Luxor.AbstractPoint,
     width::Real,
     height::Real,
     cornerradius::Float64,
@@ -51,8 +51,8 @@ Create a box (rectangle) between two points and do an action.
 Returns the top left corner point of the box.
 """
 JBox(
-    cornerpoint1::PointOrDelayed,
-    cornerpoint2::PointOrDelayed;
+    cornerpoint1::Luxor.AbstractPoint,
+    cornerpoint2::Luxor.AbstractPoint;
     color = "black",
     action = :stroke,
     vertices = false,
@@ -82,7 +82,7 @@ JBox(points::Array; color = "black", action = :stroke, vertices = false) =
 Create a box/rectangle centered at point pt with width and height. Use vertices=true to return an array of the four corner points rather than draw the box.
 """
 JBox(
-    pt::PointOrDelayed,
+    pt::Luxor.AbstractPoint,
     width::Real,
     height::Real;
     color = "black",
@@ -113,7 +113,7 @@ JBox(x::Int64, y::Int64, width::Real, height::Real; color = "black", action = :s
 Draw a box/rectangle centered at point pt with width and height and round each corner by cornerradius.
 """
 JBox(
-    pt::PointOrDelayed,
+    pt::Luxor.AbstractPoint,
     width::Real,
     height::Real,
     cornerradius::Float64;

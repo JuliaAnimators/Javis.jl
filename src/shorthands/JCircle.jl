@@ -24,7 +24,7 @@ Draw a circle at `center` with the given `radius`
 Returns the center of the circle
 """
 JCircle(
-    center::PointOrDelayed,
+    center::Luxor.AbstractPoint,
     radius::Real;
     color = "black",
     linewidth = 1,
@@ -42,7 +42,7 @@ JCircle(
 JCircle(center_x::Real, center_y::Real, radius::Real; kwargs...) =
     JCircle(Point(center_x, center_y), radius; kwargs...)
 
-JCircle(p1::Point, p2::Point; kwargs...) =
+JCircle(p1::Luxor.AbstractPoint, p2::Luxor.AbstractPoint; kwargs...) =
     JCircle(midpoint(p1, p2), distance(p1, p2) / 2; kwargs...)
 
 JCircle(radius::Real; kwargs...) = JCircle(O, radius; kwargs...)

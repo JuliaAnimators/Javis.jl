@@ -5,13 +5,11 @@ This struct is used in place of a `Point` as a hook that will let you access the
 position of an object at the starting frame of an `Action`. One should not need to call
 this directly, rather check [`delayed_pos`](@ref).
 """
-mutable struct DelayedPosition
+mutable struct DelayedPosition <: Luxor.AbstractPoint
     obj::AbstractObject
     position::Point
     called::Bool
 end
-
-PointOrDelayed = Union{Point,DelayedPosition}
 
 import Base: +, -
 

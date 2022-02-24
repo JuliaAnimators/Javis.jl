@@ -19,8 +19,8 @@ end
 Draw a line between the points pt1 and pt2.
 Returns the final point of the line
 """
-JLine(pt1::PointOrDelayed, pt2::PointOrDelayed; linewidth = 1, color = "black") =
+JLine(pt1::Luxor.AbstractPoint, pt2::Luxor.AbstractPoint; linewidth = 1, color = "black") =
     (args...; color = color, linewidth = linewidth, pt1 = pt1, pt2 = pt2) ->
         _JLine(pt1, pt2, linewidth, color)
 
-JLine(pt::PointOrDelayed; kwargs...) = JLine(O, pt; kwargs...)
+JLine(pt::Luxor.AbstractPoint; kwargs...) = JLine(O, pt; kwargs...)

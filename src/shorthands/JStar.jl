@@ -34,7 +34,7 @@ Return the center of the star.
 - `reversepath` if true it reverses the path and therefore creates a hole (default: true)
 """
 JStar(
-    center::PointOrDelayed,
+    center::Luxor.AbstractPoint,
     radius;
     color = "black",
     linewidth = 2,

@@ -1,5 +1,5 @@
 function _JRect(
-    cornerpoint::PointOrDelayed,
+    cornerpoint::Luxor.AbstractPoint,
     w::Real,
     h::Real,
     color,
@@ -27,7 +27,7 @@ You can specify the `linewidth` and the `color` of the rectangle.
 - `action` Defines whether the rectangle should be outlined (`:stroke`) or filled (`:fill`)
 """
 JRect(
-    cornerpoint::PointOrDelayed,
+    cornerpoint::Luxor.AbstractPoint,
     w::Real,
     h::Real;
     color = "black",

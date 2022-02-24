@@ -173,7 +173,7 @@ end
     o6 = Object(
         100:200,
         JPoly(
-            Javis.PointOrDelayed[O, Javis.delayed_pos(o1), Javis.delayed_pos(o2)],
+            Luxor.AbstractPoint[O, Javis.delayed_pos(o1), Javis.delayed_pos(o2)],
             color = "navyblue",
             action = :stroke,
             linewidth = 10,
