@@ -56,4 +56,7 @@ end
     @testset "Postprocessing" begin
         include("postprocessing.jl")
     end
+    @testset "Javis Viewer" begin
+        include("viewer.jl")
+    end
 end

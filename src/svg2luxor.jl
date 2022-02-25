@@ -241,7 +241,7 @@ function svgwh(svg)
     # remove ex in the end
     ex_width = parse(Float64, attribute(xroot, "width")[1:(end - 2)])
     ex_height = parse(Float64, attribute(xroot, "height")[1:(end - 2)])
-    return (fsize / 2) .* (ex_width, ex_height)
+    return (fsize * (425 / 1000)) .* (ex_width, ex_height)
 end
 
 """
@@ -270,7 +270,7 @@ function pathsvg(svg)
         # such that we can scale half of a font size (size of a lower letter)
         # with the corresponding height of the svg canvas
         # and the ex_height given in it's description
-        scale((fsize / 2) / (height / ex_height))
+        scale((fsize * (425 / 1000)) / (height / ex_height))
         translate(-x, -y)
 
         for child in collect(child_elements(xroot))
