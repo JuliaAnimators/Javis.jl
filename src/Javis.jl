@@ -3,6 +3,8 @@ module Javis
 using Animations
 import Cairo: CairoImageSurface, image
 using FFMPEG
+using Gtk
+using GtkReactive
 using Hungarian
 using Images
 import Interact
@@ -100,8 +102,12 @@ include("backgrounds.jl")
 include("svg2luxor.jl")
 include("morphs.jl")
 include("action_animations.jl")
+include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
+
+export stream
+export setup_stream, cancel_stream
 
 """
     projection(p::Point, l::Line)
@@ -245,7 +251,7 @@ function render(
     framerate = 30,
     pathname = "javis_$(randstring(7)).gif",
     liveview = false,
-    # streamconfig::Union{StreamConfig,Nothing} = nothing,
+    streamconfig::Union{StreamConfig,Nothing} = nothing,
     tempdirectory = "",
     ffmpeg_loglevel = "panic",
     rescale_factor = 1.0,
