@@ -393,18 +393,3 @@ function _postprocess(
         frames,
     )
 end
-
-"""
-    call_luxor_if_outside_rendering(fct, args...; kwargs...)
-
-Call the function `fct` with `args` and `kwargs` if we are not currently rendering.
-Named as is because this is intened to be used for the functions in `luxor_overrides`.
-In that case `fct` itself needs to be prefixed by `Luxor.`
-
-Return `!CURRENTLY_RENDERING`
-"""
-function call_luxor_if_outside_rendering(fct, args...; kwargs...)
-    CURRENTLY_RENDERING[1] && return false
-    fct(args...; kwargs...)
-    return true
-end
