@@ -11,38 +11,20 @@ mutable struct DelayedPosition <: Luxor.AbstractPoint
     called::Bool
 end
 
-import Base: +, -
-
--(dp::DelayedPosition) = DelayedPosition(dp.obj, -get_position(dp), dp.called)
-
-function +(dp::DelayedPosition, p::Point)
-    DelayedPosition(dp.obj, get_position(dp) + p, dp.called)
-end
-
-+(p::Point, dp::DelayedPosition) = +(dp, p)
-
-function -(dp::DelayedPosition, p::Point)
-    return DelayedPosition(dp.obj, get_position(dp) - p, dp.called)
-end
-
-function -(p::Point, dp::DelayedPosition)
-    return DelayedPosition(dp.obj, p - get_position(dp), dp.called)
-end
-
-function translate(pos::DelayedPosition)
-    return translate(get_position(pos))
-end
-
-
+import Base: +, -, *, /
 import Luxor: distance
 
-distance(dp1::DelayedPosition, dp2::DelayedPosition) =
-    distance(get_position(dp1), get_position(dp2))
+*(k::Number, dp::DelayedPosition) = DelayedPosition(dp.obj, k * get_position(dp), dp.called)
+*(dp::DelayedPosition, k::Number) = *(k, dp)
+/(dp::DelayedPosition, k::Number) = DelayedPosition(dp.obj, get_position(dp) / k, dp.called)
+-(dp::DelayedPosition) = DelayedPosition(dp.obj, -get_position(dp), dp.called)
+-(dp::DelayedPosition, p::Point) = DelayedPosition(dp.obj, get_position(dp) - p, dp.called)
+-(p::Point, dp::DelayedPosition) = DelayedPosition(dp.obj, p - get_position(dp), dp.called)
++(dp::DelayedPosition, p::Point) = DelayedPosition(dp.obj, get_position(dp) + p, dp.called)
++(p::Point, dp::DelayedPosition) = +(dp, p)
 
-function distance(dp::DelayedPosition, p::Point)
-    return distance(get_position(dp), p)
+translate(pos::DelayedPosition) = translate(get_position(pos))
+
+function distance(p1::T1, p2::T2) where {T1<:Luxor.AbstractPoint,T2<:Luxor.AbstractPoint}
+    return distance(get_position(p1), get_position(p2))
 end
-
-distance(p::Point, dp::DelayedPosition) = distance(dp, p)
-
-Base.:/(dp::DelayedPosition, k::Number) = get_position(dp) / k

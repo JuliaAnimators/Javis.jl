@@ -18,13 +18,13 @@ Draw a polygon around points in the pointlist.
 - `reversepath` can be set to `true` to reverse the path and create a polygon hole
 """
 JPoly(
-    pointlist::Vector{Luxor.AbstractPoint};
+    pointlist::Vector{T};
     color = "black",
     linewidth = 2,
     action = :stroke,
     close = true,
     reversepath = false,
-) =
+) where {T<:Luxor.AbstractPoint} =
     (
         args...;
         pointlist = pointlist,
