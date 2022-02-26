@@ -106,7 +106,7 @@ include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
 
-export stream
+
 export setup_stream, cancel_stream
 
 """
