@@ -46,7 +46,7 @@ end
     star_obj = Object(1:100, astar)
     act!(star_obj, Action(morph_to(acirc; do_action = :fill)))
 
-    @test_throws ErrorException stream(
+    @test_throws ErrorException render(
         vid,
         pathname = "stream_twitch.gif",
         streamconfig = conf_twitch_err,
