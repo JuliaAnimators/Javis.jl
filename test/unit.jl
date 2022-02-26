@@ -27,7 +27,7 @@
         video = Video(500, 500)
         Background(1:100, (args...) -> 1)
         # test objects matrix
-        objects = [Object(1:100, (args...) -> Point(1, 1)) for i = 1:9, j = 1:9]
+        objects = [Object(1:100, (args...) -> Point(1, 1)) for i in 1:9, j in 1:9]
         act!(objects, Action(1:100, anim_translate(Point(1, 1), Point(100, 100))))
         Javis.preprocess_frames!(video.objects)
 
