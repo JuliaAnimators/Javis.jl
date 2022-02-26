@@ -27,7 +27,7 @@
         video = Video(500, 500)
         Background(1:100, (args...) -> 1)
         # test objects matrix
-        objects = [Object(1:100, (args...) -> Point(1, 1)) for i in 1:9, j in 1:9]
+        objects = [Object(1:100, (args...) -> Point(1, 1)) for i = 1:9, j = 1:9]
         act!(objects, Action(1:100, anim_translate(Point(1, 1), Point(100, 100))))
         Javis.preprocess_frames!(video.objects)
 
@@ -301,64 +301,64 @@
         end
     end
 
-    #     @testset "anim_" begin
-    #         s = anim_scale(1, 2)
-    #         @test s.from == Javis.Scale(1, 1)
-    #         @test s.to == Javis.Scale(2, 2)
+    @testset "anim_" begin
+        s = anim_scale(1, 2)
+        @test s.from == Javis.Scale(1, 1)
+        @test s.to == Javis.Scale(2, 2)
 
-    #         s = anim_scale(Javis.Scale(1, 1), 2)
-    #         @test s.from == Javis.Scale(1, 1)
-    #         @test s.to == Javis.Scale(2, 2)
+        s = anim_scale(Javis.Scale(1, 1), 2)
+        @test s.from == Javis.Scale(1, 1)
+        @test s.to == Javis.Scale(2, 2)
 
-    #         s = anim_scale(Javis.Scale(1, 1), Javis.Scale(2, 2))
-    #         @test s.from == Javis.Scale(1, 1)
-    #         @test s.to == Javis.Scale(2, 2)
+        s = anim_scale(Javis.Scale(1, 1), Javis.Scale(2, 2))
+        @test s.from == Javis.Scale(1, 1)
+        @test s.to == Javis.Scale(2, 2)
 
-    #         s = anim_scale((1, 1), Javis.Scale(2, 1))
-    #         @test s.from == Javis.Scale(1, 1)
-    #         @test s.to == Javis.Scale(2, 1)
+        s = anim_scale((1, 1), Javis.Scale(2, 1))
+        @test s.from == Javis.Scale(1, 1)
+        @test s.to == Javis.Scale(2, 1)
 
-    #         s = anim_scale(Javis.Scale(2, 1))
-    #         @test s.from == :current_scale
-    #         @test s.to == Javis.Scale(2, 1)
-    #     end
+        s = anim_scale(Javis.Scale(2, 1))
+        @test s.from == :current_scale
+        @test s.to == Javis.Scale(2, 1)
+    end
 
-    #     @testset "Test warning if background not defined" begin
-    #         video = Video(100, 100)
-    #         Background(1:10, (args...) -> 1)
-    #         Object(1:11, (args...) -> 2)
-    #         @test_logs (:warn,) render(video; pathname = "")
-    #     end
+    @testset "Test warning if background not defined" begin
+        video = Video(100, 100)
+        Background(1:10, (args...) -> 1)
+        Object(1:11, (args...) -> 2)
+        @test_logs (:warn,) render(video; pathname = "")
+    end
 
-    #     @testset "Test warning if action outside frame range" begin
-    #         video = Video(100, 100)
-    #         Background(1:20, (args...) -> 1)
-    #         act!(Object(1:11, (args...) -> 2), Action(1:20, anim_translate(0, 10)))
-    #         @test_logs (:warn,) render(video; pathname = "")
-    #     end
+    @testset "Test warning if action outside frame range" begin
+        video = Video(100, 100)
+        Background(1:20, (args...) -> 1)
+        act!(Object(1:11, (args...) -> 2), Action(1:20, anim_translate(0, 10)))
+        @test_logs (:warn,) render(video; pathname = "")
+    end
 
-    #     @testset "Linear scale" begin
-    #         scale_val = scale_linear(-10, 10, 10, -10)
-    #         @test scale_val(-20) == 10 # clamped
-    #         @test scale_val(-5) == 5
-    #         @test scale_val(20) == -10
+    @testset "Linear scale" begin
+        scale_val = scale_linear(-10, 10, 10, -10)
+        @test scale_val(-20) == 10 # clamped
+        @test scale_val(-5) == 5
+        @test scale_val(20) == -10
 
-    #         scale_val = scale_linear(-10, 10, 10, -10; clamp = false)
-    #         @test scale_val(-20) == 20 # clamped
+        scale_val = scale_linear(-10, 10, 10, -10; clamp = false)
+        @test scale_val(-20) == 20 # clamped
 
-    #         scale_val =
-    #             scale_linear(Point(-10, -10), Point(10, 10), Point(10, 10), Point(-10, -10))
-    #         @test scale_val(Point(-20, -10)) == Point(10, 10) # clamped
-    #         @test scale_val(Point(-5, -7)) == Point(5, 7)
-    #         @test scale_val(Point(20, -10)) == Point(-10, 10)
+        scale_val =
+            scale_linear(Point(-10, -10), Point(10, 10), Point(10, 10), Point(-10, -10))
+        @test scale_val(Point(-20, -10)) == Point(10, 10) # clamped
+        @test scale_val(Point(-5, -7)) == Point(5, 7)
+        @test scale_val(Point(20, -10)) == Point(-10, 10)
 
-    #         scale_val = scale_linear(
-    #             Point(-10, -10),
-    #             Point(10, 10),
-    #             Point(10, 10),
-    #             Point(-10, -10);
-    #             clamp = false,
-    #         )
-    #         @test scale_val(Point(-20, -10)) == Point(20, 10) # clamped
-    #     end
+        scale_val = scale_linear(
+            Point(-10, -10),
+            Point(10, 10),
+            Point(10, 10),
+            Point(-10, -10);
+            clamp = false,
+        )
+        @test scale_val(Point(-20, -10)) == Point(20, 10) # clamped
+    end
 end
