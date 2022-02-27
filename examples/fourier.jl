@@ -189,7 +189,7 @@ function main()
         height = 219,
         shape_scale = 0.8, # scale factor for the logo
         tsp_quality_factor = 80,
-        filename = "gifs/julia_logo_dft.gif",
+        filename = "julia_logo_dft.gif",
     )
     return animate_fourier(gif_options)
 end
