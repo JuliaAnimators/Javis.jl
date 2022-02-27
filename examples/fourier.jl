@@ -143,7 +143,7 @@ function animate_fourier(options)
 
         if i > 1
             # translate to the tip of the vector of the previous circle
-            act!(circles[i], Action(1:1, anim_translate(circles[i - 1])))
+            act!(circles[i], Action(1:1, anim_translate(O, circles[i-1])))
         end
         ridx = remap_idx(i)
         act!(circles[i], Action(1:nplay_frames, anim_rotate(0.0, ridx * 2π * nruns)))
@@ -152,7 +152,7 @@ function animate_fourier(options)
     trace_points = Point[]
     Object(1:nframes, (args...) -> draw_path!(trace_points, pos(circles[end]), "red"))
 
-    return render(video; pathname = joinpath(@__DIR__, options.filename))
+    return render(video; pathname = options.filename)
 end
 
 function main()
@@ -189,7 +189,7 @@ function main()
         height = 219,
         shape_scale = 0.8, # scale factor for the logo
         tsp_quality_factor = 80,
-        filename = "gifs/julia_logo_dft.gif",
+        filename = "julia_logo_dft.gif",
     )
     return animate_fourier(gif_options)
 end
