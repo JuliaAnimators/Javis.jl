@@ -13,17 +13,17 @@ That'll save you from doing work that we may not support for Javis.
 
 ## 3. Create a branch based on what you are developing
 
-Before making a branch, make sure to check that you are even with master via the following commands:
+Before making a branch, make sure to check that you are even with main via the following commands:
 
 ```
 git fetch origin
-git checkout master
-git merge --ff-only origin/master
+git checkout main
+git merge --ff-only origin/main
 ```
 
 > The `--ff-only` flag will "fast forward" to newer commits. It will not create new merge commits.
 
-After your master branch is up to date, we follow the following naming conventions for branches:
+After your main branch is up to date, we follow the following naming conventions for branches:
 
 - For issue fixes, name it like so:
 
@@ -117,7 +117,7 @@ If I have already pushed in the past and set the upstream to origin, then I coul
 
 Almost done! Go to your fork and there should be a section that asks you to make a pull request (PR) from your branch. This allows the maintainers of Javis to see if they can add your changes to the main project. If not, you can click the "New pull request" button.
 
-Make sure the "base" branch is Javis `master` and the "compare" branch is the branch you just made. 
+Make sure the "base" branch is Javis `main` and the "compare" branch is the branch you just made. 
 To your PR, add an informative title and description, and link your PR to relevant issues or discussions. 
 Finally, click "Create pull request". 
 

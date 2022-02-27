@@ -106,7 +106,7 @@ include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
 
-export stream
+
 export setup_stream, cancel_stream
 
 """
@@ -358,6 +358,9 @@ function render(
     else
         @error "Currently, only gif and mp4 creation is supported. Not a $ext."
     end
+
+    # check if livestream is used and livestream if that's the case
+    _livestream(streamconfig, framerate, video.width, video.height, pathname)
 
     # clear all CURRENT_* constants to not accidentally use a previous video when creating a new one
     empty_CURRENT_constants()
