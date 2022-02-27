@@ -143,7 +143,7 @@ function animate_fourier(options)
 
         if i > 1
             # translate to the tip of the vector of the previous circle
-            act!(circles[i], Action(1:1, anim_translate(0, circles[i-1])))
+            act!(circles[i], Action(1:1, anim_translate(O, circles[i-1])))
         end
         ridx = remap_idx(i)
         act!(circles[i], Action(1:nplay_frames, anim_rotate(0.0, ridx * 2π * nruns)))
