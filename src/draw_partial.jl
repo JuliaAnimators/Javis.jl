@@ -2,7 +2,7 @@ import Cassette: @context, prehook , overdub
 @context ctx_strokelength 
 @context ctx_partial
 
-cur_len_perim = [] #list of length of every stroke
+#cur_len_perim = [0.0,] #list of length of every stroke
 cur_len_partial = 0.0  # current length for draw_partial
 target_len_partial = 0.0
 draw_state = true
@@ -14,6 +14,7 @@ function overdub(c::ctx_strokelength,::typeof(Luxor.strokepath),args...)
   #len = sum(polyperimeter.(polys,closed=false))
   len = sum([polyperimeter(p,closed=co) for (p,co) in zip(polys,co)])
   append!(cur_len_perim,len)
+  println("appending",len)
   newpath()
   nothing
 end
@@ -23,6 +24,7 @@ function overdub(c::ctx_strokelength,::typeof(Luxor.strokepreserve),args...)
   polys,co = pathtopoly(true)
   len = sum([polyperimeter(p,closed=co) for (p,co) in zip(polys,co)])
   append!(cur_len_perim,len)
+  println("appending",len)
   newpath()
   nothing
 end
@@ -43,15 +45,15 @@ function overdub(c::ctx_strokelength,::typeof(Luxor.sethue),args...)
 end
 
 #latex
-function overdub(c::ctx_strokelength,::typeof(latex),args...)
-  latex(args...)
+function overdub(c::ctx_strokelength,::typeof(get_latex_svg),args...)
+  get_latex_svg(args...)
 end
 
 ##CONTEXT partial
 
 #latex
-function overdub(c::ctx_partial,::typeof(latex),args...)
-  latex(args...)
+function overdub(c::ctx_partial,::typeof(get_latex_svg),args...)
+  get_latex_svg(args...)
 end
 #fillpath
 function overdub(c::ctx_partial,::typeof(Luxor.fillpath),args...)
@@ -98,43 +100,74 @@ function overdub(c::ctx_partial,::typeof(Luxor.strokepath),args...)
         poly(polyportion(poly_i,frac,closed=co))
         cur_len_partial = target_len_partial
       end
-      """
-      for point in poly_i[2:end]
-        next_length = distance(point , currentpoint())
-        if cur_len_partial+next_length < target_len_partial
-          line(point)
-          cur_len_partial = cur_len_partial + next_length
-        else
-          Δl = target_len_partial - cur_len_partial
-          cp = currentpoint()
-          newpoint = cp+ Δl*(point-cp)/distance(point,cp)
-          line(newpoint)
-          cur_len_partial = target_len_partial
-          draw_state = false
-        end
-      end
-      """
     end
   strokepath()
   end
 end
 
 function get_perimeter(f,args...)
+  prinln("hehe")
   overdub(ctx_strokelength(), f,args...)
   retlength = sum(cur_len_perim)
-  empty!(cur_len_perim)
-  #println("poly dista ",retlength)
+  global cur_len_perm = [0,]
+  println("poly dista ",retlength)
   return retlength
 end
 
-function draw_partial(p,f,args...)
+function get_perimeter(v::Video,o::Object)
+  global cur_len_perim = [0.0,]
+  println(code_lowered(o.opts[:original_func]))
+  overdub(ctx_strokelength(),o.opts[:original_func],v,o,1)
+  retlength = sum(cur_len_perim)
+  println("poly dista ",retlength)
+  global cur_len_perim = [0.0,]
+  return retlength
+end
+
+function draw_partial(p,perim,f,args...)
   gsave()
   @assert p<=1.0
-  global target_len_partial = p*get_perimeter(f,args...)
+  global target_len_partial = p*perim#get_perimeter(f,args...)
   newpath()
   overdub(ctx_partial(),f,args...)
   global cur_len_partial = 0.0
   global draw_state = true
   grestore()
 end
+
+function draw_partial(video,object::Object,p::Real)
+  orig_func = object.opts[:original_func]
+  if !haskey(object.opts,:perimeter)
+    println("calcing perim")
+    x= get_perimeter(video,object)
+    #println(frames)
+    println("x",x)
+    object.opts[:perimeter]  = x
+  end
+  #println(object.opts[:perimeter])
+  object.func = (v,o,f)-> draw_partial(p,object.opts[:perimeter],orig_func,v,o,f) 
+end
+
+#this should probably go into action_animations.jl 
+function draw_partial()
+  (video,object,action,rel_frame) -> 
+  draw_partial(video,object,get_interpolation(action,rel_frame))
+end
+
 export draw_partial
+
+
+## should go to Transitions later
+#struct PartialDraw{T<:Real} <: AbstractTransition
+#    frac::T
+#end
+#
+#function Action(
+#    frames,
+#    easing::Union{ReversedEasing,Easing},
+#    partialdraw::PartialDraw,
+#    keep=true,
+#    )
+#    anim = Animation
+#end
+

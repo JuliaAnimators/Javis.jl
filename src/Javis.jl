@@ -17,6 +17,7 @@ using ProgressMeter
 using Random
 using Statistics
 using VideoIO
+using Infiltrator
 
 const FRAMES_SYMBOL = [:same, :all]
 
