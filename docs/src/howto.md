@@ -235,6 +235,7 @@ Both `get_position` and `pos` are a bit unintuitive in the sense that one may th
 vid = Video(500, 500)
 Background(1:50, (args...)->background("black"))
 o1 = Object(JCircle(O, 10, action=:fill))
+o2 = Object(JCircle(pos(o1), 5, action=:fill))
 render(vid)
 ```
 
@@ -264,6 +265,6 @@ Background(1:50, (args...)->background("black"))
 o1 = Object(JCircle(O, 10, action=:fill, color="red"))
 # it works with or w/o this line and the effect changes coherently!!!
 act!(o1, Action(anim_translate(Point(100, 0))))
-o2 = Object(25:50, JCircle(Javis.get_delayed_position(o1), 5, action=:fill, color="blue"))
-embed(vid)
+o2 = Object(25:50, JCircle(delayed_pos(o1), 5, action=:fill, color="blue"))
+render(vid)
 ```
