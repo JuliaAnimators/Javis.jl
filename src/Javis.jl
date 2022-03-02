@@ -135,6 +135,13 @@ function centered_point(pos::Point, width::Int, height::Int)
     Point(pos.x - width / 2, pos.y - height / 2)
 end
 
+"""
+    centered_point
+
+Dispatch centered_point to DelayedPosition to adjust layer position.
+# Returns
+- `dp::DelayedPosition`: the "delayed" location of the center of a layers wrt global canvas.
+"""
 function centered_point(pos::DelayedPosition, width::Int, height::Int)
     Point(get_position(pos).x - width / 2, get_position(pos).y - height / 2)
 end
