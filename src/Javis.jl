@@ -738,6 +738,7 @@ export Video, Object, Background, Action, RFrames, GFrames
 export @JLayer, background
 export Line, Transformation
 export val, pos, ang, scl, get_value, get_position, get_angle, get_scale
+export get_delayed_position, delayed_pos
 export projection, morph_to
 export appear, disappear, rotate_around, follow_path, change
 export rev
