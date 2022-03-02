@@ -5,8 +5,8 @@
 =#
 
 struct Translation <: AbstractTransition
-    from::Union{Object,Point,DelayedPosition}
-    to::Union{Object,Point,DelayedPosition}
+    from::Union{Object,Luxor.AbstractPoint}
+    to::Union{Object,Luxor.AbstractPoint}
 end
 
 """
@@ -30,8 +30,8 @@ act!(obj, Action(1:50, anim_translate(10, 10)))
 anim_translate(x::Real, y::Real) = anim_translate(Point(x, y))
 anim_translate(tp::Point) = Translation(O, tp)
 anim_translate(
-    fp::Union{Object,Point,DelayedPosition},
-    tp::Union{Object,Point,DelayedPosition},
+    fp::Union{Object,Luxor.AbstractPoint},
+    tp::Union{Object,Luxor.AbstractPoint},
 ) = Translation(fp, tp)
 
 struct Rotation{T<:Real} <: AbstractTransition
