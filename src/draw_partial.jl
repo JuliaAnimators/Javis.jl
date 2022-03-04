@@ -117,13 +117,18 @@ function overdub(c::ctx_strokelength, ::typeof(Luxor.fillpreserve), args...)
     end
 end
 
-#sethue
+#hue
 """for some reason parsing colors fails to furthur overdub , so we just
 return as is"""
 function overdub(c::ctx_strokelength, ::typeof(Colors.parse), args...)
     parse(args...)
 end
 
+function overdub(c::ctx_strokelength, ::typeof(Luxor.HueShift), args...)
+    #the problematic part is somewhere inside Colors i think 
+    #but i'll just block this out for now
+    Luxor.HueShift(args...)
+end
 #latex
 """we manually override this to slightly speed up compilation
 when overdubbing latex. Since get_latex_svg does not stroke or fill
@@ -174,9 +179,6 @@ function overdub(c::ctx_partial, ::typeof(Luxor.fillpath), args...)
     newpath()
 end
 
-function overdub(c::ctx_partial, ::typeof(Colors.parse), args...)
-    parse(args...)
-end
 
 function overdub(c::ctx_partial, ::typeof(Luxor.fillpreserve), args...)
     #if draw_state == false 
@@ -293,6 +295,17 @@ function overdub(c::ctx_partial, ::typeof(Luxor.strokepreserve), args...)
     drawpath(currpath)
 end
 
+#naughty functions which dont play well with Cassette
+function overdub(c::ctx_partial, ::typeof(Colors.parse), args...)
+    parse(args...)
+end
+
+function overdub(c::ctx_partial, ::typeof(Luxor.HueShift), args...)
+    #the problematic part is somewhere inside Colors i think 
+    #but i'll just block this out for now
+    Luxor.HueShift(args...)
+end
+
 """
 not really used , but just kept it incase
 one wants to evaluate perimeter of a function
@@ -334,7 +347,7 @@ function _draw_partial(p, perim, f, args...)
     end
     #global draw_state = true
     global target_len_partial = p * perim#get_perimeter(f,args...)
-    println(p)
+    #println(p)
     newpath()
     ret = overdub(ctx_partial(), f, args...)
     global cur_len_partial = 0.0
