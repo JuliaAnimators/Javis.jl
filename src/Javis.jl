@@ -17,7 +17,6 @@ using ProgressMeter
 using Random
 using Statistics
 using VideoIO
-#using Infiltrator
 
 const FRAMES_SYMBOL = [:same, :all]
 
@@ -106,7 +105,6 @@ include("action_animations.jl")
 include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
-#include("testfile.jl")
 include("draw_partial.jl")
 
 """
