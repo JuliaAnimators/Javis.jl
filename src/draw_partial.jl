@@ -46,8 +46,8 @@ function overdub(c::ctx_strokelength, ::typeof(Luxor.fillpreserve), args...)
 end
 
 #sethue
-function overdub(c::ctx_strokelength, ::typeof(Luxor.sethue), args...)
-    nothing
+function overdub(c::ctx_strokelength, ::typeof(Colors.parse), args...)
+    parse(args...)
 end
 
 #latex
@@ -87,13 +87,8 @@ function overdub(c::ctx_partial, ::typeof(Luxor.fillpath), args...)
         end
             if target_len_partial - cur_len_partial < dist
                 d = (target_len_partial-cur_len_partial)/dist
-                #sethue("black")
-                gsave()
-                setopacity(d^2* get_current_setting().opacity)
                 circle(corner1,corner1+d*vec,:fill)
                 cur_len_partial = target_len_partial
-                grestore()
-                #setopacity("red")
                 draw_state=false
             else
                 circle(corner1,corner1+dist*vec,:fill)
@@ -107,8 +102,8 @@ function overdub(c::ctx_partial, ::typeof(Luxor.fillpath), args...)
 end
 
 #for some reason cassette doesnt like sethue
-function overdub(c::ctx_partial, ::typeof(Luxor.sethue), args...)
-    sethue(args...)
+function overdub(c::ctx_partial, ::typeof(Colors.parse), args...)
+    parse(args...)
 end
 
 function overdub(c::ctx_partial, ::typeof(Luxor.fillpreserve), args...)
