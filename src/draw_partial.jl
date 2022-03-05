@@ -8,12 +8,16 @@ target_len_partial = 0.0 # the target length for _draw_partial
 draw_state = true #draw state, functions turn this false 
 #to stop furthur drawing from happening
 
-"""A slightly modified version of pathtopoly ,
-by default pathtopoly() will dispatch to Luxors pathtopoly,
+""" 
+    pathtopoly(co_state::Symbol)
+
+A slightly modified version of pathtopoly ,
+by default `pathtopoly()` will dispatch to Luxors `pathtopoly()`,
 however passing any symbol will dispatch to the following
 function. Main difference is a new move command starts
 a new subpath, we also return if each subpath is closed or
 open in an Array{Bool},
+
 """
 function Luxor.pathtopoly(co_state::Symbol)
     originalpath = getpathflat()
@@ -246,6 +250,7 @@ function overdub(c::ctx_partial, ::typeof(Luxor.strokepath), args...)
             else
                 if length(poly_i) >= 2
                     frac = (target_len_partial - cur_len_partial) / nextpolylength
+                    #TODO  pdist  for polyportion should be precomputed, 
                     poly(polyportion(poly_i, frac, closed = co))
                 else
                     move(last(poly_i))
@@ -283,6 +288,7 @@ function overdub(c::ctx_partial, ::typeof(Luxor.strokepreserve), args...)
                 cur_len_partial += nextpolylength
             else
                 if length(poly_i) >= 2
+                    #TODO  pdist  for polyportion should be precomputed, 
                     frac = (target_len_partial - cur_len_partial) / nextpolylength
                     poly(polyportion(poly_i, frac, closed = co))
                 end
@@ -386,10 +392,25 @@ with Animations.jl.
 
 #Example
 ```julia
-obj = Object(1:40,(v,o,f) -> circle(O,100,:fillstroke))
+obj = Object(1:40,(v,o,f) -> circle(O,100,:stroke))
 act!( obj , Action( sineio() , show_creation() )
 ```
-check [`rotate`](@ref) for more examples, show_creation can be used in place of `rotate`
+check [`rotate`](@ref) for more examples, show_creation can be used in place of `rotate`.
+Every path that gets stroked in your object function is stroked incrementally, and every fill
+is animated as a growing circle filling from one corner to the other.
+Note that the animation occurs in the exact order in which strokes and fills are called 
+inside the Object function. 
+
+`strokepreserve` maintains the path, this can cause some wonky behaviour if you `strokepath`
+after a strokepreserve without clearing the path, becuase the second strokepath will stroke the entire
+path including the path from before the `strokepreserve`, Usually thats
+okay because `strokepreserve` is followed by a `fillpath` , if not try
+to clear the path immediatly after a strokepreserve to avoid this behaviour.
+Do note that Luxors action :fillstroke calls `fillpreserve()` and then 
+`strokepath()`. 
+
+Range of values for Animation should be between 0 and 1. 0 is undrawn and 1 is completely drawn.
+If values larger than 1 are give it is clipped to 1.
 """
 function show_creation()
     (video, object, action, rel_frame) -> _draw_partial(video, object, action, rel_frame)
