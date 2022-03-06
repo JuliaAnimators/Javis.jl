@@ -2,11 +2,28 @@ import Cassette: @context, prehook, overdub
 @context ctx_strokelength
 @context ctx_partial
 
-cur_len_perim = [0.0] #list of length of every stroke
-cur_len_partial = 0.0  # current length for _draw_partial
-target_len_partial = 0.0 # the target length for _draw_partial
-draw_state = true #draw state, functions turn this false 
+# a struct to hold the partially drawn state
+# coul'd have used globals but just wanted to wrap it
+# for specifying types, and  use a const instance
+# of the struct. (not sure, but maybe we'll
+# also get better performance since Julia knows
+# the types of all these globals?)
+mutable struct DrawPartialState
+cur_len_perim::Vector{Float64} #list of length of every stroke
+cur_len_partial::Float64 # current length for _draw_partial
+target_len_partial::Float64 #the target length for _draw_partial
+draw_state::Bool  #functions turn this false 
 #to stop furthur drawing from happening
+
+#polydistance(poly) returns Vector{Float64}
+#polydistances.(many_polys) returns Vector{Vector{Float64}}
+#stroke_polydists is a vector of this ^, i.e Vector{Vector{Vector{Float64}}}
+stroke_polydists::Vector{Vector{Vector{Float64}}}  #accumulates polydistances
+stroke_count::Int #a counter to keep track of which stroke we are on 
+end
+
+#draw partial state
+dp_state = DrawPartialState([0],0,0,true,[],0)
 
 """ 
     pathtopoly(co_state::Symbol)
@@ -78,8 +95,11 @@ end
 function overdub(c::ctx_strokelength, ::typeof(Luxor.strokepath), args...)
     polys, co = pathtopoly(:yes)
     #len = sum(polyperimeter.(polys,closed=false))
-    len = sum([polyperimeter(p, closed = co) for (p, co) in zip(polys, co)])
-    append!(cur_len_perim, len)
+    len = sum([polyperimeter(p, closed = c) for (p, c) in zip(polys, co)])
+    push!(dp_state.cur_len_perim, len)
+    push!(dp_state.stroke_polydists,
+          [polydistances(p,closed=c) for (p,c) in zip(polys,co)]
+         )
     newpath() #strokepath makes a newpath
     nothing
 end
@@ -88,7 +108,11 @@ end
 function overdub(c::ctx_strokelength, ::typeof(Luxor.strokepreserve), args...)
     polys, co = pathtopoly(:yes)
     len = sum([polyperimeter(p, closed = co) for (p, co) in zip(polys, co)])
-    append!(cur_len_perim, len)
+    push!(dp_state.cur_len_perim, len)
+    #push!(dp_state.stroke_polydists,polydistances.(polys))
+    push!(dp_state.stroke_polydists,
+          [polydistances(p,closed=c) for (p,c) in zip(polys,co)]
+         )
     nothing
 end
 
@@ -103,9 +127,9 @@ function overdub(c::ctx_strokelength, ::typeof(Luxor.fillpath), args...)
     poly1, _ = pathtopoly(:yes)
     if length(vcat(poly1...)) > 2
         bbox = BoundingBox(vcat(poly1...))
-        push!(cur_len_perim, distance(bbox[1], bbox[2]))
+        push!(dp_state.cur_len_perim, distance(bbox[1], bbox[2]))
     else
-        push!(cur_len_perim, 0)
+        push!(dp_state.cur_len_perim, 0)
     end
     newpath() #fillpath makes a new path
 end
@@ -115,9 +139,9 @@ function overdub(c::ctx_strokelength, ::typeof(Luxor.fillpreserve), args...)
     poly1, _ = pathtopoly(:yes)
     if length(vcat(poly1...)) > 2
         bbox = BoundingBox(vcat(poly1...))
-        push!(cur_len_perim, distance(bbox[1], bbox[2]))
+        push!(dp_state.cur_len_perim, distance(bbox[1], bbox[2]))
     else
-        push!(cur_len_perim, 0)
+        push!(dp_state.cur_len_perim, 0)
     end
 end
 
@@ -149,8 +173,8 @@ function overdub(c::ctx_partial, ::typeof(get_latex_svg), args...)
 end
 #fillpath
 function overdub(c::ctx_partial, ::typeof(Luxor.fillpath), args...)
-    global target_len_parital, cur_len_partial, draw_state
-    if draw_state == false
+    global dp_state 
+    if dp_state.draw_state == false
         return
     else
         poly1, _ = pathtopoly(:yes)
@@ -165,17 +189,17 @@ function overdub(c::ctx_partial, ::typeof(Luxor.fillpath), args...)
         corner2 = bbox[2]
         vec = corner2 - corner1
         do_action(:clip)
-        if cur_len_partial >= target_len_partial
+        if dp_state.cur_len_partial >= dp_state.target_len_partial
             return
         end
-        if target_len_partial - cur_len_partial < dist
-            d = (target_len_partial - cur_len_partial) / dist
+        if dp_state.target_len_partial - dp_state.cur_len_partial < dist
+            d = (dp_state.target_len_partial - dp_state.cur_len_partial) / dist
             circle(corner1, corner1 + d * vec, :fill)
-            cur_len_partial = target_len_partial
-            draw_state = false
+            dp_state.cur_len_partial = dp_state.target_len_partial
+            dp_state.draw_state = false
         else
             circle(corner1, corner1 + dist * vec, :fill)
-            cur_len_partial += dist
+            dp_state.cur_len_partial += dist
         end
         clipreset()
         #newpath()
@@ -185,15 +209,15 @@ end
 
 
 function overdub(c::ctx_partial, ::typeof(Luxor.fillpreserve), args...)
-    #if draw_state == false 
+    #if dp_state.draw_state == false 
     #    #println("ignoreda fillp")
     #    return nothing
     #else
     #    #println("dunna FILLp")
     #    fillpreserve()
     #end
-    global target_len_parital, cur_len_partial, draw_state
-    if draw_state == false
+    global dp_state
+    if dp_state.draw_state == false
         return
     else
         current_path = storepath()
@@ -210,17 +234,17 @@ function overdub(c::ctx_partial, ::typeof(Luxor.fillpreserve), args...)
         corner2 = bbox[2]
         vec = corner2 - corner1
         do_action(:clip)
-        if cur_len_partial >= target_len_partial
+        if dp_state.cur_len_partial >= dp_state.target_len_partial
             return
         end
-        if target_len_partial - cur_len_partial < dist
-            d = (target_len_partial - cur_len_partial) / dist
+        if dp_state.target_len_partial - dp_state.cur_len_partial < dist
+            d = (dp_state.target_len_partial - dp_state.cur_len_partial) / dist
             circle(corner1, corner1 + d * vec, :fill)
-            cur_len_partial = target_len_partial
-            draw_state = false
+            dp_state.cur_len_partial = dp_state.target_len_partial
+            dp_state.draw_state = false
         else
             circle(corner1, corner1 + dist * vec, :fill)
-            cur_len_partial += dist
+            dp_state.cur_len_partial += dist
         end
         #fillpath()
         clipreset()
@@ -231,32 +255,35 @@ end
 
 #strokepath
 function overdub(c::ctx_partial, ::typeof(Luxor.strokepath), args...)
-    global cur_len_partial, draw_state, target_len_partial
+    global dp_state
+    dp_state.stroke_count += 1
+
     polys, co_states = pathtopoly(:yes)
-    if draw_state == false
+    if dp_state.draw_state == false
         return nothing
     end
     newpath()
-    for (poly_i, co) in zip(polys, co_states)
-        if cur_len_partial >= target_len_partial
+    pdists = CURRENT_OBJECT[1].opts[:polydistances][dp_state.stroke_count]
+    for (poly_i, co, pdist_i) in zip(polys, co_states,pdists)
+        if dp_state.cur_len_partial >= dp_state.target_len_partial
             return nothing
         else
             #since its a stroke we dont need path after this
             #move(poly_i[1])
             nextpolylength = polyperimeter(poly_i, closed = co)
-            if cur_len_partial + nextpolylength < target_len_partial
+            if dp_state.cur_len_partial + nextpolylength < dp_state.target_len_partial
                 poly(poly_i, close = co)
-                cur_len_partial += nextpolylength
+                dp_state.cur_len_partial += nextpolylength
             else
                 if length(poly_i) >= 2
-                    frac = (target_len_partial - cur_len_partial) / nextpolylength
-                    #TODO  pdist  for polyportion should be precomputed, 
+                    frac = (dp_state.target_len_partial - dp_state.cur_len_partial) / nextpolylength
+                    #poly(polyportion(poly_i, frac, closed = co,pdist=pdist_i))
                     poly(polyportion(poly_i, frac, closed = co))
                 else
                     move(last(poly_i))
                 end
-                cur_len_partial = target_len_partial
-                draw_state = false
+                dp_state.cur_len_partial = dp_state.target_len_partial
+                dp_state.draw_state = false
             end
         end
         strokepath()
@@ -271,29 +298,30 @@ path including the path from before the strokepreserve, try to clear
 the path immediatly after a strokepreserve to avoid this."""
 
 function overdub(c::ctx_partial, ::typeof(Luxor.strokepreserve), args...)
-    global cur_len_partial, draw_state
-    if draw_state == false
+    global dp_state
+    if dp_state.draw_state == false
         return nothing
     end
     currpath = storepath()
     polys, co_states = pathtopoly(:yes)
     newpath()
-    for (poly_i, co) in zip(polys, co_states)
-        if cur_len_partial >= target_len_partial
+    pdists = CURRENT_OBJECT[1].opts[:polydistances][dp_state.stroke_count]
+    for (poly_i, co,pdist_i) in zip(polys, co_states, pdists)
+        if dp_state.cur_len_partial >= dp_state.target_len_partial
             return nothing
         else
             nextpolylength = polyperimeter(poly_i, closed = co)
-            if cur_len_partial + nextpolylength < target_len_partial
+            if dp_state.cur_len_partial + nextpolylength < dp_state.target_len_partial
                 poly(poly_i, close = co)
-                cur_len_partial += nextpolylength
+                dp_state.cur_len_partial += nextpolylength
             else
                 if length(poly_i) >= 2
-                    #TODO  pdist  for polyportion should be precomputed, 
-                    frac = (target_len_partial - cur_len_partial) / nextpolylength
-                    poly(polyportion(poly_i, frac, closed = co))
+                    frac = (dp_state.target_len_partial - dp_state.cur_len_partial) / nextpolylength
+                    poly(polyportion(poly_i, frac, closed = co,pdist=pdist_i))
+                    #poly(polyportion(poly_i, frac, closed = co))
                 end
-                cur_len_partial = target_len_partial
-                draw_state = false
+                dp_state.cur_len_partial = dp_state.target_len_partial
+                dp_state.draw_state = false
             end
         end
         strokepath()
@@ -317,11 +345,15 @@ not really used , but just kept it incase
 one wants to evaluate perimeter of a function
 """
 function get_perimeter(f, args...)
-    global cur_len_perim = [0.0]
+    dp_state.cur_len_perim = [0.0]
+
+    empty!(dp_state.stroke_polydists)
     overdub(ctx_strokelength(), f, args...)
-    retlength = sum(cur_len_perim)
-    global cur_len_perm = [0.0]
-    return retlength
+    ret_perim = sum(dp_state.cur_len_perim)
+    ret_polydists = deepcopy(dp_state.stroke_polydists)
+    cur_len_perm = [0.0]
+    empty!(dp_state.stroke_polydists)
+    return ret_perim,ret_polydists 
 end
 
 """
@@ -331,11 +363,16 @@ approach do let me know !.
 """
 
 function get_perimeter(v::Video, o::Object)
-    global cur_len_perim = [0.0]
+    dp_state.cur_len_perim = [0.0]
+    dp_state.stroke_count = 0
+
+    empty!(dp_state.stroke_polydists)
     overdub(ctx_strokelength(), o.opts[:original_func], v, o, 1)
-    retlength = sum(cur_len_perim)
-    global cur_len_perim = [0.0]
-    return retlength
+    ret_perim = sum(dp_state.cur_len_perim)
+    ret_polydists = deepcopy(dp_state.stroke_polydists)
+    dp_state.cur_len_perim = [0.0]
+    empty!(dp_state.stroke_polydists)
+    return ret_perim,ret_polydists
 end
 
 """
@@ -346,18 +383,18 @@ all the fills , it can be calculated and passed using
 get_perimeter
 """
 function _draw_partial(p, perim, f, args...)
+    global dp_state
+    dp_state.stroke_count=0
     gsave()
     if p > 1.0
         @warn "Partial factor $p > 1.0; clipping to 1.0"
         p = 1.0
     end
-    #global draw_state = true
-    global target_len_partial = p * perim#get_perimeter(f,args...)
-    #println(p)
     newpath()
+    dp_state.target_len_partial = p*perim
     ret = overdub(ctx_partial(), f, args...)
-    global cur_len_partial = 0.0
-    global draw_state = true
+    dp_state.cur_len_partial = 0.0
+    dp_state.draw_state = true
     grestore()
     ret
 end
@@ -372,8 +409,9 @@ function _draw_partial(video, object, action, rel_frame)
     p = get_interpolation(action, rel_frame)
     #save perimter , we dont want to recalculate it every frame
     if !haskey(object.opts, :perimeter)
-        x = get_perimeter(video, object)
-        object.opts[:perimeter] = x
+        perim,polyd = get_perimeter(video, object)
+        object.opts[:perimeter] = perim 
+        object.opts[:polydistances] = polyd
     end
     if p != 1.0
         object.func =
