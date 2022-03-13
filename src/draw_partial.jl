@@ -303,7 +303,7 @@ the path immediatly after a strokepreserve to avoid this."""
 
 function overdub(c::ctx_partial, ::typeof(Luxor.strokepreserve), args...)
     global dp_state
-    dp_state.stroke_count +=1
+    dp_state.stroke_count += 1
     if dp_state.draw_state == false
         return nothing
     end
