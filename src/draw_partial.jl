@@ -49,7 +49,7 @@ function Luxor.pathtopoly(co_state::Symbol)
                 if !isempty(pointslist)
                     #if poinstlist is not empty and we come across a move
                     #we flush and create a new subpath
-                    if (last(pointslist) == first(pointslist)) && length(poinstlist) > 2
+                    if (last(pointslist) == first(pointslist)) && length(pointslist) > 2
                         #but first lets check if what we flush is closed or open. 
                         push!(co_states, true)
                         pop!(pointslist)
@@ -57,7 +57,7 @@ function Luxor.pathtopoly(co_state::Symbol)
                         push!(co_states, false)
                     end
                     push!(polygonlist, pointslist)
-                    poinstlist = Point[]
+                    pointslist = Point[]
                 end
                 push!(pointslist, Point(first(e.points), last(e.points)))
             elseif e.element_type == Luxor.Cairo.CAIRO_PATH_LINE_TO            # 1
@@ -303,6 +303,7 @@ the path immediatly after a strokepreserve to avoid this."""
 
 function overdub(c::ctx_partial, ::typeof(Luxor.strokepreserve), args...)
     global dp_state
+    dp_state.stroke_count +=1
     if dp_state.draw_state == false
         return nothing
     end
