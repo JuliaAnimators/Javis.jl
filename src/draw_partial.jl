@@ -352,9 +352,16 @@ function get_perimeter(f, args...)
 end
 
 """
-gets the perimeter of the object , overdubs the object func
-and calls it on frame 1; if you see any issues with this 
-approach do let me know !.
+    get_perimeter(v::Video, o::Object)
+
+Gets the perimeter of the object , overdubs the object func
+and calls it on frame 1; Nothing gets really drawn on frame 1,
+because all calls to strokes and fills  from luxor in this
+context (ctx_strokelength()) are intercepted and never called.
+However anything which puts things on the canvas without
+the stroke or fill will cause problems on frame 1. For example
+Luxor.text which doesnt use strokepath but directly calls the 
+Cairo text api.
 """
 
 function get_perimeter(v::Video, o::Object)
@@ -371,10 +378,12 @@ function get_perimeter(v::Video, o::Object)
 end
 
 """
-draws the whatever `f` draws on canvas partially,
+    _draw_partial(p, perim, f, args...)
+
+Draws the whatever `f` draws on canvas partially,
 upto a fraction `p` of the drawing. perim is the
 total stroke length inside f + the diagonals of
-all the fills , it can be calculated and passed using 
+all the fills , it can be calculated using 
 get_perimeter
 """
 function _draw_partial(p, perim, f, args...)
@@ -395,7 +404,9 @@ function _draw_partial(p, perim, f, args...)
 end
 
 """
-replaces object.func with a _draw_partial on
+    _draw_partial(video, object, action, rel_frame)
+
+Replaces object.func with a _draw_partial on
 object.func , partial fraction is got by 
 using action and the rel_frame interpolation.
 """
@@ -432,7 +443,10 @@ check [`rotate`](@ref) for more examples, show_creation can be used in place of 
 Every path that gets stroked in your object function is stroked incrementally, and every fill
 is animated as a growing circle filling from one corner to the other.
 Note that the animation occurs in the exact order in which strokes and fills are called 
-inside the Object function. 
+inside the Object function. Anything which eventually calls strokepath,fillpath,strokepreserve and fill preserve will be drawn partially .
+Any Luxor function which internally does not call this to draw on the canvas (`text` is an example for this ) will not be drawn incrementally.
+It is advised to keep such functions in a seperate object for now, since the get_perimeter function which is evaluated on frame 1 will draw them.
+#TODO identify all such luxor functions and disable them from evaluation in get_perimeter.
 
 `strokepreserve` maintains the path, this can cause some wonky behaviour if you `strokepath`
 after a strokepreserve without clearing the path, becuase the second strokepath will stroke the entire
