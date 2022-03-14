@@ -140,7 +140,9 @@ end
 function overdub(c::ctx_strokelength, ::typeof(Luxor.fillpreserve), args...)
     poly1, _ = pathtopoly(:yes)
     if length(vcat(poly1...)) > 2
+        println("this")
         bbox = BoundingBox(vcat(poly1...))
+        print(distance(bbox[1], bbox[2]))
         push!(dp_state.cur_len_perim, distance(bbox[1], bbox[2]))
     else
         push!(dp_state.cur_len_perim, 0)
@@ -177,6 +179,7 @@ end
 function overdub(c::ctx_partial, ::typeof(Luxor.fillpath), args...)
     global dp_state
     if dp_state.draw_state == false
+        newpath()
         return
     else
         poly1, _ = pathtopoly(:yes)
@@ -204,27 +207,18 @@ function overdub(c::ctx_partial, ::typeof(Luxor.fillpath), args...)
             dp_state.cur_len_partial += dist
         end
         clipreset()
-        #newpath()
+        newpath()
     end
-    newpath()
 end
 
 
 function overdub(c::ctx_partial, ::typeof(Luxor.fillpreserve), args...)
-    #if dp_state.draw_state == false 
-    #    #println("ignoreda fillp")
-    #    return nothing
-    #else
-    #    #println("dunna FILLp")
-    #    fillpreserve()
-    #end
     global dp_state
+    current_path = storepath()
     if dp_state.draw_state == false
         return
     else
-        current_path = storepath()
         poly1, _ = pathtopoly(:yes)
-        newpath()
         if length(vcat(poly1...)) > 2
             bbox = BoundingBox(vcat(poly1...))
             dist = distance(bbox[1], bbox[2])
@@ -240,6 +234,7 @@ function overdub(c::ctx_partial, ::typeof(Luxor.fillpreserve), args...)
             return
         end
         if dp_state.target_len_partial - dp_state.cur_len_partial < dist
+            println("partial", dist)
             d = (dp_state.target_len_partial - dp_state.cur_len_partial) / dist
             circle(corner1, corner1 + d * vec, :fill)
             dp_state.cur_len_partial = dp_state.target_len_partial
@@ -250,9 +245,9 @@ function overdub(c::ctx_partial, ::typeof(Luxor.fillpreserve), args...)
         end
         #fillpath()
         clipreset()
-        drawpath(current_path)
         #newpath()
     end
+    drawpath(current_path)
 end
 
 #strokepath
@@ -262,6 +257,7 @@ function overdub(c::ctx_partial, ::typeof(Luxor.strokepath), args...)
 
     polys, co_states = pathtopoly(:yes)
     if dp_state.draw_state == false
+        newpath()
         return nothing
     end
     newpath()
@@ -299,7 +295,8 @@ end
 some wonky behaviour if you strokepath after a strokepreserve without
 clearing the path, becuase the second strokepath will stroke the entire
 path including the path from before the strokepreserve, try to clear 
-the path immediatly after a strokepreserve to avoid this."""
+the path immediatly after a strokepreserve to avoid this. Similar behaviour 
+for fillpreserve too"""
 
 function overdub(c::ctx_partial, ::typeof(Luxor.strokepreserve), args...)
     global dp_state
@@ -307,7 +304,7 @@ function overdub(c::ctx_partial, ::typeof(Luxor.strokepreserve), args...)
     if dp_state.draw_state == false
         return nothing
     end
-    currpath = storepath()
+    so_far_path = storepath()
     polys, co_states = pathtopoly(:yes)
     newpath()
     pdists = CURRENT_OBJECT[1].opts[:polydistances][dp_state.stroke_count]
@@ -333,7 +330,7 @@ function overdub(c::ctx_partial, ::typeof(Luxor.strokepreserve), args...)
         end
         strokepath()
     end
-    drawpath(currpath)
+    drawpath(so_far_path)
 end
 
 #naughty functions which dont play well with Cassette
@@ -392,6 +389,8 @@ get_perimeter
 function _draw_partial(p, perim, f, args...)
     global dp_state
     dp_state.stroke_count = 0
+    dp_state.cur_len_partial = 0.0
+    dp_state.draw_state = true
     gsave()
     if p > 1.0
         @warn "Partial factor $p > 1.0; clipping to 1.0"
@@ -400,8 +399,6 @@ function _draw_partial(p, perim, f, args...)
     newpath()
     dp_state.target_len_partial = p * perim
     ret = overdub(ctx_partial(), f, args...)
-    dp_state.cur_len_partial = 0.0
-    dp_state.draw_state = true
     grestore()
     ret
 end
