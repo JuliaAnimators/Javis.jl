@@ -435,7 +435,7 @@ end
 Draw an [`Object`](@ref) (Not checked: or a [`Layer`](@ref)) using an [`Action`](@ref) and an Animation defined
 with Animations.jl.
 
-#Example
+# Example
 ```julia
 obj = Object(1:40,(v,o,f) -> circle(O,100,:stroke))
 act!( obj , Action( sineio() , show_creation() )
