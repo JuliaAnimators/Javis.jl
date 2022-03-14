@@ -140,7 +140,6 @@ end
 function overdub(c::ctx_strokelength, ::typeof(Luxor.fillpreserve), args...)
     poly1, _ = pathtopoly(:yes)
     if length(vcat(poly1...)) > 2
-        println("this")
         bbox = BoundingBox(vcat(poly1...))
         print(distance(bbox[1], bbox[2]))
         push!(dp_state.cur_len_perim, distance(bbox[1], bbox[2]))
@@ -234,7 +233,6 @@ function overdub(c::ctx_partial, ::typeof(Luxor.fillpreserve), args...)
             return
         end
         if dp_state.target_len_partial - dp_state.cur_len_partial < dist
-            println("partial", dist)
             d = (dp_state.target_len_partial - dp_state.cur_len_partial) / dist
             circle(corner1, corner1 + d * vec, :fill)
             dp_state.cur_len_partial = dp_state.target_len_partial
@@ -243,9 +241,7 @@ function overdub(c::ctx_partial, ::typeof(Luxor.fillpreserve), args...)
             circle(corner1, corner1 + dist * vec, :fill)
             dp_state.cur_len_partial += dist
         end
-        #fillpath()
         clipreset()
-        #newpath()
     end
     drawpath(current_path)
 end
@@ -277,8 +273,8 @@ function overdub(c::ctx_partial, ::typeof(Luxor.strokepath), args...)
                     frac =
                         (dp_state.target_len_partial - dp_state.cur_len_partial) /
                         nextpolylength
-                    #poly(polyportion(poly_i, frac, closed = co,pdist=pdist_i))
-                    poly(polyportion(poly_i, frac, closed = co))
+                    poly(polyportion(poly_i, frac, closed = co, pdist = pdist_i))
+                    #poly(polyportion(poly_i, frac, closed = co))
                 else
                     move(last(poly_i))
                 end
@@ -322,7 +318,6 @@ function overdub(c::ctx_partial, ::typeof(Luxor.strokepreserve), args...)
                         (dp_state.target_len_partial - dp_state.cur_len_partial) /
                         nextpolylength
                     poly(polyportion(poly_i, frac, closed = co, pdist = pdist_i))
-                    #poly(polyportion(poly_i, frac, closed = co))
                 end
                 dp_state.cur_len_partial = dp_state.target_len_partial
                 dp_state.draw_state = false
