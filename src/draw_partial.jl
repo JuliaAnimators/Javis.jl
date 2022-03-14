@@ -444,7 +444,7 @@ check [`rotate`](@ref) for more examples, `show_creation` can be used in place o
 
 Anything inside the Object function which eventually calls `strokepath`,`fillpath`,`strokepreserve` and `fillpreserve` will be drawn incrementally.
 Every path that gets stroked in your object function is animated as being stroked incrementally, and every fill
-is animated as a growing circle filling from one corner to the other. You'r Object function need not call `strokepath` and `fillpath` explicitly for this. You may use Luxor functions the usual way to draw anything, The Object function can also have your own defined functions which use Luxor functions to draw complex objects, show_creation is able to intercept all of these and draw them partially. 
+is animated as a growing circle filling from one corner to the other. Your Object function need not call `strokepath()` and `fillpath()` explicitly for this. You may use Luxor functions the usual way to draw anything. The Object function can also have your own defined functions which call a series of Luxor functions to draw more complex shapes. `show_creation` is able to intercept whatever your Object function draws on the canvas and draw it incrementally. 
 
 Any Luxor function which internally does not call `strokepath`,`strokepreserve`,`fillpath` or `fillpreserve` to draw on the canvas will not be drawn incrementally. `text` is a typical example which  doesn't use these four functions internally but directly draws to canvas using Cairo text API.
 (`textpath` may be used to show text creation).
@@ -453,13 +453,13 @@ It is advised to keep such functions (like `text`) in a seperate object for now,
 #TODO identify all such luxor functions and disable them from evaluation in `get_perimeter`.
 
 
-`strokepreserve` maintains the path, this can cause some wonky behaviour if you `strokepath` after a strokepreserve without clearing the path, because the `strokepath` will stroke the entire path including the path from before the `strokepreserve`.
+`strokepreserve` maintains the path, this can cause some wonky behaviour if you `strokepath` after a `strokepreserve` without clearing the path, because the `strokepath` will stroke the entire path including the path from before the `strokepreserve`.
 Usually `strokepreserve` is followed by a `fillpath`, if not try
-to clear the path immediatly after a strokepreserve to avoid this behaviour. `fillpreserve` has the same quirk described above for strokepath.
+to clear the path immediatly after a `strokepreserve` to avoid this behaviour. `fillpreserve` has the same quirk described above for `strokepreserve`.
 
 Note that the animation occurs in the exact order in which strokes and fills are called 
 inside the Object function.
-Do note that Luxors action :fillstroke calls `fillpreserve()` and then 
+Do note that Luxors action `:fillstroke` calls `fillpreserve()` and then 
 `strokepath()`. If you would like to draw the outline first and then fill you have to set the path with :path and then call `strokepreserve()` and then `fillpath()`.
 
 Range of values for Animation should be between 0 and 1. 0 is undrawn and 1 is completely drawn.
