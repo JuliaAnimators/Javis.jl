@@ -1,16 +1,3 @@
-using Animations
-using GtkReactive
-using Gtk: get_gtk_property, visible
-using Images
-import Interact
-import Interact: @map, Widget, Widgets, @layout!, hbox, vbox
-using Javis
-import Latexify: latexify
-using LaTeXStrings
-using ReferenceTests
-using Test
-using VideoIO
-
 function circle_line()
     sethue("red")
     circle(O, 100, :stroke)
@@ -29,15 +16,6 @@ function circle_line()
     fillpath()
 end
 
-#nframes=100
-#exf=30
-#Background(1:nframes+exf, (args...)-> background("black"))
-#obj = Object(1:nframes+exf, (_,_,_)-> ( circle_line());)
-#act!(obj,Action(1:nframes,linear(),show_creation()))
-#render(video, pathname="circle_line_rect.gif")
-
-
-#test strokepath
 @testset "Drawing partial circles lines rectangles" begin
     video = Video(500, 500)
 
