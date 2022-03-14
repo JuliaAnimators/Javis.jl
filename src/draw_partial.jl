@@ -141,7 +141,6 @@ function overdub(c::ctx_strokelength, ::typeof(Luxor.fillpreserve), args...)
     poly1, _ = pathtopoly(:yes)
     if length(vcat(poly1...)) > 2
         bbox = BoundingBox(vcat(poly1...))
-        print(distance(bbox[1], bbox[2]))
         push!(dp_state.cur_len_perim, distance(bbox[1], bbox[2]))
     else
         push!(dp_state.cur_len_perim, 0)
