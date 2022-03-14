@@ -68,7 +68,7 @@ end
 
     nframes = 100
     Background(1:nframes, (args...) -> background("white"))
-    moving_circle = Object(1:nframes,JCircle(O, 100))
+    moving_circle = Object(1:nframes, JCircle(O, 100))
     act!(moving_circle, Action(1:nframes, linear(), show_creation()))
     act!(moving_circle, Action(anim_translate(100, 100)))
     render(video, tempdirectory = "images", pathname = "circle_move_creation.gif")
@@ -87,8 +87,8 @@ end
 
     nframes = 100
     Background(1:nframes, (args...) -> background("white"))
-    moving_circle = Object(1:nframes,JCircle(O, 100))
-    stat_circle = Object(1:nframes,JCircle(O, 100))
+    moving_circle = Object(1:nframes, JCircle(O, 100))
+    stat_circle = Object(1:nframes, JCircle(O, 100))
     act!(moving_circle, Action(1:nframes, linear(), show_creation()))
     act!(moving_circle, Action(anim_scale(2)))
     render(video, tempdirectory = "images", pathname = "circle_scale_creation.gif")
@@ -107,8 +107,8 @@ end
 
     nframes = 100
     Background(1:nframes, (args...) -> background("white"))
-    moving_circle = Object(1:nframes,JRect(0, 100, 50, 100))
-    stat_circle = Object(1:nframes,JCircle(O, 100))
+    moving_circle = Object(1:nframes, JRect(0, 100, 50, 100))
+    stat_circle = Object(1:nframes, JCircle(O, 100))
     act!(moving_circle, Action(1:nframes, linear(), show_creation()))
     act!(moving_circle, Action(anim_rotate(π)))
     render(video, tempdirectory = "images", pathname = "rect_rotate_creation.gif")
