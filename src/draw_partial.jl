@@ -94,7 +94,6 @@ end
 #strokepath
 function overdub(c::ctx_strokelength, ::typeof(Luxor.strokepath), args...)
     polys, co = pathtopoly(:yes)
-    #len = sum(polyperimeter.(polys,closed=false))
     len = sum([polyperimeter(p, closed = c) for (p, c) in zip(polys, co)])
     push!(dp_state.cur_len_perim, len)
     push!(
@@ -110,7 +109,6 @@ function overdub(c::ctx_strokelength, ::typeof(Luxor.strokepreserve), args...)
     polys, co = pathtopoly(:yes)
     len = sum([polyperimeter(p, closed = co) for (p, co) in zip(polys, co)])
     push!(dp_state.cur_len_perim, len)
-    #push!(dp_state.stroke_polydists,polydistances.(polys))
     push!(
         dp_state.stroke_polydists,
         [polydistances(p, closed = c) for (p, c) in zip(polys, co)],
@@ -262,7 +260,6 @@ function overdub(c::ctx_partial, ::typeof(Luxor.strokepath), args...)
             return nothing
         else
             #since its a stroke we dont need path after this
-            #move(poly_i[1])
             nextpolylength = polyperimeter(poly_i, closed = co)
             if dp_state.cur_len_partial + nextpolylength < dp_state.target_len_partial
                 poly(poly_i, close = co)
