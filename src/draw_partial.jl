@@ -460,7 +460,7 @@ to clear the path immediatly after a `strokepreserve` to avoid this behaviour. `
 Note that the animation occurs in the exact order in which strokes and fills are called 
 inside the Object function.
 Do note that Luxors action `:fillstroke` calls `fillpreserve()` and then 
-`strokepath()`. If you would like to draw the outline first and then fill you have to set the path with :path and then call `strokepreserve()` and then `fillpath()`.
+`strokepath()`. If you would like to draw the outline first and then fill you have to set the path ( for example by passing `:path` to whatever Luxor function you are calling) and then call `strokepreserve()` and then `fillpath()`.
 
 Range of values for Animation should be between 0 and 1. 0 is undrawn and 1 is completely drawn.
 If values larger than 1 are given it is clipped to 1.
