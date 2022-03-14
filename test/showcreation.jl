@@ -41,7 +41,7 @@ end
 end
 
 #test translate 
-@testset "" begin
+@testset "Showing Creation while translating" begin
     video = Video(500, 500)
 
     nframes = 100
@@ -60,7 +60,7 @@ end
 end
 
 #test scale 
-@testset "" begin
+@testset "Showing Creation while scaling" begin
     video = Video(500, 500)
 
     nframes = 100
@@ -80,7 +80,7 @@ end
 end
 
 #test rotate 
-@testset "rotate" begin
+@testset "Showing Creation while rotating" begin
     video = Video(500, 500)
 
     nframes = 100
