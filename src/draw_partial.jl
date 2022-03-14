@@ -23,7 +23,7 @@ mutable struct DrawPartialState
 end
 
 #draw partial state
-dp_state = DrawPartialState([0], 0, 0, true, [], 0)
+const dp_state = DrawPartialState([0], 0, 0, true, [], 0)
 
 """ 
     pathtopoly(co_state::Symbol)
