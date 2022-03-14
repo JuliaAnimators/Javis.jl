@@ -90,7 +90,7 @@ function Luxor.pathtopoly(co_state::Symbol)
 end
 
 ##CONTEXT strokelength 
-"""here are a bunch of overdubs to calculate strokelength"""
+#here are a bunch of overdubs to calculate strokelength
 #strokepath
 function overdub(c::ctx_strokelength, ::typeof(Luxor.strokepath), args...)
     polys, co = pathtopoly(:yes)
@@ -117,12 +117,12 @@ function overdub(c::ctx_strokelength, ::typeof(Luxor.strokepreserve), args...)
 end
 
 #fillpath
-"""
+#=
 fillpath will be animated by "painting" in the path 
 a growing circle starting at one corner of the path's
 bounding box to the other end, therefore the diagonal
 of the BoudingBox is added to the perimeter 
-"""
+=#
 function overdub(c::ctx_strokelength, ::typeof(Luxor.fillpath), args...)
     poly1, _ = pathtopoly(:yes)
     if length(vcat(poly1...)) > 2
@@ -146,8 +146,8 @@ function overdub(c::ctx_strokelength, ::typeof(Luxor.fillpreserve), args...)
 end
 
 #hue
-"""for some reason parsing colors fails to furthur overdub , so we just
-return as is"""
+#="""for some reason parsing colors fails to furthur overdub , so we just
+return as is"""=#
 function overdub(c::ctx_strokelength, ::typeof(Colors.parse), args...)
     parse(args...)
 end
@@ -158,9 +158,9 @@ function overdub(c::ctx_strokelength, ::typeof(Luxor.HueShift), args...)
     Luxor.HueShift(args...)
 end
 #latex
-"""we manually override this to slightly speed up compilation
+#=we manually override this to slightly speed up compilation
 when overdubbing latex. Since get_latex_svg does not stroke or fill
-we dont want to overdub furthur"""
+we dont want to overdub furthur"""=#
 function overdub(c::ctx_strokelength, ::typeof(get_latex_svg), args...)
     get_latex_svg(args...)
 end
@@ -283,12 +283,12 @@ function overdub(c::ctx_partial, ::typeof(Luxor.strokepath), args...)
 end
 
 
-""" Strokepreserve (like Luxor) maintains the path, this can cause
+#=Strokepreserve (like Luxor) maintains the path, this can cause
 some wonky behaviour if you strokepath after a strokepreserve without
 clearing the path, becuase the second strokepath will stroke the entire
 path including the path from before the strokepreserve, try to clear 
 the path immediatly after a strokepreserve to avoid this. Similar behaviour 
-for fillpreserve too"""
+for fillpreserve too=#
 
 function overdub(c::ctx_partial, ::typeof(Luxor.strokepreserve), args...)
     global dp_state
@@ -336,6 +336,8 @@ function overdub(c::ctx_partial, ::typeof(Luxor.HueShift), args...)
 end
 
 """
+    get_perimeter(f, args...)
+
 not really used , but just kept it incase
 one wants to evaluate perimeter of a function
 """
@@ -358,8 +360,7 @@ Gets the perimeter of the object , overdubs the object func
 and calls it on frame 1; Nothing gets really drawn on frame 1,
 because all calls to strokes and fills  from luxor in this
 context (ctx_strokelength()) are intercepted and never called.
-However anything which puts things on the canvas without
-the stroke or fill will cause problems on frame 1. For example
+However if using anything in the object function, which puts things on the canvas bypassing Luxors strokepath or fillpath will cause problems on frame 1. For example
 Luxor.text which doesnt use strokepath but directly calls the 
 Cairo text api.
 """
