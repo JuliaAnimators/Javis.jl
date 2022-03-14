@@ -26,6 +26,7 @@ VideoIO = "d6d074c3-1acf-5d4c-9a43-ef38773959a2"
 [compat]
 Animations = "0.4"
 Cairo = "1"
+Cassette = "0.3.8"
 FFMPEG = "0.3, 0.4"
 Gtk = "1.1"
 GtkReactive = "1.0.3"
