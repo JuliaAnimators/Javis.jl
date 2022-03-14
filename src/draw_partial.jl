@@ -441,24 +441,27 @@ obj = Object(1:40,(v,o,f) -> circle(O,100,:stroke))
 act!( obj , Action( sineio() , show_creation() )
 ```
 check [`rotate`](@ref) for more examples, show_creation can be used in place of `rotate`.
+
+Anything inside the Object function which eventually calls strokepath,fillpath,strokepreserve and fillpreserve will be drawn incrementally.
 Every path that gets stroked in your object function is stroked incrementally, and every fill
-is animated as a growing circle filling from one corner to the other.
-Note that the animation occurs in the exact order in which strokes and fills are called 
-inside the Object function. Anything which eventually calls strokepath,fillpath,strokepreserve and fill preserve will be drawn partially .
-Any Luxor function which internally does not call this to draw on the canvas (`text` is an example for this ) will not be drawn incrementally.
-It is advised to keep such functions in a seperate object for now, since the get_perimeter function which is evaluated on frame 1 will draw them.
+is animated as a growing circle filling from one corner to the other. You're object function need not call `strokepath` and `fillpath` explicitly for this. You may use Luxor functions the usual way to draw anything, The Object function can also have your own functions which eventually call Luxor functions to draw complex objects, show_creation is able to intercept all of these and draw them partially. 
+
+Any Luxor function which internally does not call `strokepath`,`strokepreserve`,`fillpath` or `fillpreserve` to draw on the canvas will not be drawn incrementally. `text` is a typical example which uses doesn't use these four functions internally but directly draws to canvas using Cairo text API.
+`textpath` may be used to show text creation.
+
+It is advised to keep such functions (like `text`) in a seperate object for now, since the get_perimeter function which is evaluated on frame 1 will draw them.
 #TODO identify all such luxor functions and disable them from evaluation in get_perimeter.
 
-`strokepreserve` maintains the path, this can cause some wonky behaviour if you `strokepath`
-after a strokepreserve without clearing the path, becuase the second strokepath will stroke the entire
-path including the path from before the `strokepreserve`, Usually thats
-okay because `strokepreserve` is followed by a `fillpath` , if not try
-to clear the path immediatly after a strokepreserve to avoid this behaviour.
+Note that the animation occurs in the exact order in which strokes and fills are called 
+inside the Object function.
+`strokepreserve` maintains the path, this can cause some wonky behaviour if you `strokepath` after a strokepreserve without clearing the path, because the `strokepath` will stroke the entire path including the path from before the `strokepreserve`.
+Usually `strokepreserve` is followed by a `fillpath`, if not try
+to clear the path immediatly after a strokepreserve to avoid this behaviour. `fillpreserve` has the same quirk described above for strokepath.
 Do note that Luxors action :fillstroke calls `fillpreserve()` and then 
-`strokepath()`. 
+`strokepath()`. If you would like to draw the outline first and then fill you have to set the path with :path and then call `strokepreserve()` and then `fillpath()`.
 
 Range of values for Animation should be between 0 and 1. 0 is undrawn and 1 is completely drawn.
-If values larger than 1 are give it is clipped to 1.
+If values larger than 1 are given it is clipped to 1.
 """
 function show_creation()
     (video, object, action, rel_frame) -> _draw_partial(video, object, action, rel_frame)
