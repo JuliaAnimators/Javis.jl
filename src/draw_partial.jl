@@ -446,11 +446,11 @@ Anything inside the Object function which eventually calls `strokepath`,`fillpat
 Every path that gets stroked in your object function is animated as being stroked incrementally, and every fill
 is animated as a growing circle filling from one corner to the other. Your Object function need not call `strokepath()` and `fillpath()` explicitly for this. You may use Luxor functions the usual way to draw anything. The Object function can also have your own defined functions which call a series of Luxor functions to draw more complex shapes. `show_creation` is able to intercept whatever your Object function draws on the canvas and draw it incrementally. 
 
-Any Luxor function which internally does not call `strokepath`,`strokepreserve`,`fillpath` or `fillpreserve` to draw on the canvas will not be drawn incrementally. `text` is a typical example which  doesn't use these four functions internally but directly draws to canvas using Cairo text API.
-(`textpath` may be used to show text creation).
+Any Luxor function which internally does not call `strokepath`,`strokepreserve`,`fillpath` or `fillpreserve` to draw on the canvas will not be drawn incrementally. `text` is a typical example which  doesn't use these four functions internally but directly draws to canvas using Cairo text API. However most other functions that draw things to canvas in Luxor eventually call one of the four above mentioned functions and work fine with `show_creation`. 
+(`textpath()` and then `strokepath()`  may be used to show text creation).
 
 It is advised to keep such functions (like `text`) in a seperate object for now, since the `get_perimeter` function which is evaluated on frame 1 to calculate perimeter will draw them on frame 1.
-#TODO identify all such luxor functions and disable them from evaluation in `get_perimeter`.
+`TODO` identify all such luxor functions and disable them from evaluation in `get_perimeter`.
 
 
 `strokepreserve` maintains the path, this can cause some wonky behaviour if you `strokepath` after a `strokepreserve` without clearing the path, because the `strokepath` will stroke the entire path including the path from before the `strokepreserve`.
