@@ -251,13 +251,13 @@ function overdub(c::ctx_partial, ::typeof(Luxor.strokepath), args...)
     polys, co_states = pathtopoly(:yes)
     if dp_state.draw_state == false
         newpath()
-        return 
+        return
     end
     newpath()
     pdists = CURRENT_OBJECT[1].opts[:polydistances][dp_state.stroke_count]
     for (poly_i, co, pdist_i) in zip(polys, co_states, pdists)
         if dp_state.cur_len_partial >= dp_state.target_len_partial
-            return 
+            return
         else
             #since its a stroke we dont need path after this
             nextpolylength = polyperimeter(poly_i, closed = co)
