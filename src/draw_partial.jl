@@ -319,9 +319,11 @@ function overdub(c::ctx_partial, ::typeof(Luxor.strokepreserve), args...)
                 dp_state.draw_state = false
             end
         end
+        additional_path = storepath()
         strokepath()
     end
     drawpath(so_far_path)
+    drawpath(additional_path)
 end
 
 #naughty functions which dont play well with Cassette
