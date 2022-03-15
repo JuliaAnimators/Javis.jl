@@ -297,6 +297,7 @@ function overdub(c::ctx_partial, ::typeof(Luxor.strokepreserve), args...)
         return nothing
     end
     so_far_path = storepath()
+    additional_path = nothing
     polys, co_states = pathtopoly(:yes)
     newpath()
     pdists = CURRENT_OBJECT[1].opts[:polydistances][dp_state.stroke_count]
