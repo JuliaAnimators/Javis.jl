@@ -41,7 +41,10 @@ end
 
     nframes = 100
     Background(1:nframes, (args...) -> background("white"))
-    circ = Object(1:nframes, (args...) -> (circle(O, 50, :strokepreserve);circle(O, 100, :stroke)))
+    circ = Object(
+        1:nframes,
+        (args...) -> (circle(O, 50, :strokepreserve); circle(O, 100, :stroke)),
+    )
     act!(circ, Action(1:nframes, linear(), show_creation()))
 
     mkpath("gifs")
@@ -81,7 +84,10 @@ end
 
     nframes = 100
     Background(1:nframes, (args...) -> background("white"))
-    circ = Object(1:nframes, (args...) -> (circle(O, 50, :fillpreserve);circle(O+50, 100, :fill) ) )
+    circ = Object(
+        1:nframes,
+        (args...) -> (circle(O, 50, :fillpreserve); circle(O + 50, 100, :fill)),
+    )
     act!(circ, Action(1:nframes, linear(), show_creation()))
 
     mkpath("gifs")
