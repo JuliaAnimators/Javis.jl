@@ -1,5 +1,8 @@
 # Javis.jl - Changelog
 
+## Unmerged
+- show\_creation to incrementally show creation of object as its drawn.
+
 ##for PR
 - change font scaling in svg2luxor from 1/2 to 425/1000
 - change default line width to 2.0 like luxor 
