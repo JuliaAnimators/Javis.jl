@@ -43,7 +43,13 @@ end
     Background(1:nframes, (args...) -> background("white"))
     circ = Object(
         1:nframes,
-        (args...) -> (circle(O, 50, :path); strokepreserve(); move(Point(100,0)) ; circle(O, 100, :path);strokepath()),
+        (args...) -> (
+            circle(O, 50, :path); strokepreserve(); move(Point(100, 0)); circle(
+                O,
+                100,
+                :path,
+            ); strokepath()
+        ),
     )
     act!(circ, Action(1:nframes, linear(), show_creation()))
 
