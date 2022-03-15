@@ -297,7 +297,6 @@ function overdub(c::ctx_partial, ::typeof(Luxor.strokepreserve), args...)
         return nothing
     end
     so_far_path = storepath()
-    additional_path = nothing
     polys, co_states = pathtopoly(:yes)
     newpath()
     pdists = CURRENT_OBJECT[1].opts[:polydistances][dp_state.stroke_count]
@@ -322,11 +321,9 @@ function overdub(c::ctx_partial, ::typeof(Luxor.strokepreserve), args...)
                 dp_state.draw_state = false
             end
         end
-        additional_path = storepath()
         strokepath()
     end
     drawpath(so_far_path)
-    drawpath(additional_path)
 end
 
 #naughty functions which dont play well with Cassette
