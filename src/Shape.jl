@@ -182,13 +182,17 @@ function get_similarity(shapeA::Shape, shapeB::Shape)
 end
 
 function create_shapes(polys)
+    #@infiltrate
     shapes = Vector{Shape}()
 
     is_last_subpath = false
     current_points = Point[]
     current_subpaths = Vector{Vector{Point}}()
-    for poly in polys
-        if ispolyclockwise(poly) && !is_last_subpath
+    #firstpoly_orient = polys[1]
+    firstpoly_orient = ispolyclockwise(iterate(polys)[1])
+    for (i, poly) in enumerate(polys)
+        if (ispolyclockwise(poly) == firstpoly_orient) && !is_last_subpath
+            #@infiltrate
             empty!(current_subpaths)
             if !isempty(current_points)
                 shape = Shape(current_points, Vector{Vector{Point}}())
@@ -196,13 +200,15 @@ function create_shapes(polys)
             end
             current_points = poly
             is_last_subpath = false
-        elseif ispolyclockwise(poly)
+        elseif (ispolyclockwise(poly) == firstpoly_orient)
+            #@infiltrate
             shape = Shape(current_points, copy(current_subpaths))
             push!(shapes, shape)
             is_last_subpath = false
             current_points = poly
             empty!(current_subpaths)
         else # is a hole
+            #@infiltrate
             push!(current_subpaths, poly)
             is_last_subpath = true
         end

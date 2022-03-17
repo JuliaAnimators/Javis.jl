@@ -83,14 +83,26 @@ function draw_obj(::Val{:path}, o, defs)
     counter = 0
 
     # split without loosing the command
+    stroke_width = check_stroke(o)
+    """if stroke_width is nothing , we are parsing a poly, else we are parsing a stroke
+    we will go along the stroke path and make an offset poly of stroke-width around the poly, the we traverse a path on that poly """
+
+    """This way svg-strokes with certain width are drawn in luxor"""
+    if stroke_width !== nothing
+        path_so_far = storepath()
+        newpath()
+    end
+
+
     data_parts = split(data, r"(?=[A-Za-z])")
     # needs to keep track of the current point `c_pt` and the last point `l_pt`
     l_pt = O
     c_pt = O
     circle_pts = []
-    for pi in 1:length(data_parts)
-        p = data_parts[pi]
+    for p_i in 1:length(data_parts)
+        p = data_parts[p_i]
         command, args = p[1], p[2:end]
+        args = replace(args, "-" => " -")
         if command != 'T'
             counter = 0
         end
@@ -120,12 +132,40 @@ function draw_obj(::Val{:path}, o, defs)
             new_pt = Point(c_pt.x, parse(Float64, args))
             line(new_pt)
             l_pt, c_pt = c_pt, new_pt
+        elseif command == 'C'
+            #println("processing command C with args ", args...)
+            control_pt1 = parse.(Float64, split(args))[1:2]
+            control_pt2 = parse.(Float64, split(args))[3:4]
+            endpt = parse.(Float64, split(args))[5:6]
+            curve(control_pt1..., control_pt2..., endpt...)
+            l_pt, c_pt = Point(control_pt2...), Point(endpt...)
+        elseif command == 'S'
+            control_pt1 = l_pt + 2 * (c_pt - l_pt)
+            control_pt2 = parse.(Float64, split(args))[1:2]
+            endpt = parse.(Float64, split(args))[3:4]
+            curve(control_pt1..., control_pt2..., endpt...)
+            l_pt, c_pt = Point(control_pt2...), Point(endpt...)
         elseif command == 'Z'
             closepath()
         else
             @warn "Couldn't parse the svg command: $command"
         end
     end
+
+    if stroke_width !== nothing
+        """if stroke_width! is nothing , we had a stroke attr in the path
+        which also means there was no Z command and our path exists
+        """
+        polyp = poly(pathtopoly()..., :none)
+        if length(polyp) == 2
+            insert!(polyp, 2, (polyp[1] + polyp[2]) / 2)
+        end
+        #@infiltrate 
+        offsetp = offsetpoly(polyp, startoffset = stroke_width, endoffset = stroke_width)
+        drawpath(path_so_far, :path)
+        poly(offsetp, :path, close = true)
+    end
+
 end
 
 
@@ -173,6 +213,20 @@ function set_attrs(o)
     for attribute in attributes(o)
         sym = Symbol(name(attribute))
         set_attr(Val{sym}(), LightXML.value(attribute))
+    end
+end
+
+"""
+checks for stroke attribute , if exists and a stroke-width exists returns
+value of stroke-width, else returns nothing
+(although we probably could directly check for stroke-width???)
+"""
+function check_stroke(o)
+    attrs = name.(attributes(o))
+    if "stroke" in attrs && "stroke-width" in attrs
+        return float_attribute(o, "stroke-width")
+    else
+        return nothing
     end
 end
 
@@ -227,7 +281,17 @@ set_transform(t, args...) = @warn "Can't transform $t"
 set_attr(::Val{:href}, args...) = nothing
 set_attr(::Val{:d}, args...) = nothing
 set_attr(::Val{:id}, args...) = nothing
-set_attr(t, args...) = @warn "No attr match for $t"
+let shown_warning = []
+    """warn user only once of missing attr"""
+    global function set_attr(t, args...)
+        if t in shown_warning
+            nothing
+        else
+            @warn "No attr match for $t"
+            push!(shown_warning, t)
+        end
+    end
+end
 
 """
     svgwh(svg)
@@ -238,10 +302,18 @@ function svgwh(svg)
     fsize = get_current_setting().fontsize
     xdoc = parse_string(svg)
     xroot = root(xdoc)
-    # remove ex in the end
+    # remove ex in the end , or pt in the case of dvisvgm
     ex_width = parse(Float64, attribute(xroot, "width")[1:(end - 2)])
     ex_height = parse(Float64, attribute(xroot, "height")[1:(end - 2)])
-    return (fsize * (425 / 1000)) .* (ex_width, ex_height)
+
+
+    #width and height are different in tex2svg and dvisvgm
+    #tex2svg uses em while dvisvgm uses pt
+    if LaTeXprog == :tex2svg
+        return (fsize * (425 / 1000)) .* (ex_width, ex_height)
+    elseif LaTeXprog == :dvisvgm
+        return (fsize / 12) .* (ex_width, ex_height)
+    end
 end
 
 """
@@ -254,11 +326,15 @@ function pathsvg(svg)
     fsize = get_current_setting().fontsize
     xdoc = parse_string(svg)
     xroot = root(xdoc)
-    def_element = get_elements_by_tagname(xroot, "defs")[1]
-    # create a dict for all the definitions
     defs = Dict{String,Any}()
-    for def in collect(child_elements(def_element))
-        defs[attribute(def, "id")] = def
+    all_def_tags = get_elements_by_tagname(xroot, "defs")
+    if length(all_def_tags) != 0
+        #create a dict for all the definitions
+        def_element = all_def_tags[1]
+        #todo: what if there are multiple def tags?
+        for def in collect(child_elements(def_element))
+            defs[attribute(def, "id")] = def
+        end
     end
     x, y, width, height = parse.(Float64, split(attribute(xroot, "viewBox")))
     # remove ex in the end
@@ -270,7 +346,13 @@ function pathsvg(svg)
         # such that we can scale half of a font size (size of a lower letter)
         # with the corresponding height of the svg canvas
         # and the ex_height given in it's description
-        scale((fsize * (425 / 1000)) / (height / ex_height))
+        if LaTeXprog == :tex2svg
+            scale((fsize * (425 / 1000)) / (height / ex_height))
+        elseif LaTeXprog == :dvisvgm
+            #12 here (and in svgwh) is from \dcoumentclass[12pt] in  tex2svg function
+            scale((fsize / 12) / (height / ex_height))
+        end
+
         translate(-x, -y)
 
         for child in collect(child_elements(xroot))

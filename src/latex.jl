@@ -1,6 +1,19 @@
 # cache such that creating svgs from LaTeX don't need to be created every time
 # this is also used for test cases such that `tex2svg` doesn't need to be installed on Github Objects
 include("latexsvgfile.jl")
+LaTeXusepackages = ["amssymb", "amsmath"]
+LaTeXprog = :tex2svg
+
+""" set which backend to use
+    default is `:tex2svg`, set to
+    `setLaTeXprog(:dvisvgm)` to use pdflatex with dvisvgm
+    to generate latex 
+"""
+function setLaTeXprog(s::Symbol)
+    global LaTeXprog
+    LaTeXprog = s
+end
+
 latex(text::LaTeXString) = latex(text, O)
 latex(text::LaTeXString, pos::Point) = latex(text, pos, :stroke)
 latex(text::LaTeXString, pos::Point, valign::Symbol, halign::Symbol) =
@@ -139,24 +152,63 @@ end
 
 # \todo update LaTeXSVG cache to use output of strip_eq as the key. See https://github.com/JuliaAnimators/Javis.jl/pull/307#issuecomment-749616375
 function get_latex_svg(text::LaTeXString)
-    # check if it's cached
+    #check if it's cached
+    """ for now the default is to use tex2svg, from mathjax
+    pass `Javis.setLaTeXprog(:dvisvgm)` to yse dvisvgm
+    """
+
     if haskey(LaTeXSVG, text)
         svg = LaTeXSVG[text]
     else
-        ts = replace(strip_eq(text), "\n" => " ")
-        command = if Sys.iswindows()
-            `cmd /C tex2svg $ts`
-        else
-            `tex2svg $ts`
-        end
-        try
-            svg = read(command, String)
-        catch e
-            @warn "Using LaTeX needs the program `tex2svg` which might not be installed"
-            @info "It can be installed using `npm install -g mathjax-node-cli`"
-            throw(e)
+        if Javis.LaTeXprog == :tex2svg
+            ts = replace(strip_eq(text), "\n" => " ")
+            command = if Sys.iswindows()
+                `cmd /C tex2svg $ts`
+            else
+                `tex2svg $ts`
+            end
+            try
+                svg = read(command, String)
+            catch e
+                @warn "Using LaTeX needs the program `tex2svg` which might not be installed"
+                @info "It can be installed using `npm install -g mathjax-node-cli`,or if you have a TeX distribution installed try setting `setLaTeXprog(:dvisvgm)`"
+                throw(e)
+            end
+        elseif Javis.LaTeXprog == :dvisvgm
+            println("using dvisvgm")
+            svg = tex2svg(text)
         end
         LaTeXSVG[text] = svg
     end
     return svg
+end
+
+"""
+generates svg from LaTeXString;
+"""
+function tex2svg(text::LaTeXString;)
+    output_dir = mktempdir(cleanup = false)
+    packagestring = "{" * join(LaTeXusepackages, ",") * "}"
+    pre = "\\documentclass[12pt]{standalone}
+      \\usepackage$packagestring
+
+      \\begin{document}
+      "
+    post = "\\end{document}
+    "
+    texfilepath, texio = mktemp(output_dir, cleanup = false)
+    write(texio, pre * "\n")
+    write(texio, text)
+    write(texio, "\n" * post)
+    flush(texio)
+    #sometimes latex returns 1,so we use `success` instead of `run`; but pdf is made so its okay 
+    stat = success(
+        `latex  --interaction=nonstopmode --output-dir=$output_dir --output-format=pdf $texfilepath`,
+    )
+    if stat == false
+        @warn "there maybe errors in processing latex, check $texfilepath.log for details"
+    end
+    retstring = read(`dvisvgm -n --bbox=preview --stdout --pdf  $texfilepath.pdf`, String)
+    return retstring
+
 end
