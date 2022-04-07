@@ -8,6 +8,9 @@ latex(text::LaTeXString, pos::Point, valign::Symbol, halign::Symbol) =
 latex(text::LaTeXString, x, y) = latex(text, Point(x, y), :stroke)
 latex(text::LaTeXString, x, y, valign::Symbol, halign::Symbol) =
     latex(text, Point(x, y), :stroke, valign = valign, halign = halign)
+latex(text::LaTeXString, pos::Point; valign=:top, halign=:left) =
+    latex(text, pos, :stroke, valign = valign, halign = halign)
+
 """
     latex(text::LaTeXString, pos::Point, object::Symbol; valign = :top, halign = :left)
 
