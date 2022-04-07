@@ -54,7 +54,7 @@ end
     Object((args...) -> latex(L"8", O + Point(20, 20), :bottom, :right))
     Object((args...) -> latex(L"8", O + Point(20, 20), :bottom, :left))
     Object((args...) -> latex(L"8", O + Point(20, 20), :top, :right))
-    Object((args...) -> latex(L"8", O + Point(20, 20), valign=:top, halign=:right))
+    Object((args...) -> latex(L"8", O + Point(20, 20), valign = :top, halign = :right))
 
     # testing for warn log message on passing incorrect input alignment parameters (default used)
     Object((args...) -> latex(L"8", O + Point(20, 20), :left, :top))
