@@ -295,6 +295,10 @@
         act!(a, Action(RFrames(1:3), appear(:fade))) # 1:3
         render(video; tempdirectory = "images", pathname = "")
         @test Javis.get_frames(a.actions[1]) == 1:3
+
+        for i in readdir("images", join = true)
+            endswith(i, ".png") && rm(i)
+        end
     end
 
     @testset "anim_" begin

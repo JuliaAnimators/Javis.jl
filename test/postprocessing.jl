@@ -131,8 +131,8 @@ end
         @test_reference "images/$png_no_pad.png" load("images/$png_pad.png")
     end
 
-    for i in 1:n_frames
-        rm("images/$(lpad(i, 10, "0")).png")
+    for i in readdir("images", join = true)
+        endswith(i, ".png") && rm(i)
     end
 
     function postprocess_crop(frame_image, idx, frames)
@@ -158,8 +158,8 @@ end
         @test_reference "images/$png_no_crop.png" load("images/$png_crop.png")
     end
 
-    for i in 1:n_frames
-        rm("images/$(lpad(i, 10, "0")).png")
+    for i in readdir("images", join = true)
+        endswith(i, ".png") && rm(i)
     end
 end
 

@@ -11,6 +11,7 @@ function _JStar(
 )
     sethue(color)
     setline(linewidth)
+    center = get_position(center)
     star(center, radius, npoints, ratio, orientation, action, reversepath = reversepath)
     return center
 end
@@ -33,7 +34,7 @@ Return the center of the star.
 - `reversepath` if true it reverses the path and therefore creates a hole (default: true)
 """
 JStar(
-    center::Point,
+    center::Luxor.AbstractPoint,
     radius;
     color = "black",
     linewidth = 2,

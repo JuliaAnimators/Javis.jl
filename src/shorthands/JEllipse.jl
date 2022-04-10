@@ -1,13 +1,21 @@
-function _JEllipse(cpt::Point, w::Real, h::Real, color, linewidth, action::Symbol)
+function _JEllipse(
+    cpt::Luxor.AbstractPoint,
+    w::Real,
+    h::Real,
+    color,
+    linewidth,
+    action::Symbol,
+)
     sethue(color)
     setline(linewidth)
+    cpt = get_position(cpt)
     ellipse(cpt, w, h, action)
     return cpt
 end
 
 function _JEllipse(
-    focus1::Point,
-    focus2::Point,
+    focus1::Luxor.AbstractPoint,
+    focus2::Luxor.AbstractPoint,
     k::Union{Real,Point},
     color,
     linewidth,
@@ -17,6 +25,8 @@ function _JEllipse(
 )
     sethue(color)
     setline(linewidth)
+    focus1 = get_position(focus1)
+    focus2 = get_position(focus2)
     ellipse(focus1, focus2, k, action, stepvalue = stepvalue, reversepath = reversepath)
     return focus1, focus2
 end
@@ -33,7 +43,14 @@ Returns the center of the ellipse.
 - `linewidth` = 2
 - `action::Symbol` :stroke by default can be `:fill` or other actions explained in the Luxor documentation.
 """
-JEllipse(cpt::Point, w::Real, h::Real; color = "black", linewidth = 2, action = :stroke) =
+JEllipse(
+    cpt::Luxor.AbstractPoint,
+    w::Real,
+    h::Real;
+    color = "black",
+    linewidth = 2,
+    action = :stroke,
+) =
     (
         args...;
         cpt = cpt,
@@ -54,8 +71,8 @@ Build a polygon approximation to an ellipse, given two points and a distance, k,
 required to go from one focus to the perimeter and on to the other focus).
 """
 JEllipse(
-    focus1::Point,
-    focus2::Point,
+    focus1::Luxor.AbstractPoint,
+    focus2::Luxor.AbstractPoint,
     k::Real;
     color = "black",
     linewidth = 2,
@@ -78,8 +95,8 @@ JEllipse(
 Build a polygon approximation to an ellipse, given two points and a point somewhere on the ellipse.
 """
 JEllipse(
-    focus1::Point,
-    focus2::Point,
+    focus1::Luxor.AbstractPoint,
+    focus2::Luxor.AbstractPoint,
     pt::Point;
     color = "black",
     linewidth = 2,

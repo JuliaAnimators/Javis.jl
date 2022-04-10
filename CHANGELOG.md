@@ -4,6 +4,7 @@
 - add overload for keyword arguments to latex() function
 - change font scaling in svg2luxor from 1/2 to 425/1000
 - change default line width to 2.0 like luxor 
+- add `get_delayed_position` and `delayed_pos`
 
 ## v0.8.0 (1st of February 2022)
 - Allow Luxor v3.0

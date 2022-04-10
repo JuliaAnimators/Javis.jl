@@ -52,6 +52,7 @@ Transformation(p, a) = Transformation(p, a, 1.0)
 Transformation(p, a, s::Float64) = Transformation(p, a, (s, s))
 Transformation(p, a, s::Tuple{Float64,Float64}) = Transformation(p, a, Scale(s...))
 
+include("structs/Delayed.jl")
 include("structs/ObjectSetting.jl")
 include("structs/Object.jl")
 include("structs/Transitions.jl")
@@ -135,6 +136,17 @@ function centered_point(pos::Point, width::Int, height::Int)
 end
 
 """
+    centered_point
+
+Dispatch centered_point to DelayedPosition to adjust layer position.
+# Returns
+- `dp::DelayedPosition`: the "delayed" location of the center of a layers wrt global canvas.
+"""
+function centered_point(pos::DelayedPosition, width::Int, height::Int)
+    Point(get_position(pos).x - width / 2, get_position(pos).y - height / 2)
+end
+
+"""
     preprocess_frames!(video::Video)
 
 """
@@ -204,6 +216,9 @@ end
 # finally objects
 flatten!(objects::Array{AbstractObject}, object::Object) = push!(objects, object)
 
+
+const CURRENTLY_RENDERING = [false]
+
 """
     render(
         video::Video;
@@ -255,6 +270,8 @@ function render(
     postprocess_frames_flow = identity,
     postprocess_frame = default_postprocess,
 )
+
+    CURRENTLY_RENDERING[1] = true
     layers = video.layers
     objects = video.objects
     frames = preprocess_frames!(video)
@@ -341,6 +358,7 @@ function render(
         filecounter += 1
     end
 
+    CURRENTLY_RENDERING[1] = false
     isempty(pathname) && return
     if ext == ".gif"
         # generate a colorpalette first so ffmpeg does not have to guess it
@@ -559,7 +577,7 @@ function get_javis_frame(video, objects, frame; layers = Layer[])
 
     # check if any layers have been defined
     if !isempty(layers)
-        starting_positions = Point[]
+        starting_positions = Luxor.AbstractPoint[]
         # render each layer's objects and store the layer's Drawing as an image matrix
         for layer in layers
             push!(starting_positions, layer.position)
@@ -727,6 +745,7 @@ export Video, Object, Background, Action, RFrames, GFrames
 export @JLayer, background
 export Line, Transformation
 export val, pos, ang, scl, get_value, get_position, get_angle, get_scale
+export get_delayed_position, delayed_pos
 export projection, morph_to
 export appear, disappear, rotate_around, follow_path, change
 export rev

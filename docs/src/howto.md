@@ -19,7 +19,7 @@ Background(1:100, ground)
 render(video; pathname="how_to.gif")
 ```
 
-## Why are all my `Javis` functions undefined? 
+## Why are all my `Javis` functions undefined?
 
 If you have worked with the Julia drawing package [`Luxor.jl`](https://github.com/JuliaGraphics/Luxor.jl), you will be happy to see that it provides all the drawing functions that `Javis` uses.
 `Javis` is basically an abstraction layer built on on top of `Luxor.jl` which provides functions to animate the static images you can create with `Luxor` more easily.
@@ -51,6 +51,7 @@ There are currently three different ways to define frames inside Javis.
 The simplest one is to define the `UnitRange` like `1:100` as above such that the action is called for every frame from `1` to `100`.
 
 **Examples:**
+
 ```julia
 Object(1:100, (args...)->circle(O, 50, :fill))
 Object(1:50, (args...)->circle(O, 70, :stroke))
@@ -59,6 +60,7 @@ Object(1:50, (args...)->circle(O, 70, :stroke))
 It is relatively often the case that the following action should work with the same frames as the previous action this can be done with.
 
 **Examples:**
+
 ```julia
 Object(1:100, (args...)->circle(O, 50, :fill))
 Object(:same, (args...)->circle(O, 20, :stroke), Point(100, 100))
@@ -70,12 +72,14 @@ so either use the symbol `:same` or just don't mention frames.
 The last option is to define frames relative to the previous frame. More precisely the end of the last frame.
 
 **Examples:**
+
 ```julia
 Object(1:50, (args...)->circle(O, 50, :fill))
 Object(RFrames(1:50), (args...)->circle(O, 20, :stroke), Point(100, 100))
 ```
 
 This is the same as:
+
 ```julia
 Object(1:50, (args...)->circle(O, 50, :fill))
 Object(51:100, (args...)->circle(O, 20, :stroke), Point(100, 100))
@@ -95,6 +99,7 @@ this is using a change in opacity to show the circle.
 There are two other options `:scale` and `:fade_line_width`. `:scale` also works for every kind of [`Object`](@ref) whereas `:fade_line_width` only works if you only draw the stroke instead of using fill.
 
 **Example:**
+
 ```julia
 circ = Object(1:100, (args...)->circle(O, 50, :stroke))
 act!(circ, Action(1:50, appear(:fade_line_width)))
@@ -117,6 +122,7 @@ end
 ```
 
 Now we define two actions:
+
 1. Drawing a circle and saving the position `my_circle`
 2. Drawing a rectangle above the circle
 
@@ -130,17 +136,18 @@ In this animation the position of the circle is saved inside `my_circle` and can
 
 ## How can I show a text being drawn?
 
-A `text` or [`latex`](@ref) rendering can appear as *any* other object with `appear(:fade)` and `appear(:scale)`, However, it also has a special [`appear`](@ref) functionality called 
+A `text` or [`latex`](@ref) rendering can appear as _any_ other object with `appear(:fade)` and `appear(:scale)`, However, it also has a special [`appear`](@ref) functionality called
 `:draw_text`.
 
-You can use 
+You can use
+
 ```julia
 my_text = Object(1:100, (args...) -> text("Hello World!"; halign = :center))
 act!(my_text, Action(1:15, sineio(), appear(:draw_text)))
 act!(my_text, Action(76:100, sineio(), disappear(:draw_text)))
 ```
 
-to let the text `"Hello World!"` appear from left to right in an animated way. 
+to let the text `"Hello World!"` appear from left to right in an animated way.
 
 ## How can I have an object follow a path?
 
@@ -154,12 +161,14 @@ my_star = Object(1:100, (args...) -> star(O, 20, 5, 0.5, 0, :fill))
 act!(my_star, Action(1:100, follow_path(star(O, 200))))
 ```
 
-in this case a star is following the path of a bigger star. 
+in this case a star is following the path of a bigger star.
+
 > **NOTE:** the star inside [`follow_path`](@ref) should have the `action=:none` which is the default for most Luxor functions.
 
 > **NOTE:** Unfortunately the above currently only works for some Luxor functions like `ngon` and `star` but not for `circle` and `rect` as they return `true` instead of the points.
 
 In that case you need to define a function like:
+
 ```julia
 function ground(args...)
     background("white")
@@ -179,7 +188,6 @@ my_star = Object(1:100, (args...) -> star(O, 20, 5, 0.5, 0, :fill))
 act!(my_star, Action(1:100, follow_path(luxor2poly(()->rect(O, 100, 100, :path)))))
 render(video; pathname="follow_path.gif")
 ```
-
 
 Another possibility is to specify a vector of points like this:
 
@@ -212,9 +220,51 @@ The live viewer can be called with adding `; liveview=true` to the [`render`](@r
 
 For longer videos, it can happen that rendering takes some time.
 A long time.
-One way to reduce rendering time is that you can render a scaled version of the animation to check if everything is animated as expected. 
+One way to reduce rendering time is that you can render a scaled version of the animation to check if everything is animated as expected.
 
 By using `render(video; pathname="how_to.gif", rescale_factor=0.5)`, the rendering process can be sped up generally a factor of 2.
-This scales the frames of an animation down to half where a `Video(1000, 1000)` will be shown as a `Video(500, 500)` rendered video. 
+This scales the frames of an animation down to half where a `Video(1000, 1000)` will be shown as a `Video(500, 500)` rendered video.
 
 > **Note:** You might want to experiment with rendering to `mp4` instead of `gif` as well.
+
+## Why does `pos` always throws error?
+
+Both `get_position` and `pos` are a bit unintuitive in the sense that one may think that this should work:
+
+```julia
+vid = Video(500, 500)
+Background(1:50, (args...)->background("black"))
+o1 = Object(JCircle(O, 10, action=:fill))
+o2 = Object(JCircle(pos(o1), 5, action=:fill))
+render(vid)
+```
+
+However this will throw an error:
+
+```julia
+MethodError: no method matching get_position(::Nothing)
+```
+
+This happens because the `pos` is supposed to be used by the drawing function at render time. This means that instead of the above this would work:
+
+```julia
+vid = Video(500, 500)
+Background(1:50, (args...)->background("black"))
+o1 = Object(JCircle(O, 10, action=:fill))
+o2 = Object(@JShape begin
+        circle(pos(o1), 5, :fill)
+    end)
+render(vid)
+```
+
+However there is an alternative to `pos` to make the first example work, `get_delayed_position` and you can use this just like above:
+
+```julia
+vid = Video(500, 500)
+Background(1:50, (args...)->background("black"))
+o1 = Object(JCircle(O, 10, action=:fill, color="red"))
+# it works with or w/o this line and the effect changes coherently!!!
+act!(o1, Action(anim_translate(Point(100, 0))))
+o2 = Object(25:50, JCircle(delayed_pos(o1), 5, action=:fill, color="blue"))
+render(vid)
+```

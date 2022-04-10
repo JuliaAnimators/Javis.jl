@@ -18,7 +18,7 @@ mutable struct Layer <: AbstractObject
     frames::Frames
     width::Int
     height::Int
-    position::Point
+    position::Luxor.AbstractPoint
     layer_objects::Vector{AbstractObject}
     actions::Vector{AbstractAction}
     current_setting::LayerSetting
@@ -40,7 +40,7 @@ function Layer(
     frames,
     width,
     height,
-    position::Point;
+    position::Luxor.AbstractPoint;
     layer_objects::Vector{AbstractObject} = AbstractObject[],
     actions::Vector{AbstractAction} = AbstractAction[],
     setting::LayerSetting = LayerSetting(),

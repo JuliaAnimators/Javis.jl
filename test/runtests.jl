@@ -59,4 +59,7 @@ end
     @testset "Javis Viewer" begin
         include("viewer.jl")
     end
+    @testset "Delayed" begin
+        include("delayed.jl")
+    end
 end

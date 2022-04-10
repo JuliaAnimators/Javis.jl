@@ -18,6 +18,16 @@ get_position(p::Point) = p
 get_position(t::Transformation) = t.point
 
 """
+    get_delayed_position(obj::Object)
+
+In principle this is similar to [`get_position`](@ref) however, unlike that 
+one it gets evaluated the first time is called after the rendering has started.
+"""
+function get_delayed_position(obj::AbstractObject)
+    DelayedPosition(obj, O, false)
+end
+
+"""
     get_position(obj::Object)
 
 Get access to the position that got saved in a previous object.
@@ -32,12 +42,27 @@ function get_position(obj::Object)
     return get_position(obj.result[1])
 end
 
+function get_position(p::DelayedPosition)
+    if CURRENTLY_RENDERING[1] && !p.called
+        p.called = true
+        p.position += get_position(p.obj)
+    end
+    return p.position
+end
+
 """
     pos(x)
 
 `pos` is just a short-hand for [`get_position`](@ref)
 """
 pos(x) = get_position(x)
+
+"""
+    delayed_pos(x)
+
+`delayed_pos` is just a short-hand for [`get_delayed_position`](@ref)
+"""
+delayed_pos(x) = get_delayed_position(x)
 
 # As it is just the number tuple -> return it
 get_scale(x::Tuple{<:Number,<:Number}) = Scale(x...)
