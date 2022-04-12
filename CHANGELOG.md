@@ -1,6 +1,7 @@
 # Javis.jl - Changelog
 
 ##for PR-
+- Fix inconsistencies in tutorial 2
 - add overload for keyword arguments to latex() function
 - change font scaling in svg2luxor from 1/2 to 425/1000
 - change default line width to 2.0 like luxor 
