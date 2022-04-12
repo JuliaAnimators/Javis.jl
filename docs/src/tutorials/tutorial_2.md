@@ -89,7 +89,7 @@ Here is how we use `@JShape` to define the orbits of a planet:
 ...
 
 earth = Object(1:frames, JCircle(O, 10, color = "blue", action = :fill), Point(200, 0))
-venus = Object(JCircle(O, 7, color = "red", action = :fill), Point(144, 0))
+venus = Object(1:frames, JCircle(O, 7, color = "red", action = :fill), Point(144, 0))
 
 earth_orbit = Object(@JShape begin
     sethue(color)
@@ -120,7 +120,7 @@ For that, we will use some `Action`'s to make them move (read the code comments 
 # We need the planets to revolve according to their time periods.
 # Earth completes its one revolution in 365 days and Venus does that in 224.7 days.
 # Hence, we need to multiply (224.7/365) so that the time period matches properly i.e.,
-# When earth completes its full revolution, Venus has done (224.7/365) th of its revolution.
+# When Venus completes its full revolution, Earth has done (224.7/365) th of its revolution.
 act!(earth, Action(anim_rotate_around(12.5 * 2π * (224.7 / 365), O)))
 act!(venus, Action(anim_rotate_around(12.5 * 2π, O)))
 
@@ -216,7 +216,7 @@ myvideo = Video(500, 500)
 Background(1:frames, ground)
 
 earth = Object(1:frames, JCircle(O, 10, color = "blue", action = :fill), Point(200, 0))
-venus = Object(JCircle(O, 7, color = "red", action = :fill), Point(144, 0))
+venus = Object(1:frames, JCircle(O, 7, color = "red", action = :fill), Point(144, 0))
 
 earth_orbit = Object(@JShape begin
     sethue(color)
