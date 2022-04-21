@@ -16,6 +16,7 @@ line(O, Point(10, 10))
 - `linewidth`: the line width in pixel
 """
 function setline(linewidth)
+    CURRENTLY_RENDERING[1] || return Luxor.setline(linewidth)
     cs = get_current_setting()
     cs.line_width = linewidth
     current_line_width = cs.line_width * cs.mul_line_width
@@ -40,6 +41,7 @@ circle(O, 20, :fill)
 - `opacity`: the opacity between 0.0 and 1.0
 """
 function setopacity(opacity)
+    CURRENTLY_RENDERING[1] || return Luxor.setopacity(opacity)
     cs = get_current_setting()
     cs.opacity = opacity
     current_opacity = cs.opacity * cs.mul_opacity
@@ -61,6 +63,7 @@ text("Hello World!")
 - `fsize`: the new font size
 """
 function fontsize(fsize)
+    CURRENTLY_RENDERING[1] || return Luxor.fontsize(fsize)
     cs = get_current_setting()
     cs.fontsize = fsize
     Luxor.fontsize(fsize)
@@ -121,6 +124,7 @@ Same as [`scale`](@ref) but the x scale and y scale can be changed independently
 - `scl_y`: scale in y direction
 """
 function scale(scl_x, scl_y)
+    CURRENTLY_RENDERING[1] || return Luxor.scale(scl_x, scl_y)
     cs = get_current_setting()
     cs.desired_scale = Scale(scl_x, scl_y)
     scale_by = cs.desired_scale * cs.mul_scale
@@ -240,6 +244,8 @@ draws the text from left to right in the first 15 frames and in the last 15 fram
 - `angle::Float64` defaults to `0.0` and specifies the angle of the text
 """
 function text(str, pos = O; valign = :baseline, halign = :left, angle = 0.0)
+    CURRENTLY_RENDERING[1] ||
+        return Luxor.text(str, pos; valign = valign, halign = halign, angle = angle)
     object = CURRENT_OBJECT[1]
     opts = object.opts
     t = get(opts, :draw_text_t, 1.0)
