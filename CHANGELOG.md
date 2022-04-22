@@ -1,9 +1,10 @@
 # Javis.jl - Changelog
 
 ##for PR-
-- add overload for keyword arguments to latex() function
-- change font scaling in svg2luxor from 1/2 to 425/1000
-- change default line width to 2.0 like luxor 
+- Add example for Chaos Game
+- Add overload for keyword arguments to latex() function
+- Change font scaling in svg2luxor from 1/2 to 425/1000
+- Change default line width to 2.0 like luxor 
 
 ## v0.8.0 (1st of February 2022)
 - Allow Luxor v3.0
