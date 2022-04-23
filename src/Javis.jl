@@ -1,5 +1,4 @@
 module Javis
-
 using Animations
 import Cairo: CairoImageSurface, image
 using FFMPEG
@@ -13,10 +12,12 @@ using LaTeXStrings
 using LightXML
 import Luxor
 import Luxor: Point, @layer, translate, rotate, @imagematrix
+#import Luxor: strokepath
 using ProgressMeter
 using Random
 using Statistics
 using VideoIO
+using Colors
 
 const FRAMES_SYMBOL = [:same, :all]
 

@@ -1,3 +1,12 @@
+
+struct JPoly
+    points::Array{Point}
+    closed::Bool
+    fill::Color
+    stroke::Color
+    linewidth::Number
+end
+
 """
     Object
 
@@ -23,7 +32,9 @@ mutable struct Object <: AbstractObject
     opts::Dict{Symbol,Any}
     change_keywords::Dict{Symbol,Any}
     result::Vector
+    jpolys::Any
 end
+
 
 """
     CURRENT_OBJECT
@@ -85,6 +96,7 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
             union(CURRENT_VIDEO[1].background_frames, frames)
     end
 
+
     object = Object(
         frames,
         func,
@@ -94,6 +106,7 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
         opts,
         Dict{Symbol,Any}(),
         Any[nothing],
+        getjpaths(func),  
     )
 
     # store the original object func 
@@ -108,6 +121,18 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
     end
 
     return object
+end
+
+CURRENT_JPATHS = JPoly[] #TODO change to const later
+CURRENT_FETCHPATH_STATE = false
+
+function getjpaths(func::Function)
+    Drawing()
+    empty(CURRENT_JPATHS)
+    global CURRENT_FETCHPATH_STATE = true 
+    func()
+    global CURRENT_FETCHPATH_STATE = false 
+    return deepcopy(CURRENT_JPATHS) ## TODO change this 
 end
 
 """

@@ -279,3 +279,30 @@ function background(background_color)
     end
     Luxor.background(background_color)
 end
+
+function Luxor.strokepath()
+    println("test strokepath")
+    #save path to CURRENT_JPATH
+    #TODO
+    Luxor.get_current_strokescale() ? Luxor.Cairo.stroke_transformed(Luxor.get_current_cr()) : Luxor.Cairo.stroke(Luxor.get_current_cr())
+end
+
+function Luxor.strokepreserve()
+    println("teststrokepreserve")
+    #TODO
+    Luxor.get_current_strokescale() ? Luxor.Cairo.stroke_preserve_transformed(Luxor.get_current_cr()) : Luxor.Cairo.stroke_preserve(Luxor.get_current_cr())
+
+end
+
+function Luxor.fillpath()
+    println("test fillpath")
+    #TODO 
+    Luxor.Cairo.fill(Luxor.get_current_cr())
+end
+
+function Luxor.fillpreserve()
+    println("test fill preserve")
+    #TODO 
+    Luxor.Cairo.fill_preserve(Luxor.get_current_cr())
+end
+
