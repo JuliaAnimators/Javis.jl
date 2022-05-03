@@ -1,11 +1,28 @@
+"""
+    JPath
 
-struct JPoly
-    points::Array{Point}
-    closed::Bool
-    fill::Color
-    stroke::Color
+a polygon representation of a path, every Object will have a list of JPaths under the
+field jpaths.
+
+Every JPath has the following fields.
+
+- `polys` a list of polygons that makes up the path
+- `closed` a list of bools of same length as `polys`. closed[i] 
+states if polys[i] is a closed polygon or not
+- `fill` a vector of 4 numbers , R, G ,B and A the color it
+should be filled with. if the path was not filled its A is set to 0
+(along with R,G,B) this way its an "invisible" fill.
+- `stroke a vector of 4 numbers just like `fill` for the stroke color.
+- linewidth for stroke 
+"""
+struct JPath
+    polys::Vector{Vector{Point}}
+    closed::Vector{Bool}
+    fill::Vector{Number}
+    stroke::Vector{Number}
     linewidth::Number
 end
+
 
 """
     Object
@@ -32,7 +49,7 @@ mutable struct Object <: AbstractObject
     opts::Dict{Symbol,Any}
     change_keywords::Dict{Symbol,Any}
     result::Vector
-    jpolys::Any
+    jpaths::Any
 end
 
 
@@ -123,16 +140,23 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
     return object
 end
 
-CURRENT_JPATHS = JPoly[] #TODO change to const later
+CURRENT_JPATHS = JPath[] #TODO change to const later
 CURRENT_FETCHPATH_STATE = false
 
-function getjpaths(func::Function)
+function getjpaths(func::Function,args=[])
     Drawing()
-    empty(CURRENT_JPATHS)
+    empty!(CURRENT_JPATHS)
     global CURRENT_FETCHPATH_STATE = true 
-    func()
+    v,o,f=nothing,nothing,nothing
+    #for now just make it nothing,
+    #this will cause problems if the user defines  
+    #the Object.func with types for the arguments
+    #TODO discuss a solution for this.
+    func(v,o,f,args...)
     global CURRENT_FETCHPATH_STATE = false 
-    return deepcopy(CURRENT_JPATHS) ## TODO change this 
+    ret = deepcopy(CURRENT_JPATHS) 
+    empty!(CURRENT_JPATHS)
+    return ret
 end
 
 """

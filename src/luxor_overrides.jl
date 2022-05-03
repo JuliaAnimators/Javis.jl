@@ -281,14 +281,28 @@ function background(background_color)
 end
 
 function Luxor.strokepath()
-    println("test strokepath")
+    println("test strokepaths")
     #save path to CURRENT_JPATH
-    #TODO
+    #TODO 
+    #linewidth
+    #check for transform
+    if CURRENT_FETCHPATH_STATE==true
+        println("adding to CURRENT_JPATH")
+        cur_polys = pathtopoly(Val(:costate))
+        #cur_polys is of 2 element Tuple 
+        #containg 2 arrays 1 with Polygons and one with the bools
+        r,g,b,a = map( sym -> getfield(Luxor.CURRENTDRAWING[1],sym),
+                      [:redvalue,:bluevalue,:greenvalue,:alpha])
+        fill = [0.0,0,0,0]
+        stroke = [r,g,b,a]
+        currpath = JPath(cur_polys[1],cur_polys[2],fill,stroke,2)
+        push!(CURRENT_JPATHS,currpath)
+    end
     Luxor.get_current_strokescale() ? Luxor.Cairo.stroke_transformed(Luxor.get_current_cr()) : Luxor.Cairo.stroke(Luxor.get_current_cr())
 end
 
 function Luxor.strokepreserve()
-    println("teststrokepreserve")
+    println("teststrokepreserves")
     #TODO
     Luxor.get_current_strokescale() ? Luxor.Cairo.stroke_preserve_transformed(Luxor.get_current_cr()) : Luxor.Cairo.stroke_preserve(Luxor.get_current_cr())
 
@@ -306,3 +320,55 @@ function Luxor.fillpreserve()
     Luxor.Cairo.fill_preserve(Luxor.get_current_cr())
 end
 
+function Luxor.pathtopoly(::Val{:costate})
+    originalpath = getpathflat()
+    polygonlist = Array{Point,1}[]
+    sizehint!(polygonlist, length(originalpath))
+    co_states = Bool[]
+    sizehint!(co_states, length(polygonlist))
+    if length(originalpath) > 0
+        pointslist = Point[]
+        for e in originalpath
+            if e.element_type == Luxor.Cairo.CAIRO_PATH_MOVE_TO                # 0
+                if !isempty(pointslist)
+                    #if poinstlist is not empty and we come across a move
+                    #we flush and create a new subpath
+                    if (last(pointslist) == first(pointslist)) && length(pointslist) > 2
+                        #but first lets check if what we flush is closed or open. 
+                        push!(co_states, true)
+                        pop!(pointslist)
+                    else
+                        push!(co_states, false)
+                    end
+                    push!(polygonlist, pointslist)
+                    pointslist = Point[]
+                end
+                push!(pointslist, Point(first(e.points), last(e.points)))
+            elseif e.element_type == Luxor.Cairo.CAIRO_PATH_LINE_TO            # 1
+                push!(pointslist, Point(first(e.points), last(e.points)))
+            elseif e.element_type == Luxor.Cairo.CAIRO_PATH_CLOSE_PATH         # 3
+                push!(co_states, true)
+                if last(pointslist) == first(pointslist)
+                    # don’t repeat first point, we can close it ourselves
+                    if length(pointslist) > 2
+                        pop!(pointslist)
+                    end
+                end
+                push!(polygonlist, pointslist)
+                pointslist = Point[]
+            else
+                error("pathtopoly(): unknown CairoPathEntry " * repr(e.element_type))
+                error("pathtopoly(): unknown CairoPathEntry " * repr(e.points))
+            end
+        end
+        # the path was never closed, so flush
+        if length(pointslist) > 0
+            push!(co_states, false)
+            push!(polygonlist, pointslist)
+        end
+    end
+    #"""check if everything went well"""
+    @assert length(polygonlist) == length(co_states)
+    #"""return polygonlist, and its closed/open state"""
+    return polygonlist, co_states
+end
