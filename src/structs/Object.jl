@@ -164,9 +164,6 @@ function getjpaths(func::Function,args=[])
 end
 
 function drawobj_jpaths(obj::Object)
-    Drawing()
-    background("white")#just for testing
-    origin()#just for testing
     for jpath in obj.jpaths
         for (polyi,co_state) in zip(jpath.polys,jpath.closed)
             #place the polys
@@ -182,9 +179,6 @@ function drawobj_jpaths(obj::Object)
         Luxor.setopacity(jpath.stroke[4])
         Luxor.strokepath()
     end
-    #for testing...
-    finish()
-    preview()
 end
 
 """
