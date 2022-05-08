@@ -169,7 +169,7 @@ function drawobj_jpaths(obj::Object)
             #place the polys
             if length(polyi)>1
                 #TODO maybe prune all single-point polys before they are added to obj.jpaths
-                poly(polyi;close=co_state)
+                poly(polyi;action=:path,close=co_state)
             end
         end
         Luxor.setcolor(jpath.fill[1:3]...)
