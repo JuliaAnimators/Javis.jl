@@ -281,14 +281,13 @@ function background(background_color)
 end
 
 function Luxor.strokepath()
-    println("test strokepaths")
     #save path to CURRENT_JPATH
     #TODO 
     #linewidth
     #check for transform , refer TODO comment in the struct definition of JPath.
     #dashstyle
     if CURRENT_FETCHPATH_STATE==true
-        println("adding to CURRENT_JPATH")
+        println("test strokepaths")
         cur_polys,cur_costates = pathtopoly(Val(:costate))
         #cur_polys is of 2 element Tuple 
         #containg 2 arrays 1 with Polygons and one with the bools
@@ -301,8 +300,10 @@ function Luxor.strokepath()
         #TODO see if the == operator is the right way to compare
         #two polys.
         if length(CURRENT_JPATHS)>0 && cur_polys == CURRENT_JPATHS[end].polys 
+            print("found similar path\n")
             CURRENT_JPATHS[end].stroke = stroke
         else
+            println("adding to CURRENT_JPATH")
             currpath = JPath(cur_polys,cur_costates,fill,stroke,2)
             push!(CURRENT_JPATHS,currpath)
         end
@@ -311,13 +312,12 @@ function Luxor.strokepath()
 end
 
 function Luxor.strokepreserve()
-    println("teststrokepreserves")
     #TODO
     #linewidth
     #transform
     #dashstyle
     if CURRENT_FETCHPATH_STATE==true
-        println("adding to CURRENT_JPATH")
+        println("teststrokepreserves")
         cur_polys,cur_costates = pathtopoly(Val(:costate))
         r,g,b,a = map( sym -> getfield(Luxor.CURRENTDRAWING[1],sym),
                       [:redvalue,:bluevalue,:greenvalue,:alpha])
@@ -325,8 +325,10 @@ function Luxor.strokepreserve()
         stroke = [r,g,b,a]
         #TODO check == 
         if length(CURRENT_JPATHS)>0 && cur_polys == CURRENT_JPATHS[end].polys
+            print("found similar path\n")
             CURRENT_JPATHS[end].stroke = stroke
         else
+            println("adding to CURRENT_JPATH")
             currpath = JPath(cur_polys,cur_costates,fill,stroke,2)
             push!(CURRENT_JPATHS,currpath)
         end
@@ -336,12 +338,38 @@ function Luxor.strokepreserve()
 end
 
 function Luxor.fillpath()
-    println("test fillpath")
     #TODO 
     #linewidth
     #transform
     #dashstyle
     if CURRENT_FETCHPATH_STATE==true
+        println("test fillpath")
+        cur_polys,cur_costates = pathtopoly(Val(:costate))
+        r,g,b,a = map( sym -> getfield(Luxor.CURRENTDRAWING[1],sym),
+                      [:redvalue,:bluevalue,:greenvalue,:alpha])
+        fill = [r,g,b,a]
+        stroke = [0.0,0.0,0.0,0.0]
+        #TODO check == 
+        if length(CURRENT_JPATHS)>0 && cur_polys == CURRENT_JPATHS[end].polys
+            print("found similar path\n")
+            CURRENT_JPATHS[end].fill = fill 
+        else
+            println("adding to CURRENT_JPATH")
+            currpath = JPath(cur_polys,cur_costates,fill,stroke,2)
+            push!(CURRENT_JPATHS,currpath)
+        end
+    end
+    Luxor.Cairo.fill(Luxor.get_current_cr())
+end
+
+function Luxor.fillpreserve()
+    #TODO 
+    #linewith
+    #transform
+    #dashtyle
+    if CURRENT_FETCHPATH_STATE==true
+        println("test fill preserve")
+        println("adding to CURRENT_JPATH")
         cur_polys,cur_costates = pathtopoly(Val(:costate))
         r,g,b,a = map( sym -> getfield(Luxor.CURRENTDRAWING[1],sym),
                       [:redvalue,:bluevalue,:greenvalue,:alpha])
@@ -353,30 +381,6 @@ function Luxor.fillpath()
             CURRENT_JPATHS[end].fill = fill 
         else
             print("adding newpath\n")
-            currpath = JPath(cur_polys,cur_costates,fill,stroke,2)
-            push!(CURRENT_JPATHS,currpath)
-        end
-    end
-    Luxor.Cairo.fill(Luxor.get_current_cr())
-end
-
-function Luxor.fillpreserve()
-    println("test fill preserve")
-    #TODO 
-    #linewith
-    #transform
-    #dashtyle
-    if CURRENT_FETCHPATH_STATE==true
-        println("adding to CURRENT_JPATH")
-        cur_polys,cur_costates = pathtopoly(Val(:costate))
-        r,g,b,a = map( sym -> getfield(Luxor.CURRENTDRAWING[1],sym),
-                      [:redvalue,:bluevalue,:greenvalue,:alpha])
-        fill = [r,g,b,a]
-        stroke = [0.0,0.0,0.0,0.0]
-        #TODO check == 
-        if length(CURRENT_JPATHS)>0 && cur_polys == CURRENT_JPATHS[end].polys
-            CURRENT_JPATHS[end].fill = fill 
-        else
             currpath = JPath(cur_polys,cur_costates,fill,stroke,2)
             push!(CURRENT_JPATHS,currpath)
         end
