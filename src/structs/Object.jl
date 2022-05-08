@@ -15,12 +15,16 @@ should be filled with. if the path was not filled its A is set to 0
 - `stroke a vector of 4 numbers just like `fill` for the stroke color.
 - linewidth for stroke 
 """
-struct JPath
+mutable struct JPath
     polys::Vector{Vector{Point}}
     closed::Vector{Bool}
     fill::Vector{Number}
     stroke::Vector{Number}
     linewidth::Number
+    #TODO transform and dashstyle
+    #maybe dont have to store the transform here, just apply the transform
+    #on the polys before storing it ?. This way things like bounding
+    #boxes of the object can be computed easily at compute time.
 end
 
 
@@ -157,6 +161,30 @@ function getjpaths(func::Function,args=[])
     ret = deepcopy(CURRENT_JPATHS) 
     empty!(CURRENT_JPATHS)
     return ret
+end
+
+function drawobj_jpaths(obj::Object)
+    Drawing()
+    background("white")#just for testing
+    origin()#just for testing
+    for jpath in obj.jpaths
+        for (polyi,co_state) in zip(jpath.polys,jpath.closed)
+            #place the polys
+            if length(polyi)>1
+                #TODO maybe prune all single-point polys before they are added to obj.jpaths
+                poly(polyi;close=co_state)
+            end
+        end
+        Luxor.setcolor(jpath.fill[1:3]...)
+        Luxor.setopacity(jpath.fill[4])
+        Luxor.fillpreserve()
+        Luxor.setcolor(jpath.stroke[1:3]...)
+        Luxor.setopacity(jpath.stroke[4])
+        Luxor.strokepath()
+    end
+    #for testing...
+    finish()
+    preview()
 end
 
 """
