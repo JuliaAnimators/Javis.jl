@@ -1,4 +1,4 @@
-using Luxor 
+using Luxor
 using Colors
 
 struct JPoly

@@ -127,7 +127,7 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
         opts,
         Dict{Symbol,Any}(),
         Any[nothing],
-        getjpaths(func),  
+        getjpaths(func),
     )
 
     # store the original object func 
@@ -147,30 +147,30 @@ end
 CURRENT_JPATHS = JPath[] #TODO change to const later
 CURRENT_FETCHPATH_STATE = false
 
-function getjpaths(func::Function,args=[])
+function getjpaths(func::Function, args = [])
     Drawing()
     empty!(CURRENT_JPATHS)
-    global CURRENT_FETCHPATH_STATE = true 
-    v,o,f=nothing,nothing,nothing
+    global CURRENT_FETCHPATH_STATE = true
+    v, o, f = nothing, nothing, nothing
     #for now just make it nothing,
     #this will cause problems if the user defines  
     #the Object.func with types for the arguments
     #TODO discuss a solution for this.
-    func(v,o,f,args...)
-    global CURRENT_FETCHPATH_STATE = false 
+    func(v, o, f, args...)
+    global CURRENT_FETCHPATH_STATE = false
     finish()
-    ret = deepcopy(CURRENT_JPATHS) 
+    ret = deepcopy(CURRENT_JPATHS)
     empty!(CURRENT_JPATHS)
     return ret
 end
 
 function drawobj_jpaths(obj::Object)
     for jpath in obj.jpaths
-        for (polyi,co_state) in zip(jpath.polys,jpath.closed)
+        for (polyi, co_state) in zip(jpath.polys, jpath.closed)
             #place the polys
-            if length(polyi)>1
+            if length(polyi) > 1
                 #TODO maybe prune all single-point polys before they are added to obj.jpaths
-                poly(polyi;action=:path,close=co_state)
+                poly(polyi; action = :path, close = co_state)
             end
         end
         Luxor.setcolor(jpath.fill[1:3]...)
