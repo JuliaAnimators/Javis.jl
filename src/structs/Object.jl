@@ -158,6 +158,7 @@ function getjpaths(func::Function,args=[])
     #TODO discuss a solution for this.
     func(v,o,f,args...)
     global CURRENT_FETCHPATH_STATE = false 
+    finish()
     ret = deepcopy(CURRENT_JPATHS) 
     empty!(CURRENT_JPATHS)
     return ret
