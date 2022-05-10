@@ -273,3 +273,178 @@ function background(background_color)
     end
     Luxor.background(background_color)
 end
+
+function Luxor.strokepath()
+    #save path to CURRENT_JPATH
+    #TODO 
+    #linewidth
+    #check for transform , refer TODO comment in the struct definition of JPath.
+    #dashstyle
+    if CURRENT_FETCHPATH_STATE == true
+        println("test strokepaths")
+        cur_polys, cur_costates = pathtopoly(Val(:costate))
+        #cur_polys is of 2 element Tuple 
+        #containg 2 arrays 1 with Polygons and one with the bools
+        r, g, b, a = map(
+            sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
+            [:redvalue, :bluevalue, :greenvalue, :alpha],
+        )
+        fill = [0.0, 0, 0, 0]
+        stroke = [r, g, b, a]
+        #if polys didnt change we just modify the last JPath in the
+        #CURRENT_JPATHS
+        #TODO see if the == operator is the right way to compare
+        #two polys.
+        if length(CURRENT_JPATHS) > 0 && cur_polys == CURRENT_JPATHS[end].polys
+            print("found similar path\n")
+            CURRENT_JPATHS[end].stroke = stroke
+        else
+            println("adding to CURRENT_JPATH")
+            currpath = JPath(cur_polys, cur_costates, fill, stroke, 2)
+            push!(CURRENT_JPATHS, currpath)
+        end
+    end
+    Luxor.get_current_strokescale() ?
+    Luxor.Cairo.stroke_transformed(Luxor.get_current_cr()) :
+    Luxor.Cairo.stroke(Luxor.get_current_cr())
+end
+
+function Luxor.strokepreserve()
+    #TODO
+    #linewidth
+    #transform
+    #dashstyle
+    if CURRENT_FETCHPATH_STATE == true
+        println("teststrokepreserves")
+        cur_polys, cur_costates = pathtopoly(Val(:costate))
+        r, g, b, a = map(
+            sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
+            [:redvalue, :bluevalue, :greenvalue, :alpha],
+        )
+        fill = [0.0, 0, 0, 0]
+        stroke = [r, g, b, a]
+        #TODO check == 
+        if length(CURRENT_JPATHS) > 0 && cur_polys == CURRENT_JPATHS[end].polys
+            print("found similar path\n")
+            CURRENT_JPATHS[end].stroke = stroke
+        else
+            println("adding to CURRENT_JPATH")
+            currpath = JPath(cur_polys, cur_costates, fill, stroke, 2)
+            push!(CURRENT_JPATHS, currpath)
+        end
+    end
+    Luxor.get_current_strokescale() ?
+    Luxor.Cairo.stroke_preserve_transformed(Luxor.get_current_cr()) :
+    Luxor.Cairo.stroke_preserve(Luxor.get_current_cr())
+
+end
+
+function Luxor.fillpath()
+    #TODO 
+    #linewidth
+    #transform
+    #dashstyle
+    if CURRENT_FETCHPATH_STATE == true
+        println("test fillpath")
+        cur_polys, cur_costates = pathtopoly(Val(:costate))
+        r, g, b, a = map(
+            sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
+            [:redvalue, :bluevalue, :greenvalue, :alpha],
+        )
+        fill = [r, g, b, a]
+        stroke = [0.0, 0.0, 0.0, 0.0]
+        #TODO check == 
+        if length(CURRENT_JPATHS) > 0 && cur_polys == CURRENT_JPATHS[end].polys
+            print("found similar path\n")
+            CURRENT_JPATHS[end].fill = fill
+        else
+            println("adding to CURRENT_JPATH")
+            currpath = JPath(cur_polys, cur_costates, fill, stroke, 2)
+            push!(CURRENT_JPATHS, currpath)
+        end
+    end
+    Luxor.Cairo.fill(Luxor.get_current_cr())
+end
+
+function Luxor.fillpreserve()
+    #TODO 
+    #linewith
+    #transform
+    #dashtyle
+    if CURRENT_FETCHPATH_STATE == true
+        println("test fill preserve")
+        println("adding to CURRENT_JPATH")
+        cur_polys, cur_costates = pathtopoly(Val(:costate))
+        r, g, b, a = map(
+            sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
+            [:redvalue, :bluevalue, :greenvalue, :alpha],
+        )
+        fill = [r, g, b, a]
+        stroke = [0.0, 0.0, 0.0, 0.0]
+        #TODO check == 
+        if length(CURRENT_JPATHS) > 0 && cur_polys == CURRENT_JPATHS[end].polys
+            print("found similar path\n")
+            CURRENT_JPATHS[end].fill = fill
+        else
+            print("adding newpath\n")
+            currpath = JPath(cur_polys, cur_costates, fill, stroke, 2)
+            push!(CURRENT_JPATHS, currpath)
+        end
+    end
+    Luxor.Cairo.fill_preserve(Luxor.get_current_cr())
+end
+
+
+
+function Luxor.pathtopoly(::Val{:costate})
+    originalpath = getpathflat()
+    polygonlist = Array{Point,1}[]
+    sizehint!(polygonlist, length(originalpath))
+    co_states = Bool[]
+    sizehint!(co_states, length(polygonlist))
+    if length(originalpath) > 0
+        pointslist = Point[]
+        for e in originalpath
+            if e.element_type == Luxor.Cairo.CAIRO_PATH_MOVE_TO                # 0
+                if !isempty(pointslist)
+                    #if poinstlist is not empty and we come across a move
+                    #we flush and create a new subpath
+                    if (last(pointslist) == first(pointslist)) && length(pointslist) > 2
+                        #but first lets check if what we flush is closed or open. 
+                        push!(co_states, true)
+                        pop!(pointslist)
+                    else
+                        push!(co_states, false)
+                    end
+                    push!(polygonlist, pointslist)
+                    pointslist = Point[]
+                end
+                push!(pointslist, Point(first(e.points), last(e.points)))
+            elseif e.element_type == Luxor.Cairo.CAIRO_PATH_LINE_TO            # 1
+                push!(pointslist, Point(first(e.points), last(e.points)))
+            elseif e.element_type == Luxor.Cairo.CAIRO_PATH_CLOSE_PATH         # 3
+                push!(co_states, true)
+                if last(pointslist) == first(pointslist)
+                    # don’t repeat first point, we can close it ourselves
+                    if length(pointslist) > 2
+                        pop!(pointslist)
+                    end
+                end
+                push!(polygonlist, pointslist)
+                pointslist = Point[]
+            else
+                error("pathtopoly(): unknown CairoPathEntry " * repr(e.element_type))
+                error("pathtopoly(): unknown CairoPathEntry " * repr(e.points))
+            end
+        end
+        # the path was never closed, so flush
+        if length(pointslist) > 0
+            push!(co_states, false)
+            push!(polygonlist, pointslist)
+        end
+    end
+    #"""check if everything went well"""
+    @assert length(polygonlist) == length(co_states)
+    #"""return polygonlist, and its closed/open state"""
+    return polygonlist, co_states
+end
