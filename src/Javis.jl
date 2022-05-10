@@ -344,11 +344,8 @@ function render(
         filecounter += 1
     end
 
-    if isempty(pathname)
-        # clear all CURRENT_* constants to not accidentally use a previous video when creating a new one
-        empty_CURRENT_constants()
-        return nothing
-    end
+    CURRENTLY_RENDERING[1] = false
+    isempty(pathname) && return
     if ext == ".gif"
         # generate a colorpalette first so ffmpeg does not have to guess it
         ffmpeg_exe(`-loglevel $(ffmpeg_loglevel) -i $(tempdirectory)/%10d.png -vf
