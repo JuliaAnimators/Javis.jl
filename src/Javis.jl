@@ -695,6 +695,7 @@ function set_object_defaults!(object)
     scaleto(desired_scale)
 end
 
+#todo add stroke/fills here
 const LUXOR_DONT_EXPORT = [
     :boundingbox,
     :Boxmaptile,
@@ -706,6 +707,10 @@ const LUXOR_DONT_EXPORT = [
     :scale,
     :text,
     :background,
+    :strokepath,
+    :fillpath,
+    :strokepreserve,
+    :fillpreserve
 ]
 
 # Export each function from Luxor
