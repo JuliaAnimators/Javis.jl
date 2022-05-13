@@ -42,6 +42,57 @@ function morph_to(to_func::Function; do_action = :stroke)
         _morph_to(video, object, action, frame, to_func; do_action = do_action)
 end
 
+function morph_to(to_obj::Object)
+    return (video,object,action,frame) ->
+        _morph_to(video,object,action,frame,to_obj)
+end
+
+function _morph_to(video::Video,object::Object,action::Action,frame,to_obj::Object)
+    interp_jpaths = JPath[]
+    #nframes = action.frames[end]-action.frames[begin]+1 #samples for luxors polymorph.
+    nframes = length(action.frames.frames)
+    #need to handle different number of jpaths
+    #for to_obj less jpaths , we can shrink the extras down
+    #for to_obj having more jpaths , we need to create extra polys 
+    null_jpath_end = JPath([[to_obj.start_pos,to_obj.start_pos]],[true,true],[0,0,0,0],[0,0,0,0],2) #a jpath to vanish into
+    null_jpath_begin = JPath([[object.start_pos,object.start_pos]],[true,true],[0,0,0,0],[0,0,0,0],2)#a jpath to appear from
+    l1 = length(object.jpaths)
+    l2 = length(to_obj.jpaths)
+    jpaths1 = vcat( object.jpaths, repeat([null_jpath_begin],min(0,l2-l1) ) )
+    jpaths2 = vcat( to_obj.jpaths, repeat([null_jpath_end]  ,min(0,l1-l2)  ) )
+    #above lines should make jpaths1 and jpaths2 have the same no of jpaths
+    println(jpaths1)
+    println(jpaths2)
+    for (jpath1,jpath2) in zip(jpaths1,jpaths2)
+        push!(interp_jpaths,_morph_jpath(jpath1,jpath2,frame/nframes))
+    end
+    object.func = (args...)->drawjpaths(interp_jpaths)
+end
+
+function _morph_jpath(jpath1::JPath,jpath2::JPath,k,samples=100)
+    polys1 = jpath1.polys 
+    for (i,poly) in enumerate(jpath1.polys)
+        if jpath1.closed[i] 
+            if poly[begin] != poly[end]
+                push!(poly,poly[begin])
+            end
+        end
+    end
+    polys2 = jpath2.polys
+    for (i,poly) in enumerate(jpath2.polys)
+        if jpath2.closed[i] 
+            if poly[begin] != poly[end]
+                push!(poly,poly[begin])
+            end
+        end
+    end
+    retpolys = polymorph(polys1,polys2,k;samples=samples)
+    retclosed = repeat([false],length(retpolys))
+    retfill = k.*jpath2.fill + (1-k).*jpath1.fill
+    retstroke = k.*jpath2.stroke + (1-k).*jpath1.stroke
+    retlinewidth = k.*jpath2.linewidth + (1-k).*jpath1.linewidth
+    JPath(retpolys,retclosed,retfill,retstroke,retlinewidth)
+end
 
 """
     _morph_to(video::Video, object::Object, action::Action, frame, to_func::Function; do_action=:stroke)
