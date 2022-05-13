@@ -325,7 +325,7 @@ function Luxor.strokepreserve()
         stroke = [r, g, b, a]
         #TODO check == 
         if length(CURRENT_JPATHS) > 0 && cur_polys == CURRENT_JPATHS[end].polys
-            print("found similar path\n")
+            #print("found similar path\n")
             CURRENT_JPATHS[end].stroke = stroke
         else
             #println("adding to CURRENT_JPATH")
