@@ -710,7 +710,7 @@ const LUXOR_DONT_EXPORT = [
     :strokepath,
     :fillpath,
     :strokepreserve,
-    :fillpreserve
+    :fillpreserve,
 ]
 
 # Export each function from Luxor
