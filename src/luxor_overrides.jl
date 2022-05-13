@@ -377,7 +377,7 @@ function Luxor.fillpreserve()
         cur_polys, cur_costates = pathtopoly(Val(:costate))
         r, g, b, a = map(
             sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
-            [:redvalue,  :greenvalue, :bluevalue, :alpha],
+            [:redvalue, :greenvalue, :bluevalue, :alpha],
         )
         fill = [r, g, b, a]
         stroke = [0.0, 0.0, 0.0, 0.0]
