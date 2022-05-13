@@ -287,7 +287,7 @@ function Luxor.strokepath()
         #containg 2 arrays 1 with Polygons and one with the bools
         r, g, b, a = map(
             sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
-            [:redvalue, :bluevalue, :greenvalue, :alpha],
+            [:redvalue, :greenvalue, :bluevalue, :alpha],
         )
         fill = [0.0, 0, 0, 0]
         stroke = [r, g, b, a]
@@ -319,7 +319,7 @@ function Luxor.strokepreserve()
         cur_polys, cur_costates = pathtopoly(Val(:costate))
         r, g, b, a = map(
             sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
-            [:redvalue, :bluevalue, :greenvalue, :alpha],
+            [:redvalue, :greenvalue, :bluevalue, :alpha],
         )
         fill = [0.0, 0, 0, 0]
         stroke = [r, g, b, a]
@@ -349,7 +349,7 @@ function Luxor.fillpath()
         cur_polys, cur_costates = pathtopoly(Val(:costate))
         r, g, b, a = map(
             sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
-            [:redvalue, :bluevalue, :greenvalue, :alpha],
+            [:redvalue, :greenvalue, :bluevalue, :alpha],
         )
         fill = [r, g, b, a]
         stroke = [0.0, 0.0, 0.0, 0.0]
@@ -377,7 +377,7 @@ function Luxor.fillpreserve()
         cur_polys, cur_costates = pathtopoly(Val(:costate))
         r, g, b, a = map(
             sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
-            [:redvalue, :bluevalue, :greenvalue, :alpha],
+            [:redvalue,  :greenvalue, :bluevalue, :alpha],
         )
         fill = [r, g, b, a]
         stroke = [0.0, 0.0, 0.0, 0.0]
