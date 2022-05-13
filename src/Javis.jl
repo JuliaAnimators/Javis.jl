@@ -561,6 +561,13 @@ Returens the final rendered frame
 """
 function get_javis_frame(video, objects, frame; layers = Layer[])
 
+    #extract object jpaths on first frame
+    if frame==1
+      for object in objects
+          object.jpaths = getjpaths(object.func)
+      end
+    end
+
     # check if any layers have been defined
     if !isempty(layers)
         starting_positions = Point[]
@@ -707,10 +714,10 @@ const LUXOR_DONT_EXPORT = [
     :scale,
     :text,
     :background,
-    :strokepath,
-    :fillpath,
-    :strokepreserve,
-    :fillpreserve,
+    #:strokepath,
+    #:fillpath,
+    #:strokepreserve,
+    #:fillpreserve,
 ]
 
 # Export each function from Luxor

@@ -281,7 +281,7 @@ function Luxor.strokepath()
     #check for transform , refer TODO comment in the struct definition of JPath.
     #dashstyle
     if CURRENT_FETCHPATH_STATE == true
-        println("test strokepaths")
+        #println("test strokepaths")
         cur_polys, cur_costates = pathtopoly(Val(:costate))
         #cur_polys is of 2 element Tuple 
         #containg 2 arrays 1 with Polygons and one with the bools
@@ -296,10 +296,10 @@ function Luxor.strokepath()
         #TODO see if the == operator is the right way to compare
         #two polys.
         if length(CURRENT_JPATHS) > 0 && cur_polys == CURRENT_JPATHS[end].polys
-            print("found similar path\n")
+            #print("found similar path\n")
             CURRENT_JPATHS[end].stroke = stroke
         else
-            println("adding to CURRENT_JPATH")
+            #println("adding to CURRENT_JPATH")
             currpath = JPath(cur_polys, cur_costates, fill, stroke, 2)
             push!(CURRENT_JPATHS, currpath)
         end
@@ -315,7 +315,7 @@ function Luxor.strokepreserve()
     #transform
     #dashstyle
     if CURRENT_FETCHPATH_STATE == true
-        println("teststrokepreserves")
+        #println("teststrokepreserves")
         cur_polys, cur_costates = pathtopoly(Val(:costate))
         r, g, b, a = map(
             sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
@@ -328,7 +328,7 @@ function Luxor.strokepreserve()
             print("found similar path\n")
             CURRENT_JPATHS[end].stroke = stroke
         else
-            println("adding to CURRENT_JPATH")
+            #println("adding to CURRENT_JPATH")
             currpath = JPath(cur_polys, cur_costates, fill, stroke, 2)
             push!(CURRENT_JPATHS, currpath)
         end
@@ -345,7 +345,7 @@ function Luxor.fillpath()
     #transform
     #dashstyle
     if CURRENT_FETCHPATH_STATE == true
-        println("test fillpath")
+        #println("test fillpath")
         cur_polys, cur_costates = pathtopoly(Val(:costate))
         r, g, b, a = map(
             sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
@@ -358,7 +358,7 @@ function Luxor.fillpath()
             print("found similar path\n")
             CURRENT_JPATHS[end].fill = fill
         else
-            println("adding to CURRENT_JPATH")
+            #println("adding to CURRENT_JPATH")
             currpath = JPath(cur_polys, cur_costates, fill, stroke, 2)
             push!(CURRENT_JPATHS, currpath)
         end
@@ -372,8 +372,8 @@ function Luxor.fillpreserve()
     #transform
     #dashtyle
     if CURRENT_FETCHPATH_STATE == true
-        println("test fill preserve")
-        println("adding to CURRENT_JPATH")
+        #println("test fill preserve")
+        #println("adding to CURRENT_JPATH")
         cur_polys, cur_costates = pathtopoly(Val(:costate))
         r, g, b, a = map(
             sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
