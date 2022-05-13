@@ -171,7 +171,11 @@ function getjpaths(func::Function, args = [])
 end
 
 function drawobj_jpaths(obj::Object)
-    for jpath in obj.jpaths
+    drawjpaths(obj.jpaths)
+end
+
+function drawjpaths(jpaths::Array{JPath})
+    for jpath in jpaths
         for (polyi, co_state) in zip(jpath.polys, jpath.closed)
             #place the polys
             if length(polyi) > 1
