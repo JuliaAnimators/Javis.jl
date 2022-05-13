@@ -149,20 +149,20 @@ CURRENT_FETCHPATH_STATE = false
 
 function getjpaths(func::Function, args = [])
     try
-      Drawing()
-      empty!(CURRENT_JPATHS)
-      global CURRENT_FETCHPATH_STATE = true
-      v, o, f = nothing, nothing, nothing
-      #for now just make it nothing,
-      #this will cause problems if the user defines  
-      #the Object.func with types for the arguments
-      #TODO discuss a solution for this.
-      func(v, o, f, args...)
-      global CURRENT_FETCHPATH_STATE = false
-      finish()
-      ret = deepcopy(CURRENT_JPATHS)
-      empty!(CURRENT_JPATHS)
-      return ret
+        Drawing()
+        empty!(CURRENT_JPATHS)
+        global CURRENT_FETCHPATH_STATE = true
+        v, o, f = nothing, nothing, nothing
+        #for now just make it nothing,
+        #this will cause problems if the user defines  
+        #the Object.func with types for the arguments
+        #TODO discuss a solution for this.
+        func(v, o, f, args...)
+        global CURRENT_FETCHPATH_STATE = false
+        finish()
+        ret = deepcopy(CURRENT_JPATHS)
+        empty!(CURRENT_JPATHS)
+        return ret
     catch
         @warn "Could not extract jpath for object,\nperhaps 
         Object.func depends on rendertime variables"

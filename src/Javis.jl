@@ -562,10 +562,10 @@ Returens the final rendered frame
 function get_javis_frame(video, objects, frame; layers = Layer[])
 
     #extract object jpaths on first frame
-    if frame==1
-      for object in objects
-          object.jpaths = getjpaths(object.func)
-      end
+    if frame == 1
+        for object in objects
+            object.jpaths = getjpaths(object.func)
+        end
     end
 
     # check if any layers have been defined
