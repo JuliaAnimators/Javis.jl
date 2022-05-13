@@ -355,7 +355,7 @@ function Luxor.fillpath()
         stroke = [0.0, 0.0, 0.0, 0.0]
         #TODO check == 
         if length(CURRENT_JPATHS) > 0 && cur_polys == CURRENT_JPATHS[end].polys
-            print("found similar path\n")
+            #print("found similar path\n")
             CURRENT_JPATHS[end].fill = fill
         else
             #println("adding to CURRENT_JPATH")
@@ -383,10 +383,10 @@ function Luxor.fillpreserve()
         stroke = [0.0, 0.0, 0.0, 0.0]
         #TODO check == 
         if length(CURRENT_JPATHS) > 0 && cur_polys == CURRENT_JPATHS[end].polys
-            print("found similar path\n")
+            #print("found similar path\n")
             CURRENT_JPATHS[end].fill = fill
         else
-            print("adding newpath\n")
+            #print("adding newpath\n")
             currpath = JPath(cur_polys, cur_costates, fill, stroke, 2)
             push!(CURRENT_JPATHS, currpath)
         end
