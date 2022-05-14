@@ -431,8 +431,8 @@ function Luxor.pathtopoly(::Val{:costate})
                         pop!(pointslist)
                     end
                 end
-                if length(pointslist)==2
-                    insert!(pointslist,2,sum(pointslist)/2)#insert midpoint if only 2 points are there
+                if length(pointslist) == 2
+                    insert!(pointslist, 2, sum(pointslist) / 2)#insert midpoint if only 2 points are there
                 end
                 push!(polygonlist, pointslist)
                 pointslist = Point[]
@@ -444,8 +444,8 @@ function Luxor.pathtopoly(::Val{:costate})
         # the path was never closed, so flush
         if length(pointslist) > 1 #dont flush paths if only 1 point remains
             push!(co_states, false)
-            if length(pointslist)==2
-                insert!(pointslist,2,sum(pointslist)/2)#insert midpoint if only 2 points are there
+            if length(pointslist) == 2
+                insert!(pointslist, 2, sum(pointslist) / 2)#insert midpoint if only 2 points are there
             end
             push!(polygonlist, pointslist)
         end

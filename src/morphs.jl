@@ -53,20 +53,10 @@ function _morph_to(video::Video, object::Object, action::Action, frame, to_obj::
     #need to handle different number of jpaths
     #for to_obj less jpaths , we can shrink the extras down
     #for to_obj having more jpaths , we need to create extra polys 
-    null_jpath_end = JPath(
-        [repeat([to_obj.start_pos],3)],
-        [true, true],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        2,
-    ) #a jpath to vanish into
-    null_jpath_begin = JPath(
-        [repeat([object.start_pos],3)],
-        [true, true],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        2,
-    )#a jpath to appear from
+    null_jpath_end =
+        JPath([repeat([to_obj.start_pos], 3)], [true, true], [0, 0, 0, 0], [0, 0, 0, 0], 2) #a jpath to vanish into
+    null_jpath_begin =
+        JPath([repeat([object.start_pos], 3)], [true, true], [0, 0, 0, 0], [0, 0, 0, 0], 2)#a jpath to appear from
     l1 = length(object.jpaths)
     l2 = length(to_obj.jpaths)
     #println("JPATHDIFFF",l1-l2)
@@ -76,7 +66,7 @@ function _morph_to(video::Video, object::Object, action::Action, frame, to_obj::
     #println(jpaths1)
     #println(jpaths2)
     for (jpath1, jpath2) in zip(jpaths1, jpaths2)
-        push!(interp_jpaths, _morph_jpath(jpath1, jpath2, get_interpolation(action,frame)))
+        push!(interp_jpaths, _morph_jpath(jpath1, jpath2, get_interpolation(action, frame)))
     end
     object.func = (args...) -> drawjpaths(interp_jpaths)
 end
@@ -99,7 +89,8 @@ function _morph_jpath(jpath1::JPath, jpath2::JPath, k, samples = 100)
         end
     end
     retpolys = polymorph(polys1, polys2, k; samples = samples)
-    retclosed = vcat(jpath2.closed, repeat([false], length(retpolys)-length(jpath2.closed)+1))
+    retclosed =
+        vcat(jpath2.closed, repeat([false], length(retpolys) - length(jpath2.closed) + 1))
     retfill = k .* jpath2.fill + (1 - k) .* jpath1.fill
     retstroke = k .* jpath2.stroke + (1 - k) .* jpath1.stroke
     retlinewidth = k .* jpath2.linewidth + (1 - k) .* jpath1.linewidth
