@@ -375,6 +375,7 @@ function Luxor.fillpreserve()
         #println("test fill preserve")
         #println("adding to CURRENT_JPATH")
         cur_polys, cur_costates = pathtopoly(Val(:costate))
+        #if polys is 
         r, g, b, a = map(
             sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
             [:redvalue, :greenvalue, :bluevalue, :alpha],
@@ -438,7 +439,7 @@ function Luxor.pathtopoly(::Val{:costate})
             end
         end
         # the path was never closed, so flush
-        if length(pointslist) > 0
+        if length(pointslist) > 1 #dont flush paths if only 1 point remains
             push!(co_states, false)
             push!(polygonlist, pointslist)
         end

@@ -54,14 +54,14 @@ function _morph_to(video::Video, object::Object, action::Action, frame, to_obj::
     #for to_obj less jpaths , we can shrink the extras down
     #for to_obj having more jpaths , we need to create extra polys 
     null_jpath_end = JPath(
-        [[to_obj.start_pos, to_obj.start_pos]],
+        [repeat([to_obj.start_pos],3)],
         [true, true],
         [0, 0, 0, 0],
         [0, 0, 0, 0],
         2,
     ) #a jpath to vanish into
     null_jpath_begin = JPath(
-        [[object.start_pos, object.start_pos]],
+        [repeat([object.start_pos],3)],
         [true, true],
         [0, 0, 0, 0],
         [0, 0, 0, 0],
@@ -69,13 +69,14 @@ function _morph_to(video::Video, object::Object, action::Action, frame, to_obj::
     )#a jpath to appear from
     l1 = length(object.jpaths)
     l2 = length(to_obj.jpaths)
-    jpaths1 = vcat(object.jpaths, repeat([null_jpath_begin], min(0, l2 - l1)))
-    jpaths2 = vcat(to_obj.jpaths, repeat([null_jpath_end], min(0, l1 - l2)))
+    #println("JPATHDIFFF",l1-l2)
+    jpaths1 = vcat(object.jpaths, repeat([null_jpath_begin], max(0, l2 - l1)))
+    jpaths2 = vcat(to_obj.jpaths, repeat([null_jpath_end], max(0, l1 - l2)))
     #above lines should make jpaths1 and jpaths2 have the same no of jpaths
-    println(jpaths1)
-    println(jpaths2)
+    #println(jpaths1)
+    #println(jpaths2)
     for (jpath1, jpath2) in zip(jpaths1, jpaths2)
-        push!(interp_jpaths, _morph_jpath(jpath1, jpath2, frame / nframes))
+        push!(interp_jpaths, _morph_jpath(jpath1, jpath2, get_interpolation(action,frame)))
     end
     object.func = (args...) -> drawjpaths(interp_jpaths)
 end
@@ -98,7 +99,7 @@ function _morph_jpath(jpath1::JPath, jpath2::JPath, k, samples = 100)
         end
     end
     retpolys = polymorph(polys1, polys2, k; samples = samples)
-    retclosed = repeat([false], length(retpolys))
+    retclosed = vcat(jpath2.closed, repeat([false], length(retpolys)-length(jpath2.closed)+1))
     retfill = k .* jpath2.fill + (1 - k) .* jpath1.fill
     retstroke = k .* jpath2.stroke + (1 - k) .* jpath1.stroke
     retlinewidth = k .* jpath2.linewidth + (1 - k) .* jpath1.linewidth
