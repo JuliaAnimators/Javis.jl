@@ -306,10 +306,10 @@ function Luxor.strokepath()
         end
     end
     if !DISABLE_LUXOR_DRAW
-       Luxor.get_current_strokescale() ?
-       Luxor.Cairo.stroke_transformed(Luxor.get_current_cr()) :
-       Luxor.Cairo.stroke(Luxor.get_current_cr())
-   end
+        Luxor.get_current_strokescale() ?
+        Luxor.Cairo.stroke_transformed(Luxor.get_current_cr()) :
+        Luxor.Cairo.stroke(Luxor.get_current_cr())
+    end
 end
 
 function Luxor.strokepreserve()
@@ -369,7 +369,7 @@ function Luxor.fillpath()
         end
     end
     if !DISABLE_LUXOR_DRAW
-    Luxor.Cairo.fill(Luxor.get_current_cr())
+        Luxor.Cairo.fill(Luxor.get_current_cr())
     end
 end
 
