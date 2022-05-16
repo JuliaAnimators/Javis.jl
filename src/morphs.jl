@@ -68,7 +68,14 @@ function _morph_to(video::Video, object::Object, action::Action, frame, to_obj::
     for (jpath1, jpath2) in zip(jpaths1, jpaths2)
         push!(interp_jpaths, _morph_jpath(jpath1, jpath2, get_interpolation(action, frame)))
     end
-    object.func = (args...) -> drawjpaths(interp_jpaths)
+    function drawfunc(args...)
+        drawjpaths(interp_jpaths)
+        global DISABLE_LUXOR_DRAW = true
+        ret = object.opts[:original_func]()
+        global DISABLE_LUXOR_DRAW = false
+        ret
+    end
+    object.func = drawfunc
 end
 
 function _morph_jpath(jpath1::JPath, jpath2::JPath, k, samples = 100)

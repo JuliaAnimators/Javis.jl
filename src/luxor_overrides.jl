@@ -1,3 +1,4 @@
+DISABLE_LUXOR_DRAW = false
 """
     setline(linewidth)
 
@@ -304,9 +305,11 @@ function Luxor.strokepath()
             push!(CURRENT_JPATHS, currpath)
         end
     end
-    Luxor.get_current_strokescale() ?
-    Luxor.Cairo.stroke_transformed(Luxor.get_current_cr()) :
-    Luxor.Cairo.stroke(Luxor.get_current_cr())
+    if !DISABLE_LUXOR_DRAW
+       Luxor.get_current_strokescale() ?
+       Luxor.Cairo.stroke_transformed(Luxor.get_current_cr()) :
+       Luxor.Cairo.stroke(Luxor.get_current_cr())
+   end
 end
 
 function Luxor.strokepreserve()
@@ -333,9 +336,11 @@ function Luxor.strokepreserve()
             push!(CURRENT_JPATHS, currpath)
         end
     end
-    Luxor.get_current_strokescale() ?
-    Luxor.Cairo.stroke_preserve_transformed(Luxor.get_current_cr()) :
-    Luxor.Cairo.stroke_preserve(Luxor.get_current_cr())
+    if !DISABLE_LUXOR_DRAW
+        Luxor.get_current_strokescale() ?
+        Luxor.Cairo.stroke_preserve_transformed(Luxor.get_current_cr()) :
+        Luxor.Cairo.stroke_preserve(Luxor.get_current_cr())
+    end
 
 end
 
@@ -363,7 +368,9 @@ function Luxor.fillpath()
             push!(CURRENT_JPATHS, currpath)
         end
     end
+    if !DISABLE_LUXOR_DRAW
     Luxor.Cairo.fill(Luxor.get_current_cr())
+    end
 end
 
 function Luxor.fillpreserve()
@@ -392,7 +399,9 @@ function Luxor.fillpreserve()
             push!(CURRENT_JPATHS, currpath)
         end
     end
-    Luxor.Cairo.fill_preserve(Luxor.get_current_cr())
+    if !DISABLE_LUXOR_DRAW
+        Luxor.Cairo.fill_preserve(Luxor.get_current_cr())
+    end
 end
 
 

@@ -564,6 +564,10 @@ function get_javis_frame(video, objects, frame; layers = Layer[])
     #extract object jpaths on first frame
     if frame == 1
         for object in objects
+            try
+                println("EXTRACTING "*object.opts[:name]*" JPATHS")
+            catch
+            end
             object.jpaths = getjpaths(object.func)
         end
     end
