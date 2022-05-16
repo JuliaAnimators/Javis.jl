@@ -275,6 +275,15 @@ function background(background_color)
     Luxor.background(background_color)
 end
 
+function apply_transform(transform::Vector{Float64},poly::Vector{Point})
+    retpoly = Point[]
+    for pt in poly
+        res = cairotojuliamatrix(transform) * [pt[1],pt[2],1]
+        push!(retpoly, Point(res[1],res[2]))
+    end
+    retpoly
+end
+
 function Luxor.strokepath()
     #save path to CURRENT_JPATH
     #TODO 
@@ -284,6 +293,8 @@ function Luxor.strokepath()
     if CURRENT_FETCHPATH_STATE == true
         #println("test strokepaths")
         cur_polys, cur_costates = pathtopoly(Val(:costate))
+        transform = getmatrix()
+        cur_polys = [apply_transform(getmatrix(),poly) for poly in cur_polys]
         #cur_polys is of 2 element Tuple 
         #containg 2 arrays 1 with Polygons and one with the bools
         r, g, b, a = map(
@@ -320,6 +331,8 @@ function Luxor.strokepreserve()
     if CURRENT_FETCHPATH_STATE == true
         #println("teststrokepreserves")
         cur_polys, cur_costates = pathtopoly(Val(:costate))
+        transform = getmatrix()
+        cur_polys = [apply_transform(getmatrix(),poly) for poly in cur_polys]
         r, g, b, a = map(
             sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
             [:redvalue, :greenvalue, :bluevalue, :alpha],
@@ -352,6 +365,8 @@ function Luxor.fillpath()
     if CURRENT_FETCHPATH_STATE == true
         #println("test fillpath")
         cur_polys, cur_costates = pathtopoly(Val(:costate))
+        transform = getmatrix()
+        cur_polys = [apply_transform(getmatrix(),poly) for poly in cur_polys]
         r, g, b, a = map(
             sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
             [:redvalue, :greenvalue, :bluevalue, :alpha],
@@ -382,6 +397,8 @@ function Luxor.fillpreserve()
         #println("test fill preserve")
         #println("adding to CURRENT_JPATH")
         cur_polys, cur_costates = pathtopoly(Val(:costate))
+        transform = getmatrix()
+        cur_polys = [apply_transform(getmatrix(),poly) for poly in cur_polys]
         #if polys is 
         r, g, b, a = map(
             sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
