@@ -53,11 +53,21 @@ function _morph_to(video::Video, object::Object, action::Action, frame, to_obj::
     #need to handle different number of jpaths
     #for to_obj less jpaths , we can shrink the extras down
     #for to_obj having more jpaths , we need to create extra polys 
-    null_jpath_end =
-    JPath([repeat([to_obj.start_pos], 3).+[0.5,0,-0.5]], [true, ], [0, 0, 0, 0], [0, 0, 0, 0], 2) #a jpath to vanish into ,
+    null_jpath_end = JPath(
+        [repeat([to_obj.start_pos], 3) .+ [0.5, 0, -0.5]],
+        [true],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        2,
+    ) #a jpath to vanish into ,
     #the jpath it vanishes into has 1 poly with 3 points very close around the objects start_pos. ideally should have been 3 same points but Luxor doesnt like polys with 3 same points on top of each other,
-    null_jpath_begin =
-    JPath([repeat([object.start_pos], 3).+[0.5,0,-0.5]], [true, ], [0, 0, 0, 0], [0, 0, 0, 0], 2)#a jpath to appear from
+    null_jpath_begin = JPath(
+        [repeat([object.start_pos], 3) .+ [0.5, 0, -0.5]],
+        [true],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        2,
+    )#a jpath to appear from
     l1 = length(object.jpaths)
     l2 = length(to_obj.jpaths)
     #println("JPATHDIFFF",l1-l2)
