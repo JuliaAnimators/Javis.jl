@@ -54,9 +54,10 @@ function _morph_to(video::Video, object::Object, action::Action, frame, to_obj::
     #for to_obj less jpaths , we can shrink the extras down
     #for to_obj having more jpaths , we need to create extra polys 
     null_jpath_end =
-        JPath([repeat([to_obj.start_pos], 3)], [true, true], [0, 0, 0, 0], [0, 0, 0, 0], 2) #a jpath to vanish into
+    JPath([repeat([to_obj.start_pos], 3).+[0.5,0,-0.5]], [true, ], [0, 0, 0, 0], [0, 0, 0, 0], 2) #a jpath to vanish into ,
+    #the jpath it vanishes into has 1 poly with 3 points very close around the objects start_pos. ideally should have been 3 same points but Luxor doesnt like polys with 3 same points on top of each other,
     null_jpath_begin =
-        JPath([repeat([object.start_pos], 3)], [true, true], [0, 0, 0, 0], [0, 0, 0, 0], 2)#a jpath to appear from
+    JPath([repeat([object.start_pos], 3).+[0.5,0,-0.5]], [true, ], [0, 0, 0, 0], [0, 0, 0, 0], 2)#a jpath to appear from
     l1 = length(object.jpaths)
     l2 = length(to_obj.jpaths)
     #println("JPATHDIFFF",l1-l2)
@@ -64,7 +65,9 @@ function _morph_to(video::Video, object::Object, action::Action, frame, to_obj::
     jpaths2 = vcat(to_obj.jpaths, repeat([null_jpath_end], max(0, l1 - l2)))
     #above lines should make jpaths1 and jpaths2 have the same no of jpaths
     #println(jpaths1)
+    #println("-------------")
     #println(jpaths2)
+    #println("END")
     for (jpath1, jpath2) in zip(jpaths1, jpaths2)
         push!(interp_jpaths, _morph_jpath(jpath1, jpath2, get_interpolation(action, frame)))
     end
