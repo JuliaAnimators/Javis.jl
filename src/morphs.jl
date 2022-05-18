@@ -116,7 +116,7 @@ function _morph_jpath(jpath1::JPath, jpath2::JPath, k, samples = 100)
     retfill = k .* jpath2.fill + (1 - k) .* jpath1.fill
     retstroke = k .* jpath2.stroke + (1 - k) .* jpath1.stroke
     retlinewidth = k .* jpath2.linewidth + (1 - k) .* jpath1.linewidth
-    JPath(retpolys, retclosed, retfill, retstroke,jpath1.lastaction, retlinewidth)
+    JPath(retpolys, retclosed, retfill, retstroke, jpath1.lastaction, retlinewidth)
 end
 
 """

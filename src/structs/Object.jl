@@ -184,7 +184,7 @@ function drawjpaths(jpaths::Array{JPath})
                 poly(polyi; action = :path, close = co_state)
             end
         end
-        if jpath.lastaction==:stroke
+        if jpath.lastaction == :stroke
             Luxor.setcolor(jpath.fill[1:3]...)
             Luxor.setopacity(jpath.fill[4])
             Luxor.fillpreserve()

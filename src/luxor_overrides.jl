@@ -347,7 +347,7 @@ function Luxor.strokepreserve()
             CURRENT_JPATHS[end].lastaction = :stroke
         else
             #println("adding to CURRENT_JPATH")
-            currpath = JPath(cur_polys, cur_costates, fill, stroke,:stroke, 2)
+            currpath = JPath(cur_polys, cur_costates, fill, stroke, :stroke, 2)
             push!(CURRENT_JPATHS, currpath)
         end
     end
@@ -382,7 +382,7 @@ function Luxor.fillpath()
             CURRENT_JPATHS[end].lastaction = :fill
         else
             #println("adding to CURRENT_JPATH")
-            currpath = JPath(cur_polys, cur_costates, fill, stroke,:fill, 2)
+            currpath = JPath(cur_polys, cur_costates, fill, stroke, :fill, 2)
             push!(CURRENT_JPATHS, currpath)
         end
     end
@@ -416,7 +416,7 @@ function Luxor.fillpreserve()
             CURRENT_JPATHS[end].lastaction = :fill
         else
             #print("adding newpath\n")
-            currpath = JPath(cur_polys, cur_costates, fill, stroke,:fill, 2)
+            currpath = JPath(cur_polys, cur_costates, fill, stroke, :fill, 2)
             push!(CURRENT_JPATHS, currpath)
         end
     end
