@@ -20,6 +20,7 @@ mutable struct JPath
     closed::Vector{Bool}
     fill::Vector{Number}
     stroke::Vector{Number}
+    lastaction::Symbol #last action was fill or stroke 
     linewidth::Number
     #TODO transform and dashstyle
     #maybe dont have to store the transform here, just apply the transform
@@ -183,12 +184,21 @@ function drawjpaths(jpaths::Array{JPath})
                 poly(polyi; action = :path, close = co_state)
             end
         end
-        Luxor.setcolor(jpath.fill[1:3]...)
-        Luxor.setopacity(jpath.fill[4])
-        Luxor.fillpreserve()
-        Luxor.setcolor(jpath.stroke[1:3]...)
-        Luxor.setopacity(jpath.stroke[4])
-        Luxor.strokepath()
+        if jpath.lastaction==:stroke
+            Luxor.setcolor(jpath.fill[1:3]...)
+            Luxor.setopacity(jpath.fill[4])
+            Luxor.fillpreserve()
+            Luxor.setcolor(jpath.stroke[1:3]...)
+            Luxor.setopacity(jpath.stroke[4])
+            Luxor.strokepath()
+        else
+            Luxor.setcolor(jpath.stroke[1:3]...)
+            Luxor.setopacity(jpath.stroke[4])
+            Luxor.strokepreserve()
+            Luxor.setcolor(jpath.fill[1:3]...)
+            Luxor.setopacity(jpath.fill[4])
+            Luxor.fillpath()
+        end
     end
 end
 

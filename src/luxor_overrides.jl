@@ -310,9 +310,10 @@ function Luxor.strokepath()
         if length(CURRENT_JPATHS) > 0 && cur_polys == CURRENT_JPATHS[end].polys
             #print("found similar path\n")
             CURRENT_JPATHS[end].stroke = stroke
+            CURRENT_JPATHS[end].lastaction = :stroke
         else
             #println("adding to CURRENT_JPATH")
-            currpath = JPath(cur_polys, cur_costates, fill, stroke, 2)
+            currpath = JPath(cur_polys, cur_costates, fill, stroke, :stroke, 2)
             push!(CURRENT_JPATHS, currpath)
         end
     end
@@ -343,9 +344,10 @@ function Luxor.strokepreserve()
         if length(CURRENT_JPATHS) > 0 && cur_polys == CURRENT_JPATHS[end].polys
             #print("found similar path\n")
             CURRENT_JPATHS[end].stroke = stroke
+            CURRENT_JPATHS[end].lastaction = :stroke
         else
             #println("adding to CURRENT_JPATH")
-            currpath = JPath(cur_polys, cur_costates, fill, stroke, 2)
+            currpath = JPath(cur_polys, cur_costates, fill, stroke,:stroke, 2)
             push!(CURRENT_JPATHS, currpath)
         end
     end
@@ -377,9 +379,10 @@ function Luxor.fillpath()
         if length(CURRENT_JPATHS) > 0 && cur_polys == CURRENT_JPATHS[end].polys
             #print("found similar path\n")
             CURRENT_JPATHS[end].fill = fill
+            CURRENT_JPATHS[end].lastaction = :fill
         else
             #println("adding to CURRENT_JPATH")
-            currpath = JPath(cur_polys, cur_costates, fill, stroke, 2)
+            currpath = JPath(cur_polys, cur_costates, fill, stroke,:fill, 2)
             push!(CURRENT_JPATHS, currpath)
         end
     end
@@ -410,9 +413,10 @@ function Luxor.fillpreserve()
         if length(CURRENT_JPATHS) > 0 && cur_polys == CURRENT_JPATHS[end].polys
             #print("found similar path\n")
             CURRENT_JPATHS[end].fill = fill
+            CURRENT_JPATHS[end].lastaction = :fill
         else
             #print("adding newpath\n")
-            currpath = JPath(cur_polys, cur_costates, fill, stroke, 2)
+            currpath = JPath(cur_polys, cur_costates, fill, stroke,:fill, 2)
             push!(CURRENT_JPATHS, currpath)
         end
     end

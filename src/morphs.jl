@@ -58,6 +58,7 @@ function _morph_to(video::Video, object::Object, action::Action, frame, to_obj::
         [true],
         [0, 0, 0, 0],
         [0, 0, 0, 0],
+        :stroke,
         2,
     ) #a jpath to vanish into ,
     #the jpath it vanishes into has 1 poly with 3 points very close around the objects start_pos. ideally should have been 3 same points but Luxor doesnt like polys with 3 same points on top of each other,
@@ -66,6 +67,7 @@ function _morph_to(video::Video, object::Object, action::Action, frame, to_obj::
         [true],
         [0, 0, 0, 0],
         [0, 0, 0, 0],
+        :stroke,
         2,
     )#a jpath to appear from
     l1 = length(object.jpaths)
@@ -114,7 +116,7 @@ function _morph_jpath(jpath1::JPath, jpath2::JPath, k, samples = 100)
     retfill = k .* jpath2.fill + (1 - k) .* jpath1.fill
     retstroke = k .* jpath2.stroke + (1 - k) .* jpath1.stroke
     retlinewidth = k .* jpath2.linewidth + (1 - k) .* jpath1.linewidth
-    JPath(retpolys, retclosed, retfill, retstroke, retlinewidth)
+    JPath(retpolys, retclosed, retfill, retstroke,jpath1.lastaction, retlinewidth)
 end
 
 """
