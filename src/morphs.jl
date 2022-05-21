@@ -48,13 +48,12 @@ end
 
 function _morph_to(video::Video, object::Object, action::Action, frame, to_obj::Object)
     interp_jpaths = JPath[]
-    #nframes = action.frames[end]-action.frames[begin]+1 #samples for luxors polymorph.
-    nframes = length(action.frames.frames)
+    #nframes = length(action.frames.frames)
     #need to handle different number of jpaths
     #for to_obj less jpaths , we can shrink the extras down
     #for to_obj having more jpaths , we need to create extra polys 
     null_jpath_end = JPath(
-        [repeat([to_obj.start_pos], 3) .+ [0.5, 0, -0.5]],
+        [repeat([Point(0, 0)], 3) .+ [0.5, 0, -0.5]],
         [true],
         [0, 0, 0, 0],
         [0, 0, 0, 0],
@@ -63,7 +62,7 @@ function _morph_to(video::Video, object::Object, action::Action, frame, to_obj::
     ) #a jpath to vanish into ,
     #the jpath it vanishes into has 1 poly with 3 points very close around the objects start_pos. ideally should have been 3 same points but Luxor doesnt like polys with 3 same points on top of each other,
     null_jpath_begin = JPath(
-        [repeat([object.start_pos], 3) .+ [0.5, 0, -0.5]],
+        [repeat([Point(0, 0)], 3) .+ [0.5, 0, -0.5]],
         [true],
         [0, 0, 0, 0],
         [0, 0, 0, 0],
