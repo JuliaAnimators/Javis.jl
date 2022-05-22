@@ -766,4 +766,5 @@ export setup_stream, cancel_stream
 # scales
 export scale_linear, @scale_layer
 
+export morph
 end
