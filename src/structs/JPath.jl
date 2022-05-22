@@ -1,5 +1,3 @@
-CURRENT_JPATHS = JPath[] #TODO change to const later
-CURRENT_FETCHPATH_STATE = false
 
 """
     JPath
@@ -31,8 +29,10 @@ mutable struct JPath
     #boxes of the object can be computed easily at compute time.
 end
 
+CURRENT_JPATHS = JPath[] #TODO change to const later
+CURRENT_FETCHPATH_STATE = false
 
-function getjpaths(func::Function, args = [])
+function getjpaths!(obj::Object, func::Function, args = [])
     try
         Drawing()
         empty!(CURRENT_JPATHS)
@@ -45,13 +45,16 @@ function getjpaths(func::Function, args = [])
         func(v, o, f, args...)
         global CURRENT_FETCHPATH_STATE = false
         finish()
-        ret = deepcopy(CURRENT_JPATHS)
+        append!(obj.jpaths, CURRENT_JPATHS)
         empty!(CURRENT_JPATHS)
-        return ret
-    catch
-        @warn "Could not extract jpath for object,\nperhaps 
-        Object.func depends on rendertime variables"
-        return []
+    catch e
+        if e isa MethodError
+            #@warn "Could not extract jpath for object,\nperhaps 
+            #Object.func depends on rendertime variables"
+            println("Could not Extract jpath for some objects. Morphs may not work ")
+        else
+            throw(e)
+        end
     end
 end
 

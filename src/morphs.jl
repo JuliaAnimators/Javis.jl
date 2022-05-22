@@ -71,14 +71,9 @@ function _morph_to(video::Video, object::Object, action::Action, frame, to_obj::
     )#a jpath to appear from
     l1 = length(object.jpaths)
     l2 = length(to_obj.jpaths)
-    #println("JPATHDIFFF",l1-l2)
     jpaths1 = vcat(object.jpaths, repeat([null_jpath_begin], max(0, l2 - l1)))
     jpaths2 = vcat(to_obj.jpaths, repeat([null_jpath_end], max(0, l1 - l2)))
     #above lines should make jpaths1 and jpaths2 have the same no of jpaths
-    #println(jpaths1)
-    #println("-------------")
-    #println(jpaths2)
-    #println("END")
     for (jpath1, jpath2) in zip(jpaths1, jpaths2)
         push!(interp_jpaths, _morph_jpath(jpath1, jpath2, get_interpolation(action, frame)))
     end
@@ -526,4 +521,45 @@ function reorder_match(from_shapes::Vector{Shape}, to_shapes::Vector{Shape})
         end
     end
     return new_from_shapes, new_to_shapes
+end
+
+
+"""
+bunch of methods extending functions in Animations.jl that make morphs possible.
+need to find a better place to put these functions, 
+this will do for now
+"""
+
+null_jpath(p = Point(0, 0)) = JPath(
+    [repeat([p], 3) .+ [0.5, 0, -0.5]],
+    [true],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    :stroke,
+    2,
+)#a jpath to appear from
+
+function Animations.Animation(
+    timestamps::AbstractVector{<:Real},
+    objects::AbstractVector{Object},
+    easings::AbstractVector{<:Easing},
+)
+    keyframes = Keyframe{Vector{JPath}}.(timestamps, [obj.jpaths for obj in objects])
+    Animation(keyframes, easings)
+end
+
+function Animations.linear_interpolate(
+    fraction::Real,
+    jpaths1::Vector{JPath},
+    jpaths2::Vector{JPath},
+)
+    l1 = length(jpaths1)
+    l2 = length(jpaths2)
+    jpaths1 = vcat(jpaths1, repeat([null_jpath()], max(0, l2 - l1)))
+    jpaths2 = vcat(jpaths2, repeat([null_jpath()], max(0, l1 - l2)))
+    interp_jpaths = JPath[]
+    for (jpath1, jpath2) in zip(jpaths1, jpaths2)
+        push!(interp_jpaths, _morph_jpath(jpath1, jpath2, fraction))
+    end
+    return interp_jpaths
 end

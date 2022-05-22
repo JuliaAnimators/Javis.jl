@@ -1,6 +1,7 @@
 module Javis
 
 using Animations
+import Animations: linear_interpolate
 import Cairo: CairoImageSurface, image
 using FFMPEG
 using Gtk
@@ -54,6 +55,7 @@ Transformation(p, a, s::Tuple{Float64,Float64}) = Transformation(p, a, Scale(s..
 
 include("structs/ObjectSetting.jl")
 include("structs/Object.jl")
+include("structs/JPath.jl")
 include("structs/Transitions.jl")
 include("structs/Action.jl")
 include("structs/LayerSetting.jl")
@@ -568,7 +570,7 @@ function get_javis_frame(video, objects, frame; layers = Layer[])
                 println("EXTRACTING " * object.opts[:name] * " JPATHS")
             catch
             end
-            object.jpaths = getjpaths(object.func)
+            getjpaths!(object, object.func)
         end
     end
 

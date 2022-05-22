@@ -486,3 +486,19 @@ function _change(video, object, action, rel_frame, s)
     val = get_interpolation(action, rel_frame)
     object.change_keywords[s] = val
 end
+
+function morph()
+    (video, object, action, rel_frame) -> _morph(video, object, action, rel_frame)
+end
+
+function _morph(video, object, action, rel_frame)
+    interp_jpaths = get_interpolation(action, rel_frame)
+    function drawfunc(args...)
+        drawjpaths(interp_jpaths)
+        global DISABLE_LUXOR_DRAW = true
+        ret = object.opts[:original_func]()
+        global DISABLE_LUXOR_DRAW = false
+        ret
+    end
+    object.func = drawfunc
+end
