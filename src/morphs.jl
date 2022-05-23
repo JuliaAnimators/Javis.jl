@@ -89,22 +89,23 @@ end
 
 function _morph_jpath(jpath1::JPath, jpath2::JPath, k, samples = 100)
     polys1 = jpath1.polys
-    for (i, poly) in enumerate(jpath1.polys)
-        if jpath1.closed[i]
-            if poly[begin] != poly[end]
-                push!(poly, poly[begin])
-            end
-        end
-    end
     polys2 = jpath2.polys
-    for (i, poly) in enumerate(jpath2.polys)
-        if jpath2.closed[i]
-            if poly[begin] != poly[end]
-                push!(poly, poly[begin])
-            end
-        end
-    end
-    retpolys = polymorph(polys1, polys2, k; samples = samples)
+    #for (i, poly) in enumerate(jpath1.polys)
+    #    if jpath1.closed[i]
+    #        if poly[begin] != poly[end]
+    #            push!(poly, poly[begin])
+    #        end
+    #    end
+    #end
+    #for (i, poly) in enumerate(jpath2.polys)
+    #    if jpath2.closed[i]
+    #        if poly[begin] != poly[end]
+    #            push!(poly, poly[begin])
+    #        end
+    #    end
+    #end
+
+    retpolys = polymorph_noresample(polys1, polys2, k)
     retclosed =
         vcat(jpath2.closed, repeat([false], length(retpolys) - length(jpath2.closed) + 1))
     retfill = k .* jpath2.fill + (1 - k) .* jpath1.fill

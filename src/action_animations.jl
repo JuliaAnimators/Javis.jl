@@ -487,11 +487,34 @@ function _change(video, object, action, rel_frame, s)
     object.change_keywords[s] = val
 end
 
-function morph()
-    (video, object, action, rel_frame) -> _morph(video, object, action, rel_frame)
+"""
+morph() to be used with Action, when an animation form Animations.jl is
+provided.
+
+Default samples for every polygon is 100, increase this 
+if needed.
+"""
+function morph(samples = 100)
+    (video, object, action, rel_frame) -> _morph(video, object, action, rel_frame, samples)
 end
 
-function _morph(video, object, action, rel_frame)
+function _morph(video, object, action, rel_frame, samples)
+    #at first relative frame of action , we resample polys inside
+    #jpaths to have same number of points
+    #the polymorph_noresample called inside get_interpolation, unlike luxors polymorph does not resample polys
+    #but expects polys with same number of points.
+    if rel_frame == action.frames.frames[begin]
+        for kf in action.anim.frames
+            for jpath in kf.value  #kf.value is an array of jpaths
+                for i in 1:length(jpath.polys)
+                    jpath.polys[i] =
+                        polysample(jpath.polys[i], samples, closed = jpath.closed[i])
+                end
+            end
+        end
+    end
+
+
     interp_jpaths = get_interpolation(action, rel_frame)
     function drawfunc(args...)
         drawjpaths(interp_jpaths)

@@ -425,8 +425,6 @@ function Luxor.fillpreserve()
     end
 end
 
-
-
 function Luxor.pathtopoly(::Val{:costate})
     originalpath = getpathflat()
     polygonlist = Array{Point,1}[]
@@ -484,4 +482,90 @@ function Luxor.pathtopoly(::Val{:costate})
     @assert length(polygonlist) == length(co_states)
     #"""return polygonlist, and its closed/open state"""
     return polygonlist, co_states
+end
+
+
+"""
+    just like polymorph from Luxor , but expects polygons to be of same size , and
+    therefore does not resample them to be of same size.
+"""
+function _betweenpoly_noresample(loop1, loop2, k; easingfunction = easingflat)
+    @assert length(loop1) == length(loop2)
+    result = Point[]
+    eased_k = easingfunction(k, 0.0, 1.0, 1.0)
+    for j in 1:length(loop1)
+        push!(result, between(loop1[j], loop2[j], eased_k))
+    end
+    return result
+end
+
+function polymorph_noresample(
+    pgon1::Array{Array{Point,1}},
+    pgon2::Array{Array{Point,1}},
+    k;
+    easingfunction = easingflat,
+    kludge = true,
+)
+    isapprox(k, 0.0) && return pgon1
+    isapprox(k, 1.0) && return pgon2
+    loopcount1 = length(pgon1)
+    loopcount2 = length(pgon2)
+    result = Array{Point,1}[]
+    centroid1 = centroid2 = O # kludge-y eh?
+    for i in 1:max(loopcount1, loopcount2)
+        from_ok = to_ok = false
+        not_empty1 = i <= loopcount1
+        not_empty2 = i <= loopcount2
+        if (not_empty1 && length(pgon1[i]) >= 3)
+            from_ok = true
+        end
+        if (not_empty2 && length(pgon2[i]) >= 3)
+            to_ok = true
+        end
+        if from_ok && to_ok
+            # a simple morph should suffice
+            push!(
+                result,
+                _betweenpoly_noresample(
+                    pgon1[i],
+                    pgon2[i],
+                    k,
+                    easingfunction = easingfunction,
+                ),
+            )
+            centroid1 = polycentroid(pgon1[i])
+            centroid2 = polycentroid(pgon2[i])
+        elseif from_ok && !to_ok && kludge
+            # nothing to morph to, so make something up
+            pdir = !ispolyclockwise(pgon1[i])
+            loop2 =
+                ngon(centroid2, 0.1, reversepath = pdir, length(pgon1[i]), vertices = true)
+            push!(
+                result,
+                _betweenpoly_noresample(
+                    pgon1[i],
+                    loop2,
+                    k,
+                    easingfunction = easingfunction,
+                ),
+            )
+            centroid1 = polycentroid(pgon1[i])
+        elseif !from_ok && to_ok && kludge
+            # nothing to morph from, so make something up
+            pdir = !ispolyclockwise(pgon2[i])
+            loop1 =
+                ngon(centroid1, 0.1, reversepath = pdir, length(pgon2[i]), vertices = true)
+            push!(
+                result,
+                _betweenpoly_noresample(
+                    loop1,
+                    pgon2[i],
+                    k,
+                    easingfunction = easingfunction,
+                ),
+            )
+            centroid2 = polycentroid(pgon2[i])
+        end
+    end
+    return result
 end
