@@ -524,4 +524,9 @@ function _morph(video, object, action, rel_frame, samples)
         ret
     end
     object.func = drawfunc
+    # TODO if keep is true..then at rel_frame end 
+    # replace obj.jpaths with interp_jpaths 
+    # this allows it to be morphed again later
+    # if keep is false replace object.func and object.jpaths 
+    # with original
 end
