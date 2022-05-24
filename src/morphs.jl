@@ -46,33 +46,30 @@ function morph_to(to_obj::Object)
     return (video, object, action, frame) -> _morph_to(video, object, action, frame, to_obj)
 end
 
+# a jpath to appear from/disappear into
+# has 1 poly of 3 points very close to each other
+# black fill 0 alpha, black stroke opaque
+# linewidth 2
+null_jpath(p = Point(0, 0)) = JPath(
+    [repeat([p], 3) .+ [0.5, 0, -0.5]],
+    [true],
+    [0, 0, 0, 0],
+    [0, 0, 0, 1],
+    :stroke,
+    2,
+)
+
 function _morph_to(video::Video, object::Object, action::Action, frame, to_obj::Object)
     interp_jpaths = JPath[]
     #nframes = length(action.frames.frames)
     #need to handle different number of jpaths
     #for to_obj less jpaths , we can shrink the extras down
     #for to_obj having more jpaths , we need to create extra polys 
-    null_jpath_end = JPath(
-        [repeat([Point(0, 0)], 3) .+ [0.5, 0, -0.5]],
-        [true],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        :stroke,
-        2,
-    ) #a jpath to vanish into ,
     #the jpath it vanishes into has 1 poly with 3 points very close around the objects start_pos. ideally should have been 3 same points but Luxor doesnt like polys with 3 same points on top of each other,
-    null_jpath_begin = JPath(
-        [repeat([Point(0, 0)], 3) .+ [0.5, 0, -0.5]],
-        [true],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0],
-        :stroke,
-        2,
-    )#a jpath to appear from
     l1 = length(object.jpaths)
     l2 = length(to_obj.jpaths)
-    jpaths1 = vcat(object.jpaths, repeat([null_jpath_begin], max(0, l2 - l1)))
-    jpaths2 = vcat(to_obj.jpaths, repeat([null_jpath_end], max(0, l1 - l2)))
+    jpaths1 = vcat(object.jpaths, repeat([null_jpath()], max(0, l2 - l1)))
+    jpaths2 = vcat(to_obj.jpaths, repeat([null_jpath()], max(0, l1 - l2)))
     #above lines should make jpaths1 and jpaths2 have the same no of jpaths
     for (jpath1, jpath2) in zip(jpaths1, jpaths2)
         push!(interp_jpaths, _morph_jpath(jpath1, jpath2, get_interpolation(action, frame)))
@@ -90,21 +87,6 @@ end
 function _morph_jpath(jpath1::JPath, jpath2::JPath, k, samples = 100)
     polys1 = jpath1.polys
     polys2 = jpath2.polys
-    #for (i, poly) in enumerate(jpath1.polys)
-    #    if jpath1.closed[i]
-    #        if poly[begin] != poly[end]
-    #            push!(poly, poly[begin])
-    #        end
-    #    end
-    #end
-    #for (i, poly) in enumerate(jpath2.polys)
-    #    if jpath2.closed[i]
-    #        if poly[begin] != poly[end]
-    #            push!(poly, poly[begin])
-    #        end
-    #    end
-    #end
-
     retpolys = polymorph_noresample(polys1, polys2, k)
     retclosed =
         vcat(jpath2.closed, repeat([false], length(retpolys) - length(jpath2.closed) + 1))
@@ -531,14 +513,6 @@ need to find a better place to put these functions,
 this will do for now
 """
 
-null_jpath(p = Point(0, 0)) = JPath(
-    [repeat([p], 3) .+ [0.5, 0, -0.5]],
-    [true],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    :stroke,
-    2,
-)#a jpath to appear from
 
 function Animations.Animation(
     timestamps::AbstractVector{<:Real},
