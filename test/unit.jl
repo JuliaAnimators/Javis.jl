@@ -371,6 +371,7 @@
 
         scale(0.5)
         fontsize(15)
+        @test get_fontsize() == 15
         text("Test", Point(0, -100))
 
         finish()

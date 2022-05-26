@@ -85,6 +85,7 @@ text("Hello World! \$fsize")
 - `Float64`: the current font size
 """
 function get_fontsize()
+    CURRENTLY_RENDERING[1] || return Luxor.get_fontsize()
     cs = get_current_setting()
     return cs.fontsize
 end
