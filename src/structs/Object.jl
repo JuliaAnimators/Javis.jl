@@ -23,7 +23,7 @@ mutable struct Object <: AbstractObject
     opts::Dict{Symbol,Any}
     change_keywords::Dict{Symbol,Any}
     result::Vector
-    jpaths::Any
+    jpaths::Vector{JPath}
 end
 
 

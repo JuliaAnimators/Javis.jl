@@ -275,6 +275,14 @@ function background(background_color)
     Luxor.background(background_color)
 end
 
+"""
+    apply_transform(transform::Vector{Float64} , poly::Vector{Point})
+
+applies the transform , got by getmatrix() on every point in the poly
+and returns a new poly.
+
+move this to luxor_overrides_util.jl later.
+"""
 function apply_transform(transform::Vector{Float64}, poly::Vector{Point})
     retpoly = Point[]
     for pt in poly
@@ -284,12 +292,13 @@ function apply_transform(transform::Vector{Float64}, poly::Vector{Point})
     retpoly
 end
 
-function Luxor.strokepath()
-    #save path to CURRENT_JPATH
-    #TODO 
-    #linewidth
-    #check for transform , refer TODO comment in the struct definition of JPath.
-    #dashstyle
+"""
+updates CURRENT_JPATHS
+if used inside strokepath() pass action=:stroke
+and inside fillpath pass :fill.
+move this to luxor_overrides_util.jl later.
+"""
+function update_currentjpath(action::Symbol)
     if CURRENT_FETCHPATH_STATE == true
         #println("test strokepaths")
         cur_polys, cur_costates = pathtopoly(Val(:costate))
@@ -301,22 +310,35 @@ function Luxor.strokepath()
             sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
             [:redvalue, :greenvalue, :bluevalue, :alpha],
         )
-        fill = [0.0, 0, 0, 0]
-        stroke = [r, g, b, a]
-        #if polys didnt change we just modify the last JPath in the
-        #CURRENT_JPATHS
-        #TODO see if the == operator is the right way to compare
-        #two polys.
+        #by default they are black transparent 
+        fillstroke = Dict(:fill => [0.0, 0, 0, 0], :stroke => [0.0, 0, 0, 0])
+        fillstroke[action] .= [r, g, b, a]
+        #if polys didnt change we just modify the last JPath in the CURRENT_JPATHS
         if length(CURRENT_JPATHS) > 0 && cur_polys == CURRENT_JPATHS[end].polys
             #print("found similar path\n")
-            CURRENT_JPATHS[end].stroke = stroke
-            CURRENT_JPATHS[end].lastaction = :stroke
+            setproperty!(CURRENT_JPATHS[end], action, fillstroke[action])
+            #if action was :stroke above line would be the same as doing...
+            #CURRENT_JPATHS[end].stroke = fillstroke[:stroke] 
+            setproperty!(CURRENT_JPATHS[end], :lastaction, action)
+            #if action was :stroke above line would be the same as doing...
+            #CURRENT_JPATHS[end].lastaction = :stroke
         else
             #println("adding to CURRENT_JPATH")
-            currpath = JPath(cur_polys, cur_costates, fill, stroke, :stroke, 2)
+            currpath = JPath(
+                cur_polys,
+                cur_costates,
+                fillstroke[:fill],
+                fillstroke[:stroke],
+                action,
+                2,
+            )
             push!(CURRENT_JPATHS, currpath)
         end
     end
+end
+
+function Luxor.strokepath()
+    update_currentjpath(:stroke)
     if !DISABLE_LUXOR_DRAW
         Luxor.get_current_strokescale() ?
         Luxor.Cairo.stroke_transformed(Luxor.get_current_cr()) :
@@ -325,32 +347,7 @@ function Luxor.strokepath()
 end
 
 function Luxor.strokepreserve()
-    #TODO
-    #linewidth
-    #transform
-    #dashstyle
-    if CURRENT_FETCHPATH_STATE == true
-        #println("teststrokepreserves")
-        cur_polys, cur_costates = pathtopoly(Val(:costate))
-        transform = getmatrix()
-        cur_polys = [apply_transform(getmatrix(), poly) for poly in cur_polys]
-        r, g, b, a = map(
-            sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
-            [:redvalue, :greenvalue, :bluevalue, :alpha],
-        )
-        fill = [0.0, 0, 0, 0]
-        stroke = [r, g, b, a]
-        #TODO check == 
-        if length(CURRENT_JPATHS) > 0 && cur_polys == CURRENT_JPATHS[end].polys
-            #print("found similar path\n")
-            CURRENT_JPATHS[end].stroke = stroke
-            CURRENT_JPATHS[end].lastaction = :stroke
-        else
-            #println("adding to CURRENT_JPATH")
-            currpath = JPath(cur_polys, cur_costates, fill, stroke, :stroke, 2)
-            push!(CURRENT_JPATHS, currpath)
-        end
-    end
+    update_currentjpath(:stroke)
     if !DISABLE_LUXOR_DRAW
         Luxor.get_current_strokescale() ?
         Luxor.Cairo.stroke_preserve_transformed(Luxor.get_current_cr()) :
@@ -360,66 +357,14 @@ function Luxor.strokepreserve()
 end
 
 function Luxor.fillpath()
-    #TODO 
-    #linewidth
-    #transform
-    #dashstyle
-    if CURRENT_FETCHPATH_STATE == true
-        #println("test fillpath")
-        cur_polys, cur_costates = pathtopoly(Val(:costate))
-        transform = getmatrix()
-        cur_polys = [apply_transform(getmatrix(), poly) for poly in cur_polys]
-        r, g, b, a = map(
-            sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
-            [:redvalue, :greenvalue, :bluevalue, :alpha],
-        )
-        fill = [r, g, b, a]
-        stroke = [0.0, 0.0, 0.0, 0.0]
-        #TODO check == 
-        if length(CURRENT_JPATHS) > 0 && cur_polys == CURRENT_JPATHS[end].polys
-            #print("found similar path\n")
-            CURRENT_JPATHS[end].fill = fill
-            CURRENT_JPATHS[end].lastaction = :fill
-        else
-            #println("adding to CURRENT_JPATH")
-            currpath = JPath(cur_polys, cur_costates, fill, stroke, :fill, 2)
-            push!(CURRENT_JPATHS, currpath)
-        end
-    end
+    update_currentjpath(:fill)
     if !DISABLE_LUXOR_DRAW
         Luxor.Cairo.fill(Luxor.get_current_cr())
     end
 end
 
 function Luxor.fillpreserve()
-    #TODO 
-    #linewith
-    #transform
-    #dashtyle
-    if CURRENT_FETCHPATH_STATE == true
-        #println("test fill preserve")
-        #println("adding to CURRENT_JPATH")
-        cur_polys, cur_costates = pathtopoly(Val(:costate))
-        transform = getmatrix()
-        cur_polys = [apply_transform(getmatrix(), poly) for poly in cur_polys]
-        #if polys is 
-        r, g, b, a = map(
-            sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
-            [:redvalue, :greenvalue, :bluevalue, :alpha],
-        )
-        fill = [r, g, b, a]
-        stroke = [0.0, 0.0, 0.0, 0.0]
-        #TODO check == 
-        if length(CURRENT_JPATHS) > 0 && cur_polys == CURRENT_JPATHS[end].polys
-            #print("found similar path\n")
-            CURRENT_JPATHS[end].fill = fill
-            CURRENT_JPATHS[end].lastaction = :fill
-        else
-            #print("adding newpath\n")
-            currpath = JPath(cur_polys, cur_costates, fill, stroke, :fill, 2)
-            push!(CURRENT_JPATHS, currpath)
-        end
-    end
+    update_currentjpath(:fill)
     if !DISABLE_LUXOR_DRAW
         Luxor.Cairo.fill_preserve(Luxor.get_current_cr())
     end
@@ -471,9 +416,15 @@ function Luxor.pathtopoly(::Val{:costate})
         end
         # the path was never closed, so flush
         if length(pointslist) > 1 #dont flush paths if only 1 point remains
-            push!(co_states, false)
             if length(pointslist) == 2
                 insert!(pointslist, 2, sum(pointslist) / 2)#insert midpoint if only 2 points are there
+            end
+            if (last(pointslist) == first(pointslist)) && length(pointslist) > 2
+                #but first lets check if what we flush is closed or open. 
+                push!(co_states, true)
+                pop!(pointslist)
+            else
+                push!(co_states, false)
             end
             push!(polygonlist, pointslist)
         end

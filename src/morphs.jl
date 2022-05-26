@@ -42,8 +42,9 @@ function morph_to(to_func::Function; do_action = :stroke)
         _morph_to(video, object, action, frame, to_func; do_action = do_action)
 end
 
-function morph_to(to_obj::Object)
-    return (video, object, action, frame) -> _morph_to(video, object, action, frame, to_obj)
+function morph_to(to_obj::Object, samples = 100)
+    return (video, object, action, frame) ->
+        _morph_to(video, object, action, frame, to_obj, samples)
 end
 
 # a jpath to appear from/disappear into
@@ -59,7 +60,14 @@ null_jpath(p = Point(0, 0)) = JPath(
     2,
 )
 
-function _morph_to(video::Video, object::Object, action::Action, frame, to_obj::Object)
+function _morph_to(
+    video::Video,
+    object::Object,
+    action::Action,
+    frame,
+    to_obj::Object,
+    samples,
+)
     interp_jpaths = JPath[]
     #nframes = length(action.frames.frames)
     #need to handle different number of jpaths
@@ -71,6 +79,19 @@ function _morph_to(video::Video, object::Object, action::Action, frame, to_obj::
     jpaths1 = vcat(object.jpaths, repeat([null_jpath()], max(0, l2 - l1)))
     jpaths2 = vcat(to_obj.jpaths, repeat([null_jpath()], max(0, l1 - l2)))
     #above lines should make jpaths1 and jpaths2 have the same no of jpaths
+    #
+    #resample all polys to same number of points at first frame of the action...
+    if frame == action.frames.frames[begin]
+        for obj in [object, to_obj]
+            for jpath in obj.jpaths  #kf.value is an array of jpaths
+                for i in 1:length(jpath.polys)
+                    jpath.polys[i] =
+                        polysample(jpath.polys[i], samples, closed = jpath.closed[i])
+                end
+            end
+        end
+    end
+
     for (jpath1, jpath2) in zip(jpaths1, jpaths2)
         push!(interp_jpaths, _morph_jpath(jpath1, jpath2, get_interpolation(action, frame)))
     end
@@ -82,14 +103,22 @@ function _morph_to(video::Video, object::Object, action::Action, frame, to_obj::
         ret
     end
     object.func = drawfunc
+    if frame == action.frames.frames[end]
+        if action.keep
+            object.jpaths = to_obj.jpaths
+        else
+            object.func = object.opts[:original_func]
+        end
+    end
 end
 
 function _morph_jpath(jpath1::JPath, jpath2::JPath, k, samples = 100)
     polys1 = jpath1.polys
     polys2 = jpath2.polys
     retpolys = polymorph_noresample(polys1, polys2, k)
-    retclosed =
-        vcat(jpath2.closed, repeat([false], length(retpolys) - length(jpath2.closed) + 1))
+    println(jpath2.closed)
+    retclosed = jpath2.closed
+    #vcat(jpath2.closed, repeat([false], length(retpolys) - length(jpath2.closed) + 1))
     retfill = k .* jpath2.fill + (1 - k) .* jpath1.fill
     retstroke = k .* jpath2.stroke + (1 - k) .* jpath1.stroke
     retlinewidth = k .* jpath2.linewidth + (1 - k) .* jpath1.linewidth

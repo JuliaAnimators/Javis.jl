@@ -488,6 +488,7 @@ function _change(video, object, action, rel_frame, s)
 end
 
 """
+TODO write better docs for everything.
 morph() to be used with Action, when an animation form Animations.jl is
 provided.
 
@@ -514,7 +515,6 @@ function _morph(video, object, action, rel_frame, samples)
         end
     end
 
-
     interp_jpaths = get_interpolation(action, rel_frame)
     function drawfunc(args...)
         drawjpaths(interp_jpaths)
@@ -524,6 +524,15 @@ function _morph(video, object, action, rel_frame, samples)
         ret
     end
     object.func = drawfunc
+    if frame == action.frames.frames[end]
+        if action.keep
+            #make the objects jpaths the last objects (of the Animation) jpath
+            empty!(object.jpaths)
+            append!(object.jpaths, action.anim.frames[end].value)
+        else
+            object.func = object.opts[:func]
+        end
+    end
     # TODO if keep is true..then at rel_frame end 
     # replace obj.jpaths with interp_jpaths 
     # this allows it to be morphed again later
