@@ -1,3 +1,4 @@
+include("JPath.jl")
 """
     Object
 
@@ -111,6 +112,36 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
     end
 
     return object
+end
+
+function getjpaths!(obj::Object, func::Function, args = [])
+    try
+        Drawing()
+        empty!(CURRENT_JPATHS)
+        global CURRENT_FETCHPATH_STATE = true
+        v, o, f = nothing, nothing, nothing
+        #for now just make it nothing,
+        #this will cause problems if the user defines  
+        #the Object.func with types for the arguments
+        #TODO discuss a solution for this.
+        func(v, o, f, args...)
+        global CURRENT_FETCHPATH_STATE = false
+        finish()
+        append!(obj.jpaths, CURRENT_JPATHS)
+        empty!(CURRENT_JPATHS)
+    catch e
+        if e isa MethodError
+            #@warn "Could not extract jpath for object,\nperhaps 
+            #Object.func depends on rendertime variables"
+            println("Could not Extract jpath for some objects. Morphs may not work ")
+        else
+            throw(e)
+        end
+    end
+end
+
+function drawobj_jpaths(obj::Object)
+    drawjpaths(obj.jpaths)
 end
 
 """
