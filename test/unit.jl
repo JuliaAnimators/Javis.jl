@@ -357,4 +357,24 @@
         )
         @test scale_val(Point(-20, -10)) == Point(20, 10) # clamped
     end
+
+    @testset "Normal Luxor Drawing" begin
+        Drawing(600, 600, "images/test.png")
+        origin()
+        background("black")
+        sethue("white")
+        scale(2)
+        setline(5)
+        setopacity(0.6)
+        line(O, Point(100, 100), :stroke)
+        setopacity(1.0)
+
+        scale(0.5)
+        fontsize(15)
+        @test get_fontsize() == 15
+        text("Test", Point(0, -100))
+
+        finish()
+        rm("images/test.png")
+    end
 end
