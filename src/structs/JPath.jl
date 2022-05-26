@@ -31,3 +31,30 @@ end
 
 CURRENT_JPATHS = JPath[] #TODO change to const later
 CURRENT_FETCHPATH_STATE = false
+
+function drawjpaths(jpaths::Array{JPath})
+    for jpath in jpaths
+        for (polyi, co_state) in zip(jpath.polys, jpath.closed)
+            #place the polys
+            if length(polyi) > 1
+                #TODO maybe prune all single-point polys before they are added to obj.jpaths
+                poly(polyi; action = :path, close = co_state)
+            end
+        end
+        if jpath.lastaction == :stroke
+            Luxor.setcolor(jpath.fill[1:3]...)
+            Luxor.setopacity(jpath.fill[4])
+            Luxor.fillpreserve()
+            Luxor.setcolor(jpath.stroke[1:3]...)
+            Luxor.setopacity(jpath.stroke[4])
+            Luxor.strokepath()
+        else
+            Luxor.setcolor(jpath.stroke[1:3]...)
+            Luxor.setopacity(jpath.stroke[4])
+            Luxor.strokepreserve()
+            Luxor.setcolor(jpath.fill[1:3]...)
+            Luxor.setopacity(jpath.fill[4])
+            Luxor.fillpath()
+        end
+    end
+end
