@@ -18,7 +18,7 @@ venus = Object(JCircle(O, 7, color = &quot;red&quot;, action = :fill), Point(144
 render(myvideo; pathname = &quot;cosmic_dance.gif&quot;)</code></pre><p><img src="../assets/cosmic_dance_planets.gif" alt/></p><p>Tada! 💥 We have created our own galaxy! Now that we have created some planets, we should map their orbits - we don&#39;t want them crashing into each other!</p><h3 id="Swiftly-Tilting-Axes"><a class="docs-heading-anchor" href="#Swiftly-Tilting-Axes">Swiftly Tilting Axes 🌐</a><a id="Swiftly-Tilting-Axes-1"></a><a class="docs-heading-anchor-permalink" href="#Swiftly-Tilting-Axes" title="Permalink"></a></h3><p>In the previous tutorial we used a <code>path!</code> function to create the orbits of the planets.  In its place, we will use <code>@JShape</code> to trace out the orbits of the planets. </p><p><code>@JShape</code> is a macro that allows users to create complex objects with custom settings - all using J-Object syntax! All the parameters used inside <code>@JShape</code>, such as defining colors or actions, are within the <code>begin...end</code> provided by the macros. </p><p>Here is how we use <code>@JShape</code> to define the orbits of a planet:</p><pre><code class="language-julia hljs">...
 
 earth = Object(1:frames, JCircle(O, 10, color = &quot;blue&quot;, action = :fill), Point(200, 0))
-venus = Object(JCircle(O, 7, color = &quot;red&quot;, action = :fill), Point(144, 0))
+venus = Object(1:frames, JCircle(O, 7, color = &quot;red&quot;, action = :fill), Point(144, 0))
 
 earth_orbit = Object(@JShape begin
     sethue(color)
@@ -37,7 +37,7 @@ render(myvideo; pathname = &quot;cosmic_dance.gif&quot;)</code></pre><p><img src
 # We need the planets to revolve according to their time periods.
 # Earth completes its one revolution in 365 days and Venus does that in 224.7 days.
 # Hence, we need to multiply (224.7/365) so that the time period matches properly i.e.,
-# When earth completes its full revolution, Venus has done (224.7/365) th of its revolution.
+# When Venus completes its full revolution, Earth has done (224.7/365) th of its revolution.
 act!(earth, Action(anim_rotate_around(12.5 * 2π * (224.7 / 365), O)))
 act!(venus, Action(anim_rotate_around(12.5 * 2π, O)))
 
@@ -91,7 +91,7 @@ myvideo = Video(500, 500)
 Background(1:frames, ground)
 
 earth = Object(1:frames, JCircle(O, 10, color = &quot;blue&quot;, action = :fill), Point(200, 0))
-venus = Object(JCircle(O, 7, color = &quot;red&quot;, action = :fill), Point(144, 0))
+venus = Object(1:frames, JCircle(O, 7, color = &quot;red&quot;, action = :fill), Point(144, 0))
 
 earth_orbit = Object(@JShape begin
     sethue(color)
@@ -120,4 +120,4 @@ Object(@JShape begin
 end connection = connection p1 = pos(earth) p2 = pos(venus) color = &quot;#f05a4f&quot;)
 
 render(myvideo; pathname = &quot;cosmic_dance.gif&quot;)
-</code></pre><blockquote><p><strong>Author(s):</strong> Arsh Sharma <br/><strong>Date:</strong> July 7th, 2021 <br/><strong>Tag(s):</strong> shorthands, object, action, rotation <br/><strong>Credit(s):</strong> Ved Mahajan for the cosmic dance example</p></blockquote></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tutorial_1/">« <strong>Tutorial 1:</strong> Making Your First Javis Animation!</a><a class="docs-footer-nextpage" href="../tutorial_3/"><strong>Tutorial 3:</strong> What Are Objects? »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.18 on <span class="colophon-date" title="Thursday 26 May 2022 08:40">Thursday 26 May 2022</span>. Using Julia version 1.7.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+</code></pre><blockquote><p><strong>Author(s):</strong> Arsh Sharma <br/><strong>Date:</strong> July 7th, 2021 <br/><strong>Tag(s):</strong> shorthands, object, action, rotation <br/><strong>Credit(s):</strong> Ved Mahajan for the cosmic dance example</p></blockquote></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../tutorial_1/">« <strong>Tutorial 1:</strong> Making Your First Javis Animation!</a><a class="docs-footer-nextpage" href="../tutorial_3/"><strong>Tutorial 3:</strong> What Are Objects? »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.18 on <span class="colophon-date" title="Thursday 26 May 2022 08:43">Thursday 26 May 2022</span>. Using Julia version 1.7.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
