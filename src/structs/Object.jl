@@ -136,7 +136,7 @@ function getjpaths!(obj::Object, func::Function, args = [])
         end
     end
     global CURRENT_FETCHPATH_STATE = false
-    global DISABLE_LUXOR_DRAW = false 
+    global DISABLE_LUXOR_DRAW = false
     finish()
     append!(obj.jpaths, CURRENT_JPATHS)
     empty!(CURRENT_JPATHS)

@@ -47,10 +47,10 @@ function morph_to(to_obj::Object; samples = 100)
         _morph_to(video, object, action, frame, to_obj, samples)
 end
 
-function morph_to_fn(to_func::Function,args=[];samples=100)
-    return (video,object,action,frame) ->
-        _morph_to_fn(video,object,action,frame,to_func,args,samples)
- end
+function morph_to_fn(to_func::Function, args = []; samples = 100)
+    return (video, object, action, frame) ->
+        _morph_to_fn(video, object, action, frame, to_func, args, samples)
+end
 
 # a jpath to appear from/disappear into
 # has 1 poly of 3 points very close to each other
@@ -119,23 +119,24 @@ end
 
 
 function _morph_to_fn(
-        video::Video,
-        object::Object,
-        action::Action,
-        frame,
-        to_func::Function,
-        args::Array,
-        samples=100,
+    video::Video,
+    object::Object,
+    action::Action,
+    frame,
+    to_func::Function,
+    args::Array,
+    samples = 100,
 )
 
     #if first frame ....
     if frame == first(get_frames(action))
         #get jpaths to morph from and  into
         #resample all polys in all jpaths to samples
-        action.defs[:toJPaths] = getjpaths(to_func,args)
-        for jpath in [object.jpaths... , action.defs[:toJPaths]...]
+        action.defs[:toJPaths] = getjpaths(to_func, args)
+        for jpath in [object.jpaths..., action.defs[:toJPaths]...]
             for i in 1:length(jpath.polys)
-                jpath.polys[i] = polysample(jpath.polys[i],samples,closed=jpath.closed[i])
+                jpath.polys[i] =
+                    polysample(jpath.polys[i], samples, closed = jpath.closed[i])
             end
         end
     end

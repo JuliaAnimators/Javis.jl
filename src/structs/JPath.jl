@@ -33,8 +33,8 @@ CURRENT_JPATHS = JPath[] #TODO change to const later
 CURRENT_FETCHPATH_STATE = false
 
 function getjpaths(func::Function, args = [])
-    m=getmatrix()
-    setmatrix([1.0,0,0,1.0,0,0])
+    m = getmatrix()
+    setmatrix([1.0, 0, 0, 1.0, 0, 0])
     empty!(CURRENT_JPATHS)
     global CURRENT_FETCHPATH_STATE = true
     global DISABLE_LUXOR_DRAW = true
@@ -50,7 +50,7 @@ function getjpaths(func::Function, args = [])
         end
     end
     global CURRENT_FETCHPATH_STATE = false
-    global DISABLE_LUXOR_DRAW = false 
+    global DISABLE_LUXOR_DRAW = false
     newpath()#clear all the paths
     retpaths = JPath[]
     append!(retpaths, CURRENT_JPATHS)
