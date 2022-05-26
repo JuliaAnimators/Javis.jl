@@ -1,6 +1,7 @@
 # Javis.jl - Changelog
 
 ## Unreleased v0.9
+- Fix info_box funxtion definition in Tutorial 6
 - Fix inconsistencies in tutorial 2
 - Add example for Chaos Game
 - Add overload for keyword arguments to latex() function
