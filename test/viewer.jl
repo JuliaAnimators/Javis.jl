@@ -5,19 +5,18 @@ end
 
 @testset "Javis Viewer" begin
     astar(args...; do_action = :stroke) = star(O, 50, 5, 0.5, 0, do_action)
-    acirc(args...; do_action = :stroke) = circle(Point(100, 100), 50, do_action)
 
     vid = Video(500, 500)
     back = Background(1:100, ground)
     star_obj = Object(1:100, astar)
-    act!(star_obj, Action(morph_to(acirc; do_action = :fill)))
+    act!(star_obj, Action(anim_translate(Point(0, 50))))
 
     l1 = @JLayer 20:60 100 100 Point(0, 0) begin
         obj = Object((args...) -> circle(O, 25, :fill))
         act!(obj, Action(1:20, appear(:fade)))
     end
 
-    render(vid; pathname = "")
+    frames = Javis.preprocess_frames!(vid)
 
     action_list = [back, star_obj]
 
