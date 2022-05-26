@@ -131,8 +131,8 @@ function _morph_to_fn(
     #if first frame ....
     if frame == first(get_frames(action))
         #get jpaths to morph from and  into
-        #resample all polys in all jpaths to samples
         action.defs[:toJPaths] = getjpaths(to_func, args)
+        #resample all polys in all jpaths to samples
         for jpath in [object.jpaths..., action.defs[:toJPaths]...]
             for i in 1:length(jpath.polys)
                 jpath.polys[i] =
@@ -173,12 +173,20 @@ function _morph_to_fn(
     end
 end
 
-function _morph_jpath(jpath1::JPath, jpath2::JPath, k, samples = 100)
+function _morph_jpath(jpath1::JPath, jpath2::JPath, k)
     polys1 = jpath1.polys
     polys2 = jpath2.polys
     retpolys = polymorph_noresample(polys1, polys2, k)
-    #println(jpath2.closed)
-    retclosed = jpath2.closed
+    #logic to figure out if intermediate path should be closed or open...
+    #by default take what jpath2 would be
+    retclosed = deepcopy(jpath2.closed)
+    for i in 1:length(retclosed)
+        #if going from open to closed
+        if jpath2.closed[i] == true && jpath1.closed[i] == false
+            #intermediates are open , but at k=1 they close
+            retclosed[i] = isapprox(k, 1) ? true : false
+        end
+    end
     #vcat(jpath2.closed, repeat([false], length(retpolys) - length(jpath2.closed) + 1))
     retfill = k .* jpath2.fill + (1 - k) .* jpath1.fill
     retstroke = k .* jpath2.stroke + (1 - k) .* jpath1.stroke

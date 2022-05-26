@@ -35,6 +35,7 @@ CURRENT_FETCHPATH_STATE = false
 function getjpaths(func::Function, args = [])
     m = getmatrix()
     setmatrix([1.0, 0, 0, 1.0, 0, 0])
+    newpath()
     empty!(CURRENT_JPATHS)
     global CURRENT_FETCHPATH_STATE = true
     global DISABLE_LUXOR_DRAW = true
