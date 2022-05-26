@@ -42,10 +42,15 @@ function morph_to(to_func::Function; do_action = :stroke)
         _morph_to(video, object, action, frame, to_func; do_action = do_action)
 end
 
-function morph_to(to_obj::Object, samples = 100)
+function morph_to(to_obj::Object; samples = 100)
     return (video, object, action, frame) ->
         _morph_to(video, object, action, frame, to_obj, samples)
 end
+
+function morph_to_fn(to_func::Function,args=[];samples=100)
+    return (video,object,action,frame) ->
+        _morph_to_fn(video,object,action,frame,to_func,args,samples)
+ end
 
 # a jpath to appear from/disappear into
 # has 1 poly of 3 points very close to each other
@@ -112,11 +117,66 @@ function _morph_to(
     end
 end
 
+
+function _morph_to_fn(
+        video::Video,
+        object::Object,
+        action::Action,
+        frame,
+        to_func::Function,
+        args::Array,
+        samples=100,
+)
+
+    #if first frame ....
+    if frame == first(get_frames(action))
+        #get jpaths to morph from and  into
+        #resample all polys in all jpaths to samples
+        action.defs[:toJPaths] = getjpaths(to_func,args)
+        for jpath in [object.jpaths... , action.defs[:toJPaths]...]
+            for i in 1:length(jpath.polys)
+                jpath.polys[i] = polysample(jpath.polys[i],samples,closed=jpath.closed[i])
+            end
+        end
+    end
+    #println("poly size",action.defs[:toJPaths][1].polys[1])
+    interp_jpaths = JPath[]
+    jpaths1 = object.jpaths
+    jpaths2 = action.defs[:toJPaths]
+    l1 = length(jpaths1)
+    l2 = length(jpaths2)
+    #make jpaths have the same number
+    jpaths1 = vcat(jpaths1, repeat([null_jpath()], max(0, l2 - l1)))
+    jpaths2 = vcat(jpaths2, repeat([null_jpath()], max(0, l1 - l2)))
+
+    #interpolate jpaths pairwise and store interp_jpaths
+    for (jpath1, jpath2) in zip(jpaths1, jpaths2)
+        push!(interp_jpaths, _morph_jpath(jpath1, jpath2, get_interpolation(action, frame)))
+    end
+
+    #make drawing function
+    function drawfunc(args...)
+        drawjpaths(interp_jpaths)
+        global DISABLE_LUXOR_DRAW = true
+        ret = object.opts[:original_func]()
+        global DISABLE_LUXOR_DRAW = false
+        ret
+    end
+    object.func = drawfunc
+    if frame == action.frames.frames[end]
+        if action.keep
+            object.jpaths = jpaths2
+        else
+            object.func = object.opts[:original_func]
+        end
+    end
+end
+
 function _morph_jpath(jpath1::JPath, jpath2::JPath, k, samples = 100)
     polys1 = jpath1.polys
     polys2 = jpath2.polys
     retpolys = polymorph_noresample(polys1, polys2, k)
-    println(jpath2.closed)
+    #println(jpath2.closed)
     retclosed = jpath2.closed
     #vcat(jpath2.closed, repeat([false], length(retpolys) - length(jpath2.closed) + 1))
     retfill = k .* jpath2.fill + (1 - k) .* jpath1.fill

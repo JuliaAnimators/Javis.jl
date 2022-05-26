@@ -32,6 +32,33 @@ end
 CURRENT_JPATHS = JPath[] #TODO change to const later
 CURRENT_FETCHPATH_STATE = false
 
+function getjpaths(func::Function, args = [])
+    m=getmatrix()
+    setmatrix([1.0,0,0,1.0,0,0])
+    empty!(CURRENT_JPATHS)
+    global CURRENT_FETCHPATH_STATE = true
+    global DISABLE_LUXOR_DRAW = true
+    try
+        func(args...)
+    catch e
+        if e isa MethodError
+            #@warn "Could not extract jpath for object,\nperhaps 
+            #Object.func depends on rendertime variables"
+            println("Could not Extract jpath for some objects. Morphs may not work ")
+        else
+            throw(e)
+        end
+    end
+    global CURRENT_FETCHPATH_STATE = false
+    global DISABLE_LUXOR_DRAW = false 
+    newpath()#clear all the paths
+    retpaths = JPath[]
+    append!(retpaths, CURRENT_JPATHS)
+    empty!(CURRENT_JPATHS)
+    setmatrix(m)
+    return retpaths
+end
+
 function drawjpaths(jpaths::Array{JPath})
     for jpath in jpaths
         for (polyi, co_state) in zip(jpath.polys, jpath.closed)
