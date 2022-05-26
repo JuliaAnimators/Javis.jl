@@ -1,8 +1,8 @@
 # Javis.jl - Changelog
 
-## Unreleased v0.9
+## v0.9.0 (26th of May 2022)
 - Ability to use Luxor functionality without rendering an animation
-- Fix `info_box` funxtion definition in Tutorial 6
+- Fix `info_box` function definition in Tutorial 6
 - Fix inconsistencies in tutorial 2
 - Add example for Chaos Game
 - Add overload for keyword arguments to `latex()` function
