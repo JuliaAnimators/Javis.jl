@@ -343,6 +343,8 @@ function Luxor.strokepath()
         Luxor.get_current_strokescale() ?
         Luxor.Cairo.stroke_transformed(Luxor.get_current_cr()) :
         Luxor.Cairo.stroke(Luxor.get_current_cr())
+    else
+        newpath()
     end
 end
 
@@ -360,6 +362,8 @@ function Luxor.fillpath()
     update_currentjpath(:fill)
     if !DISABLE_LUXOR_DRAW
         Luxor.Cairo.fill(Luxor.get_current_cr())
+    else
+        newpath()
     end
 end
 
