@@ -622,6 +622,50 @@ function Animations.Animation(
     Animation(keyframes, easings)
 end
 
+"""
+find a better place for this
+a struct to hold a function and its jpaths. 
+so we can defer getjpaths(func) to rendertime.
+"""
+mutable struct MorphFunction
+    func::Function
+    args::Array
+    jpaths::Vector{JPath}
+end
+
+MorphFunction(f::Function, args::Array) = MorphFunction(f, args, JPath[])
+#convert(MorphFunction,f::Function) = MorphFunction(f,[],JPath[])
+#convert(MorphFunction,t::Tuple{Function,Array}) = MorphFunction(t[1],t[2],JPath[])
+
+function Animations.Animation(
+    timestamps::AbstractVector{<:Real},
+    funcs::AbstractVector{Function},
+    easings::AbstractVector{<:Easing},
+)
+    mfs = [MorphFunction(t, []) for t in funcs]
+    keyframes = Keyframe{MorphFunction}.(timestamps, mfs)
+    Animation(keyframes, easings)
+end
+#
+function Animations.Animation(
+    timestamps::AbstractVector{<:Real},
+    tuples::AbstractVector{T},
+    easings::AbstractVector{<:Easing},
+) where {T<:Tuple{Function,Any}}
+    mfs = [MorphFunction(t[1], t[2]) for t in tuples]
+    keyframes = Keyframe{MorphFunction}.(timestamps, mfs)
+    Animation(keyframes, easings)
+end
+
+function Animations.Animation(
+    timestamps::AbstractVector{<:Real},
+    funcs::AbstractVector{MorphFunction},
+    easings::AbstractVector{<:Easing},
+)
+    keyframes = Keyframe{MorphFunction}.(timestamps, funcs)
+    Animation(keyframes, easings)
+end
+
 function Animations.linear_interpolate(
     fraction::Real,
     jpaths1::Vector{JPath},
@@ -629,8 +673,9 @@ function Animations.linear_interpolate(
 )
     l1 = length(jpaths1)
     l2 = length(jpaths2)
-    jpaths1 = vcat(jpaths1, repeat([null_jpath(samples)], max(0, l2 - l1)))
-    jpaths2 = vcat(jpaths2, repeat([null_jpath(samples)], max(0, l1 - l2)))
+    #jpaths1 = vcat(jpaths1, repeat([null_jpath(samples)], max(0, l2 - l1)))
+    #jpaths2 = vcat(jpaths2, repeat([null_jpath(samples)], max(0, l1 - l2)))
+    @assert l1 == l2
     interp_jpaths = JPath[]
     for (jpath1, jpath2) in zip(jpaths1, jpaths2)
         push!(interp_jpaths, _morph_jpath(jpath1, jpath2, fraction))

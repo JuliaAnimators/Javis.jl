@@ -61,7 +61,6 @@ function getjpaths(func::Function, args = [])
 end
 
 function drawjpaths(jpaths::Array{JPath})
-    newpath()
     for jpath in jpaths
         for (polyi, co_state) in zip(jpath.polys, jpath.closed)
             #place the polys

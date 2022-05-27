@@ -505,6 +505,35 @@ function _morph(video, object, action, rel_frame, samples)
     #the polymorph_noresample called inside get_interpolation, unlike luxors polymorph does not resample polys
     #but expects polys with same number of points.
     if rel_frame == action.frames.frames[begin]
+        #if first frame and action.anim is of  type Animation{MorphFunction}
+        #make it of type Animation{Vector{JPath}}
+        if action.anim isa Animation{MorphFunction}
+            println("yes")
+            keyframes = Keyframe{Vector{JPath}}[]
+            for kf in action.anim.frames
+                println(typeof(kf.value))
+                push!(keyframes, Keyframe(kf.t, getjpaths(kf.value.func, kf.value.args)))
+            end
+            action.anim = Animation(keyframes, action.anim.easings)
+        end
+
+        #make all the jpaths of the same length appending null_jpaths
+        long_jpaths_len = max([length(kf.value) for kf in action.anim.frames]...)
+        for kf in action.anim.frames
+            newval = vcat(
+                deepcopy(kf.value),
+                repeat([null_jpath(samples)], long_jpaths_len - length(kf.value)),
+            )
+            empty!(kf.value)
+            append!(kf.value, newval)
+        end
+
+        println("MAXMIN")
+        println(
+            max([length(kf.value) for kf in action.anim.frames]...),
+            min([length(kf.value) for kf in action.anim.frames]...),
+        )
+
         for kf in action.anim.frames
             for jpath in kf.value  #kf.value is an array of jpaths
                 for i in 1:length(jpath.polys)
@@ -528,7 +557,7 @@ function _morph(video, object, action, rel_frame, samples)
         if action.keep
             #make the objects jpaths the last objects (of the Animation) jpath
             empty!(object.jpaths)
-            append!(object.jpaths, action.anim.frames[end].value)
+            append!(object.jpaths, interp_jpaths)
         else
             object.func = object.opts[:func]
         end
