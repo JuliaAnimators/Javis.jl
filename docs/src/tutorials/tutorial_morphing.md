@@ -60,8 +60,8 @@ this function at render time.
 Javis then has other tricks up its sleave to scale/move/morph whats going to be drawn depending on the
 frame and object to effect out animations through Actions. This is roughly the idea behind Javis's Object-Action mechanism
 
-We defined a `transform_to_box` Action which runs from frame 20 from beginning to 20 frames from the end. The Action morphs whatever object its acted upon into what looks
-like `boxobj`. Note that `boxobj` and `circobj` are seperate objects all the time, even after the Action (it just happens that they overlap each other). As the Action is applied at render time the "drawing" of `circobj` starts to look like `boxobj`'s drawing.
+We defined a `transform_to_box` Action which runs from frame 20 from beginning to 20 frames from the end. The `Action` morphs whatever object its acted upon, into what looks
+like `boxobj`. Note that `boxobj` and `circobj` are seperate objects all the time, even after the `Action` (it just happens that they overlap each other). As the Action is applied at render time the "drawing" of `circobj` starts to look like `boxobj`'s drawing.
 
 The Action is then applied to the `circobj` with the `act!` function.
 
@@ -105,3 +105,84 @@ The general syntax is `morph_to_fn(fn::Function,args::Array)`
 . `args` is an array of arguements that is to be passed to the function.
 Here we morph `circobj` to a shape 
 that would is  drawn by `boxdraw("blue")`.
+
+Another mechanism for morphing is by passing `morph()` to `Action` along with an `Animation`
+For a tutorial on how to use Animations.jl look at [Tutorial 7](tutorial_7.md),
+
+```julia
+using Javis
+using Animations
+video = Video(500,500)
+nframes = 160 
+
+function circdraw(colo)
+    sethue(colo)
+    setopacity(0.5)
+    circle(O,50,:fillpreserve)
+    setopacity(1.0)
+    sethue("white")
+    strokepath()
+    line(O,O+10,:stroke)
+end
+
+function boxdraw(colo)
+    sethue(colo)
+    box(O,100,100,:fillpreserve)
+    setopacity(1.0)
+    sethue("white")
+    strokepath()
+end
+
+function stardraw()
+    sethue("white")
+    star(O,100,5,0.5,0.0,:stroke)
+end
+
+Background(1:nframes+10,(args...)->background("black"))
+boxobj = Object(1:nframes+10 , (args...) -> boxdraw("green") )
+
+anim = Animation([0,1],[(boxdraw,["green"]),(circdraw,["red"])])
+
+action = Action(1:nframes,anim,morph())
+act!(boxobj,action1)
+render(video,tempdirectory="images",pathname="circ_to_box_hidden.gif")
+```
+
+Take a look at `anim`. It is of type `Animation`. The first argument is a `Array` which describes
+a set of keyframes . This `Array` should always start at 0 and end at 1 (can have numbers in between though as we will see in another example).
+The second argument is an `Array` of `Tuples` . Where every `Tuple` is of the form `(func::Function, args::Array)`. The `args::Array` in the Tuple is an `Array` of arguments to be passed to the `Function` in the Tuple.
+
+Typically the first argument of the Tuple Array is a function drawing the same thing
+that the Objects function would draw . 
+
+The `Array` of `Tuple` passed to the `Animation`  defines a sequence of shapes/drawings that the `Object` should be morphed into one by one in that order. Each shape/drawing is what would have been got by calling `func(args...)`. In the example above there are only two in shapes in the sequence a green box and a red circle 
+
+Thus we have made an  `Animation`  called `anim`. We can now make an `action` with this `anim`. Here we have called it `action` . Then we apply the action on our object `boxobj` to get ... 
+
+![](../assets/circ_to_box_anim.gif)
+
+Lets look at another example taking object to morph box(initial shape) -> star -> circle in a sequence.
+
+Change the lines describing the animation to 
+```julia
+anim = Animation([0, 0.7, 1],[(boxdraw, ["green"]), (stardraw, []), (circdraw, ["red"])])
+```
+`stardraw` draws a white star without fill. The function does not take an argument and therefore the `Tuple` with `stardraw` should  have an empty `Array` at its
+second index. If all your drawing functions (ex, `f() , g(), h(), l()` do not take any arguments you can pass it as an `Array` of functions itself.
+
+```julia
+anim = Animation([0, t1, t2, 1],[f, g, h, l])
+```
+
+Do not mix `Tuples{Function,Array}` and  `Function`s in the though, your array can have only one type
+
+![](../assets/circ_to_box_anim2.gif)
+
+What we see now is from the beginning to 0.7 fraction of the `Action`'s frames it carries
+out the morphing from a `boxdraw("green")` to `stardraw()`. 
+And the remainder of the `Action`'s frames it morphs from `stardraw()` to `circdraw("red")`. Look up Animations.jl and Tutorial 7 to see how you pass easing functions to manipulate the timing of animations (for example ... initially slow - fast in the middle - slow in the end) . 
+Now you know a bit about Morphing . Remember just like any other Action you can stack morphing actions with other Actions (translations, scaling etc) to bring about effects you desire. 
+
+> **Author(s):** John George Francies (@arbitrandomuser) 
+> **Date:** May 28th, 2022 \
+> **Tag(s):** action, morphing, object, animation
