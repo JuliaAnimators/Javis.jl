@@ -61,11 +61,11 @@ Javis then has other tricks up its sleave to scale/move/morph whats going to be 
 frame and object to effect out animations through Actions. This is roughly the idea behind Javis's Object-Action mechanism
 
 We defined a `transform_to_box` Action which runs from frame 20 from beginning to 20 frames from the end. The Action morphs whatever object its acted upon into what looks
-like boxobj. Note that `boxobj` and `circobj` are seperate objects all the time, even after the Action (it just happens that they overlap each other). As the Action is applied at render time the "drawing" of `circobj` starts to look like `boxobj`'s drawing.
+like `boxobj`. Note that `boxobj` and `circobj` are seperate objects all the time, even after the Action (it just happens that they overlap each other). As the Action is applied at render time the "drawing" of `circobj` starts to look like `boxobj`'s drawing.
 
 The Action is then applied to the `circobj` with the `act!` function.
 
-Note that the `boxobj` is present throughout as the circobj is morphing.
+Note that the `boxobj` is present throughout as the `circobj` is morphing.
 if you want to hide it you can set its opacity to 0 with another action (to make it disappear) and set its frames to be drawn for 1 frame only (for efficiency).
 ```julia
 Background(1:nframes,(args...)->background("black"))
@@ -81,7 +81,7 @@ act!(boxobj, hide_action)
 render(video,pathname="circ_to_box_hidden.gif")
 ```
 
-However you can directly specify a shape an object has to morph to without making an Object , using `morph_to_fn`.
+However you can directly specify a shape an object has to morph to without making an Object using `morph_to_fn`.
 
 ```julia
 Background(1:nframes,(args...)->background("black"))
@@ -99,6 +99,9 @@ render(video,pathname="circ_to_box_hidden.gif")
 
 ![](../assets/circ_to_box_hidden.gif)
 
-Here we have morphed  the circle to a box . The general syntax is `morph_to_fn(fn::Function,args::Array)`
-. `args` is an array of arguements that is to be passed to the function. Here we morph `circobj` to a shape 
+Here we have morphed  the circle  without defining an object to morph to. Rather the shape it has to morph into
+is given by a `Function`.
+The general syntax is `morph_to_fn(fn::Function,args::Array)`
+. `args` is an array of arguements that is to be passed to the function.
+Here we morph `circobj` to a shape 
 that would is  drawn by `boxdraw("blue")`.
