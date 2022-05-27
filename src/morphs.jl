@@ -56,8 +56,8 @@ end
 # has 1 poly of 3 points very close to each other
 # black fill 0 alpha, black stroke opaque
 # linewidth 2
-null_jpath(p = Point(0, 0)) = JPath(
-    [repeat([p], 3) .+ [0.5, 0, -0.5]],
+null_jpath(samples=100) = JPath(
+    [polysample([O,O+0.1],samples)],
     [true],
     [0, 0, 0, 0],
     [0, 0, 0, 1],
@@ -81,8 +81,8 @@ function _morph_to(
     #the jpath it vanishes into has 1 poly with 3 points very close around the objects start_pos. ideally should have been 3 same points but Luxor doesnt like polys with 3 same points on top of each other,
     l1 = length(object.jpaths)
     l2 = length(to_obj.jpaths)
-    jpaths1 = vcat(object.jpaths, repeat([null_jpath()], max(0, l2 - l1)))
-    jpaths2 = vcat(to_obj.jpaths, repeat([null_jpath()], max(0, l1 - l2)))
+    jpaths1 = vcat(object.jpaths, repeat([null_jpath(samples)], max(0, l2 - l1)))
+    jpaths2 = vcat(to_obj.jpaths, repeat([null_jpath(samples)], max(0, l1 - l2)))
     #above lines should make jpaths1 and jpaths2 have the same no of jpaths
     #
     #resample all polys to same number of points at first frame of the action...
@@ -105,6 +105,7 @@ function _morph_to(
         global DISABLE_LUXOR_DRAW = true
         ret = object.opts[:original_func]()
         global DISABLE_LUXOR_DRAW = false
+        newpath()
         ret
     end
     object.func = drawfunc
@@ -129,6 +130,7 @@ function _morph_to_fn(
 )
 
     #if first frame ....
+    interp_jpaths = JPath[]
     if frame == first(get_frames(action))
         #get jpaths to morph from and  into
         action.defs[:toJPaths] = getjpaths(to_func, args)
@@ -140,15 +142,14 @@ function _morph_to_fn(
             end
         end
     end
-    #println("poly size",action.defs[:toJPaths][1].polys[1])
-    interp_jpaths = JPath[]
     jpaths1 = object.jpaths
     jpaths2 = action.defs[:toJPaths]
     l1 = length(jpaths1)
     l2 = length(jpaths2)
     #make jpaths have the same number
-    jpaths1 = vcat(jpaths1, repeat([null_jpath()], max(0, l2 - l1)))
-    jpaths2 = vcat(jpaths2, repeat([null_jpath()], max(0, l1 - l2)))
+    jpaths1 = vcat(jpaths1, repeat([null_jpath(samples)], max(0, l2 - l1)))
+    jpaths2 = vcat(jpaths2, repeat([null_jpath(samples)], max(0, l1 - l2)))
+    #println("poly size",action.defs[:toJPaths][1].polys[1])
 
     #interpolate jpaths pairwise and store interp_jpaths
     for (jpath1, jpath2) in zip(jpaths1, jpaths2)
@@ -161,6 +162,7 @@ function _morph_to_fn(
         global DISABLE_LUXOR_DRAW = true
         ret = object.opts[:original_func]()
         global DISABLE_LUXOR_DRAW = false
+        newpath()
         ret
     end
     object.func = drawfunc
@@ -177,17 +179,16 @@ function _morph_jpath(jpath1::JPath, jpath2::JPath, k)
     polys1 = jpath1.polys
     polys2 = jpath2.polys
     retpolys = polymorph_noresample(polys1, polys2, k)
-    #logic to figure out if intermediate path should be closed or open...
-    #by default take what jpath2 would be
+    # The logic to figure out if intermediate path should be closed or open...
+    # By default take what jpath2 would be
     retclosed = deepcopy(jpath2.closed)
+    # But if from_poly is open, and to_poly is closed... 
     for i in 1:length(retclosed)
-        #if going from open to closed
         if jpath2.closed[i] == true && jpath1.closed[i] == false
-            #intermediates are open , but at k=1 they close
+            # Intermediates are open , but at k=1 they close
             retclosed[i] = isapprox(k, 1) ? true : false
         end
     end
-    #vcat(jpath2.closed, repeat([false], length(retpolys) - length(jpath2.closed) + 1))
     retfill = k .* jpath2.fill + (1 - k) .* jpath1.fill
     retstroke = k .* jpath2.stroke + (1 - k) .* jpath1.stroke
     retlinewidth = k .* jpath2.linewidth + (1 - k) .* jpath1.linewidth
@@ -628,8 +629,8 @@ function Animations.linear_interpolate(
 )
     l1 = length(jpaths1)
     l2 = length(jpaths2)
-    jpaths1 = vcat(jpaths1, repeat([null_jpath()], max(0, l2 - l1)))
-    jpaths2 = vcat(jpaths2, repeat([null_jpath()], max(0, l1 - l2)))
+    jpaths1 = vcat(jpaths1, repeat([null_jpath(samples)], max(0, l2 - l1)))
+    jpaths2 = vcat(jpaths2, repeat([null_jpath(samples)], max(0, l1 - l2)))
     interp_jpaths = JPath[]
     for (jpath1, jpath2) in zip(jpaths1, jpaths2)
         push!(interp_jpaths, _morph_jpath(jpath1, jpath2, fraction))

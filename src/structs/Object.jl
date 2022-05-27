@@ -114,6 +114,12 @@ function Object(frames, func::Function, start_pos::Union{Object,Point}; kwargs..
     return object
 end
 
+"""
+    this is called at rendertime before the first frame before any Drawing() is made.
+    while this function makes its own Drawing() and clears it...
+    the other function getjpaths(func::Function) utilizes the frames Drawing to place
+    the paths and extract them.
+"""
 function getjpaths!(obj::Object, func::Function, args = [])
     Drawing()
     empty!(CURRENT_JPATHS)
