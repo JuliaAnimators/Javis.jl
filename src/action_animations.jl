@@ -508,10 +508,8 @@ function _morph(video, object, action, rel_frame, samples)
         #if first frame and action.anim is of  type Animation{MorphFunction}
         #make it of type Animation{Vector{JPath}}
         if action.anim isa Animation{MorphFunction}
-            println("yes")
             keyframes = Keyframe{Vector{JPath}}[]
             for kf in action.anim.frames
-                println(typeof(kf.value))
                 push!(keyframes, Keyframe(kf.t, getjpaths(kf.value.func, kf.value.args)))
             end
             action.anim = Animation(keyframes, action.anim.easings)
@@ -527,12 +525,6 @@ function _morph(video, object, action, rel_frame, samples)
             empty!(kf.value)
             append!(kf.value, newval)
         end
-
-        println("MAXMIN")
-        println(
-            max([length(kf.value) for kf in action.anim.frames]...),
-            min([length(kf.value) for kf in action.anim.frames]...),
-        )
 
         for kf in action.anim.frames
             for jpath in kf.value  #kf.value is an array of jpaths
