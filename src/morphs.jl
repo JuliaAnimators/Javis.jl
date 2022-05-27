@@ -56,8 +56,8 @@ end
 # has 1 poly of 3 points very close to each other
 # black fill 0 alpha, black stroke opaque
 # linewidth 2
-null_jpath(samples=100) = JPath(
-    [polysample([O,O+0.1],samples)],
+null_jpath(samples = 100) = JPath(
+    [polysample([O, O + 0.1], samples)],
     [true],
     [0, 0, 0, 0],
     [0, 0, 0, 1],
@@ -184,7 +184,7 @@ function _morph_jpath(jpath1::JPath, jpath2::JPath, k)
     retclosed = deepcopy(jpath2.closed)
     # But if from_poly is open, and to_poly is closed... 
     for i in 1:length(retclosed)
-        if jpath2.closed[i] == true && jpath1.closed[i] == false
+        if jpath2.closed[i] && !jpath1.closed[i]
             # Intermediates are open , but at k=1 they close
             retclosed[i] = isapprox(k, 1) ? true : false
         end

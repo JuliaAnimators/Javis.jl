@@ -299,7 +299,7 @@ and inside fillpath pass :fill.
 move this to luxor_overrides_util.jl later.
 """
 function update_currentjpath(action::Symbol)
-    if CURRENT_FETCHPATH_STATE == true
+    if CURRENT_FETCHPATH_STATE
         #println("test strokepaths")
         cur_polys, cur_costates = pathtopoly(Val(:costate))
         transform = getmatrix()
