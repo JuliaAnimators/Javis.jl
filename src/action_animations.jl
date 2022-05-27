@@ -503,7 +503,7 @@ function _morph(video, object, action, rel_frame, samples)
     #Theres a lot going on here ... 
     if rel_frame == action.frames.frames[begin]
         # If first frame of Action... 
-        
+
         # if action.anim is of  type Animation{MorphFunction}
         # make it of type Animation{Vector{JPath}},... 
         if action.anim isa Animation{MorphFunction}
@@ -529,7 +529,7 @@ function _morph(video, object, action, rel_frame, samples)
         # Resample all the polys inside all the jpath. polymorph_noresample which is
         # for interpolation , unlike luxors polymorph does not resample polys and expects
         # them to be of the same number of points
-        
+
         for kf in action.anim.frames
             for jpath in kf.value  #kf.value is an array of jpaths
                 for i in 1:length(jpath.polys)
