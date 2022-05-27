@@ -21,8 +21,9 @@ nframes = 160
 
 function circdraw(colo)
     sethue(colo)
-    circle(O,100,:fillpreserve)
     setopacity(0.5)
+    circle(O,100,:fillpreserve)
+    setopacity(1.0)
     sethue("white")
     strokepath()
 end
@@ -42,20 +43,62 @@ transform_to_box = Action(20:nframes-20, morph_to(boxobj))
 act!(circobj, transform_to_box)
 render(video,pathname="circ_to_box.gif")
 ```
-![](assets/circ_to_box.gif)
-We created two objects `circobj` and `boxobj` . `circobj` ofcourse is a circle and `boxobj` is a box.
+
+![](../assets/circ_to_box.gif)
+
 if you aren't familiar with this syntax `(v,o,f)-> circdraw("red")` its an "anonymous" function or sometimes called a lambda function.
-Basically a nameless function that is written on the spot in that line of code . One might aswell use any other function `f` in place of it
-(which takes atleast 3 arguments v,o,f). Elsewhere in the docs/tutorials you will come across
+Basically a nameless function that is written on the spot in that line of code . One might aswell use any other function `func` in place of it
+(which takes atleast 3 arguments `v,o,f`). Elsewhere in the docs/tutorials you will come across
 something of the form `Object( (args...) -> (some;code;here) )`. This is [splatting](https://docs.julialang.org/en/v1/manual/faq/#The-two-uses-of-the-...-operator:-slurping-and-splatting) and is similar to packing `*args` in python. 
+
+We created two objects `circobj` and `boxobj` . `circobj` ofcourse is a circle because its drawing function `(v,o,f) -> circdraw("red")`
+draws a circle with a `colo=red` filling at `0.5` opacity and then makes a white outline (stroke). 
+`boxobj`'s function draws an opaque green box, with white outline.
 
 This Object function is called repeatedly at render-time at every frame that the object exists to draw this object. The apropriate `video`,`object`, and `frame` are passed to
 this function at render time.
 Javis then has other tricks up its sleave to scale/move/morph whats going to be drawn depending on the
 frame and object to effect out animations through Actions. This is roughly the idea behind Javis's Object-Action mechanism
 
-Couple of things to note the `boxobj` is present throughout as the circobj is morphing.
-if you want to hide it you can by setting its opacity to 0 with another action (to make it disappear) and make it appear only for 1 frame (for efficiency).
-However you can directly specify a shape an object has to morph to without making an Object , using `morph_to_fn` which is explained later in this tutorial.
+We defined a `transform_to_box` Action which runs from frame 20 from beginning to 20 frames from the end. The Action morphs whatever object its acted upon into what looks
+like boxobj. Note that `boxobj` and `circobj` are seperate objects all the time, even after the Action (it just happens that they overlap each other). As the Action is applied at render time the "drawing" of `circobj` starts to look like `boxobj`'s drawing.
 
+The Action is then applied to the `circobj` with the `act!` function.
 
+Note that the `boxobj` is present throughout as the circobj is morphing.
+if you want to hide it you can set its opacity to 0 with another action (to make it disappear) and set its frames to be drawn for 1 frame only (for efficiency).
+```julia
+Background(1:nframes,(args...)->background("black"))
+boxobj = Object(1:1 , (args...) -> boxdraw("green") )
+circobj = Object(1:nframes,(args...) -> circdraw("red"))
+
+transform_to_box = Action(20:nframes-20, morph_to(boxobj))
+hide_action = Action(1:1, (args...)->setopacity(0.0) )
+
+act!(circobj, transform_to_box)
+act!(boxobj, hide_action)
+
+render(video,pathname="circ_to_box_hidden.gif")
+```
+
+However you can directly specify a shape an object has to morph to without making an Object , using `morph_to_fn`.
+
+```julia
+Background(1:nframes,(args...)->background("black"))
+#boxobj = Object(1:1 , (args...) -> boxdraw("green") )
+circobj = Object(1:nframes,(args...) -> circdraw("red"))
+
+transform_to_box = Action(20:nframes-20, morph_to_fn(boxdraw,["blue"]))
+#hide_action = Action(1:1, (args...)->setopacity(0.0) )
+
+act!(circobj, transform_to_box)
+#act!(boxobj, hide_action)
+
+render(video,pathname="circ_to_box_hidden.gif")
+```
+
+![](../assets/circ_to_box_hidden.gif)
+
+Here we have morphed  the circle to a box . The general syntax is `morph_to_fn(fn::Function,args::Array)`
+. `args` is an array of arguements that is to be passed to the function. Here we morph `circobj` to a shape 
+that would is  drawn by `boxdraw("blue")`.
