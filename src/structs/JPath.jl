@@ -46,6 +46,7 @@ function getjpaths(func::Function, args = [])
             #@warn "Could not extract jpath for object,\nperhaps 
             #Object.func depends on rendertime variables"
             println("Could not Extract jpath for some objects. Morphs may not work ")
+            #TODO MethodError is too broad , should narrow this down.
         else
             throw(e)
         end

@@ -624,7 +624,7 @@ end
 
 """
 find a better place for this
-a struct to hold a function and its jpaths. 
+a struct to hold a function, args and its jpaths. 
 so we can defer getjpaths(func) to rendertime.
 """
 mutable struct MorphFunction
@@ -666,6 +666,10 @@ function Animations.Animation(
     Animation(keyframes, easings)
 end
 
+"""
+    Adding a method so that Animation can interpolate between Arrays of JPaths
+    note that the array of jpaths should be of the same size.
+"""
 function Animations.linear_interpolate(
     fraction::Real,
     jpaths1::Vector{JPath},
@@ -673,8 +677,6 @@ function Animations.linear_interpolate(
 )
     l1 = length(jpaths1)
     l2 = length(jpaths2)
-    #jpaths1 = vcat(jpaths1, repeat([null_jpath(samples)], max(0, l2 - l1)))
-    #jpaths2 = vcat(jpaths2, repeat([null_jpath(samples)], max(0, l1 - l2)))
     @assert l1 == l2
     interp_jpaths = JPath[]
     for (jpath1, jpath2) in zip(jpaths1, jpaths2)

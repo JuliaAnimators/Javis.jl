@@ -500,13 +500,12 @@ function morph(samples = 100)
 end
 
 function _morph(video, object, action, rel_frame, samples)
-    #at first relative frame of action , we resample polys inside
-    #jpaths to have same number of points
-    #the polymorph_noresample called inside get_interpolation, unlike luxors polymorph does not resample polys
-    #but expects polys with same number of points.
+    #Theres a lot going on here ... 
     if rel_frame == action.frames.frames[begin]
-        #if first frame and action.anim is of  type Animation{MorphFunction}
-        #make it of type Animation{Vector{JPath}}
+        # If first frame of Action... 
+        
+        # if action.anim is of  type Animation{MorphFunction}
+        # make it of type Animation{Vector{JPath}},... 
         if action.anim isa Animation{MorphFunction}
             keyframes = Keyframe{Vector{JPath}}[]
             for kf in action.anim.frames
@@ -515,17 +514,22 @@ function _morph(video, object, action, rel_frame, samples)
             action.anim = Animation(keyframes, action.anim.easings)
         end
 
-        #make all the jpaths of the same length appending null_jpaths
+        # Make all the jpaths at every keyframe of the same length by
+        # appending necesarry amount of  null_jpaths
         long_jpaths_len = max([length(kf.value) for kf in action.anim.frames]...)
         for kf in action.anim.frames
             newval = vcat(
                 deepcopy(kf.value),
-                repeat([null_jpath(samples)], long_jpaths_len - length(kf.value)),
+                repeat([null_jpath(3)], long_jpaths_len - length(kf.value)), #null_jpath(samples=3) is fine, it will be resampled after this
             )
             empty!(kf.value)
             append!(kf.value, newval)
         end
 
+        # Resample all the polys inside all the jpath. polymorph_noresample which is
+        # for interpolation , unlike luxors polymorph does not resample polys and expects
+        # them to be of the same number of points
+        
         for kf in action.anim.frames
             for jpath in kf.value  #kf.value is an array of jpaths
                 for i in 1:length(jpath.polys)
@@ -534,6 +538,7 @@ function _morph(video, object, action, rel_frame, samples)
                 end
             end
         end
+        # All that is to be done in the first frame of the Action has been done  
     end
 
     interp_jpaths = get_interpolation(action, rel_frame)
