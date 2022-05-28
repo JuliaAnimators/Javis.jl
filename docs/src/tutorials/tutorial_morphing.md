@@ -4,8 +4,8 @@ There are multiple ways to morph an object in Javis.
 
 - Using the older `morph_to(::Function)` method. Very nice at matching the shapes for morphing . Has limitations on what the morphing function should contain.
 - Using (New) `morph_to(::Object)` method. Any Object can be morphed to any other object using this method.
-- Using `morph_to_fn(::Function)` method. Similar to `morph_to(::Object)` but morphs to function instead. Can morph an object to a function that contains Luxor calls to draw what it should morphed into.
-- Specifying an Action with interpolating Animation along with `morph()`
+- Using `morph_to_fn(::Function)` method. Similar to `morph_to(::Object)` but morphs to a function instead. Can morph an object to a function that contains Luxor calls to draw what it should morphed into.
+- Specifying an Action with an  `Animation` along with `morph()` to make keyframed morphings.
 
 This tutorial will focus on the last three.
 
@@ -19,8 +19,8 @@ using Javis
 video = Video(500,500)
 nframes = 160 
 
-function circdraw(colo)
-    sethue(colo)
+function circdraw(color)
+    sethue(color)
     setopacity(0.5)
     circle(O,100,:fillpreserve)
     setopacity(1.0)
@@ -28,8 +28,8 @@ function circdraw(colo)
     strokepath()
 end
 
-function boxdraw(colo)
-    sethue(colo)
+function boxdraw(color)
+    sethue(color)
     box(O,100,100,:fillpreserve)
     setopacity(1.0)
     sethue("white")
@@ -46,27 +46,27 @@ render(video,pathname="circ_to_box.gif")
 
 ![](../assets/circ_to_box.gif)
 
-if you aren't familiar with this syntax `(v,o,f)-> circdraw("red")` its an "anonymous" function or sometimes called a lambda function.
-Basically a nameless function that is written on the spot in that line of code . One might aswell use any other function `func` in place of it
-(which takes atleast 3 arguments `v,o,f`). Elsewhere in the docs/tutorials you will come across
-something of the form `Object( (args...) -> (some;code;here) )`. This is [splatting](https://docs.julialang.org/en/v1/manual/faq/#The-two-uses-of-the-...-operator:-slurping-and-splatting) and is similar to packing `*args` in python. 
+If you aren't familiar with this syntax `(v,o,f)-> circdraw("red")` its an "anonymous" function or sometimes called a lambda function.
+Basically a nameless function that is written on the spot in that line of code . One might as well use any other function `func` in place of it
+(which takes at least 3 arguments `v,o,f`). Elsewhere in the docs/tutorials you will come across
+something of the form `Object( (args...) -> ("some code here") )`. This is [slurping](https://docs.julialang.org/en/v1/manual/faq/#The-two-uses-of-the-...-operator:-slurping-and-splatting) and is similar to packing `*args` in python. 
 
 We created two objects `circobj` and `boxobj` . `circobj` ofcourse is a circle because its drawing function `(v,o,f) -> circdraw("red")`
-draws a circle with a `colo=red` filling at `0.5` opacity and then makes a white outline (stroke). 
+draws a circle with a `color=red` filling at `0.5` opacity and then makes a white outline (stroke). 
 `boxobj`'s function draws an opaque green box, with white outline.
 
-This Object function is called repeatedly at render-time at every frame that the object exists to draw this object. The apropriate `video`,`object`, and `frame` are passed to
+This Object function is called repeatedly at render-time at every frame that the object exists to draw this object. The appropriate `video`,`object`, and `frame` are passed to
 this function at render time.
-Javis then has other tricks up its sleave to scale/move/morph whats going to be drawn depending on the
+Javis then has other tricks up its sleeve to scale/move/morph whats going to be drawn depending on the
 frame and object to effect out animations through Actions. This is roughly the idea behind Javis's Object-Action mechanism
 
 We defined a `transform_to_box` Action which runs from frame 20 from beginning to 20 frames from the end. The `Action` morphs whatever object its acted upon, into what looks
-like `boxobj`. Note that `boxobj` and `circobj` are seperate objects all the time, even after the `Action` (it just happens that they overlap each other). As the Action is applied at render time the "drawing" of `circobj` starts to look like `boxobj`'s drawing.
+like `boxobj`. Note that `boxobj` and `circobj` are separate objects all the time, even after the `Action` (it just happens that they overlap each other). As the Action is applied at render time the "drawing" of `circobj` starts to look like `boxobj`'s drawing.
 
 The Action is then applied to the `circobj` with the `act!` function.
 
 Note that the `boxobj` is present throughout as the `circobj` is morphing.
-if you want to hide it you can set its opacity to 0 with another action (to make it disappear) and set its frames to be drawn for 1 frame only (for efficiency).
+If you want to hide it you can set its opacity to 0 with another action (to make it disappear) and set its frames to be drawn for 1 frame only (for efficiency).
 ```julia
 Background(1:nframes,(args...)->background("black"))
 boxobj = Object(1:1 , (args...) -> boxdraw("green") )
@@ -82,6 +82,8 @@ render(video,pathname="circ_to_box_hidden.gif")
 ```
 
 However you can directly specify a shape an object has to morph to without making an Object using `morph_to_fn`.
+
+## Morphing an `Object` using a `Function`  
 
 ```julia
 Background(1:nframes,(args...)->background("black"))
@@ -102,9 +104,11 @@ render(video,pathname="circ_to_box_hidden.gif")
 Here we have morphed  the circle  without defining an object to morph to. Rather the shape it has to morph into
 is given by a `Function`.
 The general syntax is `morph_to_fn(fn::Function,args::Array)`
-. `args` is an array of arguements that is to be passed to the function.
+. `args` is an array of arguments that is to be passed to the function.
 Here we morph `circobj` to a shape 
 that would is  drawn by `boxdraw("blue")`.
+
+## Keyframed morphs using Animations.jl
 
 Another mechanism for morphing is by passing `morph()` to `Action` along with an `Animation`
 For a tutorial on how to use Animations.jl look at [Tutorial 7](tutorial_7.md),
@@ -115,8 +119,8 @@ using Animations
 video = Video(500,500)
 nframes = 160 
 
-function circdraw(colo)
-    sethue(colo)
+function circdraw(color)
+    sethue(color)
     setopacity(0.5)
     circle(O,50,:fillpreserve)
     setopacity(1.0)
@@ -125,8 +129,8 @@ function circdraw(colo)
     line(O,O+10,:stroke)
 end
 
-function boxdraw(colo)
-    sethue(colo)
+function boxdraw(color)
+    sethue(color)
     box(O,100,100,:fillpreserve)
     setopacity(1.0)
     sethue("white")
@@ -144,7 +148,7 @@ boxobj = Object(1:nframes+10 , (args...) -> boxdraw("green") )
 anim = Animation([0,1],[(boxdraw,["green"]),(circdraw,["red"])])
 
 action = Action(1:nframes,anim,morph())
-act!(boxobj,action1)
+act!(boxobj,action)
 render(video,tempdirectory="images",pathname="circ_to_box_hidden.gif")
 ```
 
@@ -183,6 +187,6 @@ out the morphing from a `boxdraw("green")` to `stardraw()`.
 And the remainder of the `Action`'s frames it morphs from `stardraw()` to `circdraw("red")`. Look up Animations.jl and Tutorial 7 to see how you pass easing functions to manipulate the timing of animations (for example ... initially slow - fast in the middle - slow in the end) . 
 Now you know a bit about Morphing . Remember just like any other Action you can stack morphing actions with other Actions (translations, scaling etc) to bring about effects you desire. 
 
-> **Author(s):** John George Francies (@arbitrandomuser) 
+> **Author(s):** John George Francis (@arbitrandomuser) 
 > **Date:** May 28th, 2022 \
 > **Tag(s):** action, morphing, object, animation
