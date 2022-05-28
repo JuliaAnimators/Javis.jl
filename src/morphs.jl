@@ -100,15 +100,16 @@ function _morph_to(
     for (jpath1, jpath2) in zip(jpaths1, jpaths2)
         push!(interp_jpaths, _morph_jpath(jpath1, jpath2, get_interpolation(action, frame)))
     end
-    function drawfunc(args...)
+
+    object.func = (args...) -> begin
         drawjpaths(interp_jpaths)
         global DISABLE_LUXOR_DRAW = true
-        ret = object.opts[:original_func]()
+        ret = object.opts[:original_func](args...)
         global DISABLE_LUXOR_DRAW = false
         newpath()
         ret
     end
-    object.func = drawfunc
+
     if frame == action.frames.frames[end]
         if action.keep
             object.jpaths = to_obj.jpaths
