@@ -205,6 +205,8 @@ end
 # finally objects
 flatten!(objects::Array{AbstractObject}, object::Object) = push!(objects, object)
 
+const CURRENTLY_RENDERING = [false]
+
 """
     render(
         video::Video;
@@ -256,6 +258,7 @@ function render(
     postprocess_frames_flow = identity,
     postprocess_frame = default_postprocess,
 )
+    CURRENTLY_RENDERING[1] = true
     layers = video.layers
     objects = video.objects
     frames = preprocess_frames!(video)
@@ -342,6 +345,7 @@ function render(
         filecounter += 1
     end
 
+    CURRENTLY_RENDERING[1] = false
     if isempty(pathname)
         # clear all CURRENT_* constants to not accidentally use a previous video when creating a new one
         empty_CURRENT_constants()

@@ -180,7 +180,7 @@ To identify the element and display its information properly, let's create an in
 We do this by creating an `info_box` function that takes in an element:
 
 ```julia
-function info_box(element)
+function info_box(; element = elements[1])
     fontsize(12)
     box(140, -210, 170, 40, :stroke)
     box(0, 175, 450, 100, :stroke)
@@ -266,7 +266,7 @@ function element(; radius = 1, color = "black")
     circle(O, radius + 4, :fill)
 end
 
-function info_box(element)
+function info_box(; element = elements[1])
     fontsize(12)
     box(140, -210, 170, 40, :stroke)
     box(0, 175, 450, 100, :stroke)

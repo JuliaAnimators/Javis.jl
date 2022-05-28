@@ -2,7 +2,6 @@
 # this is also used for test cases such that `tex2svg` doesn't need to be installed on Github Objects
 include("latexsvgfile.jl")
 latex(text::LaTeXString) = latex(text, O)
-latex(text::LaTeXString, pos::Point) = latex(text, pos, :stroke)
 latex(text::LaTeXString, pos::Point, valign::Symbol, halign::Symbol) =
     latex(text, pos, :stroke, valign = valign, halign = halign)
 latex(text::LaTeXString, x, y) = latex(text, Point(x, y), :stroke)
