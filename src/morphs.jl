@@ -74,19 +74,11 @@ function _morph_to(
     samples,
 )
     interp_jpaths = JPath[]
-    #nframes = length(action.frames.frames)
-    #need to handle different number of jpaths
-    #for to_obj less jpaths , we can shrink the extras down
-    #for to_obj having more jpaths , we need to create extra polys 
-    #the jpath it vanishes into has 1 poly with 3 points very close around the objects start_pos. ideally should have been 3 same points but Luxor doesnt like polys with 3 same points on top of each other,
-    l1 = length(object.jpaths)
-    l2 = length(to_obj.jpaths)
-    jpaths1 = vcat(object.jpaths, repeat([null_jpath(samples)], max(0, l2 - l1)))
-    jpaths2 = vcat(to_obj.jpaths, repeat([null_jpath(samples)], max(0, l1 - l2)))
-    #above lines should make jpaths1 and jpaths2 have the same no of jpaths
-    #
     #resample all polys to same number of points at first frame of the action...
     if frame == action.frames.frames[begin]
+        isempty(object.jpaths) && getjpaths!(object, object.func)
+        isempty(to_object.jpaths) && getjpaths!(to_obj, to_object.func)
+
         for obj in [object, to_obj]
             for jpath in obj.jpaths  #kf.value is an array of jpaths
                 for i in 1:length(jpath.polys)
@@ -97,6 +89,15 @@ function _morph_to(
         end
     end
 
+    #need to handle different number of jpaths
+    #for to_obj less jpaths , we can shrink the extras down
+    #for to_obj having more jpaths , we need to create extra polys 
+    #the jpath it vanishes into has 1 poly with 3 points very close around the objects start_pos. ideally should have been 3 same points but Luxor doesnt like polys with 3 same points on top of each other,
+    l1 = length(object.jpaths)
+    l2 = length(to_obj.jpaths)
+    jpaths1 = vcat(object.jpaths, repeat([null_jpath(samples)], max(0, l2 - l1)))
+    jpaths2 = vcat(to_obj.jpaths, repeat([null_jpath(samples)], max(0, l1 - l2)))
+    #above lines should make jpaths1 and jpaths2 have the same no of jpaths
     for (jpath1, jpath2) in zip(jpaths1, jpaths2)
         push!(interp_jpaths, _morph_jpath(jpath1, jpath2, get_interpolation(action, frame)))
     end
@@ -130,12 +131,13 @@ function _morph_to_fn(
     samples = 100,
 )
 
-    #if first frame ....
     interp_jpaths = JPath[]
+    # If first frame ....
     if frame == first(get_frames(action))
-        #get jpaths to morph from and  into
+        # Get jpaths to morph from and  into
+        isempty(object.jpaths) && getjpaths!(object, object.func)
         action.defs[:toJPaths] = getjpaths(to_func, args)
-        #resample all polys in all jpaths to samples
+        # Resample all polys in all jpaths to  `samples` number of points
         for jpath in [object.jpaths..., action.defs[:toJPaths]...]
             for i in 1:length(jpath.polys)
                 jpath.polys[i] =
@@ -147,26 +149,24 @@ function _morph_to_fn(
     jpaths2 = action.defs[:toJPaths]
     l1 = length(jpaths1)
     l2 = length(jpaths2)
-    #make jpaths have the same number
+    # Make jpaths have the same number
     jpaths1 = vcat(jpaths1, repeat([null_jpath(samples)], max(0, l2 - l1)))
     jpaths2 = vcat(jpaths2, repeat([null_jpath(samples)], max(0, l1 - l2)))
-    #println("poly size",action.defs[:toJPaths][1].polys[1])
 
-    #interpolate jpaths pairwise and store interp_jpaths
+    # Interpolate jpaths pairwise and store interp_jpaths
     for (jpath1, jpath2) in zip(jpaths1, jpaths2)
         push!(interp_jpaths, _morph_jpath(jpath1, jpath2, get_interpolation(action, frame)))
     end
 
-    #make drawing function
-    function drawfunc(args...)
+    # Change drawing function
+    object.func = (args...) -> begin
         drawjpaths(interp_jpaths)
         global DISABLE_LUXOR_DRAW = true
-        ret = object.opts[:original_func]()
+        ret = object.opts[:original_func](args...)
         global DISABLE_LUXOR_DRAW = false
         newpath()
         ret
     end
-    object.func = drawfunc
     if frame == action.frames.frames[end]
         if action.keep
             object.jpaths = jpaths2
@@ -180,10 +180,14 @@ function _morph_jpath(jpath1::JPath, jpath2::JPath, k)
     polys1 = jpath1.polys
     polys2 = jpath2.polys
     retpolys = polymorph_noresample(polys1, polys2, k)
-    # The logic to figure out if intermediate path should be closed or open...
-    # By default take what jpath2 would be
+    # The logic to figure out if intermediate poly should be closed or open.
+    # From         To         During Morph (intermediate)
+    # --------------------------------------------------
+    # open      -> open     : remain open during morph
+    # closed    -> closed   : remain closed during morph
+    # closed    -> open     : open during morph
+    # open      -> closed   : open during morph , but closed when k ≈ 1
     retclosed = deepcopy(jpath2.closed)
-    # But if from_poly is open, and to_poly is closed... 
     for i in 1:length(retclosed)
         if jpath2.closed[i] && !jpath1.closed[i]
             # Intermediates are open , but at k=1 they close
@@ -612,16 +616,14 @@ bunch of methods extending functions in Animations.jl that make morphs possible.
 need to find a better place to put these functions, 
 this will do for now
 """
-
-
-function Animations.Animation(
-    timestamps::AbstractVector{<:Real},
-    objects::AbstractVector{Object},
-    easings::AbstractVector{<:Easing},
-)
-    keyframes = Keyframe{Vector{JPath}}.(timestamps, [obj.jpaths for obj in objects])
-    Animation(keyframes, easings)
-end
+#function Animations.Animation(
+#    timestamps::AbstractVector{<:Real},
+#    objects::AbstractVector{Object},
+#    easings::AbstractVector{<:Easing},
+#)
+#    keyframes = Keyframe{Vector{JPath}}.(timestamps, [obj.jpaths for obj in objects])
+#    Animation(keyframes, easings)
+#end
 
 """
 find a better place for this

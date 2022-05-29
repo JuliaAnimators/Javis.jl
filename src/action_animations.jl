@@ -504,12 +504,24 @@ function _morph(video, object, action, rel_frame, samples)
     if rel_frame == action.frames.frames[begin]
         # If first frame of Action... 
 
-        # if action.anim is of  type Animation{MorphFunction}
+        # If action.anim is of type Animation{MorphFunction}
         # make it of type Animation{Vector{JPath}},... 
         if action.anim isa Animation{MorphFunction}
             keyframes = Keyframe{Vector{JPath}}[]
             for kf in action.anim.frames
                 push!(keyframes, Keyframe(kf.t, getjpaths(kf.value.func, kf.value.args)))
+            end
+            action.anim = Animation(keyframes, action.anim.easings)
+        end
+
+        # If action.anim is of type Animation{Object}
+        # make it of type Animation{Vector{JPath}},... 
+        if action.anim isa Animation{Object}
+            keyframes = Keyframe{Vector{JPath}}[]
+            for kf in action.anim.frames
+                isempty(kf.value.jpaths) &&
+                    getjpaths!(kf.value, kf.value.opts[:original_func])
+                push!(keyframes, Keyframe(kf.t, kf.value.jpaths))
             end
             action.anim = Animation(keyframes, action.anim.easings)
         end
@@ -542,14 +554,14 @@ function _morph(video, object, action, rel_frame, samples)
     end
 
     interp_jpaths = get_interpolation(action, rel_frame)
-    function drawfunc(args...)
+    object.func = (args...) -> begin
         drawjpaths(interp_jpaths)
         global DISABLE_LUXOR_DRAW = true
-        ret = object.opts[:original_func]()
+        ret = object.opts[:original_func](args...)
         global DISABLE_LUXOR_DRAW = false
+        newpath()
         ret
     end
-    object.func = drawfunc
     if frame == action.frames.frames[end]
         if action.keep
             #make the objects jpaths the last objects (of the Animation) jpath

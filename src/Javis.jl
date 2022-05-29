@@ -566,17 +566,6 @@ Returens the final rendered frame
 """
 function get_javis_frame(video, objects, frame; layers = Layer[])
 
-    #extract object jpaths on first frame
-    if frame == 1
-        for object in objects
-            try #TODO remove before final PR merge
-                println("EXTRACTING " * object.opts[:name] * " JPATHS")
-            catch
-            end
-            getjpaths!(object, object.func)
-        end
-    end
-
     # check if any layers have been defined
     if !isempty(layers)
         starting_positions = Point[]

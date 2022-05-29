@@ -121,7 +121,8 @@ end
     the paths and extract them.
 """
 function getjpaths!(obj::Object, func::Function, args = [])
-    Drawing()
+    m = getmatrix()
+    setmatrix([1.0, 0, 0, 1.0, 0, 0])
     empty!(CURRENT_JPATHS)
     global CURRENT_FETCHPATH_STATE = true
     global DISABLE_LUXOR_DRAW = true
@@ -131,21 +132,23 @@ function getjpaths!(obj::Object, func::Function, args = [])
     #the Object.func with types for the arguments
     #TODO discuss a solution for this.
     try
-        func(v, o, f, args...)
+        func(v, o, f, args...) #figure out a way to pass args of object.func here
     catch e
         if e isa MethodError
             #@warn "Could not extract jpath for object,\nperhaps 
             #Object.func depends on rendertime variables"
             println("Could not Extract jpath for some objects. Morphs may not work ")
+            println("Check your Object function error raised at: $(e.f)")
+            println("args passed: $((e.args...))")
         else
             throw(e)
         end
     end
     global CURRENT_FETCHPATH_STATE = false
     global DISABLE_LUXOR_DRAW = false
-    finish()
     append!(obj.jpaths, CURRENT_JPATHS)
     empty!(CURRENT_JPATHS)
+    setmatrix(m)
 end
 
 function drawobj_jpaths(obj::Object)
