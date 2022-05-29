@@ -78,7 +78,7 @@ end
             Javis.animate_latex(L"8", O - Point(-20, 20), 0, :middle, :center, :stroke),
     )
     #4 warnings expected 2 from getjpath and 2 from the usual render
-    @test_logs (:warn,) (:warn,) (:warn,) (:warn,) render(
+    @test_logs (:warn,) (:warn,) render(
         video;
         tempdirectory = "images",
         pathname = "",
