@@ -712,10 +712,6 @@ const LUXOR_DONT_EXPORT = [
     :scale,
     :text,
     :background,
-    #:strokepath,
-    #:fillpath,
-    #:strokepreserve,
-    #:fillpreserve,
 ]
 
 # Export each function from Luxor
