@@ -3,13 +3,32 @@
 #
 #Move these function to appropriate files later
 #
-function showcreation(frac = 1)
+"""
+        showcreation()
+
+Returns a function to be used with Action. Shows the creation of the object
+incrementally. 
+
+Ex.
+
+Background(1:nframes+60,(args...)->ground())
+boxobj = Object(1:nframes+60 , (args...) -> boxdraw("green") )
+action_create = Action(1:nframes÷2,sineio(),Javis.showcreation())
+act!(boxobj,action_create)
+
+"""
+function showcreation()
     return (video, object, action, rel_frame) -> begin
-        fraction = get_interpolation(action, rel_frame) * frac
+        fraction = get_interpolation(action, rel_frame)
         _drawpartial(video, action, object, rel_frame, fraction)
     end
 end
 
+"""
+    showdestruction()
+
+Similar to [`showcreation`](@ref) but un-draws the object.
+"""
 function showdestruction()
     return (video, object, action, rel_frame) -> begin
         fraction = get_interpolation(action, rel_frame)
@@ -20,11 +39,24 @@ function showdestruction()
     end
 end
 
+"""
+     drawpartial(fraction::Real)
+
+Returns a function to be used with Action , draws  the object upto a `fraction` of
+itself.
+"""
 function drawpartial(fraction::Real)
     return (video, object, action, rel_frame) ->
         _drawpartial(video, action, object, rel_frame, fraction::Real)
 end
 
+"""
+    _drawpartial(video, action, object, rel_frame, fraction::Real)
+    
+Internal function that is used with [`showcreation`](@ref) [`showdestruction`](@ref) [`drawpartial`](@ref).
+makes an array of `JPaths` called `partialjpaths` that represents a partial drawing of the object. Then it replaces the
+`object.func` with `drawjpaths(partialjpaths)`
+"""
 function _drawpartial(video, action, object, rel_frame, fraction::Real)
     isempty(object.jpaths) && getjpaths!(object, object.opts[:original_func])
     rel_frame == first(get_frames(action)) && jpath_polylengths!.(object.jpaths)
@@ -42,6 +74,7 @@ len_jpath(jpath::JPath) = sum([
     polydistances(jpath.polys[i], closed = jpath.closed[i])[end] for
     i in 1:length(jpath.polys)
 ])
+
 """
     getpartialjpaths(object,fraction)
 

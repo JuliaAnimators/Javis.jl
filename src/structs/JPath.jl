@@ -1,9 +1,13 @@
-
 """
     JPath
 
 a polygon representation of a path, every Object will have a list of JPaths under the
 field jpaths.
+Object JPaths are calculated and updated using `getjpaths!`,
+Every call to stroke/fill in the objects `obj.func` typically adds a JPath to the objects jpaths. 
+a JPath can be drawn using drawjpath(jpath). Usually if one were to draw out the `object.jpath`
+it would result in the exact same picture/drawing as running `object.func`.
+JPaths are typically used for morphing and drawing partially.
 
 Every JPath has the following fields.
 
@@ -15,6 +19,9 @@ should be filled with. if the path was not filled its A is set to 0
 (along with R,G,B) this way its an "invisible" fill.
 - `stroke a vector of 4 numbers just like `fill` for the stroke color.
 - linewidth for stroke 
+- polylengths , length of every poly in `polys` , usually computed at rendertime
+after polys are populated
+
 """
 mutable struct JPath
     polys::Vector{Vector{Point}}
@@ -36,6 +43,15 @@ JPath(polys, closed, fill, stroke, lastaction, linewidth) =
 CURRENT_JPATHS = JPath[] #TODO change to const later
 CURRENT_FETCHPATH_STATE = false
 
+"""
+    getjpaths(func::Function, args = [])
+
+getjpaths runs the function `func`. `func` is usually a function
+with some calls to luxor functions inside to draw something onto a
+canvas. Although `getjpaths` does call `func` it does not draw on the canvas.
+getjpaths will return an array of JPaths that represent what
+would be drawn by the `func`. Also see getjpath!(object,func) 
+"""
 function getjpaths(func::Function, args = [])
     m = getmatrix()
     setmatrix([1.0, 0, 0, 1.0, 0, 0])
@@ -77,6 +93,11 @@ function jpath_polylengths!(jp::JPath)
 end
 
 
+"""
+    drawjpaths(jpaths::Array{JPath})
+
+draws out the jpaths onto the current canvas
+"""
 function drawjpaths(jpaths::Array{JPath})
     for jpath in jpaths
         for (polyi, co_state) in zip(jpath.polys, jpath.closed)
