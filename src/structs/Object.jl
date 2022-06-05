@@ -146,6 +146,7 @@ function getjpaths!(obj::Object, func::Function, args = [])
     end
     global CURRENT_FETCHPATH_STATE = false
     global DISABLE_LUXOR_DRAW = false
+    jpath_polylengths!.(CURRENT_JPATHS)
     append!(obj.jpaths, CURRENT_JPATHS)
     empty!(CURRENT_JPATHS)
     setmatrix(m)

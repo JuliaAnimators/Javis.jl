@@ -23,11 +23,15 @@ mutable struct JPath
     stroke::Vector{Number}
     lastaction::Symbol #last action was fill or stroke 
     linewidth::Number
+    polylengths::Union{Nothing,Vector{Real}}
     #TODO transform and dashstyle
     #maybe dont have to store the transform here, just apply the transform
     #on the polys before storing it ?. This way things like bounding
     #boxes of the object can be computed easily at compute time.
 end
+
+JPath(polys, closed, fill, stroke, lastaction, linewidth) =
+    JPath(polys, closed, fill, stroke, lastaction, linewidth, nothing)
 
 CURRENT_JPATHS = JPath[] #TODO change to const later
 CURRENT_FETCHPATH_STATE = false
@@ -55,11 +59,23 @@ function getjpaths(func::Function, args = [])
     global DISABLE_LUXOR_DRAW = false
     newpath()#clear all the paths
     retpaths = JPath[]
+    jpath_polylengths!.(CURRENT_JPATHS)
     append!(retpaths, CURRENT_JPATHS)
     empty!(CURRENT_JPATHS)
     setmatrix(m)
     return retpaths
 end
+
+"""
+    jpath_polylengths!(jpath::JPath)
+    
+updates the polylengths field in jpath with the lengths of the polys
+"""
+function jpath_polylengths!(jp::JPath)
+    jp.polylengths =
+        [polyperimeter(jp.polys[i], closed = jp.closed[i]) for i in 1:length(jp.polys)]
+end
+
 
 function drawjpaths(jpaths::Array{JPath})
     for jpath in jpaths
