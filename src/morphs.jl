@@ -687,7 +687,7 @@ MorphFunction(f::Function, args::Array) = MorphFunction(f, args, JPath[])
 #convert(MorphFunction,t::Tuple{Function,Array}) = MorphFunction(t[1],t[2],JPath[])
 
 """
-     an Animation{T} will return something::T.
+     An Animation{T} will return something::T.
      For numbers and objects which have operators + and - defined the usual interpolation works.
 
      For other `Types` that we want to use with animation.jl all we have to do is define

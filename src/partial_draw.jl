@@ -99,7 +99,6 @@ function getpartialjpaths(object, fraction)
             break
         end
     end
-    #@assert jp_idx != 1
     #we got which jpath , 
 
 

@@ -488,12 +488,68 @@ function _change(video, object, action, rel_frame, s)
 end
 
 """
-TODO write better docs for everything.
-morph() to be used with Action, when an animation form Animations.jl is
-provided.
+    morph(samples = 100)
 
-Default samples for every polygon is 100, increase this 
-if needed.
+morph() to be used with Action, when an animation from Animations.jl is
+provided with . Default samples for every polygon is 100, increase this if needed.
+Animation must be of type Animation{MorphFunction} or Animation{Object}
+when passing `morph()` to `Action`.
+
+Animation{MorphFunction} can be made using the following syntax. (constructors for the following signatures 
+are written to return the apropriate Animation{MorphFunction})
+```
+anim = Animation([0,a1,a2,...,an,1] , [ (func0,args0), (func1,args1) , (func2,args2) ...  (funcn,argsn), (func_fin,args_fin) ]
+```
+
+if all your functions dont take any arguments then you may also use...
+```
+Animation([0,a1...,a_n,1] , [ f0 , f1 , f2 ...,f_n, f_fin] )
+```
+
+Animation can also be of type Animation{Object}
+```
+anim = Animation([0,a1 ... , a_n , 1 ] , [obj, obj1, obj2 , ... objn , obj_fin] )
+```
+
+Example
+```
+using Javis
+using Animations
+video = Video(500,500)
+nframes = 160 
+
+function circdraw(colo)
+    sethue(colo)
+    setopacity(0.5)
+    circle(O,50,:fillpreserve)
+    setopacity(1.0)
+    sethue("white")
+    strokepath()
+end
+
+function boxdraw(colo)
+    sethue(colo)
+    box(O,100,100,:fillpreserve)
+    setopacity(1.0)
+    sethue("white")
+    strokepath()
+end
+
+function stardraw()
+    sethue("white")
+    star(O,100,5,0.5,0.0,:stroke)
+end
+
+Background(1:nframes+10,(args...)->background("black"))
+boxobj = Object(1:nframes+10 , (args...) -> boxdraw("green") )
+anim = Animation([0, 0.7, 1],[(boxdraw, ["green"]), (stardraw, []), (circdraw, ["red"])])
+
+
+action = Action(1:nframes,anim,morph())
+act!(boxobj,action)
+render(video,pathname="box_to_star_to_circ.gif")
+```
+Above snippet morphs a Box to a Star then to a Circle
 """
 function morph(samples = 100)
     (video, object, action, rel_frame) -> _morph(video, object, action, rel_frame, samples)
