@@ -1,5 +1,5 @@
 # **Tutorial 9:** Morphing `Javis` Objects   
-
+<!-- TODO test all examples once more and update if they dont work -->
 There are multiple ways to morph an object in Javis.
 
 - Using the older `morph_to(::Function)` method. Very nice at matching the shapes for morphing . Has limitations on what the morphing function should contain.
@@ -48,7 +48,7 @@ render(video,pathname="circ_to_box.gif")
 
 If you aren't familiar with this syntax `(v,o,f)-> circdraw("red")` its an "anonymous" function or sometimes called a lambda function.
 Basically a nameless function that is written on the spot in that line of code . One might as well use any other function `func` in place of it
-(which takes at least 3 arguments `v,o,f`). Elsewhere in the docs/tutorials you will come across
+(which takes at least 3 arguments `video,object,frame`). Elsewhere in the docs/tutorials you will come across
 something of the form `Object( (args...) -> ("some code here") )`. This is [slurping](https://docs.julialang.org/en/v1/manual/faq/#The-two-uses-of-the-...-operator:-slurping-and-splatting) and is similar to packing `*args` in python. 
 
 We created two objects `circobj` and `boxobj` . `circobj` ofcourse is a circle because its drawing function `(v,o,f) -> circdraw("red")`
@@ -145,7 +145,7 @@ end
 Background(1:nframes+10,(args...)->background("black"))
 boxobj = Object(1:nframes+10 , (args...) -> boxdraw("green") )
 
-anim = Animation([0,1],[(boxdraw,["green"]),(circdraw,["red"])])
+anim = Animation([0,1],MorphFunction[(boxdraw,["green"]),(circdraw,["red"])] )
 
 action = Action(1:nframes,anim,morph())
 act!(boxobj,action)
@@ -154,12 +154,12 @@ render(video,tempdirectory="images",pathname="circ_to_box_hidden.gif")
 
 Take a look at `anim`. It is of type `Animation`. The first argument is a `Array` which describes
 a set of keyframes . This `Array` should always start at 0 and end at 1 (can have numbers in between though as we will see in another example).
-The second argument is an `Array` of `Tuples` . Where every `Tuple` is of the form `(func::Function, args::Array)`. The `args::Array` in the Tuple is an `Array` of arguments to be passed to the `Function` in the Tuple.
+The second argument is an `Array` of `MorphFunction` .
+`MorphFunction` is a struct . This struct has 2 fields (that are relevant to the end user).The fields are `func` and `args`.
+For easier construction of Arrays of `MorphFunction`, one can pass `Tuples` of `func` and `args`.
+For example `MorphFunction[ (f1,args1) , (f2,args2) ]` becomes `[ MorphFunction(f1,args1) , MorphFunction(f2,args2) ]`
 
-Typically the first argument of the Tuple Array is a function drawing the same thing
-that the Objects function would draw . 
-
-The `Array` of `Tuple` passed to the `Animation`  defines a sequence of shapes/drawings that the `Object` should be morphed into one by one in that order. Each shape/drawing is what would have been got by calling `func(args...)`. In the example above there are only two in shapes in the sequence a green box and a red circle 
+The `Array` of `MorphFunction` passed to the `Animation`  defines a sequence of shapes/drawings that the `Object` should be morphed into one by one in that order. Each shape/drawing is what would have been got by calling `func(args...)` of the respective `MorphFunction`. In the example above there are only two in shapes in the sequence a green box and a red circle.Typically the first `MorphFunction` should draw the same thing that `Object` is.  
 
 Thus we have made an  `Animation`  called `anim`. We can now make an `action` with this `anim`. Here we have called it `action` . Then we apply the action on our object `boxobj` to get ... 
 
@@ -169,16 +169,16 @@ Lets look at another example taking object to morph box(initial shape) -> star -
 
 Change the lines describing the animation to 
 ```julia
-anim = Animation([0, 0.7, 1],[(boxdraw, ["green"]), (stardraw, []), (circdraw, ["red"])])
+anim = Animation([0, 0.7, 1],MorphFunction[(boxdraw, ["green"]), (stardraw, []), (circdraw, ["red"])])
 ```
 `stardraw` draws a white star without fill. The function does not take an argument and therefore the `Tuple` with `stardraw` should  have an empty `Array` at its
 second index. If all your drawing functions (ex, `f() , g(), h(), l()` do not take any arguments you can pass it as an `Array` of functions itself.
 
 ```julia
-anim = Animation([0, t1, t2, 1],[f, g, h, l])
+anim = Animation([0, t1, t2, 1],MorphFunction[f, g, h, l])
 ```
 
-Do not mix `Tuples{Function,Array}` and  `Function`s in the though, your array can have only one type
+<!-- Do not mix `Tuples{Function,Array}` and  `Function`s in the though, your array can have only one type -->
 
 ![](../assets/circ_to_box_anim2.gif)
 
