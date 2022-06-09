@@ -624,7 +624,7 @@ function _morph(video, object, action, rel_frame, samples)
             empty!(object.jpaths)
             append!(object.jpaths, interp_jpaths)
         else
-            object.func = object.opts[:func]
+            object.func = object.opts[:original_func]
         end
     end
     # TODO if keep is true..then at rel_frame end 

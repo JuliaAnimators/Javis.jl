@@ -102,6 +102,11 @@ null_jpath(samples = 100) = JPath(
     2,
 )
 
+"""
+    _morph_to( video::Video, object::Object, action::Action, frame, to_obj::Object, samples,)
+
+Internal function used to morph one `object` to another.
+"""
 function _morph_to(
     video::Video,
     object::Object,
@@ -148,7 +153,7 @@ function _morph_to(
         ret
     end
 
-    if frame == action.frames.frames[end]
+    if frame == last(get_frames(action))
         if action.keep
             object.jpaths = to_obj.jpaths
         else
@@ -682,9 +687,10 @@ mutable struct MorphFunction
     jpaths::Vector{JPath}
 end
 
+import Base
 MorphFunction(f::Function, args::Array) = MorphFunction(f, args, JPath[])
-#convert(MorphFunction,f::Function) = MorphFunction(f,[],JPath[])
-#convert(MorphFunction,t::Tuple{Function,Array}) = MorphFunction(t[1],t[2],JPath[])
+Base.convert(::Type{MorphFunction},f::Function) = MorphFunction(f,[],JPath[])
+Base.convert(::Type{MorphFunction},t::Tuple{Function,Array}) = MorphFunction(t[1],t[2],JPath[])
 
 """
      An Animation{T} will return something::T.
@@ -701,25 +707,28 @@ MorphFunction(f::Function, args::Array) = MorphFunction(f, args, JPath[])
      Animation{Vector{JPath}}.      
 """
 
-function Animations.Animation(
-    timestamps::AbstractVector{<:Real},
-    funcs::AbstractVector{Function},
-    easings::AbstractVector{<:Easing},
-)
-    mfs = [MorphFunction(t, []) for t in funcs]
-    keyframes = Keyframe{MorphFunction}.(timestamps, mfs)
-    Animation(keyframes, easings)
-end
+#say no to type piracy ...
+#TODO change tutorial to reflect this change 
 #
-function Animations.Animation(
-    timestamps::AbstractVector{<:Real},
-    tuples::AbstractVector{T},
-    easings::AbstractVector{<:Easing},
-) where {T<:Tuple{Function,Any}}
-    mfs = [MorphFunction(t[1], t[2]) for t in tuples]
-    keyframes = Keyframe{MorphFunction}.(timestamps, mfs)
-    Animation(keyframes, easings)
-end
+#function Animations.Animation(
+#    timestamps::AbstractVector{<:Real},
+#    funcs::AbstractVector{Function},
+#    easings::AbstractVector{<:Easing},
+#)
+#    mfs = [MorphFunction(t, []) for t in funcs]
+#    keyframes = Keyframe{MorphFunction}.(timestamps, mfs)
+#    Animation(keyframes, easings)
+#end
+#
+#function Animations.Animation(
+#    timestamps::AbstractVector{<:Real},
+#    tuples::AbstractVector{T},
+#    easings::AbstractVector{<:Easing},
+#) where {T<:Tuple{Function,Any}}
+#    mfs = [MorphFunction(t[1], t[2]) for t in tuples]
+#    keyframes = Keyframe{MorphFunction}.(timestamps, mfs)
+#    Animation(keyframes, easings)
+#end
 
 function Animations.Animation(
     timestamps::AbstractVector{<:Real},
