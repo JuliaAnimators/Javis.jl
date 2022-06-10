@@ -312,7 +312,7 @@ function render(
     filecounter = 1
     binpath = joinpath(FFMPEG.FFMPEG_jll.PATH_list[end], "ffmpeg") #is ffmpeg bin always at the end ? 
     options = `-loglevel $ffmpeg_loglevel -framerate $framerate -i - -y`
-    p = @ffmpeg_env open(`$binpath $options $pathname`; write = true)
+    ffmpegproc = @ffmpeg_env open(`$binpath $options $pathname`; write = true)
     io = IOBuffer()
     @showprogress 1 "Rendering frames..." for frame in frames
         frame_image = _postprocess(
@@ -337,7 +337,7 @@ function render(
             end
             take!(io) #clear the buffer
             Images.save(Stream{format"PNG"}(io), frame_image)
-            write(p, io.data)
+            write(ffmpegproc, io.data)
         end
         filecounter += 1
     end
@@ -358,7 +358,7 @@ function render(
                $(tempdirectory)/palette.png -lavfi paletteuse -y $pathname`,
         )
     elseif ext == ".mp4"
-        close(p)
+        close(ffmpegproc)
     else
         @error "Currently, only gif and mp4 creation is supported. Not a $ext."
     end
