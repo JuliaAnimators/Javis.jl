@@ -19,8 +19,16 @@ act!(boxobj,action_create)
 """
 function showcreation()
     return (video, object, action, rel_frame) -> begin
+        action.keep = false #since actions get applied at every frame theyre completed if keep is enabled
+        # we almos tcertainly never want keep for showcreation. as this will draw over actions that executed before this
+        # this is messes up animations if the object morphs after its "showcreated". 
+        # morph gets applied and changes drawing function
+        # showcreation gets appplied reverts back the drawing function
         fraction = get_interpolation(action, rel_frame)
         _drawpartial(video, action, object, rel_frame, fraction)
+        if rel_frame == last(get_frames(action))
+            object.func = object.opts[:original_func]
+        end
     end
 end
 
@@ -67,7 +75,7 @@ function _drawpartial(video, action, object, rel_frame, fraction::Real)
         object.opts[:original_func](args...)
         global DISABLE_LUXOR_DRAW = false
     end
-    isapprox(fraction, 1) && (object.func = object.opts[:original_func])
+    #isapprox(fraction, 1) && (object.func = object.opts[:original_func])
 end
 
 len_jpath(jpath::JPath) = sum([

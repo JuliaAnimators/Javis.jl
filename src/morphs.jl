@@ -94,7 +94,7 @@ end
 # black fill 0 alpha, black stroke opaque
 # linewidth 2
 null_jpath(samples = 100) = JPath(
-    [polysample([O, O + 0.1], samples)],
+    [[O; polysample([O, O + 0.1], samples)]],
     [true],
     [0, 0, 0, 0],
     [0, 0, 0, 1],
@@ -118,14 +118,21 @@ function _morph_to(
     interp_jpaths = JPath[]
     #resample all polys to same number of points at first frame of the action...
     if frame == action.frames.frames[begin]
-        isempty(object.jpaths) && getjpaths!(object, object.func)
-        isempty(to_object.jpaths) && getjpaths!(to_obj, to_object.func)
+        isempty(object.jpaths) && getjpaths!(object, object.opts[:original_func])
+        isempty(to_obj.jpaths) && getjpaths!(to_obj, to_obj.func)
 
         for obj in [object, to_obj]
             for jpath in obj.jpaths  #kf.value is an array of jpaths
                 for i in 1:length(jpath.polys)
-                    jpath.polys[i] =
-                        polysample(jpath.polys[i], samples, closed = jpath.closed[i])
+                    jpath.polys[i] = [
+                        jpath.polys[i][1]
+                        polysample(
+                            jpath.polys[i],
+                            samples,
+                            include_first = true,
+                            closed = jpath.closed[i],
+                        )
+                    ]
                 end
             end
         end
@@ -186,8 +193,10 @@ function _morph_to_fn(
         # Resample all polys in all jpaths to  `samples` number of points
         for jpath in [object.jpaths..., action.defs[:toJPaths]...]
             for i in 1:length(jpath.polys)
-                jpath.polys[i] =
+                jpath.polys[i] = [
+                    jpath.polys[i][1]
                     polysample(jpath.polys[i], samples, closed = jpath.closed[i])
+                ] #prepend the first point becauce polysample doesnt
             end
         end
     end
@@ -225,7 +234,7 @@ end
 function _morph_jpath(jpath1::JPath, jpath2::JPath, k)
     polys1 = jpath1.polys
     polys2 = jpath2.polys
-    retpolys = polymorph_noresample(polys1, polys2, k)
+    retpolys = polymorph_noresample(polys1, polys2, k, kludge = true)
     # The logic to figure out if intermediate poly should be closed or open.
     # From         To         During Morph (intermediate)
     # --------------------------------------------------
@@ -233,16 +242,24 @@ function _morph_jpath(jpath1::JPath, jpath2::JPath, k)
     # closed    -> closed   : remain closed during morph
     # closed    -> open     : open during morph
     # open      -> closed   : open during morph , but closed when k ≈ 1
-    retclosed = deepcopy(jpath2.closed)
+    retclosed = ones(Bool, length(retpolys))
+    jp2closed_paded =
+        [jpath2.closed; ones(Bool, max(0, diff(length.([jpath2.closed, retpolys]))[1]))]
+    jp1closed_paded =
+        [jpath1.closed; ones(Bool, max(0, diff(length.([jpath1.closed, retpolys]))[1]))]
+
     for i in 1:length(retclosed)
-        if jpath2.closed[i] && !jpath1.closed[i]
+        if jp2closed_paded[i] && !jp1closed_paded[i]
             # Intermediates are open , but at k=1 they close
             retclosed[i] = isapprox(k, 1) ? true : false
+        else
+            retclosed[i] = jpath2.closed[i]
         end
     end
     retfill = k .* jpath2.fill + (1 - k) .* jpath1.fill
     retstroke = k .* jpath2.stroke + (1 - k) .* jpath1.stroke
     retlinewidth = k .* jpath2.linewidth + (1 - k) .* jpath1.linewidth
+    @assert length(retpolys) == length(retclosed)
     JPath(retpolys, retclosed, retfill, retstroke, jpath1.lastaction, retlinewidth)
 end
 

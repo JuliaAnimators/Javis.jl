@@ -601,8 +601,10 @@ function _morph(video, object, action, rel_frame, samples)
         for kf in action.anim.frames
             for jpath in kf.value  #kf.value is an array of jpaths
                 for i in 1:length(jpath.polys)
-                    jpath.polys[i] =
+                    jpath.polys[i] = [
+                        jpath.polys[i][1]
                         polysample(jpath.polys[i], samples, closed = jpath.closed[i])
+                    ]
                 end
             end
         end

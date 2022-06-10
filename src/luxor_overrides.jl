@@ -309,6 +309,7 @@ function update_currentjpath(action::Symbol)
     if CURRENT_FETCHPATH_STATE
         #println("test strokepaths")
         cur_polys, cur_costates = pathtopoly(Val(:costate))
+        @assert length(cur_polys) == length(cur_costates)
         transform = getmatrix()
         cur_polys = [apply_transform(getmatrix(), poly) for poly in cur_polys]
         #cur_polys is of 2 element Tuple 
@@ -460,7 +461,7 @@ function _betweenpoly_noresample(loop1, loop2, k; easingfunction = easingflat)
     end
     return result
 end
-
+#this is lifted from luxor, we should ask cormullion if its okay
 function polymorph_noresample(
     pgon1::Array{Array{Point,1}},
     pgon2::Array{Array{Point,1}},

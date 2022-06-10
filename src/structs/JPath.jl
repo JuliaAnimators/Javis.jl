@@ -100,10 +100,10 @@ draws out the jpaths onto the current canvas
 """
 function drawjpaths(jpaths::Array{JPath})
     for jpath in jpaths
+        @assert length(jpath.polys) == length(jpath.closed)
         for (polyi, co_state) in zip(jpath.polys, jpath.closed)
             #place the polys
             if length(polyi) > 1
-                #TODO maybe prune all single-point polys before they are added to obj.jpaths
                 poly(polyi; action = :path, close = co_state)
             end
         end
