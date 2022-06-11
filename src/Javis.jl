@@ -17,7 +17,7 @@ import Luxor: Point, @layer, translate, rotate, @imagematrix
 using ProgressMeter
 using Random
 using Statistics
-using VideoIO
+using FileIO
 
 const FRAMES_SYMBOL = [:same, :all]
 
@@ -283,7 +283,6 @@ function render(
     end
     render_mp4 = ext == ".mp4"
     codec_props = (crf = 23, preset = "medium")
-    video_io = nothing
     # if we render a gif and the user hasn't set a tempdirectory
     if !render_mp4 && isempty(tempdirectory)
         tempdirectory = mktempdir()
@@ -311,6 +310,10 @@ function render(
     started_encoding_video = false
 
     filecounter = 1
+    binpath = joinpath(FFMPEG.FFMPEG_jll.PATH_list[end], "ffmpeg") #is ffmpeg bin always at the end ? 
+    options = `-loglevel $ffmpeg_loglevel -framerate $framerate -i - -y`
+    ffmpegproc = @ffmpeg_env open(`$binpath $options $pathname`; write = true)
+    io = IOBuffer()
     @showprogress 1 "Rendering frames..." for frame in frames
         frame_image = _postprocess(
             video,
@@ -332,16 +335,9 @@ function render(
             if !isa(frame_image, Matrix{RGB{N0f8}})
                 frame_image = convert.(RGB{N0f8}, frame_image)
             end
-            if !started_encoding_video
-                started_encoding_video = true
-                video_io = open_video_out(
-                    pathname,
-                    frame_image,
-                    framerate = framerate,
-                    encoder_options = codec_props,
-                )
-            end
-            write(video_io, frame_image)
+            take!(io) #clear the buffer
+            Images.save(Stream{format"PNG"}(io), frame_image)
+            write(ffmpegproc, io.data)
         end
         filecounter += 1
     end
@@ -362,7 +358,7 @@ function render(
                $(tempdirectory)/palette.png -lavfi paletteuse -y $pathname`,
         )
     elseif ext == ".mp4"
-        close_video_out!(video_io)
+        close(ffmpegproc)
     else
         @error "Currently, only gif and mp4 creation is supported. Not a $ext."
     end
