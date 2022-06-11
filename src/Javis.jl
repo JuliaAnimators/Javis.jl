@@ -16,7 +16,6 @@ import Luxor: Point, @layer, translate, rotate, @imagematrix
 using ProgressMeter
 using Random
 using Statistics
-using VideoIO
 using FileIO
 
 const FRAMES_SYMBOL = [:same, :all]
@@ -282,7 +281,6 @@ function render(
     end
     render_mp4 = ext == ".mp4"
     codec_props = (crf = 23, preset = "medium")
-    video_io = nothing
     # if we render a gif and the user hasn't set a tempdirectory
     if !render_mp4 && isempty(tempdirectory)
         tempdirectory = mktempdir()
