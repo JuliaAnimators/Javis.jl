@@ -1,6 +1,7 @@
 module Javis
 
 using Animations
+import Animations: linear_interpolate
 import Cairo: CairoImageSurface, image
 using FFMPEG
 using Gtk
@@ -105,6 +106,7 @@ include("action_animations.jl")
 include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
+include("partial_draw.jl")
 
 """
     projection(p::Point, l::Line)
@@ -308,10 +310,11 @@ function render(
     started_encoding_video = false
 
     filecounter = 1
-    binpath = joinpath(FFMPEG.FFMPEG_jll.PATH_list[end], "ffmpeg") #is ffmpeg bin always at the end ? 
-    options = `-loglevel $ffmpeg_loglevel -framerate $framerate -i - -y`
-    ffmpegproc = @ffmpeg_env open(`$binpath $options $pathname`; write = true)
-    io = IOBuffer()
+    if render_mp4
+        options = `-loglevel $ffmpeg_loglevel -framerate $framerate -i - -y`
+        ffmpegproc = @ffmpeg_env open(`ffmpeg $options $pathname`; write = true)
+        io = IOBuffer()
+    end
     @showprogress 1 "Rendering frames..." for frame in frames
         frame_image = _postprocess(
             video,
@@ -695,6 +698,7 @@ function set_object_defaults!(object)
     scaleto(desired_scale)
 end
 
+#todo add stroke/fills here
 const LUXOR_DONT_EXPORT = [
     :boundingbox,
     :Boxmaptile,
@@ -748,4 +752,7 @@ export setup_stream, cancel_stream
 # scales
 export scale_linear, @scale_layer
 
+export morph
+export morph_to_fn
+export showcreation, showdestruction, drawpartial
 end
