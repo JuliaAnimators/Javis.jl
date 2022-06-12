@@ -106,7 +106,6 @@ include("action_animations.jl")
 include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
-include("partial_draw.jl")
 
 """
     projection(p::Point, l::Line)
