@@ -2,7 +2,6 @@
 
 # PR changes
 - changed render method for mp4 to use ffmpeg directly inplace of VideoIO
-- TODO change test to use ffprobe for  video length and we can get rid of VideoIO completely
 
 
 ## v0.9.0 (26th of May 2022)

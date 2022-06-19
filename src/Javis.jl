@@ -697,7 +697,6 @@ function set_object_defaults!(object)
     scaleto(desired_scale)
 end
 
-#todo add stroke/fills here
 const LUXOR_DONT_EXPORT = [
     :boundingbox,
     :Boxmaptile,
@@ -751,7 +750,4 @@ export setup_stream, cancel_stream
 # scales
 export scale_linear, @scale_layer
 
-export morph
-export morph_to_fn
-export showcreation, showdestruction, drawpartial
 end

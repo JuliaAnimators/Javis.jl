@@ -1,6 +1,7 @@
 [deps]
 Animations = "27a7e980-b3e6-11e9-2bcd-0b925532e340"
 Colors = "5ae59095-9a9b-59fe-a467-6f913c188581"
+FFMPEG = "c87230d0-a227-11e9-1b43-d7ebe4e7570a"
 Gtk = "4c0ca9eb-093a-5379-98c5-f87ac0bbbf44"
 GtkReactive = "27996c0f-39cd-5cc1-a27a-05f136f946b6"
 ImageIO = "82e4d734-157c-48bb-816b-45c225c6df19"
@@ -11,7 +12,6 @@ LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Latexify = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
 ReferenceTests = "324d217c-45ce-50fc-942e-d289b448e8cf"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-VideoIO = "d6d074c3-1acf-5d4c-9a43-ef38773959a2"
 
 [compat]
 LaTeXStrings = "1.1"

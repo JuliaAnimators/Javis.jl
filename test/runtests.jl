@@ -9,7 +9,7 @@ import Latexify: latexify
 using LaTeXStrings
 using ReferenceTests
 using Test
-using VideoIO
+using FFMPEG
 
 function ground(video, action, framenumber)
     background("white")
