@@ -19,12 +19,16 @@ act!(boxobj,action_create)
 """
 function showcreation()
     return (video, object, action, rel_frame) -> begin
-        action.keep = false #since actions get applied at every frame theyre completed if keep is enabled
-        # We almost certainly never want `keep=true` for showcreation. This is because in the render loop
-        # `keep=true` will execute the action.func on every frame after the actions frames are over.
-        # This messes up animations if the object morphs after its "showcreated". 
-        # what happens is morph gets applied and changes drawing function
-        # showcreation gets appplied reverts back the drawing function
+        action.keep = false
+        # We almost certainly never want `keep=true` for showcreation. In general
+        # actions which change the drawing function shouldn't have `keep=true`. This is
+        # because in the render loop `keep=true` will execute the action.func
+        # on every frame after the actions frames are over. This messes up
+        # animations. For example if the object morphs after its "showcreated"
+        # on the timeline but in the script the morph is called before
+        # showcreation. what happens is morph gets applied and changes drawing
+        # function,then showcreation gets appplied reverts back the drawing
+        # function.
         fraction = get_interpolation(action, rel_frame)
         _drawpartial(video, action, object, rel_frame, fraction)
         if rel_frame == last(get_frames(action))
