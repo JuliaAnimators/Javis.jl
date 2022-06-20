@@ -754,5 +754,6 @@ export scale_linear, @scale_layer
 
 export morph
 export morph_to_fn
+export MorphFunction
 export showcreation, showdestruction, drawpartial
 end
