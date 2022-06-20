@@ -10,6 +10,7 @@ makedocs(;
         prettyurls = get(ENV, "CI", "false") == "true",
         canonical = "https://JuliaAnimators.github.io/Javis.jl",
         assets = String[],
+        edit_branch = "main",
     ),
     pages = [
         "Home" => "index.md",
@@ -34,4 +35,8 @@ makedocs(;
     ],
 )
 
-deploydocs(; repo = "github.com/JuliaAnimators/Javis.jl", push_preview = true)
+deploydocs(;
+    repo = "github.com/JuliaAnimators/Javis.jl",
+    push_preview = true,
+    devbranch = "main",
+)
