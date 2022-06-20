@@ -256,7 +256,7 @@ function _morph_jpath(jpath1::JPath, jpath2::JPath, k)
             # Intermediates are open , but at k=1 they close
             retclosed[i] = isapprox(k, 1) ? true : false
         else
-            retclosed[i] = jpath2.closed[i]
+            retclosed[i] = jp2closed_paded[i]
         end
     end
     retfill = k .* jpath2.fill + (1 - k) .* jpath1.fill
