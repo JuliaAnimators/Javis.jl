@@ -552,7 +552,10 @@ render(video,pathname="box_to_star_to_circ.gif")
 Above snippet morphs a Box to a Star then to a Circle
 """
 function morph(samples = 100)
-    (video, object, action, rel_frame) -> _morph(video, object, action, rel_frame, samples)
+    (video, object, action, rel_frame) -> begin
+        action.keep = false #refer morph_to as to why.
+        _morph(video, object, action, rel_frame, samples)
+    end
 end
 
 function _morph(video, object, action, rel_frame, samples)
@@ -621,13 +624,9 @@ function _morph(video, object, action, rel_frame, samples)
         ret
     end
     if frame == action.frames.frames[end]
-        if action.keep
             #make the objects jpaths the last objects (of the Animation) jpath
             empty!(object.jpaths)
             append!(object.jpaths, interp_jpaths)
-        else
-            object.func = object.opts[:original_func]
-        end
     end
     # TODO if keep is true..then at rel_frame end 
     # replace obj.jpaths with interp_jpaths 

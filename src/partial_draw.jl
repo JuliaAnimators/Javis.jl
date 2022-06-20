@@ -20,9 +20,10 @@ act!(boxobj,action_create)
 function showcreation()
     return (video, object, action, rel_frame) -> begin
         action.keep = false #since actions get applied at every frame theyre completed if keep is enabled
-        # we almos tcertainly never want keep for showcreation. as this will draw over actions that executed before this
-        # this is messes up animations if the object morphs after its "showcreated". 
-        # morph gets applied and changes drawing function
+        # We almost certainly never want `keep=true` for showcreation. This is because in the render loop
+        # `keep=true` will execute the action.func on every frame after the actions frames are over.
+        # This messes up animations if the object morphs after its "showcreated". 
+        # what happens is morph gets applied and changes drawing function
         # showcreation gets appplied reverts back the drawing function
         fraction = get_interpolation(action, rel_frame)
         _drawpartial(video, action, object, rel_frame, fraction)
@@ -149,13 +150,3 @@ function getpartialjpaths(object, fraction)
     push!(ret_jpaths, fin_jpath)
     return ret_jpaths
 end
-
-# 
-# _drawpartial(v,o,a,f,frac)
-#
-# showcreation()
-#  _drawpartial([0,1],[0,1],anim_drawpartial())
-#
-# return (v,o,a,f)-> 
-# #what would morphing at the time of showing creation mean ?
-# needn't worry about morphin g and creation at the same time

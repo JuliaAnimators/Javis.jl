@@ -69,13 +69,25 @@ act!(star_obj, Action(linear(), morph_to(acirc)))
 """
 
 function morph_to(to_obj::Object; samples = 100)
-    return (video, object, action, frame) ->
+    return (video, object, action, frame) -> begin
+        action.keep=false
+        #we dont want `keep=true`. The "persistance" of this action
+        #after its frames is effected by changing the drawing function.
+        #
+        #`keep=true` continues to apply the action after the action frames are over in the render loop.
+        #the consequence of this is that when an object has two morphs applied at different parts of
+        #the timeline , one can potentialy interfere with the other, if the morphs are not called in the right order.
+        #
+        #TODO For now the implementation does not allow to revert the morph at the end of the action.
+        # maybe implement this by checking action.keep before the action starts and setting another flag .
         _morph_to(video, object, action, frame, to_obj, samples)
 end
 
 function morph_to(to_func::Function, args = []; samples = 100)
-    return (video, object, action, frame) ->
+    return (video, object, action, frame) -> begin
+        action.keep=false
         _morph_to(video, object, action, frame, to_func, args, samples)
+    end
 end
 
 # a jpath to appear from/disappear into
