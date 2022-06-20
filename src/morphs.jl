@@ -70,7 +70,7 @@ act!(star_obj, Action(linear(), morph_to(acirc)))
 
 function morph_to(to_obj::Object; samples = 100)
     return (video, object, action, frame) -> begin
-        action.keep=false
+        action.keep = false
         # We dont want `keep=true`. The "persistance" of this action 
         # - after its frames is effected by changing the drawing function.
         #
@@ -84,12 +84,12 @@ function morph_to(to_obj::Object; samples = 100)
         # the end of the action. maybe implement this by checking action.keep
         # before the action starts and setting another flag .
         _morph_to(video, object, action, frame, to_obj, samples)
-        end
+    end
 end
 
 function morph_to(to_func::Function, args = []; samples = 100)
     return (video, object, action, frame) -> begin
-        action.keep=false
+        action.keep = false
         _morph_to(video, object, action, frame, to_func, args, samples)
     end
 end
@@ -166,7 +166,7 @@ function _morph_to(
     end
 
     if frame == last(get_frames(action))
-            object.jpaths = to_obj.jpaths
+        object.jpaths = to_obj.jpaths
     end
 end
 
@@ -224,8 +224,8 @@ function _morph_to(
         ret
     end
     if frame == action.frames.frames[end]
-            object.jpaths = jpaths2
-            #object.func = object.opts[:original_func]
+        object.jpaths = jpaths2
+        #object.func = object.opts[:original_func]
     end
 end
 

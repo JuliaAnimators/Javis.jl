@@ -624,9 +624,9 @@ function _morph(video, object, action, rel_frame, samples)
         ret
     end
     if frame == action.frames.frames[end]
-            #make the objects jpaths the last objects (of the Animation) jpath
-            empty!(object.jpaths)
-            append!(object.jpaths, interp_jpaths)
+        #make the objects jpaths the last objects (of the Animation) jpath
+        empty!(object.jpaths)
+        append!(object.jpaths, interp_jpaths)
     end
     # TODO if keep is true..then at rel_frame end 
     # replace obj.jpaths with interp_jpaths 
