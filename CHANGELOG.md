@@ -1,9 +1,11 @@
 # Javis.jl - Changelog
 
 # PR changes
+
 - Added jpaths a field in Object that is usefull for morphs and partial drawing
 - Added morphs to arbitrary objects and to arbitrary functions, keyframed animations are also possible.
 - Added ability to partially draw any object, and have animations of showing them get created.
+
 
 ## v0.9.0 (26th of May 2022)
 - Ability to use Luxor functionality without rendering an animation
