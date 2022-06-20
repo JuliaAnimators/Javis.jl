@@ -84,6 +84,7 @@ end
 
     render(video; tempdirectory = "images", pathname = "dancing.mp4", framerate = 1)
 
+    # 30 frames with a framerate of 1 should take about 30 seconds ;)
     @test isapprox(VideoIO.get_duration("dancing.mp4"), 30.0, atol = 0.1)
     rm("dancing.mp4")
 end
