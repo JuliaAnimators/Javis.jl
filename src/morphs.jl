@@ -683,14 +683,6 @@ bunch of methods extending functions in Animations.jl that make morphs possible.
 need to find a better place to put these functions, 
 this will do for now
 """
-#function Animations.Animation(
-#    timestamps::AbstractVector{<:Real},
-#    objects::AbstractVector{Object},
-#    easings::AbstractVector{<:Easing},
-#)
-#    keyframes = Keyframe{Vector{JPath}}.(timestamps, [obj.jpaths for obj in objects])
-#    Animation(keyframes, easings)
-#end
 
 import Base
 """
@@ -717,29 +709,6 @@ MorphFunction(f::Function, args::Array) = MorphFunction(f, args, JPath[])
 Base.convert(::Type{MorphFunction}, f::Function) = MorphFunction(f, [], JPath[])
 Base.convert(::Type{MorphFunction}, t::Tuple{Function,Array}) =
     MorphFunction(t[1], t[2], JPath[])
-
-#TODO change tutorial to reflect this change (removed type piracy from earlier commit )
-#wirte tests for this.
-
-#function Animations.Animation(
-#    timestamps::AbstractVector{<:Real},
-#    funcs::AbstractVector{Function},
-#    easings::AbstractVector{<:Easing},
-#)
-#    mfs = [MorphFunction(t, []) for t in funcs]
-#    keyframes = Keyframe{MorphFunction}.(timestamps, mfs)
-#    Animation(keyframes, easings)
-#end
-#
-#function Animations.Animation(
-#    timestamps::AbstractVector{<:Real},
-#    tuples::AbstractVector{T},
-#    easings::AbstractVector{<:Easing},
-#) where {T<:Tuple{Function,Any}}
-#    mfs = [MorphFunction(t[1], t[2]) for t in tuples]
-#    keyframes = Keyframe{MorphFunction}.(timestamps, mfs)
-#    Animation(keyframes, easings)
-#end
 
 """
     Animation(timestamps,funcs,easings)

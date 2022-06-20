@@ -172,10 +172,12 @@ Change the lines describing the animation to
 anim = Animation([0, 0.7, 1],MorphFunction[(boxdraw, ["green"]), (stardraw, []), (circdraw, ["red"])])
 ```
 `stardraw` draws a white star without fill. The function does not take an argument and therefore the `Tuple` with `stardraw` should  have an empty `Array` at its
-second index. If all your drawing functions (ex, `f() , g(), h(), l()` do not take any arguments you can pass it as an `Array` of functions itself.
+second index. If your drawing functions do not take any arguments you can pass it as function itself, and need not wrap it in a `Tuple`.
+
+Ex. suppose `mydraw1` , `mydraw2` and  `mydraw4` take a color as an argument but `mydraw3` does not take any arguments.
 
 ```julia
-anim = Animation([0, t1, t2, 1],MorphFunction[f, g, h, l])
+anim = Animation([0, t1, t2, 1],MorphFunction[ (mydraw1,["red"]), (mydraw2,["blue"]), mydraw3, (mydraw4,["black"]) ])
 ```
 
 <!-- Do not mix `Tuples{Function,Array}` and  `Function`s in the though, your array can have only one type -->
