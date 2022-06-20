@@ -1,92 +1,81 @@
 include("Shape.jl")
 
+#old morph func
+#function morph_to(to_func::Function; do_action = :stroke)
+#    return (video, object, action, frame) ->
+#        _morph_to(video, object, action, frame, to_func; do_action = do_action)
+#end
+#
 """
-    morph_to(to_func::Function; object=:stroke)
+    morph_to(to_func::Function; samples=100)
 
 A closure for the [`_morph_to`](@ref) function.
-This makes it easier to write the function inside an `Object`.
+To be used with Action. `morph_to` will morph an object into whatever is drawn
+by the `to_func` passed to it.
 
-Currently morphing is quite simple and only works for basic shapes.
-It especially does not work with functions which produce more than one polygon
-or which produce filled polygons.
-Blending between fills of polygons is definitely coming at a later stage.
-
-**Important:** The functions itself should not draw the polygon
-i.e. use `circle(Point(100,100), 50)` instead of `circle(Point(100,100), 50, :stroke)`
 
 # Arguments
-- `to_func::Function`: Same as `from_func` but it defines the "result" polygon,
-                       which will be displayed at the end of the Object
-
+- `to_func::Function`: Function that defines what the object should be morphed into
+                       
 # Keywords
-- `do_action::Symbol` defines whether the object has a fill or just a stroke. Defaults to `:stroke`.
+- `samples` : Number of points to resample every polygon to for the morphing
+
+# Limitations
+- cant handle clips inside `to_func` or the `object`
+- sethue animation doesnt work with this , since the color's to be morphed into are derived from the `object` and `to_func`. to change hue while morphing , change it in the `to_func`
 
 # Example
 
 This creates a star that morphs into a circle and back.
 
 ```julia
-astar(args...; do_action=:stroke) = star(O, 50, 5, 0.5, 0, do_action)
-acirc(args...; do_action=:stroke) = circle(Point(100,100), 50, do_action)
+astar() = star(O, 50, 5, 0.5, 0)
+acirc() = circle(O, 50)
 
 video = Video(500, 500)
 back = Background(1:20, ground)
-star_obj = Object(1:10, astar)
+star_obj = Object(1:10,(args...)-> astar())
 act!(star_obj, Action(linear(), morph_to(acirc)))
-circle_obj = Object(11:20, acirc)
-act!(circle_obj, Action(:same, morph_to(astar)))
+act!(star_obj, Action(11:20, morph_to(astar)))
+
+    morph_to(to_obj::Object; samples=100)
+
+Morphs one object into another object.
+
+# Arguments
+- `to_obj::Object`: Object that defines what the object should be morphed into
+                       
+# Keywords
+- `samples` : Number of points to resample every polygon to for the morphing
+
+# Limitations
+- cant handle clips inside `to_func` or the `object`
+- sethue animation doesnt work with this , since the color's to be morphed into are derived from the `object` and `to_func`. to change hue while morphing , change it in the `to_func`
+
+# Example
+
+This creates a star that morphs into a circle.
+
+```julia
+astar() = star(O, 50, 5, 0.5, 0)
+acirc() = circle(O, 50)
+
+video = Video(500, 500)
+back = Background(1:20, ground)
+star_obj = Object(1:10,(args...)-> astar())
+circ_obj = Object(1:10,(args...)-> acirc())
+act!(star_obj, Action(linear(), morph_to(acirc)))
 ```
 """
-#TODO: keep only morph_to , write appropriate dispatches
-function morph_to(to_func::Function; do_action = :stroke)
-    return (video, object, action, frame) ->
-        _morph_to(video, object, action, frame, to_func; do_action = do_action)
-end
 
 function morph_to(to_obj::Object; samples = 100)
     return (video, object, action, frame) ->
         _morph_to(video, object, action, frame, to_obj, samples)
 end
 
-"""
-    morph_to_fn(to_func::Function, args = []; samples = 100)
-
-Closure to pass to Action , morphs object to what is beign drawn by `to_func::Function`.
-Unlike the usual morph_to(to_func) this function does not do shape matching and the morphs
-might look unnatural. This version of morph is however is more versatile in what the target  
-function should be . `to_func` can be any func with multiple luxor calls that would draw
-something. 
-
-
-# Arguments
--  `to_func::Function`: Function with luxor calls to define what the object should morph into
--  `args::Array`:  Arguments to pass to `to_func`. Defaults to `[]`
-
-# Keywords
-- `samples`: Number of samples each polygon must be resampled to for morphing. Defualts to 100
-
-
-# Limitations
-- cant handle clips inside `to_func` or the `object`
-- sethue animation doesnt work with this , since the color's to be morphed into are derived from
-the `object` and `to_func`
-
-# Example
-
-function boxdraw(color)
-    sethue(color)
-    box(O,-50,50,:fillpreserve)
-    sethue("black")
-    strokepath()
-end
-
-circobj = Object(1:nframes, JCircle(O,100; color="green")
-act!(circobj , Action(morph_to_fn(boxdraw, ["red"] ) ))
-
-"""
-function morph_to_fn(to_func::Function, args = []; samples = 100)
+function morph_to(to_func::Function, args = []; samples = 100)
     return (video, object, action, frame) ->
-        _morph_to_fn(video, object, action, frame, to_func, args, samples)
+        _morph_to(video, object, action, frame, to_func, args, samples)
 end
 
 # a jpath to appear from/disappear into
@@ -170,11 +159,11 @@ function _morph_to(
 end
 
 """
-    _morph_to_fn(video::Video, object::Object, action::Action, frame, to_func::Function, args::Array, samples=100)
+    _morph_to(video::Video, object::Object, action::Action, frame, to_func::Function, args::Array, samples=100)
 
-Internal version of [`morph_to_fn`](@ref) but described there.
+Internal version of [`morph_to`](@ref) but described there.
 """
-function _morph_to_fn(
+function _morph_to(
     video::Video,
     object::Object,
     action::Action,
@@ -231,6 +220,11 @@ function _morph_to_fn(
     end
 end
 
+"""
+    _morph_jpath(jpath1::JPath, jpath2::JPath, k)
+
+Returns an interpolated jpath between jpath1 and jpath2 with interpolation factor 0<`k`<1.
+"""
 function _morph_jpath(jpath1::JPath, jpath2::JPath, k)
     polys1 = jpath1.polys
     polys2 = jpath2.polys
@@ -267,6 +261,7 @@ end
     _morph_to(video::Video, object::Object, action::Action, frame, to_func::Function; do_action=:stroke)
 
 Internal version of [`morph_to`](@ref) but described there.
+older morph.
 """
 function _morph_to(
     video::Video,
@@ -688,13 +683,18 @@ this will do for now
 #    Animation(keyframes, easings)
 #end
 
+import Base
 """
-    MorphFunction
+    struct MorphFunction
+        func::Function
+        args::Array
+        jpaths::Vector{JPath}
+        
 
 # Fields
   - func::Function : a function with luxor calls to draw something that objects will be morphed into
   - args : args to the function . Object will be morphed into what is drawn by calling `func(args...)`
-  - jpaths : the jpaths returned by what is drawn. This is populated the first instance it encounters a morph/partial draw at render time.
+  - jpaths : The jpaths returned by what is drawn. `JPath[]` by default, this is populated the first instance it encounters a morph/partial draw at render time.
 
 TODO: find a better place(file) to put these functions and structs. 
 """
@@ -704,30 +704,14 @@ mutable struct MorphFunction
     jpaths::Vector{JPath}
 end
 
-import Base
 MorphFunction(f::Function, args::Array) = MorphFunction(f, args, JPath[])
 Base.convert(::Type{MorphFunction}, f::Function) = MorphFunction(f, [], JPath[])
 Base.convert(::Type{MorphFunction}, t::Tuple{Function,Array}) =
     MorphFunction(t[1], t[2], JPath[])
 
-"""
-     An Animation{T} will return something::T.
-     For numbers and objects which have operators + and - defined the usual interpolation works.
+#TODO change tutorial to reflect this change (removed type piracy from earlier commit )
+#wirte tests for this.
 
-     For other `Types` that we want to use with animation.jl all we have to do is define
-     what a linear interpolation `f` between two objects of `T` will be and Animation.jl will handle the rest.
-
-     We add a definition for how Vector{JPath} should interpolate.
-     at script execute time user however defines Animation{Function}, Animation{Tuples} or Animation{Object}.
-     Animation{Function} and Animation{Tuples} are converted to Animation{MorphFunction}.
-
-     At render time in the first frame of a morph Animation{MorphFunction} and Animation{Object} are converted to
-     Animation{Vector{JPath}}.      
-"""
-
-#say no to type piracy ...
-#TODO change tutorial to reflect this change 
-#
 #function Animations.Animation(
 #    timestamps::AbstractVector{<:Real},
 #    funcs::AbstractVector{Function},
@@ -748,6 +732,11 @@ Base.convert(::Type{MorphFunction}, t::Tuple{Function,Array}) =
 #    Animation(keyframes, easings)
 #end
 
+"""
+    Animation(timestamps,funcs,easings)
+
+returns an `Animation` from an array of MorphFunctions.
+"""
 function Animations.Animation(
     timestamps::AbstractVector{<:Real},
     funcs::AbstractVector{MorphFunction},
@@ -758,8 +747,14 @@ function Animations.Animation(
 end
 
 """
-    Adding a method so that Animation can interpolate between Arrays of JPaths
-    note that the array of jpaths should be of the same size.
+    Animations.linear_interpolate(
+    fraction::Real,
+    jpaths1::Vector{JPath},
+    jpaths2::Vector{Jpath}
+    )
+
+    A method so that Animations.jl can interpolate between Arrays of JPaths.
+    Note that the array of jpaths should be of the same size.
 """
 function Animations.linear_interpolate(
     fraction::Real,
