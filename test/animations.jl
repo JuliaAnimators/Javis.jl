@@ -84,14 +84,7 @@ end
 
     render(video; tempdirectory = "images", pathname = "dancing.mp4", framerate = 1)
 
-    # 30 frames with a framerate of 1 should take about 30 seconds ;)
-    ffprobestring = @ffmpeg_env read(
-        `ffprobe -v panic  -show_entries format=duration dancing.mp4`,
-        String,
-    )
-    #ffprobestring looks something like this ->"[FORMAT]\nduration=30.000000\n[/FORMAT]\n"
-    duration = parse(Float64, split(split(ffprobestring, "=")[2], "\n")[1])
-    @test isapprox(duration, 30.0, atol = 0.1)
+    @test isapprox(VideoIO.get_duration("dancing.mp4"), 30.0, atol = 0.1)
     rm("dancing.mp4")
 end
 
