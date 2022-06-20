@@ -1,5 +1,9 @@
 # Javis.jl - Changelog
 
+# PR changes
+- changed render method for mp4 to use ffmpeg directly inplace of VideoIO
+
+
 ## v0.9.0 (26th of May 2022)
 - Ability to use Luxor functionality without rendering an animation
 - Fix `info_box` function definition in Tutorial 6
