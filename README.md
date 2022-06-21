@@ -4,7 +4,7 @@
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliaanimators.github.io/Javis.jl/stable/)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliaanimators.github.io/Javis.jl/dev/)
 [![Build Status](https://github.com/JuliaAnimators/Javis.jl/workflows/CI/badge.svg)](https://github.com/JuliaAnimators/Javis.jl/actions)
-[![Coverage](https://codecov.io/gh/JuliaAnimators/Javis.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaAnimators/Javis.jl)
+[![Coverage](https://codecov.io/gh/JuliaAnimators/Javis.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/JuliaAnimators/Javis.jl)
 [![project chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://julialang.zulipchat.com/#narrow/stream/253420-javis)
 
 <!--![GitHub Hacktoberfest combined status](https://img.shields.io/github/hacktoberfest/2020/Wikunia/Javis.jl)-->
