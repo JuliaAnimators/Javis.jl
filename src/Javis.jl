@@ -359,6 +359,7 @@ function render(
         )
     elseif ext == ".mp4"
         close(ffmpegproc)
+        wait(ffmpegproc)
     else
         @error "Currently, only gif and mp4 creation is supported. Not a $ext."
     end
