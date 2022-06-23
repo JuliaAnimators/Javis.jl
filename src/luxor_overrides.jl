@@ -300,53 +300,71 @@ function apply_transform(transform::Vector{Float64}, poly::Vector{Point})
 end
 
 """
-updates CURRENT_JPATHS
-if used inside strokepath() pass action=:stroke
-and inside fillpath pass :fill.
-move this to luxor_overrides_util.jl later.
+    update_currentjpath(action::Symbol)
+
+Updates the CURRENT_JPATHS
+This function is used  inside the strokepath/strokepreserve/fillpath/fillpreserve.
+Converts the current Path and other drawing states into a JPath and appends to the CURRENT_JPATHS global.
+
+the argument is a symbol either `:stroke` or `:fill` , to change behaviour
+for stroke vs fill.
 """
 function update_currentjpath(action::Symbol)
-    if CURRENT_FETCHPATH_STATE
-        #println("test strokepaths")
-        cur_polys, cur_costates = pathtopoly(Val(:costate))
-        @assert length(cur_polys) == length(cur_costates)
-        transform = getmatrix()
-        cur_polys = [apply_transform(getmatrix(), poly) for poly in cur_polys]
-        #cur_polys is of 2 element Tuple 
-        #containg 2 arrays 1 with Polygons and one with the bools
-        r, g, b, a = map(
-            sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
-            [:redvalue, :greenvalue, :bluevalue, :alpha],
+    #println("test strokepaths")
+    cur_polys, cur_costates = pathtopoly(Val(:costate))
+    @assert length(cur_polys) == length(cur_costates)
+    transform = getmatrix()
+    cur_polys = [apply_transform(getmatrix(), poly) for poly in cur_polys]
+    #cur_polys is of 2 element Tuple 
+    #containg 2 arrays 1 with Polygons and one with the bools
+    r, g, b, a = map(
+        sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
+        [:redvalue, :greenvalue, :bluevalue, :alpha],
+    )
+    #by default they are black transparent 
+    fillstroke = Dict(:fill => [0.0, 0, 0, 0], :stroke => [0.0, 0, 0, 0])
+    fillstroke[action] .= [r, g, b, a]
+    #if polys didnt change we just modify the last JPath in the CURRENT_JPATHS
+    if length(CURRENT_JPATHS) > 0 && cur_polys == CURRENT_JPATHS[end].polys
+        #print("found similar path\n")
+        setproperty!(CURRENT_JPATHS[end], action, fillstroke[action])
+        #if action was :stroke above line would be the same as doing...
+        #CURRENT_JPATHS[end].stroke = fillstroke[:stroke] 
+        setproperty!(CURRENT_JPATHS[end], :lastaction, action)
+        #if action was :stroke above line would be the same as doing...
+        #CURRENT_JPATHS[end].lastaction = :stroke
+    else
+        #println("adding to CURRENT_JPATH")
+        currpath = JPath(
+            cur_polys,
+            cur_costates,
+            fillstroke[:fill],
+            fillstroke[:stroke],
+            action,
+            2,
         )
-        #by default they are black transparent 
-        fillstroke = Dict(:fill => [0.0, 0, 0, 0], :stroke => [0.0, 0, 0, 0])
-        fillstroke[action] .= [r, g, b, a]
-        #if polys didnt change we just modify the last JPath in the CURRENT_JPATHS
-        if length(CURRENT_JPATHS) > 0 && cur_polys == CURRENT_JPATHS[end].polys
-            #print("found similar path\n")
-            setproperty!(CURRENT_JPATHS[end], action, fillstroke[action])
-            #if action was :stroke above line would be the same as doing...
-            #CURRENT_JPATHS[end].stroke = fillstroke[:stroke] 
-            setproperty!(CURRENT_JPATHS[end], :lastaction, action)
-            #if action was :stroke above line would be the same as doing...
-            #CURRENT_JPATHS[end].lastaction = :stroke
-        else
-            #println("adding to CURRENT_JPATH")
-            currpath = JPath(
-                cur_polys,
-                cur_costates,
-                fillstroke[:fill],
-                fillstroke[:stroke],
-                action,
-                2,
-            )
-            push!(CURRENT_JPATHS, currpath)
-        end
+        push!(CURRENT_JPATHS, currpath)
     end
 end
 
+#The following four functions over-ride luxors strokepath/strokepreserve/fillpath/fillpreserve function.
+
+#Behaviour depends on 2 global variables.
+#if CURRENT_FETCHPATH_STATE is true -> the current path is converted
+#                                      to a JPath and pushed into CURRENT_JPATHS.
+#
+#if DISABLE_LUXOR_DRAW is true -> does not draw on the canvas , clear the path with `newpath()` if not a "preserve" function.
+#else -> do exactly what original Luxor.strokepath/fillpath etc would do i.e place the path on the canvas and stroke/fill it.
+"""
+    strokepath()
+
+Stroke the current path with the current line width, line join, line cap, dash, and stroke
+scaling settings. The current path is then cleared.
+"""
 function Luxor.strokepath()
-    update_currentjpath(:stroke)
+    if CURRENT_FETCHPATH_STATE
+        update_currentjpath(:stroke)
+    end
     if !DISABLE_LUXOR_DRAW
         Luxor.get_current_strokescale() ?
         Luxor.Cairo.stroke_transformed(Luxor.get_current_cr()) :
@@ -356,8 +374,16 @@ function Luxor.strokepath()
     end
 end
 
+"""
+    strokepreserve()
+
+Stroke the current path with current line width, line join, line cap, dash, and stroke
+scaling settings, but then keep the path current.
+"""
 function Luxor.strokepreserve()
-    update_currentjpath(:stroke)
+    if CURRENT_FETCHPATH_STATE
+        update_currentjpath(:stroke)
+    end
     if !DISABLE_LUXOR_DRAW
         Luxor.get_current_strokescale() ?
         Luxor.Cairo.stroke_preserve_transformed(Luxor.get_current_cr()) :
@@ -366,8 +392,15 @@ function Luxor.strokepreserve()
 
 end
 
+"""
+    fillpath()
+
+Fill the current path according to the current settings. The current path is then cleared.
+"""
 function Luxor.fillpath()
-    update_currentjpath(:fill)
+    if CURRENT_FETCHPATH_STATE
+        update_currentjpath(:fill)
+    end
     if !DISABLE_LUXOR_DRAW
         Luxor.Cairo.fill(Luxor.get_current_cr())
     else
@@ -375,13 +408,32 @@ function Luxor.fillpath()
     end
 end
 
+"""
+    fillpreserve()
+
+Fill the current path with current settings, but then keep the path current.
+"""
 function Luxor.fillpreserve()
-    update_currentjpath(:fill)
+    if CURRENT_FETCHPATH_STATE
+        update_currentjpath(:fill)
+    end
     if !DISABLE_LUXOR_DRAW
         Luxor.Cairo.fill_preserve(Luxor.get_current_cr())
     end
 end
 
+
+"""
+   pathtopoly(::Val{:costate})
+
+Method similar to Luxors `pathtopoly()`. Converts the current path to an array of polygons
+and returns them. This function also returns an array of Bool (`co_states::Array{Bool}`) of exactly the same length as number of polygons that are being returned .
+`co_states[i]` is `true/false` means `polygonlist[i]` is a closed/open polygon respectively.
+
+Another minor change from luxors `pathtopoly()`  is when a CAIRO_PATH_MOVE_TO is encountered , a new poly is started.
+
+Returns Tuple(Array{Point},Array{Bool})
+"""
 function Luxor.pathtopoly(::Val{:costate})
     originalpath = getpathflat()
     polygonlist = Array{Point,1}[]
@@ -449,8 +501,19 @@ end
 
 
 """
-    just like polymorph from Luxor , but expects polygons to be of same size , and
-    therefore does not resample them to be of same size.
+    _betweenpoly_noresample(loop1,loop2,k; easingfunction = easingflat)
+
+Just like _betweenpoly from Luxor , but expects polygons `loop1` and `oop2` to be of same size , and
+therefore does not resample them to be of same size.
+
+From Luxor Docs:
+Find a simple polygon between the two simple polygons loop1 and loop2 corresponding to k,
+  where 0.0 < k < 1.0.
+
+Arguments
+loop1: first polygon 
+loop2: second polygon 
+k: interpolation factor
 """
 function _betweenpoly_noresample(loop1, loop2, k; easingfunction = easingflat)
     @assert length(loop1) == length(loop2)
@@ -462,6 +525,44 @@ function _betweenpoly_noresample(loop1, loop2, k; easingfunction = easingflat)
     return result
 end
 #this is lifted from luxor, we should ask cormullion if its okay
+"""
+
+        polymorph_noresample(
+            pgon1::Array{Array{Point,1}},
+            pgon2::Array{Array{Point,1}},
+            k;
+            easingfunction = easingflat,
+            kludge = true,
+        )
+
+like luxors `polymorph` , but does not resample the polygon , therefore every
+polygon in `pgon1` and `pgon2` should have the same number of points. used by
+`_morph_jpath`.
+
+From Luxor Docs:
+
+"morph" is to gradually change from one thing to another. This function changes one polygon
+  into another.
+
+  It returns an array of polygons, [p_1, p_2, p_3, ... ], where each polygon p_n is the
+  intermediate shape between the corresponding shape in pgon1[1...n] and pgon2[1...n] at k,
+  where 0.0 < k < 1.0. If k ≈ 0.0, the pgon1[1...n] is returned, and if `k ≈ 1.0,
+  pgon2[1...n] is returned.
+
+  pgon1 and pgon2 can be either simple polygons or arrays of one or more polygonal shapes (eg
+  as created by pathtopoly()). For example, pgon1 might consist of two polygonal shapes, a
+  square and a triangular shaped hole inside; pgon2 might be a triangular shape with a square
+  hole.
+
+  It makes sense for both arguments to have the same number of polygonal shapes. If one has
+  more than another, some shapes would be lost when it morphs. But the suggestively-named
+  kludge keyword argument, when set to (the default) true, tries to compensate for this.
+
+  By default, easingfunction = easingflat, so the intermediate steps are linear. If you use
+  another easing function, intermediate steps are determined by the value of the easing
+  function at k.
+
+"""
 function polymorph_noresample(
     pgon1::Array{Array{Point,1}},
     pgon2::Array{Array{Point,1}},
