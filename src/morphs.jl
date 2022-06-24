@@ -67,7 +67,6 @@ circ_obj = Object(1:10,(args...)-> acirc())
 act!(star_obj, Action(linear(), morph_to(acirc)))
 ```
 """
-
 function morph_to(to_obj::Object; samples = 100)
     return (video, object, action, frame) -> begin
         action.keep = false

@@ -314,7 +314,7 @@ function update_currentjpath(action::Symbol)
     cur_polys, cur_costates = pathtopoly(Val(:costate))
     @assert length(cur_polys) == length(cur_costates)
     transform = getmatrix()
-    cur_polys = [apply_transform(getmatrix(), poly) for poly in cur_polys]
+    cur_polys = [apply_transform(transform, poly) for poly in cur_polys]
     #cur_polys is of 2 element Tuple 
     #containg 2 arrays 1 with Polygons and one with the bools
     r, g, b, a = map(
