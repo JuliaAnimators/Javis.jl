@@ -34,8 +34,8 @@ function boxdraw(color)
     strokepath()
 end
 Background(1:nframes,(args...)->background("black"))
-circobj = Object((v,o,f) -> circdraw("red"))
 boxobj  = Object((v,o,f) -> boxdraw("green"))
+circobj = Object((v,o,f) -> circdraw("red"))
 
 transform_to_box = Action(20:nframes-20, morph_to(boxobj))
 act!(circobj, transform_to_box)
