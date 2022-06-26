@@ -491,15 +491,16 @@ end
     morph(samples = 100)
 
 morph() to be used with Action, when an animation from Animations.jl is
-provided with . Default samples for every polygon is 100, increase this if needed.
+provided with `Animation{MorphFunction}` . Default samples for every polygon is 100, increase this if needed.
 Animation must be of type Animation{MorphFunction} or Animation{Object}
 when passing `morph()` to `Action`.
 
 Animation{MorphFunction} can be made using the following syntax. (constructors for the following signatures 
 are written to return the apropriate Animation{MorphFunction})
 ```
-anim = Animation([0,a1,a2,...,an,1] , [ (func0,args0), (func1,args1) , (func2,args2) ...  (funcn,argsn), (func_fin,args_fin) ]
+anim = Animation([0,a1,a2,...,an,1] , MorphFunction[ (func0,args0), (func1,args1) , (func2,args2) ...  (funcn,argsn), (func_fin,args_fin) ])
 ```
+0< a1 < a2 < a3... < an < 1.0
 
 if all your functions dont take any arguments then you may also use...
 ```
