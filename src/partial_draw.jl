@@ -11,10 +11,12 @@ incrementally.
 
 Ex.
 
+```
 Background(1:nframes+60,(args...)->ground())
 boxobj = Object(1:nframes+60 , (args...) -> boxdraw("green") )
 action_create = Action(1:nframes÷2,sineio(),Javis.showcreation())
 act!(boxobj,action_create)
+```
 
 """
 function showcreation()
