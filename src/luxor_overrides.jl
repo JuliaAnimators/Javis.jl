@@ -1,5 +1,5 @@
 DISABLE_LUXOR_DRAW = false
-CURRENT_FETCHPATH_STATE=false
+CURRENT_FETCHPATH_STATE = false
 
 """
     setline(linewidth)
