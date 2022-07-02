@@ -285,23 +285,6 @@ function background(background_color)
 end
 
 """
-    apply_transform(transform::Vector{Float64} , poly::Vector{Point})
-
-applies the transform , got by getmatrix() on every point in the poly
-and returns a new poly.
-
-move this to luxor_overrides_util.jl later.
-"""
-function apply_transform(transform::Vector{Float64}, poly::Vector{Point})
-    retpoly = Point[]
-    for pt in poly
-        res = cairotojuliamatrix(transform) * [pt[1], pt[2], 1]
-        push!(retpoly, Point(res[1], res[2]))
-    end
-    retpoly
-end
-
-"""
    pathtopoly(::Val{:costate})
 
 Method similar to Luxors `pathtopoly()`. Converts the current path to an array of polygons

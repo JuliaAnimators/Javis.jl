@@ -99,6 +99,7 @@ include("layers.jl")
 include("util.jl")
 include("scales.jl")
 include("luxor_overrides.jl")
+include("luxor_utils.jl")
 include("backgrounds.jl")
 include("svg2luxor.jl")
 include("morphs.jl")
@@ -699,7 +700,6 @@ function set_object_defaults!(object)
     scaleto(desired_scale)
 end
 
-#todo add stroke/fills here
 const LUXOR_DONT_EXPORT = [
     :boundingbox,
     :Boxmaptile,
@@ -736,7 +736,7 @@ export Video, Object, Background, Action, RFrames, GFrames
 export @JLayer, background
 export Line, Transformation
 export val, pos, ang, scl, get_value, get_position, get_angle, get_scale
-export projection, morph_to
+export projection
 export appear, disappear, rotate_around, follow_path, change
 export rev
 export scaleto
@@ -753,7 +753,7 @@ export setup_stream, cancel_stream
 # scales
 export scale_linear, @scale_layer
 
-export morph
+export morph, morph_to
 export MorphFunction
 export showcreation, showdestruction, drawpartial
 end
