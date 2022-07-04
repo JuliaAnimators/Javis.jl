@@ -21,6 +21,7 @@ Currently, these tutorials are available:
 - [**Tutorial 6: Taming the Elements**](tutorials/tutorial_6.md) - how to use `change` to grow or shrink arbitrary objects and using `Javis` with other Julia packages.
 - [**Tutorial 7: Using Animations.jl to Create something with more Pep!**](tutorials/tutorial_7.md) - an advanced tutorial to make your animations more interesting.
 - [**Tutorial 8: Fun with Layers! An Intro to `@JLayer`**](tutorials/tutorial_8.md) - a `Javis` state of the art tutorial on how to use `@JLayer` to make composable animations.
-- [**Tutorial 9: Morphing**](tutorials/tutorial_morphing.md) - Morphing `Javis` Objects 
+- [**Tutorial 9: Morphing**](tutorials/tutorial_morphing.md) - Morphing `Javis` Objects.
+- [**Tutorial 10: Animate Object Creation **](tutorials/tutorial_partialdraw.md) - Animate Object Creations. 
 
 If you spot an issue with any of these tutorials, please let us know! Thank you!

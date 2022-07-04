@@ -5,8 +5,6 @@ There are multiple ways to morph an object in Javis.
 - Using `morph_to(::Function)` method. Similar to `morph_to(::Object)` but morphs to a function instead. Can morph an object to a function that contains Luxor calls to draw what it should morphed into.
 - Specifying an Action with an  `Animation` along with `morph()` to make keyframed morphings. This helps making and timing a sequence of morph animations easier.
 
-This tutorial will focus on the last three.
-
 ## Morphing one object to another.
 
 Like other animations `morph_to(::Object)` is to be used with action. To learn more about Actions refer to [Tutorial 5](tutorial_5.md).
