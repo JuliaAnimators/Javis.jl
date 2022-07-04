@@ -14,7 +14,7 @@ Ex.
 ```
 Background(1:nframes+60,(args...)->ground())
 boxobj = Object(1:nframes+60 , (args...) -> boxdraw("green") )
-action_create = Action(1:nframes÷2,sineio(),Javis.showcreation())
+action_create = Action(1:nframes÷2,sineio(),showcreation())
 act!(boxobj,action_create)
 ```
 
@@ -85,6 +85,11 @@ function _drawpartial(video, action, object, rel_frame, fraction::Real)
     #isapprox(fraction, 1) && (object.func = object.opts[:original_func])
 end
 
+"""
+    len_jpath(jpath::JPaht)
+
+returns the sum of all the lengths of the polys that this `jpath` contains
+"""
 len_jpath(jpath::JPath) = sum([
     polydistances(jpath.polys[i], closed = jpath.closed[i])[end] for
     i in 1:length(jpath.polys)
@@ -115,7 +120,6 @@ function getpartialjpaths(object, fraction)
         end
     end
     #we got which jpath , 
-
 
     append!(ret_jpaths, object.jpaths[1:(jp_idx - 1)])
     #now which poly in this jpath ?...
@@ -152,7 +156,6 @@ function getpartialjpaths(object, fraction)
         ),
     ]
     fin_jpath.closed = [fin_jpath.closed[1:(p_idx - 1)]..., false]
-    #fin_jpath.closed = fin_jpath.closed[1:p_idx]#... , false]
     push!(ret_jpaths, fin_jpath)
     return ret_jpaths
 end
