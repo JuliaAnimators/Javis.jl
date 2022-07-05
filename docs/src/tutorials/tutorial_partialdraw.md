@@ -3,7 +3,7 @@
 A cool effect of bringing in `Objects` into your video/gif is to show it being
 drawn out incrementally from nothing. 
 
-** put example
+![](../assets/demo_partialdraw.gif)
 
 In this tutorial we'll take a look at how you can make these kind of animations
 
