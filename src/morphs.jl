@@ -203,7 +203,7 @@ function get_offsets(jpath1, jpath2)
             offset, _ = compute_shortest_morphing_dist(jpath2.polys[i], jpath1.polys[i])
             push!(offsets, (:latter, offset))
         else
-            push!(offsets, 1)
+            push!(offsets, (:former,1))
         end
     end
     for i in (minl + 1):maxl
