@@ -92,10 +92,10 @@ transform_to_box = Action(20:nframes-20, morph_to(boxdraw,["blue"]))
 act!(circobj, transform_to_box)
 #act!(boxobj, hide_action)
 
-render(video,pathname="circ_to_box_hidden.gif")
+render(video,pathname="circ_to_box_func.gif")
 ```
 
-![](../assets/circ_to_box_hidden.gif)
+![](../assets/circ_to_box_func.gif)
 
 Here we have morphed  the circle  without defining an object to morph to. Rather the shape it has to morph into
 is given by a `Function`.
@@ -145,7 +145,7 @@ anim = Animation([0,1],MorphFunction[(boxdraw,["green"]),(circdraw,["red"])] )
 
 action = Action(1:nframes,anim,morph())
 act!(boxobj,action)
-render(video,pathname="circ_to_box_hidden.gif")
+render(video,pathname="box_to_circ_hidden.gif")
 ```
 
 Take a look at `anim`. It is of type `Animation`.
@@ -179,7 +179,7 @@ The general idea of whats going on is we are making an `Animation` that maps `0`
 
 Thus we have made an  `Animation`  called `anim`. Then we made an `action` with this `anim`. We called it `action` . Then we applied the action on our object `boxobj` to get ... 
 
-![](../assets/circ_to_box_anim.gif)
+![](../assets/box_to_circ_anim.gif)
 
 The way of morphing shines when you have to do multiple morphs in a sequence and with different timings. Lets look at another example taking object to morph box(initial shape) -> star -> circle in a sequence.
 
@@ -198,7 +198,7 @@ anim = Animation([0, t1, t2, 1],MorphFunction[ (mydraw1,["red"]), (mydraw2,["blu
 
 <!-- Do not mix `Tuples{Function,Array}` and  `Function`s in the though, your array can have only one type -->
 
-![](../assets/circ_to_box_anim2.gif)
+![](../assets/box_to_star_to_circ_anim.gif)
 
 What we see now is from the beginning to 0.7 fraction of the `Action`'s frames it carries
 out the morphing from a `boxdraw("green")` to `stardraw()`. 
