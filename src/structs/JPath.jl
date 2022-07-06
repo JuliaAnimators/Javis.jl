@@ -59,21 +59,7 @@ function getjpaths(func::Function, args = [])
     empty!(CURRENT_JPATHS)
     global CURRENT_FETCHPATH_STATE = true
     global DISABLE_LUXOR_DRAW = true
-    try
-        func(args...)
-    catch e
-        if e isa MethodError
-            #@warn "Could not extract jpath for object,\nperhaps 
-            #Object.func depends on rendertime variables"
-            println("Could not Extract jpath for some objects. Morphs may not work ")
-            println("Check your Object function error raised at: $(e.f)")
-            println("args passed: $((e.args...))")
-            # TODO decide if this try (and the one for getjpath! in Objects.jl) are really neaded
-            # now that getjpaths happens at render-time . things like get_position should work 
-        else
-            throw(e)
-        end
-    end
+    func(args...)
     global CURRENT_FETCHPATH_STATE = false
     global DISABLE_LUXOR_DRAW = false
     newpath()#clear all the paths
