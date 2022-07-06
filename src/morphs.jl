@@ -180,7 +180,7 @@ returns an Array of Tuples , each Tuple is of the form `(s::Symbol,offsetvalue::
 
 while interpolating polys inside the jpath. Javis tries to find a good offsetvalue
 if poly1 is being morphed into poly2 
-poly1[i] goes to poly2[i + offsetvalue -1 ] (module addition).
+`poly1[i]` goes to `poly2[i + offsetvalue -1]` (modulo length(poly2) addition).
 
 `s` is either `:former` or `:latter` indicating if the offset should be applied on poly1 or poly2
 
