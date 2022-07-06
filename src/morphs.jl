@@ -180,10 +180,8 @@ function get_offsets(jpath1, jpath2)
     maxl = max(length(jpath1.polys), length(jpath2.polys))
     offsets = Array{Tuple{Symbol,Int}}([])
     for i in 1:minl
-        @show minl, maxl
         if i <= length(jpath1.closed) && jpath1.closed[i]
             offset, _ = compute_shortest_morphing_dist(jpath1.polys[i], jpath2.polys[i])
-            @show, offset
             push!(offsets, (:former, offset))
         elseif i <= length(jpath2.closed) && jpath2.closed[i]
             offset, _ = compute_shortest_morphing_dist(jpath2.polys[i], jpath1.polys[i])
@@ -193,7 +191,6 @@ function get_offsets(jpath1, jpath2)
         end
     end
     for i in (minl + 1):maxl
-        @show "extra"
         push!(offsets, (:former, 1))
     end
     return offsets
@@ -243,7 +240,6 @@ function _morph_to(
     for (jpath1, jpath2) in zip(jpaths1, jpaths2)
         #calculate offset 
         offsets = get_offsets(jpath1, jpath2)
-        @show offsets
         push!(
             interp_jpaths,
             _morph_jpath(jpath1, jpath2, get_interpolation(action, frame), offsets),

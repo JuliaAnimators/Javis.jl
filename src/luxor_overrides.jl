@@ -388,7 +388,6 @@ function _betweenpoly_noresample(
     eased_k = easingfunction(k, 0.0, 1.0, 1.0)
     for j in 1:length(loop1)
         indj = mod1(j + offset[2] - 1, length(loop1))
-        @show indj
         if offset[1] == :former
             push!(result, between(loop1[indj], loop2[j], eased_k))
         else
