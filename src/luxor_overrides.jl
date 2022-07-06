@@ -376,12 +376,24 @@ loop1: first polygon
 loop2: second polygon 
 k: interpolation factor
 """
-function _betweenpoly_noresample(loop1, loop2, k; easingfunction = easingflat)
+function _betweenpoly_noresample(
+    loop1,
+    loop2,
+    k,
+    offset = (:former, 1);
+    easingfunction = easingflat,
+)
     @assert length(loop1) == length(loop2)
     result = Point[]
     eased_k = easingfunction(k, 0.0, 1.0, 1.0)
     for j in 1:length(loop1)
-        push!(result, between(loop1[j], loop2[j], eased_k))
+        indj = mod1(j + offset[2] - 1, length(loop1))
+        @show indj
+        if offset[1] == :former
+            push!(result, between(loop1[indj], loop2[j], eased_k))
+        else
+            push!(result, between(loop1[j], loop2[indj], eased_k))
+        end
     end
     return result
 end
@@ -427,7 +439,8 @@ From Luxor Docs:
 function polymorph_noresample(
     pgon1::Array{Array{Point,1}},
     pgon2::Array{Array{Point,1}},
-    k;
+    k,
+    offsets = Array{Int};
     easingfunction = easingflat,
     kludge = true,
 )
@@ -455,6 +468,7 @@ function polymorph_noresample(
                     pgon1[i],
                     pgon2[i],
                     k,
+                    offsets[i],
                     easingfunction = easingfunction,
                 ),
             )
@@ -471,6 +485,7 @@ function polymorph_noresample(
                     pgon1[i],
                     loop2,
                     k,
+                    offsets[i],
                     easingfunction = easingfunction,
                 ),
             )
@@ -486,6 +501,7 @@ function polymorph_noresample(
                     loop1,
                     pgon2[i],
                     k,
+                    offsets[i],
                     easingfunction = easingfunction,
                 ),
             )

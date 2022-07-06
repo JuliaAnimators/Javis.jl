@@ -152,7 +152,11 @@ function _morph_to(
     jpaths2 = vcat(to_obj.jpaths, repeat([null_jpath(samples)], max(0, l1 - l2)))
     #above lines should make jpaths1 and jpaths2 have the same no of jpaths
     for (jpath1, jpath2) in zip(jpaths1, jpaths2)
-        push!(interp_jpaths, _morph_jpath(jpath1, jpath2, get_interpolation(action, frame)))
+        offsets = get_offsets(jpath1, jpath2)
+        push!(
+            interp_jpaths,
+            _morph_jpath(jpath1, jpath2, get_interpolation(action, frame), offsets),
+        )
     end
 
     object.func = (args...) -> begin
@@ -168,6 +172,33 @@ function _morph_to(
         object.jpaths = to_obj.jpaths
     end
 end
+
+
+function get_offsets(jpath1, jpath2)
+    #calculate offset 
+    minl = min(length(jpath1.polys), length(jpath2.polys))
+    maxl = max(length(jpath1.polys), length(jpath2.polys))
+    offsets = Array{Tuple{Symbol,Int}}([])
+    for i in 1:minl
+        @show minl, maxl
+        if i <= length(jpath1.closed) && jpath1.closed[i]
+            offset, _ = compute_shortest_morphing_dist(jpath1.polys[i], jpath2.polys[i])
+            @show, offset
+            push!(offsets, (:former, offset))
+        elseif i <= length(jpath2.closed) && jpath2.closed[i]
+            offset, _ = compute_shortest_morphing_dist(jpath2.polys[i], jpath1.polys[i])
+            push!(offsets, (:latter, offset))
+        else
+            push!(offsets, 1)
+        end
+    end
+    for i in (minl + 1):maxl
+        @show "extra"
+        push!(offsets, (:former, 1))
+    end
+    return offsets
+end
+
 
 """
     _morph_to(video::Video, object::Object, action::Action, frame, to_func::Function, args::Array, samples=100)
@@ -210,7 +241,13 @@ function _morph_to(
 
     # Interpolate jpaths pairwise and store interp_jpaths
     for (jpath1, jpath2) in zip(jpaths1, jpaths2)
-        push!(interp_jpaths, _morph_jpath(jpath1, jpath2, get_interpolation(action, frame)))
+        #calculate offset 
+        offsets = get_offsets(jpath1, jpath2)
+        @show offsets
+        push!(
+            interp_jpaths,
+            _morph_jpath(jpath1, jpath2, get_interpolation(action, frame), offsets),
+        )
     end
 
     # Change drawing function
@@ -233,10 +270,10 @@ end
 
 Returns an interpolated jpath between jpath1 and jpath2 with interpolation factor 0<`k`<1.
 """
-function _morph_jpath(jpath1::JPath, jpath2::JPath, k)
+function _morph_jpath(jpath1::JPath, jpath2::JPath, k, offsets)
     polys1 = jpath1.polys
     polys2 = jpath2.polys
-    retpolys = polymorph_noresample(polys1, polys2, k, kludge = true)
+    retpolys = polymorph_noresample(polys1, polys2, k, offsets, kludge = true)
     # The logic to figure out if intermediate poly should be closed or open.
     # From         To         During Morph (intermediate)
     # --------------------------------------------------
@@ -743,7 +780,8 @@ function Animations.linear_interpolate(
     @assert l1 == l2
     interp_jpaths = JPath[]
     for (jpath1, jpath2) in zip(jpaths1, jpaths2)
-        push!(interp_jpaths, _morph_jpath(jpath1, jpath2, fraction))
+        offsets = get_offsets(jpath1, jpath2)
+        push!(interp_jpaths, _morph_jpath(jpath1, jpath2, fraction, offsets))
     end
     return interp_jpaths
 end
