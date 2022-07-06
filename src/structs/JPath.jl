@@ -68,6 +68,8 @@ function getjpaths(func::Function, args = [])
             println("Could not Extract jpath for some objects. Morphs may not work ")
             println("Check your Object function error raised at: $(e.f)")
             println("args passed: $((e.args...))")
+            # TODO decide if this try (and the one for getjpath! in Objects.jl) are really neaded
+            # now that getjpaths happens at render-time . things like get_position should work 
         else
             throw(e)
         end
