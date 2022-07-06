@@ -173,7 +173,23 @@ function _morph_to(
     end
 end
 
+"""
+    get_offsets(jpath1,jpath2)
 
+returns an Array of Tuples , each Tuple is of the form `(s::Symbol,offsetvalue::Int)`
+
+while interpolating polys inside the jpath. Javis tries to find a good offsetvalue
+if poly1 is being morphed into poly2 
+poly1[i] goes to poly2[i + offsetvalue -1 ] (module addition).
+
+`s` is either `:former` or `:latter` indicating if the offset should be applied on poly1 or poly2
+
+morphing from closed to open closed offsets the former.
+morphing from closed to open poly offsets the former.
+morphing from open to closed poly offsets the latter.
+morphing from open to open poly does no offsetting.
+
+"""
 function get_offsets(jpath1, jpath2)
     #calculate offset 
     minl = min(length(jpath1.polys), length(jpath2.polys))
