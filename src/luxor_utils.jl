@@ -1,3 +1,14 @@
+"""
+	javis_do_action(action::Symbol)
+
+`action` is either of the four `:fill,:stroke,:fillpreserve,:strokepreserve`.
+and it executes the respective Luxor action . Behaviour depends on two globals
+if CURRENT_FETCHPATH_STATE is true it converts the current path to a JPath and 
+appends to CURRENT_JPATH. 
+if DISABLE_LUXOR_DRAW is true , does not draw anything on to the canvas.
+
+This function is called from Luxor (check luxors source of `strokepath`).
+"""
 function javis_do_action(action::Symbol)
     if CURRENT_FETCHPATH_STATE
         if action == :fill || action == :fillpreserve
