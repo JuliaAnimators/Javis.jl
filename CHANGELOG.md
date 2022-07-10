@@ -4,17 +4,16 @@
 - changed render method for mp4 to use ffmpeg directly inplace of VideoIO
 - Added jpaths a field in Object that is usefull for morphs and partial drawing
 - Added morphs to arbitrary objects and functions.
-    - unlike old morph implementation , function can (and should) draw something on the canvas.
-    - morphs objects can be later morphed again.
 - Keyframed morphs with Animations.jl are possible.
 - Added ability to partially draw any object, and have animations of showing them get created.
 - One tutorial added on how to use morphs
+- tutorial on partial draw / show creation 
 - Few tests for morphs added
+- test for partial draw/ show creation
 
 - TODO
-    - figure out a way to align points before morphing.
-    - tutorial on partial draw
     - check if all functions are documented , if not document. 
+	- change morph gifs in tutorials to reflect aligned point morphing
 
 ## v0.9.0 (26th of May 2022)
 - Ability to use Luxor functionality without rendering an animation
