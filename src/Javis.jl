@@ -261,6 +261,7 @@ function render(
     postprocess_frame = default_postprocess,
 )
     CURRENTLY_RENDERING[1] = true
+	Luxor.DISPATCHER[1] = JavisLuxorDispatcher
     layers = video.layers
     objects = video.objects
     frames = preprocess_frames!(video)
