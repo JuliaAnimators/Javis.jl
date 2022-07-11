@@ -509,3 +509,27 @@ function polymorph_noresample(
     end
     return result
 end
+
+abstract type JavisLuxorDispatcher end
+Luxor.DISPATCHER[1] = JavisLuxorDispatcher
+@show Luxor.DISPATCHER
+@show typeof(Luxor.DISPATCHER)
+
+for funcname in [:strokepath,:strokepreserve,:fillpath,:fillpreserve]
+    expr = quote 
+        function Luxor.$funcname(::Type{JavisLuxorDispatcher})
+            println("javis func")
+            if CURRENT_FETCHPATH_STATE
+                println("fetchign state")
+                occursin("stroke",string($funcname)) ? update_currentjpath(:stroke) : update_currentjpath(:fill)
+            end
+            if !DISABLE_LUXOR_DRAW
+                $funcname(Luxor.DefaultLuxor)
+            elseif !occursin("preserve",string($funcname))
+                newpath()
+            end
+        end
+    end
+    eval(expr)
+end
+@show Luxor.DISPATCHER
