@@ -98,10 +98,10 @@ end
 # black fill 0 alpha, black stroke opaque
 # linewidth 2
 null_jpath(samples = 100) = JPath(
-    [[O; polysample([O, O + 0.1], samples)]],
+    [ngon(O,0.1,samples+1)],
     [true],
     [0, 0, 0, 0],
-    [0, 0, 0, 1],
+    [0, 0, 0, 0],
     :stroke,
     2,
 )
@@ -227,6 +227,7 @@ function _morph_to(
     args::Array,
     samples = 100,
 )
+    #total number of points is samples+1
 
     interp_jpaths = JPath[]
     # If first frame ....
