@@ -403,6 +403,7 @@ end
             pgon1::Array{Array{Point,1}},
             pgon2::Array{Array{Point,1}},
             k;
+            offsets::Array{Tuple{Symbol,Int}};
             easingfunction = easingflat,
             kludge = true,
         )
@@ -410,6 +411,9 @@ end
 like luxors `polymorph` , but does not resample the polygon , therefore every
 polygon in `pgon1` and `pgon2` should have the same number of points. used by
 `_morph_jpath`.
+
+Also takes in an additional argument an array of `offset` .
+Check `_between_poly` for more detail on `offset`
 
 From Luxor Docs:
 
@@ -439,10 +443,10 @@ function polymorph_noresample(
     pgon1::Array{Array{Point,1}},
     pgon2::Array{Array{Point,1}},
     k,
-    offsets = Array{Int};
+    offsets::Array{Tuple{Symbol,Int}};
     easingfunction = easingflat,
     kludge = true,
-)
+) 
     isapprox(k, 0.0) && return pgon1
     isapprox(k, 1.0) && return pgon2
     loopcount1 = length(pgon1)

@@ -93,12 +93,14 @@ function morph_to(to_func::Function, args = []; samples = 100)
     end
 end
 
-# a jpath to appear from/disappear into
-# has 1 poly of 3 points very close to each other
-# black fill 0 alpha, black stroke opaque
-# linewidth 2
+"""
+ a very small jpath to appear from/disappear into
+ has 1 poly of `samples` points in the shape of an ngon 
+ black fill 0 alpha, black stroke opaque
+ linewidth 2
+ """
 null_jpath(samples = 100) = JPath(
-    [ngon(O,0.1,samples+1)],
+    [ngon(O,0.1,samples)],
     [true],
     [0, 0, 0, 0],
     [0, 0, 0, 0],
@@ -132,8 +134,7 @@ function _morph_to(
                         jpath.polys[i][1]
                         polysample(
                             jpath.polys[i],
-                            samples,
-                            include_first = true,
+                            samples-1,
                             closed = jpath.closed[i],
                         )
                     ]
@@ -184,11 +185,13 @@ if poly1 is being morphed into poly2
 
 `s` is either `:former` or `:latter` indicating if the offset should be applied on poly1 or poly2
 
-morphing from closed to open closed offsets the former.
+morphing from closed to closed offsets the former.
 morphing from closed to open poly offsets the former.
 morphing from open to closed poly offsets the latter.
 morphing from open to open poly does no offsetting.
 
+`offset` of 1 means no offset . It should technically be called best starting
+indes.
 """
 function get_offsets(jpath1, jpath2)
     #calculate offset 
@@ -240,7 +243,7 @@ function _morph_to(
             for i in 1:length(jpath.polys)
                 jpath.polys[i] = [
                     jpath.polys[i][1]
-                    polysample(jpath.polys[i], samples, closed = jpath.closed[i])
+                    polysample(jpath.polys[i], samples-1, closed = jpath.closed[i])
                 ] #prepend the first point becauce polysample doesnt
             end
         end
