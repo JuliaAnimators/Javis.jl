@@ -99,14 +99,8 @@ end
  black fill 0 alpha, black stroke opaque
  linewidth 2
  """
-null_jpath(samples = 100) = JPath(
-    [ngon(O,0.1,samples)],
-    [true],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    :stroke,
-    2,
-)
+null_jpath(samples = 100) =
+    JPath([ngon(O, 0.1, samples)], [true], [0, 0, 0, 0], [0, 0, 0, 0], :stroke, 2)
 
 """
     _morph_to( video::Video, object::Object, action::Action, frame, to_obj::Object, samples,)
@@ -132,11 +126,7 @@ function _morph_to(
                 for i in 1:length(jpath.polys)
                     jpath.polys[i] = [
                         jpath.polys[i][1]
-                        polysample(
-                            jpath.polys[i],
-                            samples-1,
-                            closed = jpath.closed[i],
-                        )
+                        polysample(jpath.polys[i], samples - 1, closed = jpath.closed[i])
                     ]
                 end
             end
@@ -243,7 +233,7 @@ function _morph_to(
             for i in 1:length(jpath.polys)
                 jpath.polys[i] = [
                     jpath.polys[i][1]
-                    polysample(jpath.polys[i], samples-1, closed = jpath.closed[i])
+                    polysample(jpath.polys[i], samples - 1, closed = jpath.closed[i])
                 ] #prepend the first point becauce polysample doesnt
             end
         end

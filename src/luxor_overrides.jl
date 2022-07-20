@@ -446,7 +446,7 @@ function polymorph_noresample(
     offsets::Array{Tuple{Symbol,Int}};
     easingfunction = easingflat,
     kludge = true,
-) 
+)
     isapprox(k, 0.0) && return pgon1
     isapprox(k, 1.0) && return pgon2
     loopcount1 = length(pgon1)
