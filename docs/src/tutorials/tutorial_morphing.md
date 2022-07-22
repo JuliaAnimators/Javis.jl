@@ -196,7 +196,14 @@ Ex. suppose `mydraw1` , `mydraw2` and  `mydraw4` take a color as an argument but
 anim = Animation([0, t1, t2, 1],MorphFunction[ (mydraw1,["red"]), (mydraw2,["blue"]), mydraw3, (mydraw4,["black"]) ])
 ```
 
-<!-- Do not mix `Tuples{Function,Array}` and  `Function`s in the though, your array can have only one type -->
+A third way to pass functions to morph into is to simply pass a function an its arguments in a `Tuple`
+
+```julia
+anim = Animation([0, t1, t2, 1],MorphFunction[ (mydraw1,"red"), (mydraw2,"blue"), mydraw3, (mydraw4,"black") ])
+```
+
+When passed this way the first element of the Tuple is taken to be the function and the subsequent elements are the arguments to be
+passed to the function.
 
 ![](../assets/box_to_star_to_circ_anim.gif)
 
