@@ -8,12 +8,12 @@ end
 
 function starfunc(color)
     sethue(color)
-    star(O,30,5,0.5,0,:stroke)
+    star(O, 30, 5, 0.5, 0, :stroke)
 end
 
 function boxfunc(color)
     sethue(color)
-    box(O-50,50,50,:stroke)
+    box(O - 50, 50, 50, :stroke)
 end
 
 @testset "Morphing star to circle and back , morph to function" begin
@@ -22,7 +22,7 @@ end
     star_obj = Object(1:20, (args...) -> starfunc("red"), Point(-100, -100))
     act!(star_obj, Action(2:10, morph_to(bluecircfunc)))
     act!(star_obj, Action(2:10, anim_translate(Point(200, 200))))
-    act!(star_obj, Action(11:20, morph_to(starfunc,["red"])))
+    act!(star_obj, Action(11:20, morph_to(starfunc, ["red"])))
     act!(star_obj, Action(11:20, anim_translate(Point(-200, -200))))
     render(video; tempdirectory = "images", pathname = "")
 
@@ -52,10 +52,20 @@ end
 end
 
 @testset "Morphing using keyframes" begin
-    video = Video(500,500)
-    back = Background(1:20,(args...) -> background("white"))
+    video = Video(500, 500)
+    back = Background(1:20, (args...) -> background("white"))
     circ_obj = Object(1:20, (args...) -> bluecircfunc())
-    act!(circ_obj, Action(2:20, Animation([0,0.3,1],MorphFunction[bluecircfunc,(boxfunc,["red"]),(starfunc,"blue")] ),morph()))
+    act!(
+        circ_obj,
+        Action(
+            2:20,
+            Animation(
+                [0, 0.3, 1],
+                MorphFunction[bluecircfunc, (boxfunc, ["red"]), (starfunc, "blue")],
+            ),
+            morph(),
+        ),
+    )
     render(video; tempdirectory = "images", pathname = "")
     @test_reference "refs/star2circle_keyframe5.png" load("images/0000000005.png")
     @test_reference "refs/star2circle_keyframe15.png" load("images/0000000015.png")
@@ -92,7 +102,7 @@ end
     # the the origin is shifted and neve restored back
     # you can see this in the result of anim_translate actions
     # TODO: fix this at some point!
-    act!(start_obj, Action(40:60, morph_to(starfunc,["red"])))
+    act!(start_obj, Action(40:60, morph_to(starfunc, ["red"])))
     act!(start_obj, Action(70:90, anim_translate(Point(100, -100))))
     act!(start_obj, Action(100:120, morph_to(greenbox)))
     act!(start_obj, Action(130:150, anim_translate(Point(-100, 50))))

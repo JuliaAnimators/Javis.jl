@@ -99,8 +99,14 @@ end
  black fill 0 alpha, black stroke opaque
  linewidth 2
  """
-null_jpath(samples = 100) =
-    JPath([ngon(O, 0.1, samples,vertices=true)], [true], [0, 0, 0, 0], [0, 0, 0, 0], :stroke, 2)
+null_jpath(samples = 100) = JPath(
+    [ngon(O, 0.1, samples, vertices = true)],
+    [true],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    :stroke,
+    2,
+)
 
 """
     _morph_to( video::Video, object::Object, action::Action, frame, to_obj::Object, samples,)
@@ -755,8 +761,9 @@ end
 
 MorphFunction(f::Function, args::Array) = MorphFunction(f, args, JPath[])
 Base.convert(::Type{MorphFunction}, f::Function) = MorphFunction(f, [], JPath[])
-Base.convert(::Type{MorphFunction}, t::Tuple{Function,Array}) = MorphFunction(t[1], t[2], JPath[])
-Base.convert(::Type{MorphFunction}, t::Tuple) = MorphFunction(t[1],[t[2:end]...]) 
+Base.convert(::Type{MorphFunction}, t::Tuple{Function,Array}) =
+    MorphFunction(t[1], t[2], JPath[])
+Base.convert(::Type{MorphFunction}, t::Tuple) = MorphFunction(t[1], [t[2:end]...])
 
 """
     Animation(timestamps,funcs,easings)
