@@ -755,8 +755,8 @@ end
 
 MorphFunction(f::Function, args::Array) = MorphFunction(f, args, JPath[])
 Base.convert(::Type{MorphFunction}, f::Function) = MorphFunction(f, [], JPath[])
-Base.convert(::Type{MorphFunction}, t::Tuple{Function,Array}) =
-    MorphFunction(t[1], t[2], JPath[])
+Base.convert(::Type{MorphFunction}, t::Tuple{Function,Array}) = MorphFunction(t[1], t[2], JPath[])
+Base.convert(::Type{MorphFunction}, t::Tuple) = MorphFunction(t[1],[t[2:end]...]) 
 
 """
     Animation(timestamps,funcs,easings)

@@ -502,9 +502,16 @@ anim = Animation([0,a1,a2,...,an,1] , MorphFunction[ (func0,args0), (func1,args1
 ```
 0< a1 < a2 < a3... < an < 1.0
 
-if all your functions dont take any arguments then you may also use...
+if your functions dont take any arguments then you may also use...
 ```
 Animation([0,a1...,a_n,1] , [ f0 , f1 , f2 ...,f_n, f_fin] )
+```
+
+The first element is a function. Arguments to be passed to the function can either be wrapped in an Array  or as subsequent elements in the Tuple 
+for example the following two lines have the same effect.
+```
+MorphFunction[(func1,[arg11,arg12,arg13]), (func2,[arg21,arg22]) ]
+MorphFunction[(func1,arg1,arg2,arg3), (func2,arg21,arg22)]
 ```
 
 Animation can also be of type Animation{Object}
@@ -543,7 +550,7 @@ end
 
 Background(1:nframes+10,(args...)->background("black"))
 boxobj = Object(1:nframes+10 , (args...) -> boxdraw("green") )
-anim = Animation([0, 0.7, 1],[(boxdraw, ["green"]), (stardraw, []), (circdraw, ["red"])])
+anim = Animation([0, 0.7, 1],[(boxdraw, ["green"]), stardraw, (circdraw, "red")])
 
 
 action = Action(1:nframes,anim,morph())
