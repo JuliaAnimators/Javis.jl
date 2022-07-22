@@ -375,6 +375,11 @@ Arguments
 loop1: first polygon 
 loop2: second polygon 
 k: interpolation factor
+offset: a Tuple , first element is `:former` or `:latter` , second element is an Int.
+        decides if loop1/loop2 is offset and by how much for matching points from loop1 to loop2
+        note that its not strictly an `offset` , it ranges from 1->N (no of points) and an offset 
+        of 1 means no offset , offset of 2 means offset by 1 and so on .. TODO change this name
+        to startidx
 """
 function _betweenpoly_noresample(
     loop1,
