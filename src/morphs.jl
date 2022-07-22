@@ -100,7 +100,7 @@ end
  linewidth 2
  """
 null_jpath(samples = 100) =
-    JPath([ngon(O, 0.1, samples)], [true], [0, 0, 0, 0], [0, 0, 0, 0], :stroke, 2)
+    JPath([ngon(O, 0.1, samples,vertices=true)], [true], [0, 0, 0, 0], [0, 0, 0, 0], :stroke, 2)
 
 """
     _morph_to( video::Video, object::Object, action::Action, frame, to_obj::Object, samples,)
