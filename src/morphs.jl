@@ -189,8 +189,8 @@ function get_offsets(jpath1, jpath2)
     minl = min(length(jpath1.polys), length(jpath2.polys))
     maxl = max(length(jpath1.polys), length(jpath2.polys))
     offsets = Array{Tuple{Symbol,Int}}([])
-    if haskey(offset_cache,(jpath1,jpath2))
-        return offset_cache[(jpath1,jpath2)]
+    if haskey(offset_cache, (jpath1, jpath2))
+        return offset_cache[(jpath1, jpath2)]
     else
         for i in 1:minl
             if i <= length(jpath1.closed) && jpath1.closed[i]
@@ -203,7 +203,7 @@ function get_offsets(jpath1, jpath2)
                 push!(offsets, (:former, 1))
             end
         end
-        offset_cache[(jpath1,jpath2)] = offsets
+        offset_cache[(jpath1, jpath2)] = offsets
         for i in (minl + 1):maxl
             push!(offsets, (:former, 1))
         end
@@ -792,9 +792,8 @@ function Animations.linear_interpolate(
     @assert l1 == l2
     interp_jpaths = JPath[]
     for (jpath1, jpath2) in zip(jpaths1, jpaths2)
-        offsets = get_offsets(jpath1,jpath2)
+        offsets = get_offsets(jpath1, jpath2)
         push!(interp_jpaths, _morph_jpath(jpath1, jpath2, fraction, offsets))
     end
     return interp_jpaths
 end
-
