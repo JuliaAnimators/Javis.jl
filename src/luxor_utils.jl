@@ -71,10 +71,10 @@ function update_currentjpath(action::Symbol)
     cur_polys = [apply_transform(transform, poly) for poly in cur_polys]
     #cur_polys is of 2 element Tuple 
     #containg 2 arrays 1 with Polygons and one with the bools
-    r, g, b, a = map(
-        sym -> getfield(Luxor.CURRENTDRAWING[1], sym),
-        [:redvalue, :greenvalue, :bluevalue, :alpha],
-    )
+    r = get_current_redvalue()
+    g = get_current_greenvalue()
+    b = get_current_bluevalue()
+    a = get_current_alpha()
     #by default they are black transparent 
     fillstroke = Dict(:fill => [0.0, 0, 0, 0], :stroke => [0.0, 0, 0, 0])
     fillstroke[action] .= [r, g, b, a]
