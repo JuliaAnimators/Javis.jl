@@ -124,8 +124,8 @@ function _morph_to(
     interp_jpaths = JPath[]
     #resample all polys to same number of points at first frame of the action...
     if frame == action.frames.frames[begin]
-        isempty(object.jpaths) && getjpaths!(object, object.opts[:original_func])
-        isempty(to_obj.jpaths) && getjpaths!(to_obj, to_obj.func)
+        isempty(object.jpaths) && getjpaths!(video,object,frame, object.opts[:original_func])
+        isempty(to_obj.jpaths) && getjpaths!(video,to_obj,frame, to_obj.func)
 
         for obj in [object, to_obj]
             for jpath in obj.jpaths  #kf.value is an array of jpaths
@@ -238,7 +238,7 @@ function _morph_to(
     # If first frame ....
     if frame == first(get_frames(action))
         # Get jpaths to morph from and  into
-        isempty(object.jpaths) && getjpaths!(object, object.func)
+        isempty(object.jpaths) && getjpaths!(video,object,frame, object.func)
         action.defs[:toJPaths] = getjpaths(to_func, args)
         # Resample all polys in all jpaths to  `samples` number of points
         for jpath in [object.jpaths..., action.defs[:toJPaths]...]
