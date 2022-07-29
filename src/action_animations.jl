@@ -586,8 +586,13 @@ function _morph(video, object, action, rel_frame, samples)
         if action.anim isa Animation{Object}
             keyframes = Keyframe{Vector{JPath}}[]
             for kf in action.anim.frames
-                isempty(kf.value.jpaths) &&
-                    getjpaths!(video,object,rel_frame,kf.value, kf.value.opts[:original_func])
+                isempty(kf.value.jpaths) && getjpaths!(
+                    video,
+                    object,
+                    rel_frame,
+                    kf.value,
+                    kf.value.opts[:original_func],
+                )
                 push!(keyframes, Keyframe(kf.t, kf.value.jpaths))
             end
             action.anim = Animation(keyframes, action.anim.easings)

@@ -73,7 +73,8 @@ makes an array of `JPaths` called `partialjpaths` that represents a partial draw
 `object.func` with `drawjpaths(partialjpaths)`
 """
 function _drawpartial(video, action, object, rel_frame, fraction::Real)
-    isempty(object.jpaths) && getjpaths!(video,object,rel_frame, object.opts[:original_func])
+    isempty(object.jpaths) &&
+        getjpaths!(video, object, rel_frame, object.opts[:original_func])
     rel_frame == first(get_frames(action)) && jpath_polylengths!.(object.jpaths)
     partialjpaths = getpartialjpaths(object, fraction)
     object.func = (args...) -> begin
