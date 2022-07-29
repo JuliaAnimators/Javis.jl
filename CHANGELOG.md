@@ -11,10 +11,6 @@
 - Few tests for morphs added
 - test for partial draw/ show creation
 
-- TODO
-    - check if all functions are documented , if not document. 
-	- change morph gifs in tutorials to reflect aligned point morphing
-
 ## v0.9.0 (26th of May 2022)
 - Ability to use Luxor functionality without rendering an animation
 - Fix `info_box` function definition in Tutorial 6
