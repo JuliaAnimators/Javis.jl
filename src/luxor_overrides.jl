@@ -1,4 +1,17 @@
+"""
+	DISABLE_LUXOR_DRAW :: Bool
+
+If true disables any drawing to the canvas by luxor , irresepective of what luxor functions are called
+and what actions are passed to them (:stroke/:fill/:strokepath/:fillpath) . 
+"""
 DISABLE_LUXOR_DRAW = false
+
+"""
+	CURRENT_FETCHPATH_STATE::Bool
+
+If true all drawing functions convert the current path to a JPath and append them to the CURRENT_JPATHS
+(does not work on `text`).  
+"""
 CURRENT_FETCHPATH_STATE = false
 
 """
@@ -519,8 +532,6 @@ function polymorph_noresample(
     return result
 end
 
-struct JavisLuxorDispatcher <: Luxor.LDispatcher end
-#Luxor.DISPATCHER[1] is assigned  and instance of this struct in `render` 
 
 for funcname in [:strokepath, :strokepreserve, :fillpath, :fillpreserve]
     expr = quote

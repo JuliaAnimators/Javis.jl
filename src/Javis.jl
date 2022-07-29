@@ -32,6 +32,9 @@ include("structs/GFrames.jl")
 include("structs/Frames.jl")
 include("structs/Scale.jl")
 
+struct JavisLuxorDispatcher <: Luxor.LDispatcher end
+#Luxor.DISPATCHER[1] is assigned  and instance of this struct in `render` 
+
 """
     Transformation
 
