@@ -1,42 +1,4 @@
 """
-	javis_do_action(action::Symbol)
-
-`action` is either of the four `:fill,:stroke,:fillpreserve,:strokepreserve`.
-and it executes the respective Luxor action . Behaviour depends on two globals
-if CURRENT_FETCHPATH_STATE is true it converts the current path to a JPath and 
-appends to CURRENT_JPATH. 
-if DISABLE_LUXOR_DRAW is true , does not draw anything on to the canvas.
-
-This function is called from Luxor (check luxors source of `strokepath`).
-"""
-function javis_do_action(action::Symbol)
-    if CURRENT_FETCHPATH_STATE
-        if action == :fill || action == :fillpreserve
-            update_currentjpath(:fill)
-        elseif action == :stroke || action == :strokepreserve
-            update_currentjpath(:stroke)
-        end
-    end
-    if !DISABLE_LUXOR_DRAW
-        if action == :stroke
-            Luxor.get_current_strokescale() ?
-            Cairo.stroke_transformed(Luxor.get_current_cr()) :
-            stroke(Luxor.get_current_cr())
-        elseif action == :strokepreserve
-            Luxor.get_current_strokescale() ?
-            Luxor.Cairo.stroke_preserve_transformed(Luxor.get_current_cr()) :
-            Luxor.Cairo.stroke_preserve(Luxor.get_current_cr())
-        elseif action == :fill
-            Luxor.Cairo.fill(Luxor.get_current_cr())
-        elseif action == :fillpreserve
-            Luxor.Cairo.fill_preserve(Luxor.get_current_cr())
-        end
-    elseif action == :fill || action == :stroke
-        newpath()
-    end
-end
-
-"""
     apply_transform(transform::Vector{Float64} , poly::Vector{Point})
 
 applies the transform , got by getmatrix() on every point in the poly
