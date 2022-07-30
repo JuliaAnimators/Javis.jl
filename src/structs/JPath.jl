@@ -40,8 +40,18 @@ end
 JPath(polys, closed, fill, stroke, lastaction, linewidth) =
     JPath(polys, closed, fill, stroke, lastaction, linewidth, nothing)
 
+"""
+An array to accumulate the JPATHs as the obj.func is being executed to get the objects jpaths
+"""
 const CURRENT_JPATHS = JPath[] 
-const CURRENT_FETCHPATH_STATE = Ref{false}
+
+"""
+	CURRENT_FETCHPATH_STATE::Bool
+
+If true all drawing functions convert the current path to a JPath and append them to the CURRENT_JPATHS
+(does not work on `text`).  
+"""
+const CURRENT_FETCHPATH_STATE = Ref(false)
 
 """
     getjpaths(func::Function, args = [])

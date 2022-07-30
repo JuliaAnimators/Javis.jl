@@ -7,14 +7,6 @@ and what actions are passed to them (:stroke/:fill/:strokepath/:fillpath) .
 DISABLE_LUXOR_DRAW = false
 
 """
-	CURRENT_FETCHPATH_STATE::Bool
-
-If true all drawing functions convert the current path to a JPath and append them to the CURRENT_JPATHS
-(does not work on `text`).  
-"""
-CURRENT_FETCHPATH_STATE = false
-
-"""
     setline(linewidth)
 
 Set the line width and multiply it with the current multiplier
