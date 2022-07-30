@@ -377,7 +377,7 @@ end
 """
     _betweenpoly_noresample(loop1,loop2,k; easingfunction = easingflat)
 
-Just like _betweenpoly from Luxor , but expects polygons `loop1` and `oop2` to be of same size , and
+Just like _betweenpoly from Luxor , but expects polygons `loop1` and `loop2` to be of same size , and
 therefore does not resample them to be of same size.
 
 From Luxor Docs:
@@ -390,7 +390,7 @@ loop2: second polygon
 k: interpolation factor
 offset: a Tuple , first element is `:former` or `:latter` , second element is an Int.
         decides if loop1/loop2 is offset and by how much for matching points from loop1 to loop2
-        note that its not strictly an `offset` , it ranges from 1->N (no of points) and an offset 
+        note that its not strictly an offset , it ranges from 1->N (no of points) and an offset 
         of 1 means no offset , offset of 2 means offset by 1 and so on .. TODO change this name
         to startidx
 """

@@ -2,7 +2,7 @@
 
 # PR changes
 - changed render method for mp4 to use ffmpeg directly inplace of VideoIO
-- Added jpaths a field in Object that is usefull for morphs and partial drawing
+- Added jpaths a field in Object that is useful for morphs and partial drawing
 - Added morphs to arbitrary objects and functions.
 - Keyframed morphs with Animations.jl are possible.
 - Added ability to partially draw any object, and have animations of showing them get created.
