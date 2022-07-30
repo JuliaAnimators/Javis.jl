@@ -56,6 +56,7 @@ Transformation(p, a) = Transformation(p, a, 1.0)
 Transformation(p, a, s::Float64) = Transformation(p, a, (s, s))
 Transformation(p, a, s::Tuple{Float64,Float64}) = Transformation(p, a, Scale(s...))
 
+include("structs/JPath.jl")
 include("structs/ObjectSetting.jl")
 include("structs/Object.jl")
 include("structs/Transitions.jl")
