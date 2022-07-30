@@ -528,7 +528,7 @@ end
 for funcname in [:strokepath, :strokepreserve, :fillpath, :fillpreserve]
     expr = quote
         function Luxor.$funcname(::JavisLuxorDispatcher)
-            if CURRENT_FETCHPATH_STATE
+            if CURRENT_FETCHPATH_STATE[]
                 occursin("stroke", string($funcname)) ? update_currentjpath(:stroke) :
                 update_currentjpath(:fill)
             end

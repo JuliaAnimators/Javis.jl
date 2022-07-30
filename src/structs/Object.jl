@@ -124,10 +124,10 @@ function getjpaths!(v::Video, obj::Object, f::Int, func::Function, args = [])
     m = getmatrix()
     setmatrix([1.0, 0, 0, 1.0, 0, 0])
     empty!(CURRENT_JPATHS)
-    global CURRENT_FETCHPATH_STATE = true
+    global CURRENT_FETCHPATH_STATE[] = true
     global DISABLE_LUXOR_DRAW = true
     func(v, obj, f, args...) #figure out a way to pass args of object.func here
-    global CURRENT_FETCHPATH_STATE = false
+    global CURRENT_FETCHPATH_STATE[] = false
     global DISABLE_LUXOR_DRAW = false
     jpath_polylengths!.(CURRENT_JPATHS)
     append!(obj.jpaths, CURRENT_JPATHS)
