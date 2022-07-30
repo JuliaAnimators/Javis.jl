@@ -91,10 +91,10 @@ end
 
 returns the sum of all the lengths of the polys that this `jpath` contains
 """
-len_jpath(jpath::JPath) = sum([
+len_jpath(jpath::JPath) = sum(
     polydistances(jpath.polys[i], closed = jpath.closed[i])[end] for
     i in 1:length(jpath.polys)
-])
+)
 
 """
     getpartialjpaths(object,fraction)

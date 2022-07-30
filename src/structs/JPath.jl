@@ -40,8 +40,8 @@ end
 JPath(polys, closed, fill, stroke, lastaction, linewidth) =
     JPath(polys, closed, fill, stroke, lastaction, linewidth, nothing)
 
-CURRENT_JPATHS = JPath[] #TODO change to const later
-CURRENT_FETCHPATH_STATE = false
+const CURRENT_JPATHS = JPath[] 
+const CURRENT_FETCHPATH_STATE = Ref{false}
 
 """
     getjpaths(func::Function, args = [])
@@ -57,10 +57,10 @@ function getjpaths(func::Function, args = [])
     setmatrix([1.0, 0, 0, 1.0, 0, 0])
     newpath()
     empty!(CURRENT_JPATHS)
-    global CURRENT_FETCHPATH_STATE = true
+    global CURRENT_FETCHPATH_STATE[] = true
     global DISABLE_LUXOR_DRAW = true
     func(args...)
-    global CURRENT_FETCHPATH_STATE = false
+    global CURRENT_FETCHPATH_STATE[] = false
     global DISABLE_LUXOR_DRAW = false
     newpath()#clear all the paths
     retpaths = JPath[]
