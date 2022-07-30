@@ -43,7 +43,7 @@ JPath(polys, closed, fill, stroke, lastaction, linewidth) =
 """
 An array to accumulate the JPATHs as the obj.func is being executed to get the objects jpaths
 """
-const CURRENT_JPATHS = JPath[] 
+const CURRENT_JPATHS = JPath[]
 
 """
 	CURRENT_FETCHPATH_STATE::Bool
