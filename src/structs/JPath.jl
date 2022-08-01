@@ -68,10 +68,10 @@ function getjpaths(func::Function, args = [])
     newpath()
     empty!(CURRENT_JPATHS)
     global CURRENT_FETCHPATH_STATE[] = true
-    global DISABLE_LUXOR_DRAW = true
+    global DISABLE_LUXOR_DRAW[] = true
     func(args...)
     global CURRENT_FETCHPATH_STATE[] = false
-    global DISABLE_LUXOR_DRAW = false
+    global DISABLE_LUXOR_DRAW[] = false
     newpath()#clear all the paths
     retpaths = JPath[]
     jpath_polylengths!.(CURRENT_JPATHS)

@@ -79,9 +79,9 @@ function _drawpartial(video, action, object, rel_frame, fraction::Real)
     partialjpaths = getpartialjpaths(object, fraction)
     object.func = (args...) -> begin
         drawjpaths(partialjpaths)
-        global DISABLE_LUXOR_DRAW = true
+        global DISABLE_LUXOR_DRAW[] = true
         object.opts[:original_func](args...)
-        global DISABLE_LUXOR_DRAW = false
+        global DISABLE_LUXOR_DRAW[] = false
     end
     #isapprox(fraction, 1) && (object.func = object.opts[:original_func])
 end

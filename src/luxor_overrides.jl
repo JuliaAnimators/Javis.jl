@@ -1,10 +1,10 @@
 """
-	DISABLE_LUXOR_DRAW :: Bool
+    DISABLE_LUXOR_DRAW :: Ref{Bool}
 
 If true disables any drawing to the canvas by luxor , irresepective of what luxor functions are called
 and what actions are passed to them (:stroke/:fill/:strokepath/:fillpath) . 
 """
-DISABLE_LUXOR_DRAW = false
+const DISABLE_LUXOR_DRAW = Ref(false)
 
 """
     setline(linewidth)
@@ -532,7 +532,7 @@ for funcname in [:strokepath, :strokepreserve, :fillpath, :fillpreserve]
                 occursin("stroke", string($funcname)) ? update_currentjpath(:stroke) :
                 update_currentjpath(:fill)
             end
-            if !DISABLE_LUXOR_DRAW
+            if !DISABLE_LUXOR_DRAW[]
                 $funcname(Luxor.DefaultLuxor())
             elseif !occursin("preserve", string($funcname))
                 newpath()

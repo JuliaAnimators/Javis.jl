@@ -630,9 +630,9 @@ function _morph(video, object, action, rel_frame, samples)
     interp_jpaths = get_interpolation(action, rel_frame)
     object.func = (args...) -> begin
         drawjpaths(interp_jpaths)
-        global DISABLE_LUXOR_DRAW = true
+        global DISABLE_LUXOR_DRAW[] = true
         ret = object.opts[:original_func](args...)
-        global DISABLE_LUXOR_DRAW = false
+        global DISABLE_LUXOR_DRAW[] = false
         newpath()
         ret
     end
