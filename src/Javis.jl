@@ -32,6 +32,9 @@ include("structs/GFrames.jl")
 include("structs/Frames.jl")
 include("structs/Scale.jl")
 
+struct JavisLuxorDispatcher <: Luxor.LDispatcher end
+#Luxor.DISPATCHER[1] is assigned  and instance of this struct in `render` 
+
 """
     Transformation
 
@@ -53,6 +56,7 @@ Transformation(p, a) = Transformation(p, a, 1.0)
 Transformation(p, a, s::Float64) = Transformation(p, a, (s, s))
 Transformation(p, a, s::Tuple{Float64,Float64}) = Transformation(p, a, Scale(s...))
 
+include("structs/JPath.jl")
 include("structs/ObjectSetting.jl")
 include("structs/Object.jl")
 include("structs/Transitions.jl")
@@ -99,6 +103,7 @@ include("layers.jl")
 include("util.jl")
 include("scales.jl")
 include("luxor_overrides.jl")
+include("luxor_utils.jl")
 include("backgrounds.jl")
 include("svg2luxor.jl")
 include("morphs.jl")
@@ -106,6 +111,7 @@ include("action_animations.jl")
 include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
+include("partial_draw.jl")
 
 """
     projection(p::Point, l::Line)
@@ -259,6 +265,7 @@ function render(
     postprocess_frame = default_postprocess,
 )
     CURRENTLY_RENDERING[1] = true
+    Luxor.DISPATCHER[1] = JavisLuxorDispatcher()
     layers = video.layers
     objects = video.objects
     frames = preprocess_frames!(video)
@@ -734,7 +741,7 @@ export Video, Object, Background, Action, RFrames, GFrames
 export @JLayer, background
 export Line, Transformation
 export val, pos, ang, scl, get_value, get_position, get_angle, get_scale
-export projection, morph_to
+export projection
 export appear, disappear, rotate_around, follow_path, change
 export rev
 export scaleto
@@ -751,4 +758,7 @@ export setup_stream, cancel_stream
 # scales
 export scale_linear, @scale_layer
 
+export morph, morph_to
+export MorphFunction
+export showcreation, showdestruction, drawpartial
 end

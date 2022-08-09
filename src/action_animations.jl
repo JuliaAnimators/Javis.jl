@@ -486,3 +486,164 @@ function _change(video, object, action, rel_frame, s)
     val = get_interpolation(action, rel_frame)
     object.change_keywords[s] = val
 end
+
+"""
+    morph(samples = 100)
+
+morph() to be used with Action, when an animation from Animations.jl is
+provided with `Animation{MorphFunction}` . Default samples for every polygon is 100, increase this if needed.
+Animation must be of type Animation{MorphFunction} or Animation{Object}
+when passing `morph()` to `Action`.
+
+Animation{MorphFunction} can be made using the following syntax. (constructors for the following signatures 
+are written to return the apropriate Animation{MorphFunction})
+```
+anim = Animation([0,a1,a2,...,an,1] , MorphFunction[ (func0,args0), (func1,args1) , (func2,args2) ...  (funcn,argsn), (func_fin,args_fin) ])
+```
+0< a1 < a2 < a3... < an < 1.0
+
+if your functions dont take any arguments then you may also use...
+```
+Animation([0,a1...,a_n,1] , [ f0 , f1 , f2 ...,f_n, f_fin] )
+```
+
+The first element is a function. Arguments to be passed to the function can either be wrapped in an Array  or as subsequent elements in the Tuple 
+for example the following two lines have the same effect.
+```
+MorphFunction[(func1,[arg11,arg12,arg13]), (func2,[arg21,arg22]) ]
+MorphFunction[(func1,arg1,arg2,arg3), (func2,arg21,arg22)]
+```
+
+Animation can also be of type Animation{Object}
+```
+anim = Animation([0,a1 ... , a_n , 1 ] , [obj, obj1, obj2 , ... objn , obj_fin] )
+```
+
+Example
+```
+using Javis
+using Animations
+video = Video(500,500)
+nframes = 160 
+
+function circdraw(colo)
+    sethue(colo)
+    setopacity(0.5)
+    circle(O,50,:fillpreserve)
+    setopacity(1.0)
+    sethue("white")
+    strokepath()
+end
+
+function boxdraw(colo)
+    sethue(colo)
+    box(O,100,100,:fillpreserve)
+    setopacity(1.0)
+    sethue("white")
+    strokepath()
+end
+
+function stardraw()
+    sethue("white")
+    star(O,100,5,0.5,0.0,:stroke)
+end
+
+Background(1:nframes+10,(args...)->background("black"))
+boxobj = Object(1:nframes+10 , (args...) -> boxdraw("green") )
+anim = Animation([0, 0.7, 1],[(boxdraw, ["green"]), stardraw, (circdraw, "red")])
+
+
+action = Action(1:nframes,anim,morph())
+act!(boxobj,action)
+render(video,pathname="box_to_star_to_circ.gif")
+```
+Above snippet morphs a Box to a Star then to a Circle
+"""
+function morph(samples = 100)
+    (video, object, action, rel_frame) -> begin
+        action.keep = false #refer morph_to as to why.
+        _morph(video, object, action, rel_frame, samples)
+    end
+end
+
+function _morph(video, object, action, rel_frame, samples)
+    #Theres a lot going on here ... 
+    if rel_frame == action.frames.frames[begin]
+        # If first frame of Action... 
+
+        # If action.anim is of type Animation{MorphFunction}
+        # make it of type Animation{Vector{JPath}},... 
+        if action.anim isa Animation{MorphFunction}
+            keyframes = Keyframe{Vector{JPath}}[]
+            for kf in action.anim.frames
+                push!(keyframes, Keyframe(kf.t, getjpaths(kf.value.func, kf.value.args)))
+            end
+            action.anim = Animation(keyframes, action.anim.easings)
+        end
+
+        # If action.anim is of type Animation{Object}
+        # make it of type Animation{Vector{JPath}},... 
+        if action.anim isa Animation{Object}
+            keyframes = Keyframe{Vector{JPath}}[]
+            for kf in action.anim.frames
+                isempty(kf.value.jpaths) && getjpaths!(
+                    video,
+                    object,
+                    rel_frame,
+                    kf.value,
+                    kf.value.opts[:original_func],
+                )
+                push!(keyframes, Keyframe(kf.t, kf.value.jpaths))
+            end
+            action.anim = Animation(keyframes, action.anim.easings)
+        end
+
+        # Make all the jpaths at every keyframe of the same length by
+        # appending necesarry amount of  null_jpaths
+        long_jpaths_len = max([length(kf.value) for kf in action.anim.frames]...)
+        for kf in action.anim.frames
+            newval = vcat(
+                deepcopy(kf.value),
+                repeat([null_jpath(3)], long_jpaths_len - length(kf.value)), #null_jpath(samples=3) is fine, it will be resampled after this
+            )
+            empty!(kf.value)
+            append!(kf.value, newval)
+        end
+
+        # Resample all the polys inside all the jpath. polymorph_noresample which is
+        # for interpolation , unlike luxors polymorph does not resample polys and expects
+        # them to be of the same number of points
+
+        for kf in action.anim.frames
+            for jpath in kf.value  #kf.value is an array of jpaths
+                for i in 1:length(jpath.polys)
+                    jpath.polys[i] = [
+                        jpath.polys[i][1]
+                        polysample(jpath.polys[i], samples, closed = jpath.closed[i])
+                    ]
+                end
+            end
+        end
+        # All that is to be done in the first frame of the Action has been done  
+    end
+
+    interp_jpaths = get_interpolation(action, rel_frame)
+    object.func = (args...) -> begin
+        drawjpaths(interp_jpaths)
+        global DISABLE_LUXOR_DRAW[] = true
+        ret = object.opts[:original_func](args...)
+        global DISABLE_LUXOR_DRAW[] = false
+        newpath()
+        ret
+    end
+    if frame == action.frames.frames[end]
+        #make the objects jpaths the last objects (of the Animation) jpath
+        empty!(object.jpaths)
+        append!(object.jpaths, interp_jpaths)
+    end
+    # TODO if keep is true..then at rel_frame end 
+    # replace obj.jpaths with interp_jpaths 
+    # this allows it to be morphed again later
+    # if keep is false replace object.func and object.jpaths 
+    # with original
+end

@@ -1,4 +1,12 @@
 """
+    DISABLE_LUXOR_DRAW :: Ref{Bool}
+
+If true disables any drawing to the canvas by luxor , irresepective of what luxor functions are called
+and what actions are passed to them (:stroke/:fill/:strokepath/:fillpath) . 
+"""
+const DISABLE_LUXOR_DRAW = Ref(false)
+
+"""
     setline(linewidth)
 
 Set the line width and multiply it with the current multiplier
@@ -279,4 +287,257 @@ function background(background_color)
         end
     end
     Luxor.background(background_color)
+end
+
+"""
+   pathtopoly(::Val{:costate})
+
+Method similar to Luxors `pathtopoly()`. Converts the current path to an array of polygons
+and returns them. This function also returns an array of Bool (`co_states::Array{Bool}`) of exactly the same length as number of polygons that are being returned .
+`co_states[i]` is `true/false` means `polygonlist[i]` is a closed/open polygon respectively.
+
+Another minor change from luxors `pathtopoly()`  is when a CAIRO_PATH_MOVE_TO is encountered , a new poly is started.
+
+Returns Tuple(Array{Point},Array{Bool})
+"""
+function Luxor.pathtopoly(::Val{:costate})
+    originalpath = getpathflat()
+    polygonlist = Array{Point,1}[]
+    sizehint!(polygonlist, length(originalpath))
+    co_states = Bool[]
+    sizehint!(co_states, length(polygonlist))
+    if length(originalpath) > 0
+        pointslist = Point[]
+        for e in originalpath
+            if e.element_type == Luxor.Cairo.CAIRO_PATH_MOVE_TO                # 0
+                if !isempty(pointslist)
+                    #if poinstlist is not empty and we come across a move
+                    #we flush and create a new subpath
+                    if (last(pointslist) == first(pointslist)) && length(pointslist) > 2
+                        #but first lets check if what we flush is closed or open. 
+                        push!(co_states, true)
+                        pop!(pointslist)
+                    else
+                        push!(co_states, false)
+                    end
+                    push!(polygonlist, pointslist)
+                    pointslist = Point[]
+                end
+                push!(pointslist, Point(first(e.points), last(e.points)))
+            elseif e.element_type == Luxor.Cairo.CAIRO_PATH_LINE_TO            # 1
+                push!(pointslist, Point(first(e.points), last(e.points)))
+            elseif e.element_type == Luxor.Cairo.CAIRO_PATH_CLOSE_PATH         # 3
+                push!(co_states, true)
+                if last(pointslist) == first(pointslist)
+                    # don’t repeat first point, we can close it ourselves
+                    if length(pointslist) > 2
+                        pop!(pointslist)
+                    end
+                end
+                if length(pointslist) == 2
+                    insert!(pointslist, 2, sum(pointslist) / 2)#insert midpoint if only 2 points are there
+                end
+                push!(polygonlist, pointslist)
+                pointslist = Point[]
+            else
+                error("pathtopoly(): unknown CairoPathEntry " * repr(e.element_type))
+                error("pathtopoly(): unknown CairoPathEntry " * repr(e.points))
+            end
+        end
+        # the path was never closed, so flush
+        if length(pointslist) > 1 #dont flush paths if only 1 point remains
+            if length(pointslist) == 2
+                insert!(pointslist, 2, sum(pointslist) / 2)#insert midpoint if only 2 points are there
+            end
+            if (last(pointslist) == first(pointslist)) && length(pointslist) > 2
+                #but first lets check if what we flush is closed or open. 
+                push!(co_states, true)
+                pop!(pointslist)
+            else
+                push!(co_states, false)
+            end
+            push!(polygonlist, pointslist)
+        end
+    end
+    #"""check if everything went well"""
+    @assert length(polygonlist) == length(co_states)
+    #"""return polygonlist, and its closed/open state"""
+    return polygonlist, co_states
+end
+
+
+"""
+    _betweenpoly_noresample(loop1,loop2,k; easingfunction = easingflat)
+
+Just like _betweenpoly from Luxor , but expects polygons `loop1` and `loop2` to be of same size , and
+therefore does not resample them to be of same size.
+
+From Luxor Docs:
+Find a simple polygon between the two simple polygons loop1 and loop2 corresponding to k,
+  where 0.0 < k < 1.0.
+
+Arguments
+loop1: first polygon 
+loop2: second polygon 
+k: interpolation factor
+offset: a Tuple , first element is `:former` or `:latter` , second element is an Int.
+        decides if loop1/loop2 is offset and by how much for matching points from loop1 to loop2
+        note that its not strictly an offset , it ranges from 1->N (no of points) and an offset 
+        of 1 means no offset , offset of 2 means offset by 1 and so on .. TODO change this name
+        to startidx
+"""
+function _betweenpoly_noresample(
+    loop1,
+    loop2,
+    k,
+    offset = (:former, 1);
+    easingfunction = easingflat,
+)
+    @assert length(loop1) == length(loop2)
+    result = Point[]
+    eased_k = easingfunction(k, 0.0, 1.0, 1.0)
+    for j in 1:length(loop1)
+        indj = mod1(j + offset[2] - 1, length(loop1))
+        if offset[1] == :former
+            push!(result, between(loop1[indj], loop2[j], eased_k))
+        else
+            push!(result, between(loop1[j], loop2[indj], eased_k))
+        end
+    end
+    return result
+end
+#this is lifted from luxor, we should ask cormullion if its okay
+"""
+
+        polymorph_noresample(
+            pgon1::Array{Array{Point,1}},
+            pgon2::Array{Array{Point,1}},
+            k;
+            offsets::Array{Tuple{Symbol,Int}};
+            easingfunction = easingflat,
+            kludge = true,
+        )
+
+like luxors `polymorph` , but does not resample the polygon , therefore every
+polygon in `pgon1` and `pgon2` should have the same number of points. used by
+`_morph_jpath`.
+
+Also takes in an additional argument an array of `offset` .
+Check `_between_poly` for more detail on `offset`
+
+From Luxor Docs:
+
+"morph" is to gradually change from one thing to another. This function changes one polygon
+  into another.
+
+  It returns an array of polygons, [p_1, p_2, p_3, ... ], where each polygon p_n is the
+  intermediate shape between the corresponding shape in pgon1[1...n] and pgon2[1...n] at k,
+  where 0.0 < k < 1.0. If k ≈ 0.0, the pgon1[1...n] is returned, and if `k ≈ 1.0,
+  pgon2[1...n] is returned.
+
+  pgon1 and pgon2 can be either simple polygons or arrays of one or more polygonal shapes (eg
+  as created by pathtopoly()). For example, pgon1 might consist of two polygonal shapes, a
+  square and a triangular shaped hole inside; pgon2 might be a triangular shape with a square
+  hole.
+
+  It makes sense for both arguments to have the same number of polygonal shapes. If one has
+  more than another, some shapes would be lost when it morphs. But the suggestively-named
+  kludge keyword argument, when set to (the default) true, tries to compensate for this.
+
+  By default, easingfunction = easingflat, so the intermediate steps are linear. If you use
+  another easing function, intermediate steps are determined by the value of the easing
+  function at k.
+
+"""
+function polymorph_noresample(
+    pgon1::Array{Array{Point,1}},
+    pgon2::Array{Array{Point,1}},
+    k,
+    offsets::Array{Tuple{Symbol,Int}};
+    easingfunction = easingflat,
+    kludge = true,
+)
+    isapprox(k, 0.0) && return pgon1
+    isapprox(k, 1.0) && return pgon2
+    loopcount1 = length(pgon1)
+    loopcount2 = length(pgon2)
+    result = Array{Point,1}[]
+    centroid1 = centroid2 = O # kludge-y eh?
+    for i in 1:max(loopcount1, loopcount2)
+        from_ok = to_ok = false
+        not_empty1 = i <= loopcount1
+        not_empty2 = i <= loopcount2
+        if (not_empty1 && length(pgon1[i]) >= 3)
+            from_ok = true
+        end
+        if (not_empty2 && length(pgon2[i]) >= 3)
+            to_ok = true
+        end
+        if from_ok && to_ok
+            # a simple morph should suffice
+            push!(
+                result,
+                _betweenpoly_noresample(
+                    pgon1[i],
+                    pgon2[i],
+                    k,
+                    offsets[i],
+                    easingfunction = easingfunction,
+                ),
+            )
+            centroid1 = polycentroid(pgon1[i])
+            centroid2 = polycentroid(pgon2[i])
+        elseif from_ok && !to_ok && kludge
+            # nothing to morph to, so make something up
+            pdir = !ispolyclockwise(pgon1[i])
+            loop2 =
+                ngon(centroid2, 0.1, reversepath = pdir, length(pgon1[i]), vertices = true)
+            push!(
+                result,
+                _betweenpoly_noresample(
+                    pgon1[i],
+                    loop2,
+                    k,
+                    offsets[i],
+                    easingfunction = easingfunction,
+                ),
+            )
+            centroid1 = polycentroid(pgon1[i])
+        elseif !from_ok && to_ok && kludge
+            # nothing to morph from, so make something up
+            pdir = !ispolyclockwise(pgon2[i])
+            loop1 =
+                ngon(centroid1, 0.1, reversepath = pdir, length(pgon2[i]), vertices = true)
+            push!(
+                result,
+                _betweenpoly_noresample(
+                    loop1,
+                    pgon2[i],
+                    k,
+                    offsets[i],
+                    easingfunction = easingfunction,
+                ),
+            )
+            centroid2 = polycentroid(pgon2[i])
+        end
+    end
+    return result
+end
+
+
+for funcname in [:strokepath, :strokepreserve, :fillpath, :fillpreserve]
+    expr = quote
+        function Luxor.$funcname(::JavisLuxorDispatcher)
+            if CURRENT_FETCHPATH_STATE[]
+                occursin("stroke", string($funcname)) ? update_currentjpath(:stroke) :
+                update_currentjpath(:fill)
+            end
+            if !DISABLE_LUXOR_DRAW[]
+                $funcname(Luxor.DefaultLuxor())
+            elseif !occursin("preserve", string($funcname))
+                newpath()
+            end
+        end
+    end
+    eval(expr)
 end

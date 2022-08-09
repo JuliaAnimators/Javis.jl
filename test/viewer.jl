@@ -57,13 +57,13 @@ end
 
 
 @testset "Livestreaming" begin
-    astar(args...; do_action = :stroke) = star(O, 50, 5, 0.5, 0, do_action)
-    acirc(args...; do_action = :stroke) = circle(Point(100, 100), 50, do_action)
+    astar() = star(O, 50, 5, 0.5, 0, :fill)
+    acirc() = circle(Point(100, 100), 50, :fill)
 
     vid = Video(500, 500)
     back = Background(1:100, ground)
-    star_obj = Object(1:100, astar)
-    act!(star_obj, Action(morph_to(acirc; do_action = :fill)))
+    star_obj = Object(1:100, (args...) -> astar())
+    act!(star_obj, Action(morph_to(acirc)))
 
     conf_local = setup_stream(:local, address = "0.0.0.0", port = 8081)
     @test conf_local isa Javis.StreamConfig
@@ -96,8 +96,8 @@ end
 
     vid = Video(500, 500)
     back = Background(1:100, ground)
-    star_obj = Object(1:100, astar)
-    act!(star_obj, Action(morph_to(acirc; do_action = :fill)))
+    star_obj = Object(1:100, (args...) -> astar())
+    act!(star_obj, Action(morph_to(acirc)))
 
     @test_throws ErrorException render(
         vid,

@@ -53,9 +53,14 @@ end
     @testset "Layers" begin
         include("layers.jl")
     end
+    @testset "Partial Drawing" begin
+        include("partialdrawtest.jl")
+    end
     @testset "Postprocessing" begin
         include("postprocessing.jl")
     end
+    # keep this the last test to avoid glitch where prompt
+    # gets stuck during test.
     @testset "Javis Viewer" begin
         include("viewer.jl")
     end

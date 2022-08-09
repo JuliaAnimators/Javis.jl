@@ -77,6 +77,7 @@ end
         (args...) ->
             Javis.animate_latex(L"8", O - Point(-20, 20), 0, :middle, :center, :stroke),
     )
+    #4 warnings expected 2 from getjpath and 2 from the usual render
     @test_logs (:warn,) (:warn,) render(video; tempdirectory = "images", pathname = "")
     @test_reference "refs/latex_alignment.png" load("images/0000000001.png")
     rm("images/0000000001.png")

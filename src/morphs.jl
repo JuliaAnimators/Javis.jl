@@ -1,52 +1,331 @@
 include("Shape.jl")
 
+#old morph func
+#function morph_to(to_func::Function; do_action = :stroke)
+#    return (video, object, action, frame) ->
+#        _morph_to(video, object, action, frame, to_func; do_action = do_action)
+#end
+#
 """
-    morph_to(to_func::Function; object=:stroke)
+    morph_to(to_func::Function; samples=100)
 
 A closure for the [`_morph_to`](@ref) function.
-This makes it easier to write the function inside an `Object`.
+To be used with Action. `morph_to` will morph an object into whatever is drawn
+by the `to_func` passed to it.
 
-Currently morphing is quite simple and only works for basic shapes.
-It especially does not work with functions which produce more than one polygon
-or which produce filled polygons.
-Blending between fills of polygons is definitely coming at a later stage.
-
-**Important:** The functions itself should not draw the polygon
-i.e. use `circle(Point(100,100), 50)` instead of `circle(Point(100,100), 50, :stroke)`
 
 # Arguments
-- `to_func::Function`: Same as `from_func` but it defines the "result" polygon,
-                       which will be displayed at the end of the Object
-
+- `to_func::Function`: Function that defines what the object should be morphed into
+                       
 # Keywords
-- `do_action::Symbol` defines whether the object has a fill or just a stroke. Defaults to `:stroke`.
+- `samples` : Number of points to resample every polygon to for the morphing
+
+# Limitations
+- cant handle clips inside `to_func` or the `object`
+- sethue animation doesnt work with this , since the color's to be morphed into are derived from the `object` and `to_func`. to change hue while morphing , change it in the `to_func`
 
 # Example
 
 This creates a star that morphs into a circle and back.
 
 ```julia
-astar(args...; do_action=:stroke) = star(O, 50, 5, 0.5, 0, do_action)
-acirc(args...; do_action=:stroke) = circle(Point(100,100), 50, do_action)
+astar() = star(O, 50, 5, 0.5, 0)
+acirc() = circle(O, 50)
 
 video = Video(500, 500)
 back = Background(1:20, ground)
-star_obj = Object(1:10, astar)
+star_obj = Object(1:10,(args...)-> astar())
 act!(star_obj, Action(linear(), morph_to(acirc)))
-circle_obj = Object(11:20, acirc)
-act!(circle_obj, Action(:same, morph_to(astar)))
+act!(star_obj, Action(11:20, morph_to(astar)))
+
+    morph_to(to_obj::Object; samples=100)
+
+Morphs one object into another object.
+
+# Arguments
+- `to_obj::Object`: Object that defines what the object should be morphed into
+                       
+# Keywords
+- `samples` : Number of points to resample every polygon to for the morphing
+
+# Limitations
+- cant handle clips inside `to_func` or the `object`
+- sethue animation doesnt work with this , since the color's to be morphed into are derived from the `object` and `to_func`. to change hue while morphing , change it in the `to_func`
+
+# Example
+
+This creates a star that morphs into a circle.
+
+```julia
+astar() = star(O, 50, 5, 0.5, 0)
+acirc() = circle(O, 50)
+
+video = Video(500, 500)
+back = Background(1:20, ground)
+star_obj = Object(1:10,(args...)-> astar())
+circ_obj = Object(1:10,(args...)-> acirc())
+act!(star_obj, Action(linear(), morph_to(acirc)))
 ```
 """
-function morph_to(to_func::Function; do_action = :stroke)
-    return (video, object, action, frame) ->
-        _morph_to(video, object, action, frame, to_func; do_action = do_action)
+function morph_to(to_obj::Object; samples = 100)
+    return (video, object, action, frame) -> begin
+        action.keep = false
+        # We dont want `keep=true`. The "persistance" of this action 
+        # - after its frames is effected by changing the drawing function.
+        #
+        # `keep=true` continues to apply the action after the action frames are
+        # over in the render loop. The consequence of this is that when an
+        # object has two morphs applied at different parts of the timeline ,
+        # one can potentialy interfere with the other, if the morphs are not
+        # called in the right order.
+        #
+        # TODO For now the implementation does not allow to revert the morph at
+        # the end of the action. maybe implement this by checking action.keep
+        # before the action starts and setting another flag .
+        _morph_to(video, object, action, frame, to_obj, samples)
+    end
 end
 
+function morph_to(to_func::Function, args = []; samples = 100)
+    return (video, object, action, frame) -> begin
+        action.keep = false
+        _morph_to(video, object, action, frame, to_func, args, samples)
+    end
+end
+
+"""
+ a very small jpath to appear from/disappear into
+ has 1 poly of `samples` points in the shape of an ngon 
+ black fill 0 alpha, black stroke opaque
+ linewidth 2
+ """
+null_jpath(samples = 100) = JPath(
+    [ngon(O, 0.1, samples, vertices = true)],
+    [true],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    :stroke,
+    2,
+)
+
+"""
+    _morph_to( video::Video, object::Object, action::Action, frame, to_obj::Object, samples,)
+
+Internal function used to morph one `object` to another.
+"""
+function _morph_to(
+    video::Video,
+    object::Object,
+    action::Action,
+    frame,
+    to_obj::Object,
+    samples,
+)
+    interp_jpaths = JPath[]
+    #resample all polys to same number of points at first frame of the action...
+    if frame == action.frames.frames[begin]
+        isempty(object.jpaths) &&
+            getjpaths!(video, object, frame, object.opts[:original_func])
+        isempty(to_obj.jpaths) && getjpaths!(video, to_obj, frame, to_obj.func)
+
+        for obj in [object, to_obj]
+            for jpath in obj.jpaths  #kf.value is an array of jpaths
+                for i in 1:length(jpath.polys)
+                    jpath.polys[i] = [
+                        jpath.polys[i][1]
+                        polysample(jpath.polys[i], samples - 1, closed = jpath.closed[i])
+                    ]
+                end
+            end
+        end
+    end
+
+    #need to handle different number of jpaths
+    #for to_obj less jpaths , we can shrink the extras down
+    #for to_obj having more jpaths , we need to create extra polys 
+    #the jpath it vanishes into has 1 poly with 3 points very close around the objects start_pos. ideally should have been 3 same points but Luxor doesnt like polys with 3 same points on top of each other,
+    l1 = length(object.jpaths)
+    l2 = length(to_obj.jpaths)
+    jpaths1 = vcat(object.jpaths, repeat([null_jpath(samples)], max(0, l2 - l1)))
+    jpaths2 = vcat(to_obj.jpaths, repeat([null_jpath(samples)], max(0, l1 - l2)))
+    #above lines should make jpaths1 and jpaths2 have the same no of jpaths
+    for (jpath1, jpath2) in zip(jpaths1, jpaths2)
+        offsets = get_offsets(jpath1, jpath2)
+        push!(
+            interp_jpaths,
+            _morph_jpath(jpath1, jpath2, get_interpolation(action, frame), offsets),
+        )
+    end
+
+    object.func = (args...) -> begin
+        drawjpaths(interp_jpaths)
+        global DISABLE_LUXOR_DRAW[] = true
+        ret = object.opts[:original_func](args...)
+        global DISABLE_LUXOR_DRAW[] = false
+        newpath()
+        ret
+    end
+
+    if frame == last(get_frames(action))
+        object.jpaths = to_obj.jpaths
+    end
+end
+
+const offset_cache = Dict{Tuple{JPath,JPath},Vector{Tuple{Symbol,Int64}}}()
+"""
+    get_offsets(jpath1,jpath2)
+
+returns an Array of Tuples , each Tuple is of the form `(s::Symbol,offsetvalue::Int)`
+
+while interpolating polys inside the jpath. Javis tries to find a good offsetvalue
+if poly1 is being morphed into poly2 
+`poly1[i]` goes to `poly2[i + offsetvalue -1]` (modulo length(poly2) addition).
+
+`s` is either `:former` or `:latter` indicating if the offset should be applied on poly1 or poly2
+
+morphing from closed to closed offsets the former.
+morphing from closed to open poly offsets the former.
+morphing from open to closed poly offsets the latter.
+morphing from open to open poly does no offsetting.
+
+`offset` of 1 means no offset . It should technically be called best starting
+indes.
+"""
+function get_offsets(jpath1, jpath2)
+    #calculate offset 
+    minl = min(length(jpath1.polys), length(jpath2.polys))
+    maxl = max(length(jpath1.polys), length(jpath2.polys))
+    offsets = Array{Tuple{Symbol,Int}}([])
+    if haskey(offset_cache, (jpath1, jpath2))
+        return offset_cache[(jpath1, jpath2)]
+    else
+        for i in 1:minl
+            if i <= length(jpath1.closed) && jpath1.closed[i]
+                offset, _ = compute_shortest_morphing_dist(jpath1.polys[i], jpath2.polys[i])
+                push!(offsets, (:former, offset))
+            elseif i <= length(jpath2.closed) && jpath2.closed[i]
+                offset, _ = compute_shortest_morphing_dist(jpath2.polys[i], jpath1.polys[i])
+                push!(offsets, (:latter, offset))
+            else
+                push!(offsets, (:former, 1))
+            end
+        end
+        offset_cache[(jpath1, jpath2)] = offsets
+        for i in (minl + 1):maxl
+            push!(offsets, (:former, 1))
+        end
+        return offsets
+    end
+end
+
+
+"""
+    _morph_to(video::Video, object::Object, action::Action, frame, to_func::Function, args::Array, samples=100)
+
+Internal version of [`morph_to`](@ref) but described there.
+"""
+function _morph_to(
+    video::Video,
+    object::Object,
+    action::Action,
+    frame,
+    to_func::Function,
+    args::Array,
+    samples = 100,
+)
+    #total number of points is samples+1
+
+    interp_jpaths = JPath[]
+    # If first frame ....
+    if frame == first(get_frames(action))
+        # Get jpaths to morph from and  into
+        isempty(object.jpaths) && getjpaths!(video, object, frame, object.func)
+        action.defs[:toJPaths] = getjpaths(to_func, args)
+        # Resample all polys in all jpaths to  `samples` number of points
+        for jpath in [object.jpaths..., action.defs[:toJPaths]...]
+            for i in 1:length(jpath.polys)
+                jpath.polys[i] = [
+                    jpath.polys[i][1]
+                    polysample(jpath.polys[i], samples - 1, closed = jpath.closed[i])
+                ] #prepend the first point becauce polysample doesnt
+            end
+        end
+    end
+    jpaths1 = object.jpaths
+    jpaths2 = action.defs[:toJPaths]
+    l1 = length(jpaths1)
+    l2 = length(jpaths2)
+    # Make jpaths have the same number
+    jpaths1 = vcat(jpaths1, repeat([null_jpath(samples)], max(0, l2 - l1)))
+    jpaths2 = vcat(jpaths2, repeat([null_jpath(samples)], max(0, l1 - l2)))
+
+    # Interpolate jpaths pairwise and store interp_jpaths
+    for (jpath1, jpath2) in zip(jpaths1, jpaths2)
+        #calculate offset 
+        offsets = get_offsets(jpath1, jpath2)
+        push!(
+            interp_jpaths,
+            _morph_jpath(jpath1, jpath2, get_interpolation(action, frame), offsets),
+        )
+    end
+
+    # Change drawing function
+    object.func = (args...) -> begin
+        drawjpaths(interp_jpaths)
+        global DISABLE_LUXOR_DRAW[] = true
+        ret = object.opts[:original_func](args...)
+        global DISABLE_LUXOR_DRAW[] = false
+        newpath()
+        ret
+    end
+    if frame == action.frames.frames[end]
+        object.jpaths = jpaths2
+        #object.func = object.opts[:original_func]
+    end
+end
+
+"""
+    _morph_jpath(jpath1::JPath, jpath2::JPath, k)
+
+Returns an interpolated jpath between jpath1 and jpath2 with interpolation factor 0<`k`<1.
+"""
+function _morph_jpath(jpath1::JPath, jpath2::JPath, k, offsets)
+    polys1 = jpath1.polys
+    polys2 = jpath2.polys
+    retpolys = polymorph_noresample(polys1, polys2, k, offsets, kludge = true)
+    # The logic to figure out if intermediate poly should be closed or open.
+    # From         To         During Morph (intermediate)
+    # --------------------------------------------------
+    # open      -> open     : remain open during morph
+    # closed    -> closed   : remain closed during morph
+    # closed    -> open     : open during morph
+    # open      -> closed   : open during morph , but closed when k ≈ 1
+    retclosed = ones(Bool, length(retpolys))
+    jp2closed_paded =
+        [jpath2.closed; ones(Bool, max(0, diff(length.([jpath2.closed, retpolys]))[1]))]
+    jp1closed_paded =
+        [jpath1.closed; ones(Bool, max(0, diff(length.([jpath1.closed, retpolys]))[1]))]
+
+    for i in 1:length(retclosed)
+        if jp2closed_paded[i] && !jp1closed_paded[i]
+            # Intermediates are open , but at k=1 they close
+            retclosed[i] = isapprox(k, 1) ? true : false
+        else
+            retclosed[i] = jp2closed_paded[i]
+        end
+    end
+    retfill = k .* jpath2.fill + (1 - k) .* jpath1.fill
+    retstroke = k .* jpath2.stroke + (1 - k) .* jpath1.stroke
+    retlinewidth = k .* jpath2.linewidth + (1 - k) .* jpath1.linewidth
+    @assert length(retpolys) == length(retclosed)
+    JPath(retpolys, retclosed, retfill, retstroke, jpath1.lastaction, retlinewidth)
+end
 
 """
     _morph_to(video::Video, object::Object, action::Action, frame, to_func::Function; do_action=:stroke)
 
 Internal version of [`morph_to`](@ref) but described there.
+older morph.
 """
 function _morph_to(
     video::Video,
@@ -451,4 +730,78 @@ function reorder_match(from_shapes::Vector{Shape}, to_shapes::Vector{Shape})
         end
     end
     return new_from_shapes, new_to_shapes
+end
+
+
+"""
+bunch of methods extending functions in Animations.jl that make morphs possible.
+need to find a better place to put these functions, 
+this will do for now
+"""
+
+import Base
+"""
+    struct MorphFunction
+        func::Function
+        args::Array
+        jpaths::Vector{JPath}
+        
+
+# Fields
+  - func::Function : a function with luxor calls to draw something that objects will be morphed into
+  - args : args to the function . Object will be morphed into what is drawn by calling `func(args...)`
+  - jpaths : The jpaths returned by what is drawn. `JPath[]` by default, this is populated the first instance it encounters a morph/partial draw at render time.
+
+TODO: find a better place(file) to put these functions and structs. 
+"""
+mutable struct MorphFunction
+    func::Function
+    args::Array
+    jpaths::Vector{JPath}
+end
+
+MorphFunction(f::Function, args::Array) = MorphFunction(f, args, JPath[])
+Base.convert(::Type{MorphFunction}, f::Function) = MorphFunction(f, [], JPath[])
+Base.convert(::Type{MorphFunction}, t::Tuple{Function,Array}) =
+    MorphFunction(t[1], t[2], JPath[])
+Base.convert(::Type{MorphFunction}, t::Tuple) = MorphFunction(t[1], [t[2:end]...])
+
+"""
+    Animation(timestamps,funcs,easings)
+
+returns an `Animation` from an array of MorphFunctions.
+"""
+function Animations.Animation(
+    timestamps::AbstractVector{<:Real},
+    funcs::AbstractVector{MorphFunction},
+    easings::AbstractVector{<:Easing},
+)
+    keyframes = Keyframe{MorphFunction}.(timestamps, funcs)
+    Animation(keyframes, easings)
+end
+
+"""
+    Animations.linear_interpolate(
+    fraction::Real,
+    jpaths1::Vector{JPath},
+    jpaths2::Vector{Jpath}
+    )
+
+    A method so that Animations.jl can interpolate between Arrays of JPaths.
+    Note that the array of jpaths should be of the same size.
+"""
+function Animations.linear_interpolate(
+    fraction::Real,
+    jpaths1::Vector{JPath},
+    jpaths2::Vector{JPath},
+)
+    l1 = length(jpaths1)
+    l2 = length(jpaths2)
+    @assert l1 == l2
+    interp_jpaths = JPath[]
+    for (jpath1, jpath2) in zip(jpaths1, jpaths2)
+        offsets = get_offsets(jpath1, jpath2)
+        push!(interp_jpaths, _morph_jpath(jpath1, jpath2, fraction, offsets))
+    end
+    return interp_jpaths
 end

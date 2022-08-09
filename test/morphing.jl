@@ -1,158 +1,76 @@
-astar(args...; do_action = :stroke) = star(Point(-100, -100), 30, 5, 0.5, 0, do_action)
-acirc(args...; do_action = :stroke) = circle(Point(100, 100), 30, do_action)
+#circfunc() = circle(Point(-100,-100),30,5,0.5,0,:stroke)
+function bluecircfunc()
+    sethue("blue")
+    circle(O, 30, :fillpreserve)
+    sethue("black")
+    strokepath()
+end
 
-@testset "morphing star2circle and back" begin
+function starfunc(color)
+    sethue(color)
+    star(O, 30, 5, 0.5, 0, :stroke)
+end
+
+function boxfunc(color)
+    sethue(color)
+    box(O - 50, 50, 50, :stroke)
+end
+
+@testset "Morphing star to circle and back , morph to function" begin
     video = Video(500, 500)
-
-    back = Background(1:20, (args...) -> ground_color("white", "black", args[3]))
-    Object(1:10, (args...) -> circle(Point(-100, 0), val(back), :fill))
-    star_obj = Object(1:10, astar)
-    act!(star_obj, Action(linear(), morph_to(acirc)))
-    circle_obj = Object(11:20, acirc)
-    act!(circle_obj, Action(:same, morph_to(astar)))
-
+    back = Background(1:20, (args...) -> background("white"))
+    star_obj = Object(1:20, (args...) -> starfunc("red"), Point(-100, -100))
+    act!(star_obj, Action(2:10, morph_to(bluecircfunc)))
+    act!(star_obj, Action(2:10, anim_translate(Point(200, 200))))
+    act!(star_obj, Action(11:20, morph_to(starfunc, ["red"])))
+    act!(star_obj, Action(11:20, anim_translate(Point(-200, -200))))
     render(video; tempdirectory = "images", pathname = "")
 
     @test_reference "refs/star2circle5.png" load("images/0000000005.png")
     @test_reference "refs/star2circle15.png" load("images/0000000015.png")
+
     for i in 1:20
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
 
-@testset "morphing star2circle and back with fill" begin
+@testset "Morphing  star to circle (morph to Object)" begin
     video = Video(500, 500)
-    back = Background(1:20, (args...) -> ground_color("white", "black", args[3]))
-    Object(1:10, (args...) -> circle(Point(-100, 0), val(back), :fill))
-    star_obj = Object(1:10, astar)
-    act!(star_obj, Action(morph_to(acirc; do_action = :fill)))
-
-    circle_obj = Object(11:20, acirc)
-    act!(circle_obj, Action(morph_to(astar; do_action = :fill)))
+    back = Background(1:20, (args...) -> background("white"))
+    circ_obj = Object(1:20, (args...) -> bluecircfunc())
+    star_obj = Object(1:20, (args...) -> starfunc("red"))
+    act!(star_obj, Action(2:20, morph_to(circ_obj)))
 
     render(video; tempdirectory = "images", pathname = "")
 
-    @test_reference "refs/star2circle_fill5.png" load("images/0000000005.png")
-    @test_reference "refs/star2circle_fill15.png" load("images/0000000015.png")
+    @test_reference "refs/star2circle_obj5.png" load("images/0000000005.png")
+    @test_reference "refs/star2circle_obj15.png" load("images/0000000015.png")
+
     for i in 1:20
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
 
-@testset "test default kwargs" begin
+@testset "Morphing using keyframes" begin
     video = Video(500, 500)
-    back = Background(1:10, (args...) -> ground_color("white", "black", args[3]))
-    Object(1:10, (args...) -> circle(Point(-100, 0), val(back), :fill))
-    star_obj = Object(1:10, astar)
-    act!(star_obj, Action(morph_to(acirc)))
-
-    pathname = render(video)
-
-    path, ext = splitext(pathname)
-    @test ext == ".gif"
-    @test isfile(pathname)
-    rm(pathname)
-end
-
-
-@testset "transposing a matrix" begin
-    function latex_ground(args...)
-        translate(-200, -100)
-        background("white")
-        sethue("black")
-        fontsize(50)
-    end
-
-    function matrix(args...; do_transpose = false, do_action = :stroke)
-        fontsize(50)
-        str =
-            L"$\begin{equation}\left[\begin{array}{ccc}\alpha & \beta & \gamma \\x^{2} & \sqrt{y} & \lambda \\1 & 2 & y \\\end{array}\right]\end{equation}$"
-        if do_transpose
-            str =
-                L"$\begin{equation}\left[\begin{array}{ccc}\alpha & x^{2} & 1 \\\beta & \sqrt{y} & 2 \\\gamma & \lambda & y \\\end{array}\right]\end{equation}$"
-        end
-        latex(str, O, do_action)
-    end
-
-    video = Video(600, 400)
-    Background(1:62, latex_ground)
-    m = Object(1:60, matrix)
+    back = Background(1:20, (args...) -> background("white"))
+    circ_obj = Object(1:20, (args...) -> bluecircfunc())
     act!(
-        m,
+        circ_obj,
         Action(
-            31:60,
-            morph_to(
-                (args...; do_action = :fill) ->
-                    matrix(; do_transpose = true, do_action = do_action);
-                do_action = :fill,
+            2:20,
+            Animation(
+                [0, 0.3, 1],
+                MorphFunction[bluecircfunc, (boxfunc, ["red"]), (starfunc, "blue")],
             ),
-        ),
-    )
-    Object(61:62, (args...) -> matrix(; do_transpose = true))
-    render(video; tempdirectory = "images", pathname = "")
-
-    @test_reference "refs/matrix_transpose1.png" load("images/0000000001.png")
-    @test_reference "refs/matrix_transpose50.png" load("images/0000000050.png")
-    @test_reference "refs/matrix_transpose55.png" load("images/0000000055.png")
-    @test_reference "refs/matrix_transpose62.png" load("images/0000000062.png")
-    for i in 1:62
-        rm("images/$(lpad(i, 10, "0")).png")
-    end
-end
-
-@testset "Matrix sequence" begin
-    function sequence(args...; second = false, do_action = :stroke)
-        fontsize(50)
-
-        str =
-            L"$\begin{equation}\left[\begin{array}{cc}2 & -1\\-1 & 2 \\\end{array}\right]\end{equation}$"
-        if second
-            str =
-                L"$\begin{equation}\left[\begin{array}{ccc} 2 & -1 & 0 \\ -1 & 2 & -1 \\ 0 & -1 & 2 \\\end{array}\right]\end{equation}$"
-        end
-        if !second
-            latex(str, Point(-150, -60), do_action)
-        else
-            latex(str, Point(-200, -120), do_action)
-        end
-    end
-
-    video = Video(600, 400)
-    Background(1:120, ground)
-    seq = Object(1:60, sequence)
-    act!(
-        seq,
-        Action(
-            31:60,
-            morph_to(
-                (args...; do_action = :stroke) ->
-                    sequence(; second = true, do_action = do_action);
-                do_action = :fill,
-            ),
-        ),
-    )
-    seq2 = Object(
-        61:120,
-        (args...; do_action = :stroke) ->
-            sequence(; second = true, do_action = do_action),
-    )
-    act!(
-        seq2,
-        Action(
-            31:60,
-            morph_to(
-                (args...; do_action = :fill) -> sequence(; do_action = do_action);
-                do_action = :fill,
-            ),
+            morph(),
         ),
     )
     render(video; tempdirectory = "images", pathname = "")
+    @test_reference "refs/star2circle_keyframe5.png" load("images/0000000005.png")
+    @test_reference "refs/star2circle_keyframe15.png" load("images/0000000015.png")
 
-    @test_reference "refs/matrix_sequence01.png" load("images/0000000001.png")
-    @test_reference "refs/matrix_sequence50.png" load("images/0000000050.png")
-    @test_reference "refs/matrix_sequence80.png" load("images/0000000080.png")
-    @test_reference "refs/matrix_sequence99.png" load("images/0000000099.png")
-    for i in 1:120
+    for i in 1:20
         rm("images/$(lpad(i, 10, "0")).png")
     end
 end
@@ -163,26 +81,32 @@ end
         sethue("white")
     end
 
-    astar(args...; do_action = :stroke) = star(O, 50, 5, 0.5, 0, do_action)
-    abox(args...; do_action = :stroke) = rect(-50, -50, 100, 100, do_action)
-    acirc(args...; do_action = :stroke) = circle(Point(0, 0), 50, do_action)
+    #astar(args...; do_action = :stroke) = star(O, 50, 5, 0.5, 0, do_action)
+    #abox(args...; do_action = :stroke) = rect(-50, -50, 100, 100, do_action)
+    #acirc(args...; do_action = :stroke) = circle(Point(0, 0), 50, do_action)
+    function greenbox()
+        sethue("green")
+        rect(-50, -50, 100, 100, action = :fill)
+    end
 
     video = Video(500, 500)
     back = Background(1:200, ground)
-    star_obj = Object(1:200, abox)
-    act!(star_obj, Action(10:20, morph_to(acirc)))
-    act!(star_obj, Action(30:40, anim_translate(Point(100, -100))))
+    start_obj = Object(1:200, (args...) -> greenbox())
+    act!(start_obj, Action(10:20, morph_to(bluecircfunc)))
+    act!(start_obj, Action(30:40, anim_translate(Point(100, -100))))
 
+    #TODO: the following comment is from the old test.
+    # ask Ole if new morph behaviour is working right.
     # this is also a bug with the morph_to function
     # the star is formed at the incorrect position
     # the the origin is shifted and neve restored back
     # you can see this in the result of anim_translate actions
     # TODO: fix this at some point!
-    act!(star_obj, Action(40:60, morph_to(astar)))
-    act!(star_obj, Action(70:90, anim_translate(Point(100, -100))))
-    act!(star_obj, Action(100:120, morph_to(abox)))
-    act!(star_obj, Action(130:150, anim_translate(Point(-100, 50))))
-    act!(star_obj, Action(160:180, morph_to(acirc)))
+    act!(start_obj, Action(40:60, morph_to(starfunc, ["red"])))
+    act!(start_obj, Action(70:90, anim_translate(Point(100, -100))))
+    act!(start_obj, Action(100:120, morph_to(greenbox)))
+    act!(start_obj, Action(130:150, anim_translate(Point(-100, 50))))
+    act!(start_obj, Action(160:180, morph_to(bluecircfunc)))
     render(video; tempdirectory = "images", pathname = "")
 
     for i in [
