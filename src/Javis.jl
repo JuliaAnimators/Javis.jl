@@ -270,7 +270,6 @@ function render(
     Luxor.DISPATCHER[1] = JavisLuxorDispatcher()
     layers = video.layers
     objects = video.objects
-    empty!(RuntimeFunctionDict)
     frames = preprocess_frames!(video)
 
     if liveview
@@ -379,6 +378,7 @@ function render(
 
     # clear all CURRENT_* constants to not accidentally use a previous video when creating a new one
     empty_CURRENT_constants()
+    empty!(video.defs[:RuntimeFunctionDict])
 
     return pathname
 end
@@ -574,8 +574,8 @@ Returens the final rendered frame
 """
 function get_javis_frame(video, objects, frame; layers = Layer[])
     #check for runtimefunctions and execute them
-    if haskey(RuntimeFunctionDict, frame)
-        for func in RuntimeFunctionDict[frame]
+    if haskey(video.defs[:RuntimeFunctionDict], frame)
+        for func in video.defs[:RuntimeFunctionDict][frame]
             func(frame)
         end
     end

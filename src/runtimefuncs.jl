@@ -5,25 +5,32 @@ the functions should take 1 argument the frame number
 at render time RuntimeFunctionMap[frame] is checked and every Func 
 in the array is called with `func(frame)`
 """
-RuntimeFunctionDict = Dict{Int,Array{Function}}()
+#videoRuntimeFunctionDict = Dict{Int,Array{Function}}()
 
 """
     calls `func(frame)` at frame number `frame` during rendertime
 """
-function act!(frame::Int, func::Function)
-    if haskey(RuntimeFunctionDict, frame)
-        push!(RuntimeFunctionDict[frame], func)
+function act!(frame::Int, func::Function, video=CURRENT_VIDEO[1])
+    if !haskey(video.defs,:RuntimeFunctionDict)
+        video.defs[:RuntimeFunctionDict] = Dict{Int,Array{Function}}()
+    end
+
+    if haskey(video.defs[:RuntimeFunctionDict], frame)
+        push!(video.defs[:RuntimeFunctionDict][frame], func)
     else
-        RuntimeFunctionDict[frame] = [func]
+        video.defs[:RuntimeFunctionDict][frame] = [func]
     end
 end
 
-function act!(frames::UnitRange, func::Function)
+function act!(frames::UnitRange, func::Function , video = CURRENT_VIDEO[1])
+    if !haskey(video.defs,:RuntimeFunctionDict)
+        video.defs[:RuntimeFunctionDict] = Dict{Int,Array{Function}}()
+    end
     for f in frames
-        if haskey(RuntimeFunctionDict, frame)
-            push!(RuntimeFunctionDict[frame], func)
+        if haskey(video.defs[:RuntimeFunctionDict], frame)
+            push!(video.defs[:RuntimeFunctionDict][frame], func)
         else
-            RuntimeFunctionDict[frame] = [func]
+            video.defs[:RuntimeFunctionDict][frame] = [func]
         end
     end
 end
