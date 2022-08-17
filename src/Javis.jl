@@ -112,6 +112,7 @@ include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
 include("partial_draw.jl")
+include("arrange.jl")
 
 """
     projection(p::Point, l::Line)
@@ -673,6 +674,7 @@ function draw_object(object, video, frame, origin_matrix, layer_frames)
     current_global_matrix = cairotojuliamatrix(getmatrix())
     # obtain current matrix without the initial matrix part
     current_matrix = inv(origin_matrix) * current_global_matrix
+    object.opts[:object_matrix] = current_matrix
 
     # if a transformation let's save the global coordinates
     if res isa Point
@@ -761,4 +763,5 @@ export scale_linear, @scale_layer
 export morph, morph_to
 export MorphFunction
 export showcreation, showdestruction, drawpartial
+export arrange
 end
