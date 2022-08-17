@@ -42,9 +42,9 @@ displaces object by a vector specified by `p`
 function gtranslate(p::Point)
     return (v, o, a, f) -> begin
         if f == first(get_frames(a))
-            o.opts[:now_pos] = o.start_pos
+            a.defs[:now_pos] = o.start_pos
         end
-        o.start_pos = o.opts[:now_pos] + get_interpolation(a, f) * (p)
+        o.start_pos = a.defs[:now_pos] + get_interpolation(a, f) * (p)
     end
 end
 
