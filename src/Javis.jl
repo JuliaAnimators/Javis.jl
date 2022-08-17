@@ -378,7 +378,8 @@ function render(
 
     # clear all CURRENT_* constants to not accidentally use a previous video when creating a new one
     empty_CURRENT_constants()
-    haskey(video.defs,:RuntimeFunctionDict)? empty!(video.defs[:RuntimeFunctionDict]) :nothing
+    haskey(video.defs, :RuntimeFunctionDict) ? empty!(video.defs[:RuntimeFunctionDict]) :
+    nothing
 
     return pathname
 end
