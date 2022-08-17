@@ -4,11 +4,11 @@
 return BoundingBox enclosing all the jpaths
 """
 function Luxor.BoundingBox(jpaths::Vector{JPath})
-    allpoints=Point[]
+    allpoints = Point[]
     for jpath in jpaths
         for poly in jpath.polys
             for p in poly
-                push!(allpoints,p)
+                push!(allpoints, p)
             end
         end
     end
@@ -30,7 +30,7 @@ function Luxor.BoundingBox(obj::Object)
 end
 
 function center(bbox::Luxor.BoundingBox)
-    bbox.corner1 + (bbox.corner2-bbox.corner1)/2.0
+    bbox.corner1 + (bbox.corner2 - bbox.corner1) / 2.0
 end
 
 """
@@ -40,32 +40,32 @@ global translate independant of any transformations,
 displaces object by a vector specified by `p`
 """
 function gtranslate(p::Point)
-    return (v,o,a,f)-> begin
-        if f==first(get_frames(a))
+    return (v, o, a, f) -> begin
+        if f == first(get_frames(a))
             o.opts[:now_pos] = o.start_pos
         end
-        o.start_pos = o.opts[:now_pos] + get_interpolation(a,f)*(p)
+        o.start_pos = o.opts[:now_pos] + get_interpolation(a, f) * (p)
     end
 end
 
 """
 transform bounding box by m
 """
-function Base.:*(m::Matrix,b::Luxor.BoundingBox)
-    p1 = Point((m * [b.corner1.x,b.corner1.y,1])[1:2]...)
-    p2 = Point((m * [b.corner2.x,b.corner2.y,1])[1:2]...)
-    return Luxor.BoundingBox(p1,p2)
+function Base.:*(m::Matrix, b::Luxor.BoundingBox)
+    p1 = Point((m * [b.corner1.x, b.corner1.y, 1])[1:2]...)
+    p2 = Point((m * [b.corner2.x, b.corner2.y, 1])[1:2]...)
+    return Luxor.BoundingBox(p1, p2)
 end
 
 """
 transform jpaths by m
 """
-function transformed_bbox(jpaths::Vector{JPath},m::Matrix)
+function transformed_bbox(jpaths::Vector{JPath}, m::Matrix)
     ps = Point[]
     for jpath in jpaths
         for poly in jpath.polys
             for p in poly
-                push!(ps,Point((m * [p.x,p.y,1])[1:2]...))
+                push!(ps, Point((m * [p.x, p.y, 1])[1:2]...))
             end
         end
     end
@@ -96,29 +96,35 @@ act!(5 , arrange(5:10,[starobj,circobj],O+10;gap=1,dir=:horizontal)
 ```
 
 """
-function arrange(frames::UnitRange,objects::Vector{Object},p::Point;gap=10,dir=:vertical)
+function arrange(
+    frames::UnitRange,
+    objects::Vector{Object},
+    p::Point;
+    gap = 10,
+    dir = :vertical,
+)
     return (f) -> begin
         bboxs = []
         v = CURRENT_VIDEO[1]
         for obj in objects
-            isempty(obj.jpaths) && getjpaths!(v,obj,f,obj.opts[:original_func])
-            trbbox = transformed_bbox(obj.jpaths,obj.opts[:object_matrix])
-            push!(bboxs,trbbox)
+            isempty(obj.jpaths) && getjpaths!(v, obj, f, obj.opts[:original_func])
+            trbbox = transformed_bbox(obj.jpaths, obj.opts[:object_matrix])
+            push!(bboxs, trbbox)
         end
-        ydists = [ bbox.corner2.y-bbox.corner1.y for bbox in bboxs] .+ gap 
-        xdists = [ bbox.corner2.x-bbox.corner1.x for bbox in bboxs] .+ gap 
-        offs = [(bbox.corner2 - bbox.corner1)/2 for bbox in bboxs]
-        cumydists = [0 , cumsum(ydists)[1:end-1]...] 
-        cumxdists = [0, cumsum(xdists)[1:end-1]...] 
-        if dir==:vertical
-            finalposs = [p + offs[i] + (0,cumydists[i]) for i in 1:length(bboxs) ]
-        elseif dir==:horizontal
-            finalposs = [p + offs[i] + (cumxdists[i], 0) for i in 1:length(bboxs) ]
+        ydists = [bbox.corner2.y - bbox.corner1.y for bbox in bboxs] .+ gap
+        xdists = [bbox.corner2.x - bbox.corner1.x for bbox in bboxs] .+ gap
+        offs = [(bbox.corner2 - bbox.corner1) / 2 for bbox in bboxs]
+        cumydists = [0, cumsum(ydists)[1:(end - 1)]...]
+        cumxdists = [0, cumsum(xdists)[1:(end - 1)]...]
+        if dir == :vertical
+            finalposs = [p + offs[i] + (0, cumydists[i]) for i in 1:length(bboxs)]
+        elseif dir == :horizontal
+            finalposs = [p + offs[i] + (cumxdists[i], 0) for i in 1:length(bboxs)]
         end
-        for (i,obj) in enumerate(objects)
-            relframes = frames  .- first(get_frames(obj)) .+1
+        for (i, obj) in enumerate(objects)
+            relframes = frames .- first(get_frames(obj)) .+ 1
             #GFrames was bugging out for some reason .. inspect sometime
-            act!(obj,Action(relframes,gtranslate(finalposs[i] - get_position(obj))))
+            act!(obj, Action(relframes, gtranslate(finalposs[i] - get_position(obj))))
         end
     end
 end
