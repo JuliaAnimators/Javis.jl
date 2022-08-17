@@ -120,6 +120,8 @@ function arrange(
             finalposs = [p + offs[i] + (0, cumydists[i]) for i in 1:length(bboxs)]
         elseif dir == :horizontal
             finalposs = [p + offs[i] + (cumxdists[i], 0) for i in 1:length(bboxs)]
+        else
+            @assert dir in [:vertical, :horizontal]
         end
         for (i, obj) in enumerate(objects)
             relframes = frames .- first(get_frames(obj)) .+ 1

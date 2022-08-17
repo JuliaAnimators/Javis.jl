@@ -10,8 +10,8 @@ in the array is called with `func(frame)`
 """
     calls `func(frame)` at frame number `frame` during rendertime
 """
-function act!(frame::Int, func::Function, video=CURRENT_VIDEO[1])
-    if !haskey(video.defs,:RuntimeFunctionDict)
+function act!(frame::Int, func::Function, video = CURRENT_VIDEO[1])
+    if !haskey(video.defs, :RuntimeFunctionDict)
         video.defs[:RuntimeFunctionDict] = Dict{Int,Array{Function}}()
     end
 
@@ -22,8 +22,8 @@ function act!(frame::Int, func::Function, video=CURRENT_VIDEO[1])
     end
 end
 
-function act!(frames::UnitRange, func::Function , video = CURRENT_VIDEO[1])
-    if !haskey(video.defs,:RuntimeFunctionDict)
+function act!(frames::UnitRange, func::Function, video = CURRENT_VIDEO[1])
+    if !haskey(video.defs, :RuntimeFunctionDict)
         video.defs[:RuntimeFunctionDict] = Dict{Int,Array{Function}}()
     end
     for f in frames

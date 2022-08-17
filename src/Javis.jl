@@ -574,9 +574,11 @@ Returens the final rendered frame
 """
 function get_javis_frame(video, objects, frame; layers = Layer[])
     #check for runtimefunctions and execute them
-    if haskey(video.defs[:RuntimeFunctionDict], frame)
-        for func in video.defs[:RuntimeFunctionDict][frame]
-            func(frame)
+    if haskey(video.defs, :RuntimeFunctionDict)
+        if haskey(video.defs[:RuntimeFunctionDict], frame)
+            for func in video.defs[:RuntimeFunctionDict][frame]
+                func(frame)
+            end
         end
     end
 
