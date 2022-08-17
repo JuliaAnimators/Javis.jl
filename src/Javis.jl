@@ -113,6 +113,7 @@ include("latex.jl")
 include("object_values.jl")
 include("partial_draw.jl")
 include("arrange.jl")
+include("runtimefuncs.jl")
 
 """
     projection(p::Point, l::Line)
@@ -269,6 +270,7 @@ function render(
     Luxor.DISPATCHER[1] = JavisLuxorDispatcher()
     layers = video.layers
     objects = video.objects
+    empty!(RuntimeFunctionDict)
     frames = preprocess_frames!(video)
 
     if liveview
@@ -571,6 +573,12 @@ position, image matrix and layer settings for that frame of the layer in a [`Lay
 Returens the final rendered frame
 """
 function get_javis_frame(video, objects, frame; layers = Layer[])
+    #check for runtimefunctions and execute them
+    if haskey(RuntimeFunctionDict,frame)
+        for func in RuntimeFunctionDict[frame]
+            func(frame)
+        end
+    end
 
     # check if any layers have been defined
     if !isempty(layers)

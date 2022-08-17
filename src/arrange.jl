@@ -77,44 +77,48 @@ end
     arrange()
 
 arranges objects 
+returns a closure to be used with act!(frames,Function)
+
+frames:: the global frames  during which the arrangment should take place
+objects:: array of objects that should be aligned
+p:: Point under/to the side of which arranging should take place
+gap:: how much gap between objects while aligning
+dir:: direction of alignment either `:vertical` or `:horizontal` 
+
+example:
+```
+# arrange returns a function which gets called at frame 5
+# that function runs apropriate `act!(object,Action)` which will
+# result in `starobj` and `circobj` arranging themselves from wherever they are at frame 5
+# to horizontally arranged from `O+10` with a gap of 1 pixel
+
+act!(5 , arrange(5:10,[starobj,circobj],O+10;gap=1,dir=:horizontal)
+```
+
 """
-function arrange(objects::Vector{Object},p::Point;gap=10,dir=:vertical)
-    return (v,o,a,f) -> begin
+function arrange(frames::UnitRange,objects::Vector{Object},p::Point;gap=10,dir=:vertical)
+    return (f) -> begin
         bboxs = []
-        if f == first(get_frames(a)) 
-            #@show length(v.objects[end-1].actions)
-            for obj in objects
-                isempty(obj.jpaths) && getjpaths!(v,obj,f,obj.opts[:original_func])
-                trbbox = transformed_bbox(obj.jpaths,obj.opts[:object_matrix])
-                push!(bboxs,trbbox)
-            end
-            display(bboxs[end])
-            ydists = [ bbox.corner2.y-bbox.corner1.y for bbox in bboxs] .+ gap 
-            xdists = [ bbox.corner2.x-bbox.corner1.x for bbox in bboxs] .+ gap 
-            offs = [(bbox.corner2 - bbox.corner1)/2 for bbox in bboxs]
-            cumydists = [0 , cumsum(ydists)[1:end-1]...] # .+ get_position(objects[1]).y 
-            cumxdists = [0, cumsum(xdists)[1:end-1]...] #.+ get_position(objects[1]).x 
-            if dir==:vertical
-                finalposs = [p + offs[i] + (0,cumydists[i]) for i in 1:length(bboxs) ]
-            elseif dir==:horizontal
-                finalposs = [p + offs[i] + (cumxdists[i], 0) for i in 1:length(bboxs) ]
-            end
-            for (i,obj) in enumerate(objects)
-                @show get_position(obj) 
-                @show finalposs[i]
-                #act!(obj,Action(a.frames,anim_translate(finalposs[i] - get_position(obj) )))
-                act!(obj,Action(a.frames,gtranslate(finalposs[i] - get_position(obj))))
-                #act!(obj,Action(a.frames,Animation([0,1.0],[O,finalposs[i]-O]),translate()))
-                i==2 ? act!(obj,Action(a.frames,(v,o,a,f)->println("getpos ",get_position(o)),keep=false)) : nothing 
-                #i==3 ? act!(obj,Action(a.frames,(v,o,a,f)->println("finpos ",finalposs[i]),keep=false)) : nothing 
-            end
-            #@show length(v.objects[end-1].actions)
+        v = CURRENT_VIDEO[1]
+        for obj in objects
+            isempty(obj.jpaths) && getjpaths!(v,obj,f,obj.opts[:original_func])
+            trbbox = transformed_bbox(obj.jpaths,obj.opts[:object_matrix])
+            push!(bboxs,trbbox)
+        end
+        ydists = [ bbox.corner2.y-bbox.corner1.y for bbox in bboxs] .+ gap 
+        xdists = [ bbox.corner2.x-bbox.corner1.x for bbox in bboxs] .+ gap 
+        offs = [(bbox.corner2 - bbox.corner1)/2 for bbox in bboxs]
+        cumydists = [0 , cumsum(ydists)[1:end-1]...] 
+        cumxdists = [0, cumsum(xdists)[1:end-1]...] 
+        if dir==:vertical
+            finalposs = [p + offs[i] + (0,cumydists[i]) for i in 1:length(bboxs) ]
+        elseif dir==:horizontal
+            finalposs = [p + offs[i] + (cumxdists[i], 0) for i in 1:length(bboxs) ]
+        end
+        for (i,obj) in enumerate(objects)
+            relframes = frames  .- first(get_frames(obj)) .+1
+            #GFrames was bugging out for some reason .. inspect sometime
+            act!(obj,Action(relframes,gtranslate(finalposs[i] - get_position(obj))))
         end
     end
 end
-
-#function arrange2(objects::Vector{Object},p::Point;gap=0,dir=:vertical)
-#    for obj in objects
-#        nothing
-#    end
-#end
