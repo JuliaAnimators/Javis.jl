@@ -681,12 +681,12 @@ function draw_object(object, video, frame, origin_matrix, layer_frames)
     cs = get_current_setting()
     !cs.show_object && return
 
+    object.opts[:pre_matrix] = inv(origin_matrix) * cairotojuliamatrix(getmatrix())
     res = object.func(video, object, frame; collect(object.change_keywords)...)
     current_global_matrix = cairotojuliamatrix(getmatrix())
     # obtain current matrix without the initial matrix part
     current_matrix = inv(origin_matrix) * current_global_matrix
-    object.opts[:object_matrix] = current_matrix
-
+    object.opts[:post_matrix] = current_matrix
     # if a transformation let's save the global coordinates
     if res isa Point
         trans = current_matrix * Transformation(res, 0.0, 1.0)

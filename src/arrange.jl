@@ -12,12 +12,6 @@ function Luxor.BoundingBox(jpaths::Vector{JPath})
             end
         end
     end
-    #m = cairotojuliamatrix(getmatrix())
-    ##@show m
-    #for i in 1:length(allpoints)
-    #    newpoint =  m^-1 * [ allpoints[i].x , allpoints[i].y , 1] 
-    #    allpoints[i] = Point(newpoint[1],newpoint[2])
-    #end
     return Luxor.BoundingBox(allpoints)
 end
 
@@ -45,6 +39,9 @@ function gtranslate(p::Point)
             a.defs[:now_pos] = o.start_pos
         end
         o.start_pos = a.defs[:now_pos] + get_interpolation(a, f) * (p)
+        if f == last(get_frames(a))
+            o.start_pos = a.defs[:now_pos] + p
+        end
     end
 end
 
@@ -108,7 +105,7 @@ function arrange(
         v = CURRENT_VIDEO[1]
         for obj in objects
             isempty(obj.jpaths) && getjpaths!(v, obj, f, obj.opts[:original_func])
-            trbbox = transformed_bbox(obj.jpaths, obj.opts[:object_matrix])
+            trbbox = transformed_bbox(obj.jpaths, obj.opts[:pre_matrix])
             push!(bboxs, trbbox)
         end
         ydists = [bbox.corner2.y - bbox.corner1.y for bbox in bboxs] .+ gap
@@ -125,7 +122,6 @@ function arrange(
         end
         for (i, obj) in enumerate(objects)
             relframes = frames .- first(get_frames(obj)) .+ 1
-            #GFrames was bugging out for some reason .. inspect sometime
             act!(obj, Action(relframes, gtranslate(finalposs[i] - get_position(obj))))
         end
     end
