@@ -23,6 +23,11 @@ function Luxor.BoundingBox(obj::Object)
     return Luxor.BoundingBox(obj.jpaths)
 end
 
+"""
+    center(bbox::Luxor.BoundingBox)
+
+returns the center of the bounding box
+"""
 function center(bbox::Luxor.BoundingBox)
     bbox.corner1 + (bbox.corner2 - bbox.corner1) / 2.0
 end
@@ -32,6 +37,15 @@ end
 
 global translate independant of any transformations,
 displaces object by a vector specified by `p`
+
+This translation (unlike anim_translate) works by changing the object's start_pos. 
+
+use this if you want to move an object by a certain amount irrespective 
+of any other transforming actions that you apply  to an object.
+
+example
+
+act!(obj1, Action!(1:20,gtranslate( Point(10,20) )))
 """
 function gtranslate(p::Point)
     return (v, o, a, f) -> begin
@@ -55,10 +69,13 @@ function Base.:*(m::Matrix, b::Luxor.BoundingBox)
 end
 
 """
-transform jpaths by m
+    transformed_bbox(jpaths, m)
+
+transform the object by matrix m and return its bounding box
 """
-function transformed_bbox(jpaths::Vector{JPath}, m::Matrix)
+function transformed_bbox(obj::Object, m::Matrix)
     ps = Point[]
+    jpaths = obj.jpaths
     for jpath in jpaths
         for poly in jpath.polys
             for p in poly
@@ -105,7 +122,7 @@ function arrange(
         v = CURRENT_VIDEO[1]
         for obj in objects
             isempty(obj.jpaths) && getjpaths!(v, obj, f, obj.opts[:original_func])
-            trbbox = transformed_bbox(obj.jpaths, obj.opts[:pre_matrix])
+            trbbox = transformed_bbox(obj, obj.opts[:pre_matrix])
             push!(bboxs, trbbox)
         end
         ydists = [bbox.corner2.y - bbox.corner1.y for bbox in bboxs] .+ gap
