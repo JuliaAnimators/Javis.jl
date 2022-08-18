@@ -774,5 +774,5 @@ export scale_linear, @scale_layer
 export morph, morph_to
 export MorphFunction
 export showcreation, showdestruction, drawpartial
-export arrange
+export arrange, gtranslate
 end
