@@ -33,7 +33,7 @@ function center(bbox::Luxor.BoundingBox)
 end
 
 """
-    gtranslate()
+    gtranslate(p::Point)
 
 global translate independant of any transformations,
 displaces object by a vector specified by `p`
@@ -88,7 +88,7 @@ end
 
 
 """
-    arrange()
+    arrange(frames::Unitrange, objects::Vector{Objects}, p::Point, gap::Number, dir::Symbol)
 
 arranges objects 
 returns a closure to be used with act!(frames,Function)
@@ -96,6 +96,8 @@ returns a closure to be used with act!(frames,Function)
 frames:: the global frames  during which the arrangment should take place
 objects:: array of objects that should be aligned
 p:: Point under/to the side of which arranging should take place
+    for example if p is `O+10` , the objects are arranged around
+    the `Point(10,10)`.
 gap:: how much gap between objects while aligning
 dir:: direction of alignment either `:vertical` or `:horizontal` 
 
