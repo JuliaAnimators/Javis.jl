@@ -59,6 +59,9 @@ end
     @testset "Postprocessing" begin
         include("postprocessing.jl")
     end
+    @testset "Arrange Objects" begin
+        include("arrange.jl")
+    end
     # keep this the last test to avoid glitch where prompt
     # gets stuck during test.
     @testset "Javis Viewer" begin
