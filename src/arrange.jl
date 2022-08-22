@@ -52,10 +52,8 @@ function gtranslate(p::Point)
         if f == first(get_frames(a))
             a.defs[:now_pos] = o.start_pos
         end
-        o.start_pos = a.defs[:now_pos] + get_interpolation(a, f) * (p)
-        if f == last(get_frames(a))
-            o.start_pos = a.defs[:now_pos] + p
-        end
+        o.start_pos = a.defs[:now_pos] + get_interpolation(a, f+1) * (p) #f+1 because action in this frame 
+        # results in start_pos for next frame.
     end
 end
 
@@ -141,7 +139,7 @@ function arrange(
         end
         for (i, obj) in enumerate(objects)
             relframes = frames .- first(get_frames(obj)) .+ 1
-            act!(obj, Action(relframes, gtranslate(finalposs[i] - get_position(obj))))
+            act!(obj, Action(relframes, gtranslate(finalposs[i] - obj.start_pos)))
         end
     end
 end
