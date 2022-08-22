@@ -52,7 +52,7 @@ function gtranslate(p::Point)
         if f == first(get_frames(a))
             a.defs[:now_pos] = o.start_pos
         end
-        o.start_pos = a.defs[:now_pos] + get_interpolation(a, f+1) * (p) #f+1 because action in this frame 
+        o.start_pos = a.defs[:now_pos] + get_interpolation(a, f + 1) * (p) #f+1 because action in this frame 
         # results in start_pos for next frame.
     end
 end
