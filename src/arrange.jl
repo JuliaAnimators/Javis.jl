@@ -120,7 +120,7 @@ function arrange(
     gap = 10,
     dir = :vertical,
     align = :right,
-    towards = :bottom
+    towards = :bottom,
 )
     return (f) -> begin
         bboxs = []
@@ -135,41 +135,53 @@ function arrange(
         offs = [(bbox.corner2 - bbox.corner1) / 2 for bbox in bboxs]
         cumydists = [0, cumsum(ydists)[1:(end - 1)]...]
         cumxdists = [0, cumsum(xdists)[1:(end - 1)]...]
-        if dir == :vertical 
+        if dir == :vertical
             if align == :right
                 if towards == :bottom
-                    finalposs = [p + offs[i]  + (0, cumydists[i]) for i in 1:length(bboxs)]
+                    finalposs = [p + offs[i] + (0, cumydists[i]) for i in 1:length(bboxs)]
                 elseif towards == :top
-                    finalposs = [p + (offs[i].x,-offs[i].y) - (0,cumydists[i]) for i in 1:length(bboxs) ]
+                    finalposs = [
+                        p + (offs[i].x, -offs[i].y) - (0, cumydists[i]) for
+                        i in 1:length(bboxs)
+                    ]
                 else
-                    @assert towards in (:bottom,:top)
+                    @assert towards in (:bottom, :top)
                 end
             elseif align == :left
-                if towards == :bottom 
-                    finalposs = [p + (-offs[i].x,offs[i].y) + (0, cumydists[i]) for i in 1:length(bboxs)]
+                if towards == :bottom
+                    finalposs = [
+                        p + (-offs[i].x, offs[i].y) + (0, cumydists[i]) for
+                        i in 1:length(bboxs)
+                    ]
                 elseif towards == :top
                     finalposs = [p - offs[i] - (0, cumydists[i]) for i in 1:length(bboxs)]
                 else
-                    @assert towards in (:bottom,:top)
+                    @assert towards in (:bottom, :top)
                 end
             else
-                @assert align in (:left,:right)
+                @assert align in (:left, :right)
             end
         elseif dir == :horizontal
-            if align ==:right
+            if align == :right
                 if towards == :bottom
                     finalposs = [p + offs[i] + (cumxdists[i], 0) for i in 1:length(bboxs)]
                 elseif towards == :top
-                    finalposs = [p + (offs[i].x,-offs[i].y) + (cumxdists[i], 0) for i in 1:length(bboxs)]
+                    finalposs = [
+                        p + (offs[i].x, -offs[i].y) + (cumxdists[i], 0) for
+                        i in 1:length(bboxs)
+                    ]
                 end
-            elseif align==:left
+            elseif align == :left
                 if towards == :bottom
-                    finalposs = [p + (-offs[i].x,offs[i].y) - (cumxdists[i], 0)  for i in 1:length(bboxs)]
+                    finalposs = [
+                        p + (-offs[i].x, offs[i].y) - (cumxdists[i], 0) for
+                        i in 1:length(bboxs)
+                    ]
                 elseif towards == :top
-                    finalposs = [p - offs[i] - (cumxdists[i], 0)  for i in 1:length(bboxs)]
+                    finalposs = [p - offs[i] - (cumxdists[i], 0) for i in 1:length(bboxs)]
                     #TODO
                 else
-                    @assert towards in (:top,:bottom)
+                    @assert towards in (:top, :bottom)
                 end
             end
         else
@@ -191,11 +203,6 @@ example usage
 act(obj1, Action(1:10,arrange([obj2,obj3,obj4];gap=1,dir=:vertical))
 """
 
-function arrange(
-        objects::Vector{Object},
-        gap = 10,
-        dir = :vertical
-    )
-    return (v,o,a,f) -> begin
-    end
+function arrange(objects::Vector{Object}, gap = 10, dir = :vertical)
+    return (v, o, a, f) -> begin end
 end
