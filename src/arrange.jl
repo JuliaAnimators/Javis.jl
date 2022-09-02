@@ -98,6 +98,9 @@ p:: Point under/to the side of which arranging should take place
     the `Point(10,10)`.
 gap:: how much gap between objects while aligning
 dir:: direction of alignment either `:vertical` or `:horizontal` 
+align:: :left or :right of the point
+towards:: :top or :bottom of the point
+
 
 example:
 ```
@@ -116,6 +119,8 @@ function arrange(
     p::Point;
     gap = 10,
     dir = :vertical,
+    align = :right,
+    towards = :bottom
 )
     return (f) -> begin
         bboxs = []
@@ -130,16 +135,67 @@ function arrange(
         offs = [(bbox.corner2 - bbox.corner1) / 2 for bbox in bboxs]
         cumydists = [0, cumsum(ydists)[1:(end - 1)]...]
         cumxdists = [0, cumsum(xdists)[1:(end - 1)]...]
-        if dir == :vertical
-            finalposs = [p + offs[i] + (0, cumydists[i]) for i in 1:length(bboxs)]
+        if dir == :vertical 
+            if align == :right
+                if towards == :bottom
+                    finalposs = [p + offs[i]  + (0, cumydists[i]) for i in 1:length(bboxs)]
+                elseif towards == :top
+                    finalposs = [p + (offs[i].x,-offs[i].y) - (0,cumydists[i]) for i in 1:length(bboxs) ]
+                else
+                    @assert towards in (:bottom,:top)
+                end
+            elseif align == :left
+                if towards == :bottom 
+                    finalposs = [p + (-offs[i].x,offs[i].y) + (0, cumydists[i]) for i in 1:length(bboxs)]
+                elseif towards == :top
+                    finalposs = [p - offs[i] - (0, cumydists[i]) for i in 1:length(bboxs)]
+                else
+                    @assert towards in (:bottom,:top)
+                end
+            else
+                @assert align in (:left,:right)
+            end
         elseif dir == :horizontal
-            finalposs = [p + offs[i] + (cumxdists[i], 0) for i in 1:length(bboxs)]
+            if align ==:right
+                if towards == :bottom
+                    finalposs = [p + offs[i] + (cumxdists[i], 0) for i in 1:length(bboxs)]
+                elseif towards == :top
+                    finalposs = [p + (offs[i].x,-offs[i].y) + (cumxdists[i], 0) for i in 1:length(bboxs)]
+                end
+            elseif align==:left
+                if towards == :bottom
+                    finalposs = [p + (-offs[i].x,offs[i].y) - (cumxdists[i], 0)  for i in 1:length(bboxs)]
+                elseif towards == :top
+                    finalposs = [p - offs[i] - (cumxdists[i], 0)  for i in 1:length(bboxs)]
+                    #TODO
+                else
+                    @assert towards in (:top,:bottom)
+                end
+            end
         else
-            @assert dir in [:vertical, :horizontal]
+            @assert dir in (:vertical, :horizontal)
         end
         for (i, obj) in enumerate(objects)
             relframes = frames .- first(get_frames(obj)) .+ 1
             act!(obj, Action(relframes, gtranslate(finalposs[i] - obj.start_pos)))
         end
+    end
+end
+
+"""
+    this method can be used with Actions
+
+arranges objects relative to the target object th Action is applied on.
+
+example usage 
+act(obj1, Action(1:10,arrange([obj2,obj3,obj4];gap=1,dir=:vertical))
+"""
+
+function arrange(
+        objects::Vector{Object},
+        gap = 10,
+        dir = :vertical
+    )
+    return (v,o,a,f) -> begin
     end
 end
