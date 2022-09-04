@@ -98,8 +98,8 @@ p:: Point under/to the side of which arranging should take place
     the `Point(10,10)`.
 gap:: how much gap between objects while aligning
 dir:: direction of alignment either `:vertical` or `:horizontal` 
-align:: :left or :right of the point
-towards:: :top or :bottom of the point
+halign:: :left or :right of the point
+valign:: :top or :bottom of the point
 
 
 example:
@@ -119,8 +119,8 @@ function arrange(
     p::Point;
     gap = 10,
     dir = :vertical,
-    align = :right,
-    towards = :bottom,
+    halign = :right,
+    valign = :bottom,
 )
     return (f) -> begin
         bboxs = []
@@ -136,52 +136,52 @@ function arrange(
         cumydists = [0, cumsum(ydists)[1:(end - 1)]...]
         cumxdists = [0, cumsum(xdists)[1:(end - 1)]...]
         if dir == :vertical
-            if align == :right
-                if towards == :bottom
+            if halign == :right
+                if valign == :bottom
                     finalposs = [p + offs[i] + (0, cumydists[i]) for i in 1:length(bboxs)]
-                elseif towards == :top
+                elseif valign == :top
                     finalposs = [
                         p + (offs[i].x, -offs[i].y) - (0, cumydists[i]) for
                         i in 1:length(bboxs)
                     ]
                 else
-                    @assert towards in (:bottom, :top)
+                    @assert valign in (:bottom, :top)
                 end
-            elseif align == :left
-                if towards == :bottom
+            elseif halign == :left
+                if valign == :bottom
                     finalposs = [
                         p + (-offs[i].x, offs[i].y) + (0, cumydists[i]) for
                         i in 1:length(bboxs)
                     ]
-                elseif towards == :top
+                elseif valign == :top
                     finalposs = [p - offs[i] - (0, cumydists[i]) for i in 1:length(bboxs)]
                 else
-                    @assert towards in (:bottom, :top)
+                    @assert valign in (:bottom, :top)
                 end
             else
-                @assert align in (:left, :right)
+                @assert halign in (:left, :right)
             end
         elseif dir == :horizontal
-            if align == :right
-                if towards == :bottom
+            if halign == :right
+                if valign == :bottom
                     finalposs = [p + offs[i] + (cumxdists[i], 0) for i in 1:length(bboxs)]
-                elseif towards == :top
+                elseif valign == :top
                     finalposs = [
                         p + (offs[i].x, -offs[i].y) + (cumxdists[i], 0) for
                         i in 1:length(bboxs)
                     ]
                 end
-            elseif align == :left
-                if towards == :bottom
+            elseif halign == :left
+                if valign == :bottom
                     finalposs = [
                         p + (-offs[i].x, offs[i].y) - (cumxdists[i], 0) for
                         i in 1:length(bboxs)
                     ]
-                elseif towards == :top
+                elseif valign == :top
                     finalposs = [p - offs[i] - (cumxdists[i], 0) for i in 1:length(bboxs)]
                     #TODO
                 else
-                    @assert towards in (:top, :bottom)
+                    @assert valign in (:top, :bottom)
                 end
             end
         else
