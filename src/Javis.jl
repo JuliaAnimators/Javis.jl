@@ -578,7 +578,7 @@ function get_javis_frame(video, objects, frame; layers = Layer[])
     if haskey(video.defs, :RuntimeFunctionDict)
         if haskey(video.defs[:RuntimeFunctionDict], frame)
             for func in video.defs[:RuntimeFunctionDict][frame]
-                func(video,frame)
+                func(video, frame)
             end
         end
     end

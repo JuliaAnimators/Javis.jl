@@ -122,7 +122,7 @@ function arrange(
     halign = :right,
     valign = :bottom,
 )
-    return (v,f) -> begin
+    return (v, f) -> begin
         bboxs = []
         for obj in objects
             isempty(obj.jpaths) && getjpaths!(v, obj, f, obj.opts[:original_func])
