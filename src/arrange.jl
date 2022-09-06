@@ -85,8 +85,98 @@ function transformed_bbox(obj::Object, m::Matrix)
 end
 
 
+
 """
-    arrange(frames::Unitrange, objects::Vector{Objects}, p::Point, gap::Number, dir::Symbol)
+    arrangetopoint(v,f,frames,object,p,gap,dir,halign,valign)
+
+arranges objects to point , called inside `arrange()`
+v:: Video
+f:: frame at which this function gets called
+frames:: frames during which the arrangement should take place ,
+objects:: Objects to arrange
+p:: point around which they should be arranged
+gap:: gap between objects 
+dir:: :vertical/:horizontal
+halign:: :left/:right
+valgin:: :top/:bottom
+"""
+function arrangetopoint(
+    v::Video,
+    f::Int,
+    frames::UnitRange,
+    objects::Vector{Object},
+    p::Point,
+    gap::Number,
+    dir::Symbol,
+    halign::Symbol,
+    valign::Symbol,
+)
+    bboxs = []
+    for obj in objects
+        isempty(obj.jpaths) && getjpaths!(v, obj, f, obj.opts[:original_func])
+        trbbox = transformed_bbox(obj, obj.opts[:pre_matrix])
+        push!(bboxs, trbbox)
+    end
+    ydists = [bbox.corner2.y - bbox.corner1.y for bbox in bboxs] .+ gap
+    xdists = [bbox.corner2.x - bbox.corner1.x for bbox in bboxs] .+ gap
+    offs = [(bbox.corner2 - bbox.corner1) / 2 for bbox in bboxs]
+    cumydists = [0, cumsum(ydists)[1:(end - 1)]...]
+    cumxdists = [0, cumsum(xdists)[1:(end - 1)]...]
+    if dir == :vertical
+        if halign == :right
+            if valign == :bottom
+                finalposs = [
+                    p + (-offs[i].x, offs[i].y) + (0, cumydists[i]) for i in 1:length(bboxs)
+                ]
+            elseif valign == :top
+                finalposs = [p - offs[i] - (0, cumydists[i]) for i in 1:length(bboxs)]
+            else
+                @assert valign in (:bottom, :top)
+            end
+        elseif halign == :left
+            if valign == :bottom
+                finalposs = [p + offs[i] + (0, cumydists[i]) for i in 1:length(bboxs)]
+            elseif valign == :top
+                finalposs = [
+                    p + (offs[i].x, -offs[i].y) - (0, cumydists[i]) for i in 1:length(bboxs)
+                ]
+            else
+                @assert valign in (:bottom, :top)
+            end
+        else
+            @assert halign in (:left, :right)
+        end
+    elseif dir == :horizontal
+        if halign == :right
+            if valign == :bottom
+                finalposs = [
+                    p + (offs[i].x, -offs[i].y) + (cumxdists[i], 0) for i in 1:length(bboxs)
+                ]
+            elseif valign == :top
+                finalposs = [p + offs[i] + (cumxdists[i], 0) for i in 1:length(bboxs)]
+            end
+        elseif halign == :left
+            if valign == :bottom
+                finalposs = [p - offs[i] - (cumxdists[i], 0) for i in 1:length(bboxs)]
+            elseif valign == :top
+                finalposs = [
+                    p + (-offs[i].x, offs[i].y) - (cumxdists[i], 0) for i in 1:length(bboxs)
+                ]
+            else
+                @assert valign in (:top, :bottom)
+            end
+        end
+    else
+        @assert dir in (:vertical, :horizontal)
+    end
+    for (i, obj) in enumerate(objects)
+        relframes = frames .- first(get_frames(obj)) .+ 1
+        act!(obj, Action(relframes, gtranslate(finalposs[i] - obj.start_pos)))
+    end
+end
+
+"""
+    arrange(frames::Unitrange, objects::Vector{Objects}, p::Point, gap::Number, dir::Symbol, :halign,valign)
 
 arranges objects 
 returns a closure to be used with act!(frames,Function)
@@ -122,85 +212,69 @@ function arrange(
     halign = :right,
     valign = :bottom,
 )
+    return (v, f) -> arrangetopoint(v, f, frames, objects, p, gap, dir, halign, valign)
+end
+
+"""
+arranges around the `target` object instead of point `p`
+"""
+
+function arrange(
+    frames::UnitRange,
+    objects::Vector{Object},
+    target::Object;
+    gap = 10,
+    dir = :vertical,
+    halign = :right,
+    valign = :top,
+)
     return (v, f) -> begin
-        bboxs = []
-        for obj in objects
-            isempty(obj.jpaths) && getjpaths!(v, obj, f, obj.opts[:original_func])
-            trbbox = transformed_bbox(obj, obj.opts[:pre_matrix])
-            push!(bboxs, trbbox)
-        end
-        ydists = [bbox.corner2.y - bbox.corner1.y for bbox in bboxs] .+ gap
-        xdists = [bbox.corner2.x - bbox.corner1.x for bbox in bboxs] .+ gap
-        offs = [(bbox.corner2 - bbox.corner1) / 2 for bbox in bboxs]
-        cumydists = [0, cumsum(ydists)[1:(end - 1)]...]
-        cumxdists = [0, cumsum(xdists)[1:(end - 1)]...]
+        isempty(target.jpaths) && getjpaths!(v, target, f, target.opts[:original_func])
+        trbbox = transformed_bbox(target, target.opts[:pre_matrix])
+        p = nothing
         if dir == :vertical
-            if halign == :right
-                if valign == :bottom
-                    finalposs = [p + offs[i] + (0, cumydists[i]) for i in 1:length(bboxs)]
-                elseif valign == :top
-                    finalposs = [
-                        p + (offs[i].x, -offs[i].y) - (0, cumydists[i]) for
-                        i in 1:length(bboxs)
-                    ]
+            if valign == :top
+                if halign == :left
+                    p = trbbox[1]
+                elseif halign == :right
+                    p = Point(trbbox[2].x, trbbox[1].y)
                 else
-                    @assert valign in (:bottom, :top)
+                    @assert halign in (:left, :right)
                 end
-            elseif halign == :left
-                if valign == :bottom
-                    finalposs = [
-                        p + (-offs[i].x, offs[i].y) + (0, cumydists[i]) for
-                        i in 1:length(bboxs)
-                    ]
-                elseif valign == :top
-                    finalposs = [p - offs[i] - (0, cumydists[i]) for i in 1:length(bboxs)]
+            elseif valign == :bottom
+                if halign == :left
+                    p = Point(trbbox[1].x, trbbox[2].y)
+                elseif halign == :right
+                    p = trbbox[2]
                 else
-                    @assert valign in (:bottom, :top)
+                    @assert halign in (:left, :right)
                 end
             else
-                @assert halign in (:left, :right)
+                @assert valign in (:top, :bottom)
             end
         elseif dir == :horizontal
-            if halign == :right
-                if valign == :bottom
-                    finalposs = [p + offs[i] + (cumxdists[i], 0) for i in 1:length(bboxs)]
-                elseif valign == :top
-                    finalposs = [
-                        p + (offs[i].x, -offs[i].y) + (cumxdists[i], 0) for
-                        i in 1:length(bboxs)
-                    ]
-                end
-            elseif halign == :left
-                if valign == :bottom
-                    finalposs = [
-                        p + (-offs[i].x, offs[i].y) - (cumxdists[i], 0) for
-                        i in 1:length(bboxs)
-                    ]
-                elseif valign == :top
-                    finalposs = [p - offs[i] - (cumxdists[i], 0) for i in 1:length(bboxs)]
+            if valign == :top
+                if halign == :left
+                    p = trbbox[1]
+                elseif halign == :right
+                    p = Point(trbbox[2].x, trbbox[1].y)
                 else
-                    @assert valign in (:top, :bottom)
+                    @assert halign in (:left, :right)
                 end
+            elseif valign == :bottom
+                if halign == :left
+                    p = Point(trbbox[1].x, trbbox[2].y)
+                elseif halign == :right
+                    p = trbbox[2]
+                else
+                    @assert halign in (:left, :right)
+                end
+            else
+                @assert valign in (:top, :bottom)
             end
         else
             @assert dir in (:vertical, :horizontal)
         end
-        for (i, obj) in enumerate(objects)
-            relframes = frames .- first(get_frames(obj)) .+ 1
-            act!(obj, Action(relframes, gtranslate(finalposs[i] - obj.start_pos)))
-        end
+        arrangetopoint(v, f, frames, objects, p, gap, dir, halign, valign)
     end
-end
-
-"""
-    this method can be used with Actions
-
-arranges objects relative to the target object th Action is applied on.
-
-example usage 
-act(obj1, Action(1:10,arrange([obj2,obj3,obj4];gap=1,dir=:vertical))
-"""
-
-function arrange(objects::Vector{Object}, gap = 10, dir = :vertical)
-    return (v, o, a, f) -> begin end
 end
