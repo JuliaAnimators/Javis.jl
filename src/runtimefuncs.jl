@@ -1,13 +1,4 @@
 """
-a dictionary mapping frameno => Array{Func}
-the functions should take 1 argument the frame number
-
-at render time RuntimeFunctionMap[frame] is checked and every Func 
-in the array is called with `func(frame)`
-"""
-#videoRuntimeFunctionDict = Dict{Int,Array{Function}}()
-
-"""
     calls `func(frame)` at frame number `frame` during rendertime
 """
 function act!(frame::Int, func::Function, video = CURRENT_VIDEO[1])

@@ -124,7 +124,6 @@ function arrange(
 )
     return (v,f) -> begin
         bboxs = []
-        #v = CURRENT_VIDEO[1]
         for obj in objects
             isempty(obj.jpaths) && getjpaths!(v, obj, f, obj.opts[:original_func])
             trbbox = transformed_bbox(obj, obj.opts[:pre_matrix])
@@ -179,7 +178,6 @@ function arrange(
                     ]
                 elseif valign == :top
                     finalposs = [p - offs[i] - (cumxdists[i], 0) for i in 1:length(bboxs)]
-                    #TODO
                 else
                     @assert valign in (:top, :bottom)
                 end
