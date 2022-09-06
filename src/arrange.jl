@@ -122,9 +122,9 @@ function arrange(
     halign = :right,
     valign = :bottom,
 )
-    return (f) -> begin
+    return (v,f) -> begin
         bboxs = []
-        v = CURRENT_VIDEO[1]
+        #v = CURRENT_VIDEO[1]
         for obj in objects
             isempty(obj.jpaths) && getjpaths!(v, obj, f, obj.opts[:original_func])
             trbbox = transformed_bbox(obj, obj.opts[:pre_matrix])
