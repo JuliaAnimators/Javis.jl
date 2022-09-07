@@ -1,20 +1,20 @@
-obj1(n=30) = Object(1:n, (args...) -> begin
+obj1(n = 30) = Object(1:n, (args...) -> begin
     box(O, 100, 100, :stroke)
     return O
 end, Point(100, 150))
 
-obj2(n=30) = Object(1:n, (args...) -> begin
-    circle(O,25,:stroke)
+obj2(n = 30) = Object(1:n, (args...) -> begin
+    circle(O, 25, :stroke)
     return O
 end, Point(-100, 250))
 
-obj3(n=30) = Object(1:n, (args...) -> begin
+obj3(n = 30) = Object(1:n, (args...) -> begin
     rotate(2π / 12)
     star(O, 50, 6, action = :stroke)
     return O
 end, Point(-200, -150))
 
-ground(n=30) = Background(1:n, (args...) -> begin
+ground(n = 30) = Background(1:n, (args...) -> begin
     background("black")
     sethue("white")
 end)
@@ -75,25 +75,36 @@ end
 end
 
 @testset "all possible arrangements around an object" begin
-    video = Video(1000,1000)
+    video = Video(1000, 1000)
     ground(35)
-    objlist = [obj2(35),obj3(35)]
+    objlist = [obj2(35), obj3(35)]
     objj1 = obj1(35)
     frameno = 2
     testframes = []
-    for dir in (:horizontal,:vertical)
-        for halign in (:left,:right)
-            for valign in (:top,:bottom)
-                act!(frameno,arrange(frameno:frameno+3,objlist,objj1;gap=0,dir=dir,halign=halign,valign=valign))
-                push!(testframes,frameno+3)
-                frameno=frameno+4
+    for dir in (:horizontal, :vertical)
+        for halign in (:left, :right)
+            for valign in (:top, :bottom)
+                act!(
+                    frameno,
+                    arrange(
+                        frameno:(frameno + 3),
+                        objlist,
+                        objj1;
+                        gap = 0,
+                        dir = dir,
+                        halign = halign,
+                        valign = valign,
+                    ),
+                )
+                push!(testframes, frameno + 3)
+                frameno = frameno + 4
             end
         end
     end
     render(video; tempdirectory = "images", pathname = "")
 
     for f in testframes
-        fname = lpad(f,10,"0")
+        fname = lpad(f, 10, "0")
         @test_reference "refs/arrange_obj$f.png" load("images/$fname.png")
     end
     for i in 1:35
