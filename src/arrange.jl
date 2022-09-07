@@ -89,7 +89,7 @@ end
 """
     arrangetopoint(v,f,frames,object,p,gap,dir,halign,valign)
 
-arranges objects to point , called inside `arrange()`
+arranges objects to point , internal function called inside `arrange()`
 v:: Video
 f:: frame at which this function gets called
 frames:: frames during which the arrangement should take place ,
@@ -232,6 +232,8 @@ function arrange(
         isempty(target.jpaths) && getjpaths!(v, target, f, target.opts[:original_func])
         trbbox = transformed_bbox(target, target.opts[:pre_matrix])
         p = nothing
+        #this big if block finds the right point `p` on the bbox of target
+        #to arrange around 
         if dir == :vertical
             if valign == :top
                 if halign == :left
