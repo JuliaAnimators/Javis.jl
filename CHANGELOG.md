@@ -10,6 +10,7 @@
 - tutorial on partial draw / show creation 
 - Few tests for morphs added
 - test for partial draw/ show creation
+- added feature arrange a list of objects around a point/another object
 
 ## v0.9.0 (26th of May 2022)
 - Ability to use Luxor functionality without rendering an animation

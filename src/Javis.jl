@@ -112,6 +112,8 @@ include("javis_viewer.jl")
 include("latex.jl")
 include("object_values.jl")
 include("partial_draw.jl")
+include("arrange.jl")
+include("runtimefuncs.jl")
 
 """
     projection(p::Point, l::Line)
@@ -376,6 +378,8 @@ function render(
 
     # clear all CURRENT_* constants to not accidentally use a previous video when creating a new one
     empty_CURRENT_constants()
+    haskey(video.defs, :RuntimeFunctionDict) ? empty!(video.defs[:RuntimeFunctionDict]) :
+    nothing
 
     return pathname
 end
@@ -570,6 +574,14 @@ position, image matrix and layer settings for that frame of the layer in a [`Lay
 Returens the final rendered frame
 """
 function get_javis_frame(video, objects, frame; layers = Layer[])
+    #check for runtimefunctions and execute them
+    if haskey(video.defs, :RuntimeFunctionDict)
+        if haskey(video.defs[:RuntimeFunctionDict], frame)
+            for func in video.defs[:RuntimeFunctionDict][frame]
+                func(video, frame)
+            end
+        end
+    end
 
     # check if any layers have been defined
     if !isempty(layers)
@@ -669,11 +681,12 @@ function draw_object(object, video, frame, origin_matrix, layer_frames)
     cs = get_current_setting()
     !cs.show_object && return
 
+    object.opts[:pre_matrix] = inv(origin_matrix) * cairotojuliamatrix(getmatrix())
     res = object.func(video, object, frame; collect(object.change_keywords)...)
     current_global_matrix = cairotojuliamatrix(getmatrix())
     # obtain current matrix without the initial matrix part
     current_matrix = inv(origin_matrix) * current_global_matrix
-
+    object.opts[:post_matrix] = current_matrix
     # if a transformation let's save the global coordinates
     if res isa Point
         trans = current_matrix * Transformation(res, 0.0, 1.0)
@@ -761,4 +774,5 @@ export scale_linear, @scale_layer
 export morph, morph_to
 export MorphFunction
 export showcreation, showdestruction, drawpartial
+export arrange, gtranslate
 end
