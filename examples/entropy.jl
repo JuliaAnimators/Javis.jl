@@ -83,7 +83,7 @@ move() = (v, o, a, f) -> begin
     if f == first(Javis.get_frames(a))
         translate(o.start_pos + o.opts[:velocity])
     else
-        translate(get_position(o) + o.opts[:velocity])
+        translate(get_position(o) - o.start_pos + o.opts[:velocity])
     end
 end
 
