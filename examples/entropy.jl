@@ -79,13 +79,14 @@ updaterobj = Object(1:nframes, (v, o, f) -> begin
 end)
 
 # Update each balls position based on their velocity
-move() = (v, o, a, f) -> begin
-    if f == first(Javis.get_frames(a))
-        translate(o.start_pos + o.opts[:velocity])
-    else
-        translate(get_position(o) - o.start_pos + o.opts[:velocity])
+move() =
+    (v, o, a, f) -> begin
+        if f == first(Javis.get_frames(a))
+            translate(o.start_pos + o.opts[:velocity])
+        else
+            translate(get_position(o) - o.start_pos + o.opts[:velocity])
+        end
     end
-end
 
 for i in 1:length(objs)
     act!(objs[i], Action(1:nframes, move()))
