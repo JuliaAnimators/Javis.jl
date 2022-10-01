@@ -42,7 +42,6 @@ function morph_to(to_func::Function; do_action = :stroke)
         _morph_to(video, object, action, frame, to_func; do_action = do_action)
 end
 
-
 """
     _morph_to(video::Video, object::Object, action::Action, frame, to_func::Function; do_action=:stroke)
 
