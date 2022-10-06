@@ -416,9 +416,9 @@ function _follow_path(video, object, action, rel_frame, points; closed = closed)
     # if t is discrete and not 0.0 take the last point or first if closed
     if !isfirstframe && isapprox_discrete(t)
         if closed
-            translate(points[1])
+            translate(points[1] - object.start_pos)
         else
-            translate(points[end])
+            translate(points[end] - object.start_pos)
         end
         return
     end
@@ -426,16 +426,16 @@ function _follow_path(video, object, action, rel_frame, points; closed = closed)
     t -= floor(t)
     if isfirstframe
         # compute the distances only once for performance reasons
-        action.defs[:p_dist] = polydistances(points, closed = closed)
+        action.defs[:p_dist] = polydistances(points .- object.start_pos, closed = closed)
     end
     if isapprox(t, 0.0, atol = 1e-4)
-        translate(points[1])
+        translate(points[1] - object.start_pos)
         return
     end
     pdist = action.defs[:p_dist]
 
     overshootpoint = get_polypoint_at(points, t; pdist = pdist)
-    translate(overshootpoint)
+    translate(overshootpoint - object.start_pos)
 end
 
 """
