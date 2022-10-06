@@ -10,6 +10,7 @@
 - tutorial on partial draw / show creation 
 - Few tests for morphs added
 - test for partial draw/ show creation
+- fix for `follow_path` for objects with `start_pos` other than O
 
 ## v0.9.0 (26th of May 2022)
 - Ability to use Luxor functionality without rendering an animation
