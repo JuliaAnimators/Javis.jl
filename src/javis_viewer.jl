@@ -128,6 +128,9 @@ function _javis_viewer(
     # Create a textbox
     tbox = GtkReactive.textbox(Int; signal = signal(slide))
 
+    # Create a Gtk label to print the mouse coordinates upon hover
+    mouse_coordinates = GtkLabel("")
+
     # Button for going forward through animation
     forward = GtkButton("==>")
 
@@ -149,15 +152,24 @@ function _javis_viewer(
     # Gtk Canvas object upon which to draw image; sized via frame size
     canvas = Gtk.Canvas(frame_dims[1], frame_dims[2])
 
+    # Add callback to update mouse corrdinates over canvas
+    canvas.mouse.motion = @guarded (widget, event) -> begin
+        GAccessor.text(
+            mouse_coordinates,
+            "$(Int(round(event.x-frame_dims[1]/2))), $(Int(round(event.y-frame_dims[2]/2)))",
+        )
+    end
+
     # Grid to allocate widgets
     grid = Gtk.Grid()
 
-    # Allocate the widgets in a 3x3 grid
+    # Allocate the widgets in a 4x3 grid
     grid[1:3, 1] = canvas
-    grid[1:3, 2] = slide
-    grid[1, 3] = backward
-    grid[2, 3] = tbox
-    grid[3, 3] = forward
+    grid[2, 2] = mouse_coordinates
+    grid[1:3, 3] = slide
+    grid[1, 4] = backward
+    grid[2, 4] = tbox
+    grid[3, 4] = forward
 
     # Center all widgets vertically in grid
     set_gtk_property!(grid, :valign, 3)
